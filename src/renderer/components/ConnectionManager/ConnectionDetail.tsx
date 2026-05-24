@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
+import { Icon } from "../icons/Icon";
 import { ConnectionForm } from "./ConnectionForm";
 
 interface ConnectionDetailProps {
@@ -112,7 +113,7 @@ export function ConnectionDetail({
   return (
     <div className="flex-1 flex items-center justify-center bg-white overflow-auto">
       <div className="text-center text-gray-500">
-        <div className="text-5xl mb-3 opacity-40">&#128268;</div>
+		<Icon name="plug" size={48} className="mb-3 opacity-40" />
         <div className="text-base">{t("connection.noSelection")}</div>
       </div>
     </div>

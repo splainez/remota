@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { t } from "../../../i18n";
 import type { FileEntry } from "../../../shared/types";
+import { FileIcon } from "../icons/FileIcon";
+import { FolderIcon } from "../icons/FolderIcon";
+import { Icon } from "../icons/Icon";
 
 type SortKey = "name" | "size" | "modified";
 type SortDir = "asc" | "desc";
@@ -67,10 +70,12 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
     return [...dirs.sort(cmp), ...files.sort(cmp)];
   }, [entries, sortKey, sortDir]);
 
-  const sortIndicator = (key: SortKey) => {
-    if (sortKey !== key) return "";
-    return sortDir === "asc" ? " \u25B2" : " \u25BC";
-  };
+	const sortIndicator = (key: SortKey) => {
+		if (sortKey !== key) return null;
+		return sortDir === "asc"
+			? <Icon name="triangle-up" size={10} className="ml-0.5" data-testid="sort-asc" />
+			: <Icon name="triangle-down" size={10} className="ml-0.5" data-testid="sort-desc" />;
+	};
 
   if (loading) {
     return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{t("file.loading")}</div>;
@@ -114,9 +119,10 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
             onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
           >
             <div className="flex-1 flex items-center gap-1.5 px-1 overflow-hidden">
-              <span className="text-sm shrink-0">
-                {entry.isDirectory ? "\uD83D\uDCC1" : "\uD83D\uDCC4"}
-              </span>
+              {entry.isDirectory
+                ? <FolderIcon path={entry.name} size={14} className="shrink-0" />
+                : <FileIcon path={entry.name} size={14} className="shrink-0" />
+              }
               <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">{entry.name}</span>
             </div>
             <div className="shrink-0 basis-[100px] px-1 text-xs text-gray-500 text-right">

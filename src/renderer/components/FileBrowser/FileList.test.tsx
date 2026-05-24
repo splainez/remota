@@ -89,14 +89,16 @@ describe("FileList", () => {
 		expect(cells[3].textContent).toContain("readme.md");
 	});
 
-	it("shows sort indicator on active column", async () => {
+	it("shows sort indicator with correct direction on active column", async () => {
 		render(<FileList {...defaultProps} />);
 		const nameHeader = screen.getByRole("button", { name: /name/i });
-		expect(nameHeader.textContent).toContain("\u25B2");
+		expect(nameHeader.querySelector("svg")).not.toBeNull();
+		expect(screen.getByTestId("sort-asc")).toBeInTheDocument();
 
 		const sizeHeader = screen.getByRole("button", { name: /size/i });
 		await userEvent.click(sizeHeader);
-		expect(sizeHeader.textContent).toContain("\u25B2");
+		expect(sizeHeader.querySelector("svg")).not.toBeNull();
+		expect(screen.getByTestId("sort-asc")).toBeInTheDocument();
 	});
 
 	it("displays file sizes with correct formatting", () => {

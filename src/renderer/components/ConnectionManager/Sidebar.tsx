@@ -1,21 +1,23 @@
 import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
+import { Icon } from "../icons/Icon";
+import type { IconName } from "../icons/Icon";
 
 interface SidebarProps {
-  connections: Connection[];
-  selectedId: number | null;
-  onSelect: (id: number) => void;
-  onAdd: () => void;
-  onDoubleClick?: (id: number) => void;
+	connections: Connection[];
+	selectedId: number | null;
+	onSelect: (id: number) => void;
+	onAdd: () => void;
+	onDoubleClick?: (id: number) => void;
 }
 
-function protocolIcon(protocol: string): string {
-  switch (protocol) {
-    case "sftp": return "\u{1F4C1}";
-    case "scp": return "\u{1F4E6}";
-    case "s3": return "\u2601\uFE0F";
-    default: return "\u{1F310}";
-  }
+function protocolIcon(protocol: string): IconName {
+	switch (protocol) {
+		case "sftp": return "folder";
+		case "scp": return "package";
+		case "s3": return "cloud";
+		default: return "globe";
+	}
 }
 
 export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClick }: SidebarProps) {
@@ -36,7 +38,7 @@ export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClic
               onClick={() => { onSelect(conn.id); }}
               onDoubleClick={() => onDoubleClick?.(conn.id)}
             >
-              <span className="text-sm opacity-60 shrink-0">{protocolIcon(conn.protocol)}</span>
+			<Icon name={protocolIcon(conn.protocol)} size={14} className="opacity-60 shrink-0" />
               <div>
                 <div className="overflow-hidden text-ellipsis whitespace-nowrap">{conn.name}</div>
                 <div className="text-xs text-gray-500 uppercase">{conn.protocol}</div>
