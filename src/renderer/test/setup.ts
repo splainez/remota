@@ -33,6 +33,16 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
       delete: vi.fn<(id: number) => Promise<boolean>>().mockResolvedValue(true),
       ...overrides?.connections,
     },
+    filesystem: {
+      list: vi.fn().mockResolvedValue([]),
+      listDrives: vi.fn().mockResolvedValue(["/"]),
+      homeDir: vi.fn().mockResolvedValue("/home/user"),
+      pathExists: vi.fn().mockResolvedValue(true),
+      getLastPath: vi.fn().mockResolvedValue(null),
+      setLastPath: vi.fn().mockResolvedValue(undefined),
+      ...overrides?.filesystem,
+    },
+    platform: overrides?.platform ?? "linux",
   };
 }
 

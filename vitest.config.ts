@@ -13,8 +13,14 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    environmentMatchGlobs: [
+      ["src/main/**", "node"],
+    ],
     setupFiles: [resolve("src/renderer/test/setup.ts")],
-    include: ["src/renderer/**/*.{test,spec}.{ts,tsx}"],
+    include: [
+      "src/renderer/**/*.{test,spec}.{ts,tsx}",
+      "src/main/**/*.{test,spec}.{ts,tsx}",
+    ],
     css: { modules: { classNameStrategy: "non-scoped" } },
     globals: true,
   },
