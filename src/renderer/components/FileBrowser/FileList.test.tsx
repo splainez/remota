@@ -115,4 +115,11 @@ describe("FileList", () => {
 			expect(cell.textContent).toBe("");
 		}
 	});
+
+	it("does not call onEnterDirectory on single click", async () => {
+		const onEnterDirectory = vi.fn();
+		render(<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />);
+		await userEvent.click(screen.getByText("projects"));
+		expect(onEnterDirectory).not.toHaveBeenCalled();
+	});
 });
