@@ -10,6 +10,7 @@ interface ConnectionDetailProps {
   isEditing: boolean;
   onEdit: () => void;
   onCancel: () => void;
+  onConnect: () => void;
   onSave: (data: NewConnection) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
@@ -20,6 +21,7 @@ export function ConnectionDetail({
   isEditing,
   onEdit,
   onCancel,
+  onConnect,
   onSave,
   onDelete,
 }: ConnectionDetailProps) {
@@ -49,6 +51,9 @@ export function ConnectionDetail({
           <div className={styles.viewHeader}>
             <h2 className={styles.viewTitle}>{connection.name}</h2>
             <div className={styles.viewActions}>
+              <button className={styles.btnConnect} onClick={onConnect}>
+                {t("connection.connect")}
+              </button>
               <button className={styles.btnEdit} onClick={onEdit}>
                 {t("connection.edit")}
               </button>

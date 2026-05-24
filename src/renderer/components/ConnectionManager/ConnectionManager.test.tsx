@@ -29,7 +29,7 @@ describe("ConnectionManager", () => {
   });
 
   it("shows empty sidebar when no connections", async () => {
-    render(<ConnectionManager />);
+    render(<ConnectionManager onConnect={vi.fn()} />);
     await waitFor(() => {
       expect(screen.getAllByText("Select a connection or create a new one.")).toHaveLength(2);
     });
@@ -51,7 +51,7 @@ describe("ConnectionManager", () => {
     });
     vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager />);
+    render(<ConnectionManager onConnect={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText("Alpha")).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe("ConnectionManager", () => {
     });
     vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager />);
+    render(<ConnectionManager onConnect={vi.fn()} />);
 
     await waitFor(() => screen.getByText("Beta"));
     await user.click(screen.getByText("Beta"));
@@ -102,7 +102,7 @@ describe("ConnectionManager", () => {
     });
     vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager />);
+    render(<ConnectionManager onConnect={vi.fn()} />);
 
     await waitFor(() => screen.getByText("Existing"));
     await user.click(screen.getByRole("button", { name: "+ Add Connection" }));

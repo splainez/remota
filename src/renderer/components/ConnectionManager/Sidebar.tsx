@@ -7,6 +7,7 @@ interface SidebarProps {
   selectedId: number | null;
   onSelect: (id: number) => void;
   onAdd: () => void;
+  onDoubleClick?: (id: number) => void;
 }
 
 function protocolIcon(protocol: string): string {
@@ -18,7 +19,7 @@ function protocolIcon(protocol: string): string {
   }
 }
 
-export function Sidebar({ connections, selectedId, onSelect, onAdd }: SidebarProps) {
+export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClick }: SidebarProps) {
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>{t("connection.manager")}</div>
@@ -31,6 +32,7 @@ export function Sidebar({ connections, selectedId, onSelect, onAdd }: SidebarPro
               key={conn.id}
               className={conn.id === selectedId ? styles.itemActive : styles.item}
               onClick={() => onSelect(conn.id)}
+              onDoubleClick={() => onDoubleClick?.(conn.id)}
             >
               <span className={styles.itemIcon}>{protocolIcon(conn.protocol)}</span>
               <div>

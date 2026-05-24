@@ -1,10 +1,15 @@
 import { useState } from "react";
+import type { Connection } from "../../../shared/types";
 import { useConnections } from "../../hooks/useConnections";
 import { Sidebar } from "./Sidebar";
 import { ConnectionDetail } from "./ConnectionDetail";
 import styles from "./ConnectionManager.module.css";
 
-export function ConnectionManager() {
+interface ConnectionManagerProps {
+  onConnect: (connection: Connection) => void;
+}
+
+export function ConnectionManager({ onConnect }: ConnectionManagerProps) {
   const {
     connections,
     selected,
@@ -42,6 +47,13 @@ export function ConnectionManager() {
     }
   };
 
+  const handleDoubleClick = (id: number) => {
+    const conn = connections.find((c) => c.id === id);
+    if (conn) {
+      onConnect(conn);
+    }
+  };
+
   if (loading) {
     return null;
   }
@@ -53,6 +65,7 @@ export function ConnectionManager() {
         selectedId={selected?.id ?? null}
         onSelect={handleSelect}
         onAdd={handleAdd}
+        onDoubleClick={handleDoubleClick}
       />
       <ConnectionDetail
         connection={selected}
@@ -60,11 +73,13 @@ export function ConnectionManager() {
         isEditing={isEditing}
         onEdit={() => setIsEditing(true)}
         onCancel={handleCancel}
+        onConnect={() => selected && onConnect(selected)}
         onSave={async (data) => {
           if (isNew) {
-            await create(data);
+            const created = await create(data);
             setIsNew(false);
             setIsEditing(false);
+            onConnect(created);
           } else if (selected) {
             await update({ ...data, id: selected.id });
             setIsEditing(false);

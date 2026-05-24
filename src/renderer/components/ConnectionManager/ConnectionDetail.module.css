@@ -71,6 +71,19 @@
   font-size: var(--font-size);
 }
 
+.btnConnect {
+  padding: 6px 16px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+.btnConnect:hover {
+  background: #1b5e20;
+}
+
 .btnEdit {
   padding: 6px 16px;
   background: var(--color-primary);

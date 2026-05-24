@@ -27,6 +27,7 @@ describe("ConnectionDetail", () => {
         isEditing={false}
         onEdit={vi.fn()}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -43,6 +44,7 @@ describe("ConnectionDetail", () => {
         isEditing={false}
         onEdit={vi.fn()}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -63,6 +65,7 @@ describe("ConnectionDetail", () => {
         isEditing={true}
         onEdit={vi.fn()}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -80,6 +83,7 @@ describe("ConnectionDetail", () => {
         isEditing={true}
         onEdit={vi.fn()}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -99,6 +103,7 @@ describe("ConnectionDetail", () => {
         isEditing={false}
         onEdit={onEdit}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
       />
@@ -118,6 +123,7 @@ describe("ConnectionDetail", () => {
         isEditing={false}
         onEdit={vi.fn()}
         onCancel={vi.fn()}
+        onConnect={vi.fn()}
         onSave={vi.fn()}
         onDelete={onDelete}
       />
