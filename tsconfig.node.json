@@ -12,6 +12,9 @@
     "src/shared/**/*.ts",
     "src/i18n/**/*.ts",
     "src/i18n/**/*.json",
-    "electron.vite.config.ts"
-  ]
+    "electron.vite.config.ts",
+    "vitest.integration.config.ts",
+    "tests/integration/**/*.ts"
+  ],
+  "exclude": ["tests/integration/**/*.spec.ts"]
 }
