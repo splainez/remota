@@ -44,8 +44,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.field}>
-        <label className={styles.label}>{t("connection.name")}</label>
+        <label className={styles.label} htmlFor="conn-name">{t("connection.name")}</label>
         <input
+          id="conn-name"
           className={styles.input}
           type="text"
           value={name}
@@ -56,8 +57,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 
       <div className={styles.row}>
         <div className={styles.field}>
-          <label className={styles.label}>{t("connection.protocol")}</label>
+          <label className={styles.label} htmlFor="conn-protocol">{t("connection.protocol")}</label>
           <select
+            id="conn-protocol"
             className={styles.select}
             value={protocol}
             onChange={(e) => handleProtocolChange(e.target.value)}
@@ -68,8 +70,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
           </select>
         </div>
         <div className={styles.field}>
-          <label className={styles.label}>{t("connection.port")}</label>
+          <label className={styles.label} htmlFor="conn-port">{t("connection.port")}</label>
           <input
+            id="conn-port"
             className={styles.input}
             type="number"
             value={port}
@@ -79,8 +82,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>{t("connection.host")}</label>
+        <label className={styles.label} htmlFor="conn-host">{t("connection.host")}</label>
         <input
+          id="conn-host"
           className={styles.input}
           type="text"
           value={host}
@@ -90,8 +94,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label}>{t("connection.username")}</label>
+        <label className={styles.label} htmlFor="conn-username">{t("connection.username")}</label>
         <input
+          id="conn-username"
           className={styles.input}
           type="text"
           value={username}
@@ -138,8 +143,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 
       {authType === "password" && (
         <div className={styles.field}>
-          <label className={styles.label}>{t("connection.password")}</label>
+          <label className={styles.label} htmlFor="conn-password">{t("connection.password")}</label>
           <input
+            id="conn-password"
             className={styles.input}
             type="password"
             value={password}
@@ -150,8 +156,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 
       {authType === "key" && (
         <div className={styles.field}>
-          <label className={styles.label}>{t("connection.privateKey")}</label>
+          <label className={styles.label} htmlFor="conn-privatekey">{t("connection.privateKey")}</label>
           <input
+            id="conn-privatekey"
             className={styles.input}
             type="text"
             value={privateKeyPath}
