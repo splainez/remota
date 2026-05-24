@@ -30,7 +30,7 @@
 	"include": [
 		"**/*.ts",
 		"**/*.tsx",
-		"eslint.config.js",
+		"eslint.config.ts",
 		"vitest.config.js"
 	],
 	"references": [

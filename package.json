@@ -1,12 +1,12 @@
 {
 	"name": "openscp",
 	"version": "0.1.0",
-	"type": "module",
+	"type": "commonjs",
 	"description": "A modular WinSCP replacement with dual-pane file manager",
 	"main": "./out/main/index.js",
 	"scripts": {
-		"lint": "eslint .",
-		"lint:fix": "eslint . --fix",
+		"lint": "eslint . --config eslint.config.ts ",
+		"lint:fix": "eslint . --config eslint.config.ts  --fix",
 		"dev": "electron-vite dev",
 		"build": "electron-vite build",
 		"preview": "electron-vite preview",
