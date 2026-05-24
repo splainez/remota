@@ -20,7 +20,8 @@ Refer to these for protocol behavior, UI patterns, and i18n conventions.
 pnpm dev              # Start Electron in dev mode (electron-vite dev)
 pnpm build            # Production build (electron-vite build)
 pnpm typecheck        # Type-check all packages (tsc --noEmit for node + web configs)
-pnpm lint             # Placeholder — no linter configured yet
+pnpm lint             # run linter
+pnpm lint:fix         # run linter with autofix
 pnpm test             # Run all vitest unit tests
 pnpm test:watch       # Vitest in watch mode
 pnpm test:coverage    # Vitest with coverage (v8 provider)

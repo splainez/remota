@@ -8,23 +8,23 @@ import { SqlJsDatabase } from "./sqljs-adapter";
 export type DatabaseInstance = BetterSQLite3Database<{ connections: typeof connections }>;
 
 export async function initDatabase(userDataPath: string): Promise<DatabaseInstance> {
-  mkdirSync(userDataPath, { recursive: true });
-  const dbPath = join(userDataPath, "openscp.db");
+	mkdirSync(userDataPath, { recursive: true });
+	const dbPath = join(userDataPath, "openscp.db");
 
-  const SQL = await initSqlJs();
+	const SQL = await initSqlJs();
 
-  let sqlJsDb;
-  if (existsSync(dbPath)) {
-    const buffer = readFileSync(dbPath);
-    sqlJsDb = new SQL.Database(buffer);
-  } else {
-    sqlJsDb = new SQL.Database();
-  }
+	let sqlJsDb;
+	if (existsSync(dbPath)) {
+		const buffer = readFileSync(dbPath);
+		sqlJsDb = new SQL.Database(buffer);
+	} else {
+		sqlJsDb = new SQL.Database();
+	}
 
-  sqlJsDb.run("PRAGMA journal_mode = WAL");
-  sqlJsDb.run("PRAGMA foreign_keys = ON");
+	sqlJsDb.run("PRAGMA journal_mode = WAL");
+	sqlJsDb.run("PRAGMA foreign_keys = ON");
 
-  sqlJsDb.run(`
+	sqlJsDb.run(`
     CREATE TABLE IF NOT EXISTS connections (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -40,27 +40,27 @@ export async function initDatabase(userDataPath: string): Promise<DatabaseInstan
     )
   `);
 
-  const wrapper = new SqlJsDatabase(sqlJsDb);
+	const wrapper = new SqlJsDatabase(sqlJsDb);
 
-  const persist = () => {
-    const data = sqlJsDb.export();
-    writeFileSync(dbPath, Buffer.from(data));
-  };
+	const persist = () => {
+		const data = sqlJsDb.export();
+		writeFileSync(dbPath, Buffer.from(data));
+	};
 
-  const originalExec = wrapper.exec.bind(wrapper);
-  wrapper.exec = (sql: string) => {
-    sqlJsDb.run(sql);
-    persist();
-  };
+	wrapper.exec.bind(wrapper);
+	wrapper.exec = (sql: string) => {
+		sqlJsDb.run(sql);
+		persist();
+	};
 
-  const originalRun = wrapper.run.bind(wrapper);
-  wrapper.run = (sql: string, ...params: unknown[]) => {
-    const result = originalRun(sql, ...params);
-    persist();
-    return result;
-  };
+	const originalRun = wrapper.run.bind(wrapper);
+	wrapper.run = (sql: string, ...params: unknown[]) => {
+		const result = originalRun(sql, ...params);
+		persist();
+		return result;
+	};
 
-  const db = drizzle(wrapper as any, { schema: { connections } });
+	const db = drizzle(wrapper as any, { schema: { connections } });
 
-  return db as unknown as DatabaseInstance;
+	return db as unknown as DatabaseInstance;
 }
