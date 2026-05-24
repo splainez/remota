@@ -33,5 +33,7 @@
   "file.empty": "Esta carpeta está vacía",
   "file.mockBanner": "Conexión remota (simulada)",
   "file.items": "elemento(s)",
-  "file.selectDrive": "Seleccionar unidad"
+  "file.selectDrive": "Seleccionar unidad",
+  "file.navigateBack": "Atrás",
+  "file.navigateForward": "Adelante"
 }

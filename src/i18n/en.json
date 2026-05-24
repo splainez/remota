@@ -33,5 +33,7 @@
   "file.empty": "This folder is empty",
   "file.mockBanner": "Remote connection (mocked)",
   "file.items": "item(s)",
-  "file.selectDrive": "Select drive"
+  "file.selectDrive": "Select drive",
+  "file.navigateBack": "Back",
+  "file.navigateForward": "Forward"
 }
