@@ -22,5 +22,16 @@
   "connection.confirmDelete": "¿Estás seguro de eliminar esta conexión?",
   "connection.created": "Conexión creada",
   "connection.updated": "Conexión actualizada",
-  "connection.deleted": "Conexión eliminada"
+  "connection.deleted": "Conexión eliminada",
+  "connection.connect": "Conectar",
+  "file.navigateUp": "Directorio Superior",
+  "file.refresh": "Actualizar",
+  "file.name": "Nombre",
+  "file.size": "Tamaño",
+  "file.modified": "Modificado",
+  "file.loading": "Cargando...",
+  "file.empty": "Esta carpeta está vacía",
+  "file.mockBanner": "Conexión remota (simulada)",
+  "file.items": "elemento(s)",
+  "file.selectDrive": "Seleccionar unidad"
 }

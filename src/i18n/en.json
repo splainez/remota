@@ -22,5 +22,16 @@
   "connection.confirmDelete": "Are you sure you want to delete this connection?",
   "connection.created": "Connection created",
   "connection.updated": "Connection updated",
-  "connection.deleted": "Connection deleted"
+  "connection.deleted": "Connection deleted",
+  "connection.connect": "Connect",
+  "file.navigateUp": "Parent Directory",
+  "file.refresh": "Refresh",
+  "file.name": "Name",
+  "file.size": "Size",
+  "file.modified": "Modified",
+  "file.loading": "Loading...",
+  "file.empty": "This folder is empty",
+  "file.mockBanner": "Remote connection (mocked)",
+  "file.items": "item(s)",
+  "file.selectDrive": "Select drive"
 }
