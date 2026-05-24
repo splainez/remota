@@ -84,6 +84,7 @@ describe("ConnectionForm", () => {
       <ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
     );
 
+    await user.type(screen.getByLabelText("Name"), "My Server");
     await user.type(screen.getByLabelText("Host"), "newhost.com");
     await user.type(screen.getByLabelText("Username"), "newuser");
 
@@ -95,6 +96,7 @@ describe("ConnectionForm", () => {
     expect(onSave).toHaveBeenCalledOnce();
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
+        name: "My Server",
         host: "newhost.com",
         username: "newuser",
         password: "newpass",
@@ -104,7 +106,7 @@ describe("ConnectionForm", () => {
     );
   });
 
-  it("uses host as name when name is empty", async () => {
+  it("shows validation error for empty name on submit", async () => {
     const user = userEvent.setup();
     const onSave = vi.fn();
     render(
@@ -112,11 +114,12 @@ describe("ConnectionForm", () => {
     );
 
     await user.type(screen.getByLabelText("Host"), "myhost.com");
+    await user.type(screen.getByLabelText("Username"), "admin");
+    await user.type(screen.getByLabelText("Password", { selector: "input[type='password']" }), "pass");
     await user.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "myhost.com" })
-    );
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText("Name is required")).toBeInTheDocument();
   });
 
   it("shows password field for password auth", () => {
@@ -140,5 +143,100 @@ describe("ConnectionForm", () => {
     expect(
       screen.queryByLabelText("Password", { selector: "input[type='password']" })
     ).not.toBeInTheDocument();
+  });
+
+  it("shows validation error for empty host on submit", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+    );
+
+    await user.type(screen.getByLabelText("Name"), "Test");
+    await user.type(screen.getByLabelText("Username"), "admin");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText("Host is required")).toBeInTheDocument();
+  });
+
+  it("shows validation error for empty username on submit", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+    );
+
+    await user.type(screen.getByLabelText("Name"), "Test");
+    await user.type(screen.getByLabelText("Host"), "example.com");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText("Username is required")).toBeInTheDocument();
+  });
+
+  it("shows validation error for empty password on blur", async () => {
+    const user = userEvent.setup();
+    render(
+      <ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+    );
+
+    const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
+    await user.clear(passwordInput);
+    await user.tab();
+
+    expect(screen.getByText("Password is required")).toBeInTheDocument();
+  });
+
+  it("shows validation error for empty private key path on blur", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+    );
+
+    const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
+    if (keyRadio) await user.click(keyRadio);
+
+    const keyInput = screen.getByLabelText("Key File Path");
+    await user.clear(keyInput);
+    await user.tab();
+
+    expect(screen.getByText("Private key path is required")).toBeInTheDocument();
+  });
+
+  it("shows validation error for missing password on submit", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+    );
+
+    await user.type(screen.getByLabelText("Name"), "Test");
+    await user.type(screen.getByLabelText("Host"), "example.com");
+    await user.type(screen.getByLabelText("Username"), "admin");
+    await user.clear(screen.getByLabelText("Password", { selector: "input[type='password']" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText("Password is required")).toBeInTheDocument();
+  });
+
+  it("shows validation error for missing private key path on submit", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    const { container } = render(
+      <ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+    );
+
+    const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
+    if (keyRadio) await user.click(keyRadio);
+
+    await user.type(screen.getByLabelText("Name"), "Test");
+    await user.type(screen.getByLabelText("Host"), "example.com");
+    await user.type(screen.getByLabelText("Username"), "admin");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText("Private key path is required")).toBeInTheDocument();
   });
 });
