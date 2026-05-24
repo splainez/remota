@@ -1,4 +1,4 @@
-import type { Connection, NewConnection, ConnectionUpdate } from "../shared/types";
+import type { Connection, NewConnection, ConnectionUpdate, FileEntry } from "../shared/types";
 
 declare global {
   interface Window {
@@ -10,6 +10,15 @@ declare global {
         update: (data: ConnectionUpdate) => Promise<Connection | null>;
         delete: (id: number) => Promise<boolean>;
       };
+      filesystem: {
+        list: (path: string) => Promise<FileEntry[]>;
+        listDrives: () => Promise<string[]>;
+        homeDir: () => Promise<string>;
+        pathExists: (path: string) => Promise<boolean>;
+        getLastPath: (connectionId: number, pane: "local" | "remote") => Promise<string | null>;
+        setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
+      };
+      platform: string;
     };
   }
 }

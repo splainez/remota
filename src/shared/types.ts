@@ -16,6 +16,13 @@ export type NewConnection = Omit<Connection, "id" | "createdAt" | "updatedAt">;
 
 export type ConnectionUpdate = Partial<NewConnection> & { id: number };
 
+export interface FileEntry {
+  name: string;
+  isDirectory: boolean;
+  size: number;
+  modified: string;
+}
+
 export interface ElectronAPI {
   connections: {
     list: () => Promise<Connection[]>;
@@ -24,6 +31,15 @@ export interface ElectronAPI {
     update: (data: ConnectionUpdate) => Promise<Connection | null>;
     delete: (id: number) => Promise<boolean>;
   };
+  filesystem: {
+    list: (path: string) => Promise<FileEntry[]>;
+    listDrives: () => Promise<string[]>;
+    homeDir: () => Promise<string>;
+    pathExists: (path: string) => Promise<boolean>;
+    getLastPath: (connectionId: number, pane: "local" | "remote") => Promise<string | null>;
+    setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
+  };
+  platform: string;
 }
 
 declare global {

@@ -4,4 +4,10 @@ export const IPC = {
   CONNECTION_CREATE: "connection:create",
   CONNECTION_UPDATE: "connection:update",
   CONNECTION_DELETE: "connection:delete",
+  FILE_LIST: "file:list",
+  FILE_LIST_DRIVES: "file:listDrives",
+  FILE_HOME_DIR: "file:homeDir",
+  FILE_PATH_EXISTS: "file:pathExists",
+  FILE_GET_LAST_PATH: "file:getLastPath",
+  FILE_SET_LAST_PATH: "file:setLastPath",
 } as const;

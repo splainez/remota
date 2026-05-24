@@ -2,8 +2,15 @@ import { app, BrowserWindow } from "electron";
 import { join } from "node:path";
 import { initDatabase } from "./database";
 import { registerConnectionHandlers } from "./ipc/connections";
+import { registerFilesystemHandlers } from "./ipc/filesystem";
+import { LastPathStore } from "./last-path-store";
 
 let mainWindow: BrowserWindow | null = null;
+let lastPathStore: LastPathStore;
+
+export function getLastPathStore(): LastPathStore {
+  return lastPathStore;
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -33,8 +40,11 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  const db = await initDatabase(app.getPath("userData"));
+  const userDataPath = app.getPath("userData");
+  const db = await initDatabase(userDataPath);
+  lastPathStore = new LastPathStore(userDataPath);
   registerConnectionHandlers(db);
+  registerFilesystemHandlers(lastPathStore);
   createWindow();
 
   app.on("activate", () => {
