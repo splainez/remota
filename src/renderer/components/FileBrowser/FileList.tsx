@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { t } from "../../../i18n";
 import type { FileEntry } from "../../../shared/types";
-import styles from "./FileList.module.css";
 
 type SortKey = "name" | "size" | "modified";
 type SortDir = "asc" | "desc";
@@ -74,47 +73,56 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
   };
 
   if (loading) {
-    return <div className={styles.empty}>{t("file.loading")}</div>;
+    return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{t("file.loading")}</div>;
   }
 
   if (error) {
-    return <div className={styles.empty}>{error}</div>;
+    return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{error}</div>;
   }
 
   if (sorted.length === 0) {
-    return <div className={styles.empty}>{t("file.empty")}</div>;
+    return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{t("file.empty")}</div>;
   }
 
   return (
-    <div className={styles.list}>
-      <div className={styles.header}>
-        <button className={styles.headerCell} onClick={() => { handleSort("name"); }}>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex items-center h-[26px] px-2 bg-gray-200 border-b border-gray-300 shrink-0">
+        <button
+          className="flex-1 flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+          onClick={() => { handleSort("name"); }}
+        >
           {t("file.name")}{sortIndicator("name")}
         </button>
-        <button className={styles.headerCellSize} onClick={() => { handleSort("size"); }}>
+        <button
+          className="shrink-0 basis-[100px] flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+          onClick={() => { handleSort("size"); }}
+        >
           {t("file.size")}{sortIndicator("size")}
         </button>
-        <button className={styles.headerCellDate} onClick={() => { handleSort("modified"); }}>
+        <button
+          className="shrink-0 basis-[150px] flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+          onClick={() => { handleSort("modified"); }}
+        >
           {t("file.modified")}{sortIndicator("modified")}
         </button>
       </div>
-      <div className={styles.body}>
+      <div className="flex-1 overflow-y-auto">
         {sorted.map((entry) => (
           <div
             key={entry.name}
-            className={styles.row}
+            className="flex items-center h-6 px-2 cursor-pointer hover:bg-gray-300"
             onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
           >
-            <div className={styles.cellName}>
-              <span className={entry.isDirectory ? styles.iconFolder : styles.iconFile}>
+            <div className="flex-1 flex items-center gap-1.5 px-1 overflow-hidden">
+              <span className="text-sm shrink-0">
                 {entry.isDirectory ? "\uD83D\uDCC1" : "\uD83D\uDCC4"}
               </span>
-              <span className={styles.name}>{entry.name}</span>
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">{entry.name}</span>
             </div>
-            <div className={styles.cellSize}>
+            <div className="shrink-0 basis-[100px] px-1 text-xs text-gray-500 text-right">
               {entry.isDirectory ? "" : formatSize(entry.size)}
             </div>
-            <div className={styles.cellDate}>{formatDate(entry.modified)}</div>
+            <div className="shrink-0 basis-[150px] px-1 text-xs text-gray-500">{formatDate(entry.modified)}</div>
           </div>
         ))}
       </div>

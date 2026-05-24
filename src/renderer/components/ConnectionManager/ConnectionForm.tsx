@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
-import styles from "./ConnectionForm.module.css";
 
 interface ConnectionFormProps {
   initial: Connection | null;
@@ -42,12 +41,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="conn-name">{t("connection.name")}</label>
+    <form className="flex flex-col gap-3.5" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-500" htmlFor="conn-name">{t("connection.name")}</label>
         <input
           id="conn-name"
-          className={styles.input}
+          className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           type="text"
           value={name}
           onChange={(e) => { setName(e.target.value); }}
@@ -55,12 +54,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
         />
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="conn-protocol">{t("connection.protocol")}</label>
+      <div className="flex gap-3">
+        <div className="flex flex-col gap-1 flex-1">
+          <label className="text-xs font-medium text-gray-500" htmlFor="conn-protocol">{t("connection.protocol")}</label>
           <select
             id="conn-protocol"
-            className={styles.select}
+            className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             value={protocol}
             onChange={(e) => { handleProtocolChange(e.target.value); }}
           >
@@ -69,11 +68,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             ))}
           </select>
         </div>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="conn-port">{t("connection.port")}</label>
+        <div className="flex flex-col gap-1 flex-1">
+          <label className="text-xs font-medium text-gray-500" htmlFor="conn-port">{t("connection.port")}</label>
           <input
             id="conn-port"
-            className={styles.input}
+            className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             type="number"
             value={port}
             onChange={(e) => { setPort(e.target.value); }}
@@ -81,11 +80,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
         </div>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="conn-host">{t("connection.host")}</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-500" htmlFor="conn-host">{t("connection.host")}</label>
         <input
           id="conn-host"
-          className={styles.input}
+          className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           type="text"
           value={host}
           onChange={(e) => { setHost(e.target.value); }}
@@ -93,11 +92,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
         />
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="conn-username">{t("connection.username")}</label>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-500" htmlFor="conn-username">{t("connection.username")}</label>
         <input
           id="conn-username"
-          className={styles.input}
+          className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           type="text"
           value={username}
           onChange={(e) => { setUsername(e.target.value); }}
@@ -105,10 +104,10 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
         />
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label}>{t("connection.authType")}</label>
-        <div className={styles.authGroup}>
-          <label className={styles.radio}>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-500">{t("connection.authType")}</label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
             <input
               type="radio"
               name="authType"
@@ -118,7 +117,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             />
             {t("connection.authPassword")}
           </label>
-          <label className={styles.radio}>
+          <label className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
             <input
               type="radio"
               name="authType"
@@ -128,7 +127,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             />
             {t("connection.authKey")}
           </label>
-          <label className={styles.radio}>
+          <label className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
             <input
               type="radio"
               name="authType"
@@ -142,11 +141,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
       </div>
 
       {authType === "password" && (
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="conn-password">{t("connection.password")}</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500" htmlFor="conn-password">{t("connection.password")}</label>
           <input
             id="conn-password"
-            className={styles.input}
+            className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             type="password"
             value={password}
             onChange={(e) => { setPassword(e.target.value); }}
@@ -155,11 +154,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
       )}
 
       {authType === "key" && (
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="conn-privatekey">{t("connection.privateKey")}</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500" htmlFor="conn-privatekey">{t("connection.privateKey")}</label>
           <input
             id="conn-privatekey"
-            className={styles.input}
+            className="px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             type="text"
             value={privateKeyPath}
             onChange={(e) => { setPrivateKeyPath(e.target.value); }}
@@ -168,11 +167,11 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
         </div>
       )}
 
-      <div className={styles.actions}>
-        <button type="button" className={styles.btnSecondary} onClick={onCancel}>
+      <div className="flex gap-2 justify-end mt-2">
+        <button type="button" className="px-5 py-2 text-gray-900 border border-gray-300 rounded hover:bg-gray-300" onClick={onCancel}>
           {t("connection.cancel")}
         </button>
-        <button type="submit" className={styles.btnPrimary}>
+        <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">
           {t("connection.save")}
         </button>
       </div>

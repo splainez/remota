@@ -1,5 +1,4 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import styles from "./Breadcrumb.module.css";
 
 interface BreadcrumbSegment {
   label: string;
@@ -125,33 +124,33 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
     : [];
 
   const renderSegment = (seg: BreadcrumbSegment, _idx: number, isLast: boolean) => (
-    <span key={seg.path} className={styles.segmentWrapper}>
+    <span key={seg.path} className="flex items-center gap-1 shrink-0">
       <button
-        className={styles.segment}
+        className="px-1 py-0.5 border border-transparent rounded text-gray-900 text-sm whitespace-nowrap shrink-0 hover:bg-gray-300 hover:border-gray-300"
         onClick={() => { onNavigate(seg.path); }}
         title={seg.path}
       >
         {seg.label}
       </button>
-      {!isLast && <span className={styles.separator}>/</span>}
+      {!isLast && <span className="text-gray-500 text-sm shrink-0">/</span>}
     </span>
   );
 
   return (
-    <div className={styles.breadcrumb} ref={containerRef}>
+    <div className="flex items-center gap-1 overflow-hidden shrink-0 h-7 px-2 bg-white border-b border-gray-300" ref={containerRef}>
       {headSegments.map((seg, i) =>
         renderSegment(seg, i, !showEllipsis && i === headSegments.length - 1)
       )}
       {showEllipsis && (
-        <span className={styles.segmentWrapper}>
+        <span className="flex items-center gap-1 shrink-0">
           <button
-            className={styles.ellipsis}
+            className="px-1 py-0.5 border border-transparent rounded text-gray-500 text-sm cursor-default whitespace-nowrap shrink-0"
             disabled
             title={allSegments.map((s) => s.path).join(" / ")}
           >
             ...
           </button>
-          <span className={styles.separator}>/</span>
+          <span className="text-gray-500 text-sm shrink-0">/</span>
         </span>
       )}
       {tailSegments.map((seg, i) =>
@@ -159,14 +158,14 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
       )}
 
       {/* Hidden segments for measurement */}
-      <span className={styles.measureLayer} aria-hidden="true">
+      <span className="absolute invisible pointer-events-none whitespace-nowrap flex gap-1 -top-[9999px] left-0" aria-hidden="true">
         {allSegments.map((seg, i) => (
           <button
             key={seg.path}
             ref={(el) => {
               segmentRefs.current[i] = el;
             }}
-            className={styles.segment}
+            className="px-1 py-0.5 border border-transparent rounded text-gray-900 text-sm whitespace-nowrap shrink-0 hover:bg-gray-300 hover:border-gray-300"
           >
             {seg.label}
           </button>

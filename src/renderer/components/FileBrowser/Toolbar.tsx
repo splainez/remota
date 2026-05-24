@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { t } from "../../../i18n";
-import styles from "./Toolbar.module.css";
 
 interface ToolbarProps {
   onNavigateUp: () => void;
@@ -32,9 +31,9 @@ export function Toolbar({
   );
 
   return (
-    <div className={styles.toolbar}>
+    <div className="flex items-center gap-0.5 px-1 py-0.5 bg-white border-b border-gray-300 shrink-0 h-8">
       <button
-        className={styles.btn}
+        className="flex items-center justify-center size-7 border border-transparent rounded text-gray-500 hover:bg-gray-300 hover:border-gray-300 hover:text-gray-900 disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent disabled:hover:border-transparent disabled:hover:text-gray-500"
         onClick={onNavigateUp}
         disabled={upDisabled}
         title={t("file.navigateUp")}
@@ -46,7 +45,7 @@ export function Toolbar({
       </button>
       {drives.length > 0 && (
         <select
-          className={styles.driveSelect}
+          className="h-6 px-1 border border-gray-300 rounded bg-white text-gray-900 text-sm min-w-[60px] focus:outline-none focus:border-blue-500"
           value={isAtDriveRoot ? currentPath : ""}
           onChange={handleDriveChange}
           title={t("file.selectDrive")}
@@ -62,7 +61,7 @@ export function Toolbar({
         </select>
       )}
       <button
-        className={styles.btn}
+        className="flex items-center justify-center size-7 border border-transparent rounded text-gray-500 hover:bg-gray-300 hover:border-gray-300 hover:text-gray-900 disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent disabled:hover:border-transparent disabled:hover:text-gray-500"
         onClick={onRefresh}
         title={t("file.refresh")}
       >

@@ -52,7 +52,7 @@ describe("Breadcrumb", () => {
 
 	it("renders separators between segments", () => {
 		render(<Breadcrumb {...defaultProps} />);
-		const separators = document.querySelectorAll('[class*="separator"]');
+		const separators = document.querySelectorAll<HTMLSpanElement>("span.text-gray-500.text-sm.shrink-0");
 		expect(separators.length).toBeGreaterThanOrEqual(2);
 	});
 
