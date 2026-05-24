@@ -49,7 +49,7 @@ describe("FileList", () => {
 
 	it("renders all entries with folders first", () => {
 		render(<FileList {...defaultProps} />);
-		const rows = document.querySelectorAll('[class*="row"]');
+		const rows = document.querySelectorAll("div.cursor-pointer");
 		expect(rows.length).toBe(4);
 		expect(rows[0].textContent).toContain("documents");
 		expect(rows[1].textContent).toContain("projects");
@@ -73,7 +73,7 @@ describe("FileList", () => {
 		render(<FileList {...defaultProps} />);
 		const nameHeader = screen.getByRole("button", { name: /name/i });
 		await userEvent.click(nameHeader);
-		const cells = document.querySelectorAll('[class*="cellName"]');
+		const cells = document.querySelectorAll('[class*="gap-1.5"]');
 		expect(cells[0].textContent).toContain("projects");
 		expect(cells[1].textContent).toContain("documents");
 		expect(cells[2].textContent).toContain("readme.md");
@@ -82,7 +82,7 @@ describe("FileList", () => {
 
 	it("default sort is by name ascending (folders first)", () => {
 		render(<FileList {...defaultProps} />);
-		const cells = document.querySelectorAll('[class*="cellName"]');
+		const cells = document.querySelectorAll('[class*="gap-1.5"]');
 		expect(cells[0].textContent).toContain("documents");
 		expect(cells[1].textContent).toContain("projects");
 		expect(cells[2].textContent).toContain("config.json");
@@ -107,7 +107,7 @@ describe("FileList", () => {
 
 	it("does not show size for directories", () => {
 		render(<FileList {...defaultProps} />);
-		const cells = document.querySelectorAll('[class*="cellSize"]');
+		const cells = document.querySelectorAll('[class*="text-right"]');
 		const dirCells = Array.from(cells).filter((_, i) => i < 2);
 		for (const cell of dirCells) {
 			expect(cell.textContent).toBe("");

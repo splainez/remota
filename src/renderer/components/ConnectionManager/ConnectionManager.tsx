@@ -3,7 +3,6 @@ import type { Connection } from "../../../shared/types";
 import { useConnections } from "../../hooks/useConnections";
 import { Sidebar } from "./Sidebar";
 import { ConnectionDetail } from "./ConnectionDetail";
-import styles from "./ConnectionManager.module.css";
 
 interface ConnectionManagerProps {
   onConnect: (connection: Connection) => void;
@@ -59,7 +58,7 @@ export function ConnectionManager({ onConnect }: ConnectionManagerProps) {
   }
 
   return (
-    <div className={styles.manager}>
+    <div className="flex h-full overflow-hidden">
       <Sidebar
         connections={connections}
         selectedId={selected?.id ?? null}

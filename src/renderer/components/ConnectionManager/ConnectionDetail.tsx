@@ -2,7 +2,6 @@ import { useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
 import { ConnectionForm } from "./ConnectionForm";
-import styles from "./ConnectionDetail.module.css";
 
 interface ConnectionDetailProps {
   connection: Connection | null;
@@ -29,9 +28,9 @@ export function ConnectionDetail({
 
   if (isNew || (connection && isEditing)) {
     return (
-      <div className={styles.detail}>
-        <div className={styles.formContainer}>
-          <h2 className={styles.title}>
+      <div className="flex-1 flex items-center justify-center bg-white overflow-auto">
+        <div className="w-full max-w-[520px] p-8">
+          <h2 className="text-lg font-semibold mb-6">
             {isNew ? t("connection.new") : t("connection.edit")}
           </h2>
           <ConnectionForm
@@ -46,21 +45,21 @@ export function ConnectionDetail({
 
   if (connection) {
     return (
-      <div className={styles.detail}>
-        <div className={styles.view}>
-          <div className={styles.viewHeader}>
-            <h2 className={styles.viewTitle}>{connection.name}</h2>
-            <div className={styles.viewActions}>
-              <button className={styles.btnConnect} onClick={onConnect}>
+      <div className="flex-1 flex items-center justify-center bg-white overflow-auto">
+        <div className="w-full max-w-[520px] p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">{connection.name}</h2>
+            <div className="flex gap-2">
+              <button className="px-4 py-1.5 bg-green-700 text-white rounded font-medium hover:bg-green-800" onClick={onConnect}>
                 {t("connection.connect")}
               </button>
-              <button className={styles.btnEdit} onClick={onEdit}>
+              <button className="px-4 py-1.5 bg-blue-600 text-white rounded font-medium hover:bg-blue-700" onClick={onEdit}>
                 {t("connection.edit")}
               </button>
               {confirmDelete ? (
                 <>
                   <button
-                    className={styles.btnDelete}
+                    className="px-4 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white"
                     onClick={() => {
                       void onDelete(connection.id);
                       setConfirmDelete(false);
@@ -68,36 +67,36 @@ export function ConnectionDetail({
                   >
                     {t("connection.delete")}
                   </button>
-                  <button className={styles.btnEdit} onClick={() => { setConfirmDelete(false); }}>
+                  <button className="px-4 py-1.5 bg-blue-600 text-white rounded font-medium hover:bg-blue-700" onClick={() => { setConfirmDelete(false); }}>
                     {t("connection.cancel")}
                   </button>
                 </>
               ) : (
-                <button className={styles.btnDelete} onClick={() => { setConfirmDelete(true); }}>
+                <button className="px-4 py-1.5 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white" onClick={() => { setConfirmDelete(true); }}>
                   {t("connection.delete")}
                 </button>
               )}
             </div>
           </div>
-          <div className={styles.viewField}>
-            <div className={styles.viewLabel}>{t("connection.protocol")}</div>
-            <div className={styles.viewValue}>{connection.protocol.toUpperCase()}</div>
+          <div className="mb-4">
+            <div className="text-xs text-gray-500 mb-0.5">{t("connection.protocol")}</div>
+            <div className="text-sm">{connection.protocol.toUpperCase()}</div>
           </div>
-          <div className={styles.viewField}>
-            <div className={styles.viewLabel}>{t("connection.host")}</div>
-            <div className={styles.viewValue}>{connection.host}</div>
+          <div className="mb-4">
+            <div className="text-xs text-gray-500 mb-0.5">{t("connection.host")}</div>
+            <div className="text-sm">{connection.host}</div>
           </div>
-          <div className={styles.viewField}>
-            <div className={styles.viewLabel}>{t("connection.port")}</div>
-            <div className={styles.viewValue}>{connection.port}</div>
+          <div className="mb-4">
+            <div className="text-xs text-gray-500 mb-0.5">{t("connection.port")}</div>
+            <div className="text-sm">{connection.port}</div>
           </div>
-          <div className={styles.viewField}>
-            <div className={styles.viewLabel}>{t("connection.username")}</div>
-            <div className={styles.viewValue}>{connection.username || "—"}</div>
+          <div className="mb-4">
+            <div className="text-xs text-gray-500 mb-0.5">{t("connection.username")}</div>
+            <div className="text-sm">{connection.username || "\u2014"}</div>
           </div>
-          <div className={styles.viewField}>
-            <div className={styles.viewLabel}>{t("connection.authType")}</div>
-            <div className={styles.viewValue}>
+          <div className="mb-4">
+            <div className="text-xs text-gray-500 mb-0.5">{t("connection.authType")}</div>
+            <div className="text-sm">
               {connection.authType === "password"
                 ? t("connection.authPassword")
                 : connection.authType === "key"
@@ -111,10 +110,10 @@ export function ConnectionDetail({
   }
 
   return (
-    <div className={styles.detail}>
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>&#128268;</div>
-        <div className={styles.emptyText}>{t("connection.noSelection")}</div>
+    <div className="flex-1 flex items-center justify-center bg-white overflow-auto">
+      <div className="text-center text-gray-500">
+        <div className="text-5xl mb-3 opacity-40">&#128268;</div>
+        <div className="text-base">{t("connection.noSelection")}</div>
       </div>
     </div>
   );

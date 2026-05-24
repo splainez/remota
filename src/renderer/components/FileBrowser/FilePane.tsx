@@ -6,7 +6,6 @@ import { useFileList } from "../../hooks/useFileList";
 import { Breadcrumb } from "./Breadcrumb";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
-import styles from "./FilePane.module.css";
 
 interface FilePaneProps {
   type: "local" | "remote";
@@ -75,9 +74,9 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
   const showDriveSelector = isWindows && !isMocked && type === "local" && drives.length > 1;
 
   return (
-    <div className={styles.pane}>
+    <div className="flex-1 flex flex-col overflow-hidden bg-gray-100 border border-gray-300 rounded-md min-w-0">
       {isMocked && (
-        <div className={styles.mockBanner}>
+        <div className="px-2 py-1 bg-blue-600 text-white text-xs font-semibold text-center shrink-0">
           {t("file.mockBanner")}
         </div>
       )}
@@ -97,7 +96,7 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
         onEnterDirectory={handleEnterDirectory}
       />
       {!isMocked && (
-        <div className={styles.statusBar}>
+        <div className="h-[22px] flex items-center px-2 bg-gray-200 border-t border-gray-300 text-xs text-gray-500 shrink-0">
           {loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
         </div>
       )}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Connection } from "../../../shared/types";
 import { FilePane } from "./FilePane";
-import styles from "./FileBrowser.module.css";
 
 interface FileBrowserProps {
   connection: Connection;
@@ -48,18 +47,18 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
   }, [connection.id]);
 
   if (!ready) {
-    return <div className={styles.container} />;
+    return <div className="flex flex-col h-full overflow-hidden" />;
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <span className={styles.connectionLabel}>{connection.name}</span>
-        <button className={styles.disconnectBtn} onClick={onDisconnect}>
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1 bg-gray-200 border-b border-gray-300 shrink-0 h-9">
+        <span className="text-base font-semibold text-gray-900">{connection.name}</span>
+        <button className="px-3 py-0.5 border border-gray-300 rounded bg-white text-gray-500 text-xs hover:bg-red-600 hover:text-white hover:border-red-600" onClick={onDisconnect}>
           Disconnect
         </button>
       </div>
-      <div className={styles.panes}>
+      <div className="flex-1 flex gap-1 p-1 overflow-hidden min-h-0">
         <FilePane
           type="local"
           connectionId={connection.id}
