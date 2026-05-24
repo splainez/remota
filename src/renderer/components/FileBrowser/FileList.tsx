@@ -13,6 +13,8 @@ interface FileListProps {
   loading: boolean;
   error: string | null;
   onEnterDirectory: (name: string) => void;
+  onSelectEntry: (name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => void;
+  selectedNames: string[];
 }
 
 function formatSize(bytes: number): string {
@@ -34,9 +36,10 @@ function formatDate(iso: string): string {
   return `${String(d.getFullYear())}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function FileList({ entries, loading, error, onEnterDirectory }: FileListProps) {
+export function FileList({ entries, loading, error, onEnterDirectory, onSelectEntry, selectedNames }: FileListProps) {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -115,7 +118,8 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
         {sorted.map((entry) => (
           <div
             key={entry.name}
-            className="flex items-center h-6 px-2 cursor-pointer hover:bg-gray-300"
+            className={`flex items-center h-6 px-2 cursor-pointer hover:bg-gray-300 ${selectedSet.has(entry.name) ? "bg-blue-200" : ""}`}
+            onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sorted.map((s) => s.name)); }}
             onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
           >
             <div className="flex-1 flex items-center gap-1.5 px-1 overflow-hidden">

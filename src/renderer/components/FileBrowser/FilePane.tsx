@@ -17,6 +17,8 @@ interface FilePaneProps {
 
 export function FilePane({ type, connectionId, initialPath, isMocked }: FilePaneProps) {
 	const [currentPath, setCurrentPath] = useState(initialPath);
+	const [selectedNames, setSelectedNames] = useState<string[]>([]);
+	const lastClickedNameRef = useRef<string | null>(null);
 	const [drives, setDrives] = useState<string[]>([]);
 	const prevConnectionRef = useRef(connectionId);
 	const pathInitialized = useRef(false);
@@ -66,6 +68,8 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 
 	const handleNavigate = useCallback(
 		(path: string) => {
+			setSelectedNames([]);
+			lastClickedNameRef.current = null;
 			navigateTo(path);
 		},
 		[navigateTo],
@@ -74,12 +78,16 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 	const handleNavigateUp = useCallback(() => {
 		const newPath = parentPath(currentPath);
 		if (newPath !== null) {
+			setSelectedNames([]);
+			lastClickedNameRef.current = null;
 			navigateTo(newPath);
 		}
 	}, [currentPath, navigateTo]);
 
 	const handleNavigateTo = useCallback(
 		(path: string) => {
+			setSelectedNames([]);
+			lastClickedNameRef.current = null;
 			navigateTo(path);
 		},
 		[navigateTo],
@@ -92,9 +100,42 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 		[currentPath, navigateTo],
 	);
 
+	const handleSelectEntry = useCallback(
+		(name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => {
+			if (shiftKey) {
+				const anchor = lastClickedNameRef.current ?? sortedNames[0] ?? name;
+				const anchorIdx = sortedNames.indexOf(anchor);
+				const clickedIdx = sortedNames.indexOf(name);
+				if (anchorIdx === -1 || clickedIdx === -1) {
+					setSelectedNames([name]);
+					lastClickedNameRef.current = name;
+				} else {
+					const start = Math.min(anchorIdx, clickedIdx);
+					const end = Math.max(anchorIdx, clickedIdx);
+					setSelectedNames(sortedNames.slice(start, end + 1));
+				}
+			} else if (ctrlKey) {
+				setSelectedNames((prev) => {
+					const idx = prev.indexOf(name);
+					if (idx === -1) {
+						return [...prev, name];
+					}
+					return prev.filter((n) => n !== name);
+				});
+				lastClickedNameRef.current = name;
+			} else {
+				setSelectedNames([name]);
+				lastClickedNameRef.current = name;
+			}
+		},
+		[],
+	);
+
 	const handleGoBack = useCallback(() => {
 		const path = goBack(type);
 		if (path !== null) {
+			setSelectedNames([]);
+			lastClickedNameRef.current = null;
 			setCurrentPath(path);
 		}
 	}, [goBack, type]);
@@ -102,6 +143,8 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 	const handleGoForward = useCallback(() => {
 		const path = goForward(type);
 		if (path !== null) {
+			setSelectedNames([]);
+			lastClickedNameRef.current = null;
 			setCurrentPath(path);
 		}
 	}, [goForward, type]);
@@ -156,6 +199,8 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 				loading={loading}
 				error={error}
 				onEnterDirectory={handleEnterDirectory}
+				onSelectEntry={handleSelectEntry}
+				selectedNames={selectedNames}
 			/>
 			{!isMocked && (
 				<div className="h-[22px] flex items-center px-2 bg-gray-200 border-t border-gray-300 text-xs text-gray-500 shrink-0">
