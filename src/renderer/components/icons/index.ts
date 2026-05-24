@@ -1,0 +1,6 @@
+export { Icon } from "./Icon";
+export type { IconName, IconProps } from "./Icon";
+export { FileIcon } from "./FileIcon";
+export type { FileIconProps } from "./FileIcon";
+export { FolderIcon } from "./FolderIcon";
+export type { FolderIconProps } from "./FolderIcon";
