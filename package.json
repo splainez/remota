@@ -1,0 +1,35 @@
+{
+  "name": "openscp",
+  "version": "0.1.0",
+  "description": "A modular WinSCP replacement with dual-pane file manager",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "lint": "echo 'TODO: configure linter'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "electron": "^42.2.0",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "sql.js": "^1.14.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@types/sql.js": "^1.4.11",
+    "@vitejs/plugin-react": "^4.7.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^6.0.3",
+    "vite": "^6.4.2"
+  }
+}
