@@ -13,7 +13,7 @@ export function useConnections() {
   }, []);
 
   useEffect(() => {
-    loadConnections();
+    void loadConnections();
   }, [loadConnections]);
 
   const selected = connections.find((c) => c.id === selectedId) ?? null;

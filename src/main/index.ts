@@ -28,10 +28,10 @@ function createWindow() {
   });
 
   if (process.env.NODE_ENV === "development" || process.env.ELECTRON_RENDERER_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL!);
+    void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL ?? "");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    void mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
 
   mainWindow.on("closed", () => {
@@ -39,7 +39,7 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(async () => {
+void app.whenReady().then(async () => {
   const userDataPath = app.getPath("userData");
   const db = await initDatabase(userDataPath);
   lastPathStore = new LastPathStore(userDataPath);

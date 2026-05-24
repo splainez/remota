@@ -22,14 +22,14 @@ function formatSize(bytes: number): string {
     size /= 1024;
     i++;
   }
-  return i === 0 ? `${size} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
+  return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
 }
 
 function formatDate(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${String(d.getFullYear())}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 export function FileList({ entries, loading, error, onEnterDirectory }: FileListProps) {
@@ -88,13 +88,13 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
   return (
     <div className={styles.list}>
       <div className={styles.header}>
-        <button className={styles.headerCell} onClick={() => handleSort("name")}>
+        <button className={styles.headerCell} onClick={() => { handleSort("name"); }}>
           {t("file.name")}{sortIndicator("name")}
         </button>
-        <button className={styles.headerCellSize} onClick={() => handleSort("size")}>
+        <button className={styles.headerCellSize} onClick={() => { handleSort("size"); }}>
           {t("file.size")}{sortIndicator("size")}
         </button>
-        <button className={styles.headerCellDate} onClick={() => handleSort("modified")}>
+        <button className={styles.headerCellDate} onClick={() => { handleSort("modified"); }}>
           {t("file.modified")}{sortIndicator("modified")}
         </button>
       </div>
@@ -103,7 +103,7 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
           <div
             key={entry.name}
             className={styles.row}
-            onDoubleClick={() => entry.isDirectory && onEnterDirectory(entry.name)}
+            onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
           >
             <div className={styles.cellName}>
               <span className={entry.isDirectory ? styles.iconFolder : styles.iconFile}>

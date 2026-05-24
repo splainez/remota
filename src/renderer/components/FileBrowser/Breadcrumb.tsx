@@ -80,11 +80,9 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
     for (let end = minHiddenEnd; end <= allSegments.length; end++) {
       let visibleWidth = rootWidth + gapPx;
       const lastCount = end;
-      let useEllipsis = false;
 
       if (lastCount < allSegments.length - 1) {
         visibleWidth += ellipsisWidth + gapPx;
-        useEllipsis = true;
       }
 
       for (let i = allSegments.length - lastCount; i < allSegments.length; i++) {
@@ -113,7 +111,7 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
       measure();
     });
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); };
   }, [measure]);
 
   const showEllipsis = hiddenEnd > 0 && hiddenStart < hiddenEnd;
@@ -126,11 +124,11 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
     ? allSegments.filter((_, i) => i > hiddenEnd)
     : [];
 
-  const renderSegment = (seg: BreadcrumbSegment, idx: number, isLast: boolean) => (
+  const renderSegment = (seg: BreadcrumbSegment, _idx: number, isLast: boolean) => (
     <span key={seg.path} className={styles.segmentWrapper}>
       <button
         className={styles.segment}
-        onClick={() => onNavigate(seg.path)}
+        onClick={() => { onNavigate(seg.path); }}
         title={seg.path}
       >
         {seg.label}

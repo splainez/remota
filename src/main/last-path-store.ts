@@ -1,12 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-export interface LastPaths {
-  [connectionId: string]: {
+export type LastPaths = Record<string, {
     local?: string;
     remote?: string;
-  };
-}
+  }>;
 
 export class LastPathStore {
   private filePath: string;
@@ -23,7 +21,7 @@ export class LastPathStore {
     try {
       if (existsSync(this.filePath)) {
         const raw = readFileSync(this.filePath, "utf-8");
-        this.data = JSON.parse(raw);
+        this.data = JSON.parse(raw) as LastPaths;
       }
     } catch {
       this.data = {};
@@ -43,16 +41,16 @@ export class LastPathStore {
   }
 
   getLocalPath(connectionId: number): string | undefined {
-    return this.data[String(connectionId)]?.local;
+    return (this.data[String(connectionId)] as { local?: string } | undefined)?.local;
   }
 
   getRemotePath(connectionId: number): string | undefined {
-    return this.data[String(connectionId)]?.remote;
+    return (this.data[String(connectionId)] as { remote?: string } | undefined)?.remote;
   }
 
   setLocalPath(connectionId: number, path: string) {
     const key = String(connectionId);
-    if (!this.data[key]) {
+    if (!(key in this.data)) {
       this.data[key] = {};
     }
     this.data[key].local = path;
@@ -61,7 +59,7 @@ export class LastPathStore {
 
   setRemotePath(connectionId: number, path: string) {
     const key = String(connectionId);
-    if (!this.data[key]) {
+    if (!(key in this.data)) {
       this.data[key] = {};
     }
     this.data[key].remote = path;

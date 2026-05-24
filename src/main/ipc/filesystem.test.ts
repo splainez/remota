@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 
 describe("normalizePath", () => {
-	let normalizePath: typeof import("./filesystem").normalizePath;
+	let normalizePath: (input: string) => string;
 
 	it("preserves Windows drive root (C:\\)", async () => {
 		({ normalizePath } = await import("./filesystem"));
@@ -44,7 +44,7 @@ describe("normalizePath", () => {
 });
 
 describe("listDrives", () => {
-	let listDrives: typeof import("./filesystem").listDrives;
+	let listDrives: () => string[];
 
 	afterEach(() => {
 		vi.restoreAllMocks();

@@ -56,31 +56,31 @@ export function listDrives(): string[] {
 }
 
 export function registerFilesystemHandlers(lastPathStore: LastPathStore) {
-  ipcMain.handle(IPC.FILE_LIST, async (_event, dirPath: string) => {
+  ipcMain.handle(IPC.FILE_LIST, (_event, dirPath: string) => {
     const normalized = normalizePath(dirPath);
     return listDirectory(normalized);
   });
 
-  ipcMain.handle(IPC.FILE_LIST_DRIVES, async () => {
+  ipcMain.handle(IPC.FILE_LIST_DRIVES, () => {
     return listDrives();
   });
 
-  ipcMain.handle(IPC.FILE_HOME_DIR, async () => {
+  ipcMain.handle(IPC.FILE_HOME_DIR, () => {
     return homedir();
   });
 
-  ipcMain.handle(IPC.FILE_PATH_EXISTS, async (_event, dirPath: string) => {
+  ipcMain.handle(IPC.FILE_PATH_EXISTS, (_event, dirPath: string) => {
     return existsSync(dirPath);
   });
 
-  ipcMain.handle(IPC.FILE_GET_LAST_PATH, async (_event, connectionId: number, pane: "local" | "remote") => {
+  ipcMain.handle(IPC.FILE_GET_LAST_PATH, (_event, connectionId: number, pane: "local" | "remote") => {
     if (pane === "local") {
       return lastPathStore.getLocalPath(connectionId) ?? null;
     }
     return lastPathStore.getRemotePath(connectionId) ?? null;
   });
 
-  ipcMain.handle(IPC.FILE_SET_LAST_PATH, async (_event, connectionId: number, pane: "local" | "remote", path: string) => {
+  ipcMain.handle(IPC.FILE_SET_LAST_PATH, (_event, connectionId: number, pane: "local" | "remote", path: string) => {
     if (pane === "local") {
       lastPathStore.setLocalPath(connectionId, path);
     } else {

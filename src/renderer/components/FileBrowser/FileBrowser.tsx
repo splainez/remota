@@ -43,7 +43,7 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
       }
     }
 
-    init();
+    void init();
     return () => { cancelled = true; };
   }, [connection.id]);
 

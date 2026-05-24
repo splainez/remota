@@ -7,9 +7,9 @@ import type { Connection } from "../../shared/types";
 function makeConn(count: number): Connection[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
-    name: `Server ${i + 1}`,
+    name: `Server ${String(i + 1)}`,
     protocol: "sftp" as const,
-    host: `server${i + 1}.com`,
+    host: `server${String(i + 1)}.com`,
     port: 22,
     username: "user",
     authType: "password" as const,
@@ -71,7 +71,7 @@ describe("useConnections", () => {
 
     const { result } = renderHook(() => useConnections());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => { expect(result.current.loading).toBe(false); });
 
     act(() => {
       result.current.select(2);
@@ -107,7 +107,7 @@ describe("useConnections", () => {
 
     const { result } = renderHook(() => useConnections());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => { expect(result.current.loading).toBe(false); });
 
     await act(async () => {
       await result.current.create({
@@ -142,7 +142,7 @@ describe("useConnections", () => {
 
     const { result } = renderHook(() => useConnections());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => { expect(result.current.loading).toBe(false); });
 
     act(() => {
       result.current.select(1);

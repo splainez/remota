@@ -27,9 +27,9 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
     setPort(String(DEFAULT_PORT[p] ?? 22));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    onSave({
+    void onSave({
       name: name.trim() || host,
       protocol,
       host: host.trim(),
@@ -50,7 +50,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
           className={styles.input}
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { setName(e.target.value); }}
           placeholder={t("connection.name")}
         />
       </div>
@@ -62,7 +62,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             id="conn-protocol"
             className={styles.select}
             value={protocol}
-            onChange={(e) => handleProtocolChange(e.target.value)}
+            onChange={(e) => { handleProtocolChange(e.target.value); }}
           >
             {PROTOCOLS.map((p) => (
               <option key={p} value={p}>{p.toUpperCase()}</option>
@@ -76,7 +76,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             className={styles.input}
             type="number"
             value={port}
-            onChange={(e) => setPort(e.target.value)}
+            onChange={(e) => { setPort(e.target.value); }}
           />
         </div>
       </div>
@@ -88,7 +88,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
           className={styles.input}
           type="text"
           value={host}
-          onChange={(e) => setHost(e.target.value)}
+          onChange={(e) => { setHost(e.target.value); }}
           placeholder="example.com"
         />
       </div>
@@ -100,7 +100,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
           className={styles.input}
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => { setUsername(e.target.value); }}
           placeholder="user"
         />
       </div>
@@ -114,7 +114,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
               name="authType"
               value="password"
               checked={authType === "password"}
-              onChange={() => setAuthType("password")}
+              onChange={() => { setAuthType("password"); }}
             />
             {t("connection.authPassword")}
           </label>
@@ -124,7 +124,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
               name="authType"
               value="key"
               checked={authType === "key"}
-              onChange={() => setAuthType("key")}
+              onChange={() => { setAuthType("key"); }}
             />
             {t("connection.authKey")}
           </label>
@@ -134,7 +134,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
               name="authType"
               value="agent"
               checked={authType === "agent"}
-              onChange={() => setAuthType("agent")}
+              onChange={() => { setAuthType("agent"); }}
             />
             {t("connection.authAgent")}
           </label>
@@ -149,7 +149,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             className={styles.input}
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); }}
           />
         </div>
       )}
@@ -162,7 +162,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
             className={styles.input}
             type="text"
             value={privateKeyPath}
-            onChange={(e) => setPrivateKeyPath(e.target.value)}
+            onChange={(e) => { setPrivateKeyPath(e.target.value); }}
             placeholder="~/.ssh/id_rsa"
           />
         </div>

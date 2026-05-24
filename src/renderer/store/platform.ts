@@ -9,10 +9,7 @@ interface PlatformStore {
 }
 
 export const usePlatformStore = create<PlatformStore>(() => {
-  const platform =
-    typeof window !== "undefined" && window.api
-      ? window.api.platform
-      : "linux";
+  const platform = (window as { api?: { platform: string } }).api?.platform ?? "linux";
 
   return {
     platform,

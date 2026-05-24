@@ -60,7 +60,7 @@ export async function initDatabase(userDataPath: string): Promise<DatabaseInstan
 		return result;
 	};
 
-	const db = drizzle(wrapper as any, { schema: { connections } });
+	const db = drizzle(wrapper as never, { schema: { connections } });
 
-	return db as unknown as DatabaseInstance;
+	return db;
 }

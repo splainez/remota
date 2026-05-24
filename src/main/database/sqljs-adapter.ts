@@ -1,16 +1,16 @@
 import { type QueryExecResult, type Database as SqlJsDb, type SqlValue } from "sql.js";
 
 interface RawStatement {
-	get<T extends unknown[] = unknown[]>(...params: unknown[]): T | undefined;
-	all<T extends unknown[] = unknown[]>(...params: unknown[]): T[];
-	values<T extends unknown[] = unknown[]>(...params: unknown[]): T[];
+	get(...params: unknown[]): unknown[] | undefined;
+	all(...params: unknown[]): unknown[][];
+	values(...params: unknown[]): unknown[][];
 }
 
 interface PreparedStatement {
 	run(...params: unknown[]): { changes: number; lastInsertRowid: number };
-	get<T = Record<string, unknown>>(...params: unknown[]): T | undefined;
-	all<T = Record<string, unknown>>(...params: unknown[]): T[];
-	values<T extends unknown[] = unknown[]>(...params: unknown[]): T[];
+	get(...params: unknown[]): Record<string, unknown> | undefined;
+	all(...params: unknown[]): Record<string, unknown>[];
+	values(...params: unknown[]): unknown[][];
 	raw(): RawStatement;
 }
 
@@ -38,43 +38,43 @@ export class SqlJsDatabase {
 				try {
 					bindParams(stmt, params);
 					stmt.step();
-					const lastInsertRowid = (db as unknown as Record<string, () => number>).lastInsertRowid?.() ?? 0;
-					return { changes: db.getRowsModified(), lastInsertRowid: Number(lastInsertRowid) };
+					const lastInsertRowid = (db as unknown as { lastInsertRowid: number }).lastInsertRowid;
+					return { changes: db.getRowsModified(), lastInsertRowid };
 				} finally {
 					stmt.free();
 				}
 			},
-			get<T = Record<string, unknown>>(...params: unknown[]): T | undefined {
+		get(...params: unknown[]): Record<string, unknown> | undefined {
 				const stmt = db.prepare(sql);
 				try {
 					bindParams(stmt, params);
 					if (stmt.step()) {
-						return stmt.getAsObject() as unknown as T;
+						return stmt.getAsObject();
 					}
 				} finally {
 					stmt.free();
 				}
 			},
-			all<T = Record<string, unknown>>(...params: unknown[]): T[] {
-				const results: T[] = [];
+			all(...params: unknown[]): Record<string, unknown>[] {
+				const results: Record<string, unknown>[] = [];
 				const stmt = db.prepare(sql);
 				try {
 					bindParams(stmt, params);
 					while (stmt.step()) {
-						results.push(stmt.getAsObject() as unknown as T);
+						results.push(stmt.getAsObject());
 					}
 				} finally {
 					stmt.free();
 				}
 				return results;
 			},
-			values<T extends unknown[] = unknown[]>(...params: unknown[]): T[] {
-				const results: T[] = [];
+			values(...params: unknown[]): unknown[][] {
+				const results: unknown[][] = [];
 				const stmt = db.prepare(sql);
 				try {
 					bindParams(stmt, params);
 					while (stmt.step()) {
-						results.push(stmt.get() as T);
+						results.push(stmt.get());
 					}
 				} finally {
 					stmt.free();
@@ -83,31 +83,31 @@ export class SqlJsDatabase {
 			},
 			raw(): RawStatement {
 				return {
-					get<T extends unknown[] = unknown[]>(...params: unknown[]): T | undefined {
+					get(...params: unknown[]): unknown[] | undefined {
 						const stmt = db.prepare(sql);
 						try {
 							bindParams(stmt, params);
 							if (stmt.step()) {
-								return stmt.get() as T;
+								return stmt.get();
 							}
 						} finally {
 							stmt.free();
 						}
 					},
-					all<T extends unknown[] = unknown[]>(...params: unknown[]): T[] {
-						const results: T[] = [];
+					all(...params: unknown[]): unknown[][] {
+						const results: unknown[][] = [];
 						const stmt = db.prepare(sql);
 						try {
 							bindParams(stmt, params);
 							while (stmt.step()) {
-								results.push(stmt.get() as T);
+								results.push(stmt.get());
 							}
 						} finally {
 							stmt.free();
 						}
 						return results;
 					},
-					values<T extends unknown[] = unknown[]>(...params: unknown[]): T[] {
+					values(...params: unknown[]): unknown[][] {
 						return this.all(...params);
 					},
 				};
@@ -125,15 +125,15 @@ export class SqlJsDatabase {
 		return this.prepare(sql).run(...params);
 	}
 
-	get<T = Record<string, unknown>>(sql: string, ...params: unknown[]): T | undefined {
+	get(sql: string, ...params: unknown[]): Record<string, unknown> | undefined {
 		return this.prepare(sql).get(...params);
 	}
 
-	all<T = Record<string, unknown>>(sql: string, ...params: unknown[]): T[] {
+	all(sql: string, ...params: unknown[]): Record<string, unknown>[] {
 		return this.prepare(sql).all(...params);
 	}
 
-	values<T extends unknown[] = unknown[]>(sql: string, ...params: unknown[]): T[] {
+	values(sql: string, ...params: unknown[]): unknown[][] {
 		return this.prepare(sql).values(...params);
 	}
 

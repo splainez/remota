@@ -49,8 +49,8 @@ describe("ConnectionForm", () => {
       <ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
     );
 
-    const select = container.querySelector("select") as HTMLSelectElement;
-    expect(select.value).toBe("sftp");
+    const select = container.querySelector("select");
+    expect(select?.value).toBe("sftp");
   });
 
   it("updates port when protocol changes", async () => {
@@ -62,7 +62,7 @@ describe("ConnectionForm", () => {
     const select = screen.getByLabelText("Protocol");
     await user.selectOptions(select, "s3");
 
-    const portInput = screen.getByLabelText("Port") as HTMLInputElement;
+    const portInput = screen.getByLabelText<HTMLInputElement>("Port");
     expect(portInput.value).toBe("443");
   });
 
@@ -134,7 +134,7 @@ describe("ConnectionForm", () => {
 
     const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
     expect(keyRadio).not.toBeNull();
-    await user.click(keyRadio!);
+    if (keyRadio) await user.click(keyRadio);
 
     expect(screen.getByLabelText("Key File Path")).toBeInTheDocument();
     expect(

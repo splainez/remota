@@ -61,19 +61,19 @@ export function ConnectionDetail({
                 <>
                   <button
                     className={styles.btnDelete}
-                    onClick={async () => {
-                      await onDelete(connection.id);
+                    onClick={() => {
+                      void onDelete(connection.id);
                       setConfirmDelete(false);
                     }}
                   >
                     {t("connection.delete")}
                   </button>
-                  <button className={styles.btnEdit} onClick={() => setConfirmDelete(false)}>
+                  <button className={styles.btnEdit} onClick={() => { setConfirmDelete(false); }}>
                     {t("connection.cancel")}
                   </button>
                 </>
               ) : (
-                <button className={styles.btnDelete} onClick={() => setConfirmDelete(true)}>
+                <button className={styles.btnDelete} onClick={() => { setConfirmDelete(true); }}>
                   {t("connection.delete")}
                 </button>
               )}

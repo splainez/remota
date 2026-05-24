@@ -71,9 +71,9 @@ export function ConnectionManager({ onConnect }: ConnectionManagerProps) {
         connection={selected}
         isNew={isNew}
         isEditing={isEditing}
-        onEdit={() => setIsEditing(true)}
+        onEdit={() => { setIsEditing(true); }}
         onCancel={handleCancel}
-        onConnect={() => selected && onConnect(selected)}
+        onConnect={() => { if (selected) onConnect(selected); }}
         onSave={async (data) => {
           if (isNew) {
             const created = await create(data);

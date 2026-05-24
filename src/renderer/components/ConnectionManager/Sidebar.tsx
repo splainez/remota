@@ -31,7 +31,7 @@ export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClic
             <div
               key={conn.id}
               className={conn.id === selectedId ? styles.itemActive : styles.item}
-              onClick={() => onSelect(conn.id)}
+              onClick={() => { onSelect(conn.id); }}
               onDoubleClick={() => onDoubleClick?.(conn.id)}
             >
               <span className={styles.itemIcon}>{protocolIcon(conn.protocol)}</span>

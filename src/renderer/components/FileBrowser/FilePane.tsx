@@ -31,13 +31,13 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 
   useEffect(() => {
     if (!isMocked && type === "local" && isWindows) {
-      window.api.filesystem.listDrives().then(setDrives);
+      void window.api.filesystem.listDrives().then(setDrives);
     }
   }, [isMocked, type, isWindows]);
 
   useEffect(() => {
     if (pathInitialized.current) {
-      window.api.filesystem.setLastPath(connectionId, type, currentPath);
+      void window.api.filesystem.setLastPath(connectionId, type, currentPath);
     }
   }, [currentPath, connectionId, type]);
 
@@ -66,7 +66,7 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
   );
 
   const handleRefresh = useCallback(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
 
   const driveRoot = isWindows
@@ -98,7 +98,7 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
       />
       {!isMocked && (
         <div className={styles.statusBar}>
-          {loading ? t("file.loading") : `${entries.length} ${t("file.items")}`}
+          {loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
         </div>
       )}
     </div>

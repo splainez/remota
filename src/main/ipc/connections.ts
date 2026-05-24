@@ -22,17 +22,17 @@ function rowToConnection(row: typeof connections.$inferSelect): Connection {
 }
 
 export function registerConnectionHandlers(db: DatabaseInstance) {
-  ipcMain.handle(IPC.CONNECTION_LIST, async () => {
+  ipcMain.handle(IPC.CONNECTION_LIST, () => {
     const rows = db.select().from(connections).all();
     return rows.map(rowToConnection);
   });
 
-  ipcMain.handle(IPC.CONNECTION_GET, async (_event, id: number) => {
+  ipcMain.handle(IPC.CONNECTION_GET, (_event, id: number) => {
     const row = db.select().from(connections).where(eq(connections.id, id)).get();
     return row ? rowToConnection(row) : null;
   });
 
-  ipcMain.handle(IPC.CONNECTION_CREATE, async (_event, data: NewConnection) => {
+  ipcMain.handle(IPC.CONNECTION_CREATE, (_event, data: NewConnection) => {
     const now = new Date().toISOString();
     const result = db
       .insert(connections)
@@ -53,18 +53,18 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
     return rowToConnection(result);
   });
 
-  ipcMain.handle(IPC.CONNECTION_UPDATE, async (_event, data: ConnectionUpdate) => {
+  ipcMain.handle(IPC.CONNECTION_UPDATE, (_event, data: ConnectionUpdate) => {
     const now = new Date().toISOString();
     const result = db
       .update(connections)
-      .set({ ...data, updatedAt: now } as any)
+      .set({ ...data, updatedAt: now })
       .where(eq(connections.id, data.id))
       .returning()
       .get();
-    return result ? rowToConnection(result) : null;
+    return rowToConnection(result);
   });
 
-  ipcMain.handle(IPC.CONNECTION_DELETE, async (_event, id: number) => {
+  ipcMain.handle(IPC.CONNECTION_DELETE, (_event, id: number) => {
     const row = db.select().from(connections).where(eq(connections.id, id)).get();
     if (!row) return false;
     db.delete(connections).where(eq(connections.id, id)).run();

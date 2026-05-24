@@ -132,7 +132,7 @@ describe("Toolbar", () => {
 				isAtDriveRoot={true}
 			/>
 		);
-		const select = screen.getByTitle("Select drive") as HTMLSelectElement;
+		const select = screen.getByTitle<HTMLSelectElement>("Select drive");
 		expect(select.value).toBe(cDriveRoot);
 	});
 });

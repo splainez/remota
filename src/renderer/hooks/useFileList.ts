@@ -39,7 +39,7 @@ export function useFileList(path: string, isMocked: boolean): UseFileListResult 
   }, [path, isMocked]);
 
   useEffect(() => {
-    load();
+    void load();
   }, [load]);
 
   return { entries, loading, error, refresh: load };

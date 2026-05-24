@@ -5,11 +5,11 @@ import { Breadcrumb, parsePath } from "./Breadcrumb";
 
 beforeAll(() => {
 	class ResizeObserverMock {
-		observe() {}
-		unobserve() {}
-		disconnect() {}
+		observe() { /* noop */ }
+		unobserve() { /* noop */ }
+		disconnect() { /* noop */ }
 	}
-	globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+	globalThis.ResizeObserver = ResizeObserverMock;
 });
 
 describe("parsePath", () => {

@@ -10,7 +10,7 @@ export function App() {
     return (
       <FileBrowser
         connection={activeConnection}
-        onDisconnect={() => setActiveConnection(null)}
+        onDisconnect={() => { setActiveConnection(null); }}
       />
     );
   }
