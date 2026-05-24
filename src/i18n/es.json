@@ -33,5 +33,15 @@
   "file.empty": "Esta carpeta está vacía",
   "file.mockBanner": "Conexión remota (simulada)",
   "file.items": "elemento(s)",
-  "file.selectDrive": "Seleccionar unidad"
+  "file.selectDrive": "Seleccionar unidad",
+  "validation.hostRequired": "El servidor es obligatorio",
+  "validation.hostInvalid": "El servidor debe ser un dominio, IPv4 o IPv6 válido",
+  "validation.portInteger": "El puerto debe ser un número entero",
+  "validation.portMin": "El puerto debe ser al menos 1",
+  "validation.portMax": "El puerto debe ser como máximo 65535",
+  "validation.usernameRequired": "El usuario es obligatorio",
+  "validation.nameRequired": "El nombre es obligatorio",
+  "validation.passwordRequired": "La contraseña es obligatoria",
+  "validation.privateKeyRequired": "La ruta de clave privada es obligatoria",
+  "validation.default": "Valor inválido"
 }

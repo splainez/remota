@@ -33,5 +33,15 @@
   "file.empty": "This folder is empty",
   "file.mockBanner": "Remote connection (mocked)",
   "file.items": "item(s)",
-  "file.selectDrive": "Select drive"
+  "file.selectDrive": "Select drive",
+  "validation.hostRequired": "Host is required",
+  "validation.hostInvalid": "Host must be a valid domain, IPv4, or IPv6 address",
+  "validation.portInteger": "Port must be an integer",
+  "validation.portMin": "Port must be at least 1",
+  "validation.portMax": "Port must be at most 65535",
+  "validation.usernameRequired": "Username is required",
+  "validation.nameRequired": "Name is required",
+  "validation.passwordRequired": "Password is required",
+  "validation.privateKeyRequired": "Private key path is required",
+  "validation.default": "Invalid value"
 }
