@@ -1,0 +1,46 @@
+services:
+  sftp:
+    image: atmoz/sftp
+    container_name: openscp-sftp
+    ports:
+      - "2222:22"
+    environment:
+      SFTP_USERS: "testuser:testpass:::"
+    volumes:
+      - sftp_data:/home/testuser
+    restart: unless-stopped
+
+  ftp:
+    image: fauria/vsftpd
+    container_name: openscp-ftp
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    environment:
+      FTP_USER: testuser
+      FTP_PASS: testpass
+      PASV_ADDRESS: "127.0.0.1"
+      PASV_MIN_PORT: "21100"
+      PASV_MAX_PORT: "21110"
+    volumes:
+      - ftp_data:/home/vsftpd
+    restart: unless-stopped
+
+  s3:
+    image: minio/minio
+    container_name: openscp-s3
+    command: server /data --console-address :9001
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - s3_data:/data
+    restart: unless-stopped
+
+volumes:
+  sftp_data:
+  ftp_data:
+  s3_data:
