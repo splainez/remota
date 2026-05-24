@@ -1,0 +1,113 @@
+import { render, screen, waitFor, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ConnectionManager } from "./ConnectionManager";
+import { createMockApi } from "../../test/setup";
+import type { Connection } from "../../../shared/types";
+
+function mockConnections(overrides: Partial<Connection>[] = []) {
+  return overrides.map((o, i) => ({
+    id: i + 1,
+    name: "Server",
+    protocol: "sftp" as const,
+    host: "example.com",
+    port: 22,
+    username: "user",
+    authType: "password" as const,
+    password: "",
+    privateKeyPath: "",
+    createdAt: "",
+    updatedAt: "",
+    ...o,
+  }));
+}
+
+describe("ConnectionManager", () => {
+  beforeEach(() => {
+    const mockApi = createMockApi();
+    vi.stubGlobal("api", mockApi);
+  });
+
+  it("shows empty sidebar when no connections", async () => {
+    render(<ConnectionManager />);
+    await waitFor(() => {
+      expect(screen.getAllByText("Select a connection or create a new one.")).toHaveLength(2);
+    });
+  });
+
+  it("loads and displays connections", async () => {
+    const connections = mockConnections([
+      { id: 1, name: "Alpha", host: "alpha.com" },
+      { id: 2, name: "Beta", host: "beta.com" },
+    ]);
+    const mockApi = createMockApi({
+      connections: {
+        list: vi.fn().mockResolvedValue(connections),
+        get: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+    });
+    vi.stubGlobal("api", mockApi);
+
+    render(<ConnectionManager />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Alpha")).toBeInTheDocument();
+      expect(screen.getByText("Beta")).toBeInTheDocument();
+    });
+  });
+
+  it("selects a connection on click", async () => {
+    const user = userEvent.setup();
+    const connections = mockConnections([
+      { id: 1, name: "Alpha", host: "alpha.com" },
+      { id: 2, name: "Beta", host: "beta.com" },
+    ]);
+    const mockApi = createMockApi({
+      connections: {
+        list: vi.fn().mockResolvedValue(connections),
+        get: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+    });
+    vi.stubGlobal("api", mockApi);
+
+    render(<ConnectionManager />);
+
+    await waitFor(() => screen.getByText("Beta"));
+    await user.click(screen.getByText("Beta"));
+
+    expect(screen.getAllByText("Beta")).toHaveLength(2);
+  });
+
+  it("opens new connection form on add", async () => {
+    const user = userEvent.setup();
+    const connections = mockConnections([{ id: 1, name: "Existing", host: "x.com" }]);
+    const mockApi = createMockApi({
+      connections: {
+        list: vi.fn().mockResolvedValue(connections),
+        get: vi.fn(),
+        create: vi.fn().mockResolvedValue({
+          id: 2, name: "New One", protocol: "sftp", host: "new.com", port: 22,
+          username: "", authType: "password", password: "", privateKeyPath: "",
+          createdAt: "", updatedAt: "",
+        }),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+    });
+    vi.stubGlobal("api", mockApi);
+
+    render(<ConnectionManager />);
+
+    await waitFor(() => screen.getByText("Existing"));
+    await user.click(screen.getByRole("button", { name: "+ Add Connection" }));
+
+    expect(screen.getByText("New Connection")).toBeInTheDocument();
+    expect(screen.getByLabelText("Host")).toBeInTheDocument();
+  });
+});
