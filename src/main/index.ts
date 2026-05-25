@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { initDatabase } from "./database";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
+import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { LastPathStore } from "./last-path-store";
+import { SftpConnectionManager } from "./sftp/sftp-client";
 
 let mainWindow: BrowserWindow | null = null;
 let lastPathStore: LastPathStore;
@@ -43,9 +45,15 @@ void app.whenReady().then(async () => {
 	const userDataPath = app.getPath("userData");
 	const db = await initDatabase(userDataPath);
 	lastPathStore = new LastPathStore(userDataPath);
+	const sftp = new SftpConnectionManager();
 	registerConnectionHandlers(db);
 	registerFilesystemHandlers(lastPathStore);
+	registerRemoteFilesystemHandlers(sftp, db);
 	createWindow();
+
+	app.on("will-quit", () => {
+		sftp.disconnectAll();
+	});
 
 	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) {

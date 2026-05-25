@@ -11,4 +11,8 @@ export const IPC = {
   FILE_GET_LAST_PATH: "file:getLastPath",
   FILE_SET_LAST_PATH: "file:setLastPath",
   FILE_GET_ICON: "file:getIcon",
+  REMOTE_CONNECT: "remote:connect",
+  REMOTE_DISCONNECT: "remote:disconnect",
+  REMOTE_LIST: "remote:list",
+  REMOTE_HOME_DIR: "remote:homeDir",
 } as const;
