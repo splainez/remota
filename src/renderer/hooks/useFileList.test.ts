@@ -258,4 +258,75 @@ describe("useFileList", () => {
 			expect(result.current.entries).toEqual(remoteEntries);
 		});
 	});
+
+	it("navigates remote directory tree with correct forward-slash paths", async () => {
+		const homeEntries: FileEntry[] = [
+			{ name: "var", fullPath: "/var", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+			{ name: "etc", fullPath: "/etc", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+		];
+		const varEntries: FileEntry[] = [
+			{ name: "log", fullPath: "/var/log", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+			{ name: "run", fullPath: "/var/run", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+		];
+		const logEntries: FileEntry[] = [
+			{ name: "syslog", fullPath: "/var/log/syslog", isDirectory: false, size: 1024, modified: "2025-01-01T00:00:00Z" },
+		];
+
+		const remoteMock = vi.fn()
+			.mockResolvedValueOnce(homeEntries)
+			.mockResolvedValueOnce(varEntries)
+			.mockResolvedValueOnce(logEntries);
+		window.api.filesystem.remoteList = remoteMock;
+
+		const { result: result1 } = renderHook(() =>
+			useFileList("/", { type: "remote", connectionId: 1 }),
+		);
+		await waitFor(() => {
+			expect(result1.current.loading).toBe(false);
+		});
+		expect(result1.current.entries).toEqual(homeEntries);
+		expect(remoteMock).toHaveBeenCalledWith(1, "/");
+
+		const { result: result2 } = renderHook(() =>
+			useFileList("/var", { type: "remote", connectionId: 1 }),
+		);
+		await waitFor(() => {
+			expect(result2.current.loading).toBe(false);
+		});
+		expect(result2.current.entries).toEqual(varEntries);
+		expect(remoteMock).toHaveBeenCalledWith(1, "/var");
+
+		const { result: result3 } = renderHook(() =>
+			useFileList("/var/log", { type: "remote", connectionId: 1 }),
+		);
+		await waitFor(() => {
+			expect(result3.current.loading).toBe(false);
+		});
+		expect(result3.current.entries).toEqual(logEntries);
+		expect(remoteMock).toHaveBeenCalledWith(1, "/var/log");
+
+		expect(remoteMock).toHaveBeenCalledTimes(3);
+	});
+
+	it("handles remote directory entries with forward-slashed fullPaths", async () => {
+		const nestedEntries: FileEntry[] = [
+			{ name: "config", fullPath: "/home/user/config", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+			{ name: ".profile", fullPath: "/home/user/.profile", isDirectory: false, size: 256, modified: "2025-01-01T00:00:00Z" },
+		];
+		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(nestedEntries);
+
+		const { result } = renderHook(() =>
+			useFileList("/home/user", { type: "remote", connectionId: 1 }),
+		);
+
+		await waitFor(() => {
+			expect(result.current.loading).toBe(false);
+		});
+
+		expect(result.current.entries).toEqual(nestedEntries);
+		for (const entry of result.current.entries) {
+			expect(entry.fullPath).toMatch(/^\//);
+			expect(entry.fullPath).not.toContain("\\");
+		}
+	});
 });

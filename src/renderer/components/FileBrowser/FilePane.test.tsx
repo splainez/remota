@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FilePane } from "./FilePane";
 import { useNavigationStore } from "../../store/navigation";
+import { usePlatformStore } from "../../store/platform";
 import { createMockApi } from "../../test/setup";
 
 beforeAll(() => {
@@ -464,6 +465,162 @@ describe("FilePane", () => {
 		await user.click(screen.getByTitle("Forward"));
 
 		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("uses forward slashes for remote paths on Windows platform", async () => {
+		const mockApiWin = createMockApi({
+			platform: "win32",
+			filesystem: {
+				list: vi.fn().mockResolvedValue([]),
+				listDrives: vi.fn().mockResolvedValue(["C:\\"]),
+				homeDir: vi.fn().mockResolvedValue("C:\\Users\\user"),
+				pathExists: vi.fn().mockResolvedValue(true),
+				getLastPath: vi.fn().mockResolvedValue(null),
+				setLastPath: vi.fn().mockResolvedValue(undefined),
+				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
+				remoteConnect: vi.fn().mockResolvedValue("/"),
+				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
+				remoteList: vi.fn().mockResolvedValue([
+					{ name: "var", isDirectory: true, size: 0, modified: "" },
+					{ name: "etc", isDirectory: true, size: 0, modified: "" },
+				]),
+				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+			},
+		});
+		vi.stubGlobal("api", mockApiWin);
+		usePlatformStore.setState({
+			platform: "win32",
+			isWindows: true,
+			isLinux: false,
+			isMacOS: false,
+			pathSep: "\\",
+		});
+
+		render(
+			<FilePane type="remote" connectionId={1} initialPath="/home" />
+		);
+
+		await screen.findByText("var");
+		expect(mockApiWin.filesystem.remoteList).toHaveBeenCalledWith(1, "/home");
+
+		await userEvent.dblClick(screen.getByText("var"));
+		expect(mockApiWin.filesystem.remoteList).toHaveBeenCalledWith(1, "/home/var");
+
+		usePlatformStore.setState({
+			platform: "linux",
+			isWindows: false,
+			isLinux: true,
+			isMacOS: false,
+			pathSep: "/",
+		});
+		vi.stubGlobal("api", mockApi);
+	});
+
+	it("uses forward slashes for nested remote paths on Windows platform", async () => {
+		const remoteListWin = vi.fn()
+			.mockResolvedValueOnce([
+				{ name: "subdir", isDirectory: true, size: 0, modified: "" },
+			])
+			.mockResolvedValueOnce([
+				{ name: "deep", isDirectory: true, size: 0, modified: "" },
+			]);
+		const mockApiWin2 = createMockApi({
+			platform: "win32",
+			filesystem: {
+				list: vi.fn().mockResolvedValue([]),
+				listDrives: vi.fn().mockResolvedValue(["C:\\"]),
+				homeDir: vi.fn().mockResolvedValue("C:\\Users\\user"),
+				pathExists: vi.fn().mockResolvedValue(true),
+				getLastPath: vi.fn().mockResolvedValue(null),
+				setLastPath: vi.fn().mockResolvedValue(undefined),
+				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
+				remoteConnect: vi.fn().mockResolvedValue("/"),
+				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
+				remoteList: remoteListWin,
+				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+			},
+		});
+		vi.stubGlobal("api", mockApiWin2);
+		usePlatformStore.setState({
+			platform: "win32",
+			isWindows: true,
+			isLinux: false,
+			isMacOS: false,
+			pathSep: "\\",
+		});
+
+		render(
+			<FilePane type="remote" connectionId={1} initialPath="/home/user" />
+		);
+
+		await screen.findByText("subdir");
+		await userEvent.dblClick(screen.getByText("subdir"));
+		expect(mockApiWin2.filesystem.remoteList).toHaveBeenCalledWith(1, "/home/user/subdir");
+
+		usePlatformStore.setState({
+			platform: "linux",
+			isWindows: false,
+			isLinux: true,
+			isMacOS: false,
+			pathSep: "/",
+		});
+		vi.stubGlobal("api", mockApi);
+	});
+
+	it("navigates back with forward slashes for remote paths on Windows", async () => {
+		const remoteListWin = vi.fn()
+			.mockResolvedValueOnce([
+				{ name: "docs", isDirectory: true, size: 0, modified: "" },
+			])
+			.mockResolvedValueOnce([
+				{ name: "file.txt", isDirectory: false, size: 100, modified: "" },
+			])
+			.mockResolvedValueOnce([
+				{ name: "docs", isDirectory: true, size: 0, modified: "" },
+			]);
+		const mockApiWin3 = createMockApi({
+			platform: "win32",
+			filesystem: {
+				list: vi.fn().mockResolvedValue([]),
+				listDrives: vi.fn().mockResolvedValue(["C:\\"]),
+				homeDir: vi.fn().mockResolvedValue("C:\\Users\\user"),
+				pathExists: vi.fn().mockResolvedValue(true),
+				getLastPath: vi.fn().mockResolvedValue(null),
+				setLastPath: vi.fn().mockResolvedValue(undefined),
+				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
+				remoteConnect: vi.fn().mockResolvedValue("/"),
+				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
+				remoteList: remoteListWin,
+				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+			},
+		});
+		vi.stubGlobal("api", mockApiWin3);
+		usePlatformStore.setState({
+			platform: "win32",
+			isWindows: true,
+			isLinux: false,
+			isMacOS: false,
+			pathSep: "\\",
+		});
+
+		render(
+			<FilePane type="remote" connectionId={1} initialPath="/home" />
+		);
+
+		await screen.findByText("docs");
+		await userEvent.dblClick(screen.getByText("docs"));
+
+		await userEvent.click(screen.getByTitle("Back"));
+		expect(mockApiWin3.filesystem.remoteList).toHaveBeenCalledWith(1, "/home");
+
+		usePlatformStore.setState({
+			platform: "linux",
+			isWindows: false,
+			isLinux: true,
+			isMacOS: false,
+			pathSep: "/",
+		});
+		vi.stubGlobal("api", mockApi);
 	});
 
 	it("clears selection on navigate up", async () => {

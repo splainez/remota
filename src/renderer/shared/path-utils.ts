@@ -1,7 +1,9 @@
 import { usePlatformStore } from "../store/platform";
 
 export function join(base: string, ...parts: string[]): string {
-  const sep = usePlatformStore.getState().pathSep;
+  const platformSep = usePlatformStore.getState().pathSep;
+  const isWindowsPath = platformSep === "\\" && base.includes("\\");
+  const sep = isWindowsPath ? "\\" : "/";
 
   if (sep === "\\") {
     let result = base.replace(/\\+$/, "");
