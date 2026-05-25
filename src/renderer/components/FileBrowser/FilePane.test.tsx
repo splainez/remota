@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FilePane } from "./FilePane";
 import { useNavigationStore } from "../../store/navigation";
@@ -36,6 +36,22 @@ function flushStore() {
 	useNavigationStore.getState().clear("local");
 	useNavigationStore.getState().clear("remote");
 }
+
+const selectionEntries = [
+	{ name: "backups", isDirectory: true, size: 0, modified: "" },
+	{ name: "projects", isDirectory: true, size: 0, modified: "" },
+	{ name: "config.json", isDirectory: false, size: 200, modified: "" },
+	{ name: "notes.txt", isDirectory: false, size: 50, modified: "" },
+];
+
+const selectionEntriesWithWebapp = [
+	...selectionEntries,
+	{ name: "webapp", isDirectory: false, size: 300, modified: "" },
+];
+
+const waitForEntries = async () => {
+	await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+};
 
 describe("FilePane", () => {
 	beforeEach(() => {
@@ -306,5 +322,163 @@ describe("FilePane", () => {
 
 		await userEvent.click(screen.getByText("Hide details"));
 		expect(screen.getByText("Show details")).toBeInTheDocument();
+	});
+
+	// --- selection ---
+
+	it("selects an entry on single click", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("projects"));
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("clears previous selection on plain click", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+		const user = userEvent.setup();
+
+		await user.click(screen.getByText("projects"));
+		await user.keyboard("{Control>}");
+		await user.click(screen.getByText("backups"));
+		await user.keyboard("{/Control}");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+
+		await user.click(screen.getByText("notes.txt"));
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("toggles entries with Ctrl+click", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+		const user = userEvent.setup();
+
+		await user.click(screen.getByText("projects"));
+		await user.keyboard("{Control>}");
+		await user.click(screen.getByText("backups"));
+		await user.keyboard("{/Control}");
+
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+
+		await user.keyboard("{Control>}");
+		await user.click(screen.getByText("projects"));
+		await user.keyboard("{/Control}");
+
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+	});
+
+	it("selects a range with Shift+click", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+		const user = userEvent.setup();
+
+		await user.click(screen.getByText("projects"));
+		await user.keyboard("{Shift>}");
+		await user.click(screen.getByText("notes.txt"));
+		await user.keyboard("{/Shift}");
+
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("uses first entry as anchor when Shift+click with no prior selection", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+		const user = userEvent.setup();
+
+		await user.keyboard("{Shift>}");
+		await user.click(screen.getByText("config.json"));
+		await user.keyboard("{/Shift}");
+
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("clears selection on navigate back", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntriesWithWebapp);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("projects"));
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+
+		await userEvent.dblClick(screen.getByText("projects"));
+		await userEvent.click(screen.getByTitle("Back"));
+
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("clears selection on navigate forward", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValueOnce(selectionEntriesWithWebapp)
+			.mockResolvedValueOnce([
+				{ name: "webapp", isDirectory: false, size: 300, modified: "" },
+			])
+			.mockResolvedValue(selectionEntriesWithWebapp);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+		const user = userEvent.setup();
+
+		await user.dblClick(screen.getByText("projects"));
+		await user.click(screen.getByText("webapp"));
+		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+
+		await user.click(screen.getByTitle("Back"));
+		await user.click(screen.getByTitle("Forward"));
+
+		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+	});
+
+	it("clears selection on navigate up", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+
+		render(
+			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("projects"));
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+
+		await userEvent.click(screen.getByTitle("Parent Directory"));
+
+		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
 	});
 });

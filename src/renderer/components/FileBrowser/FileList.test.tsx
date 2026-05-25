@@ -26,6 +26,8 @@ describe("FileList", () => {
 		loading: false,
 		error: null,
 		onEnterDirectory: vi.fn(),
+		onSelectEntry: vi.fn(),
+		selectedNames: [] as string[],
 	};
 
 	beforeEach(() => {
@@ -116,10 +118,43 @@ describe("FileList", () => {
 		}
 	});
 
-	it("does not call onEnterDirectory on single click", async () => {
+	it("calls onSelectEntry on single click with modifier info", async () => {
+		const onSelectEntry = vi.fn();
 		const onEnterDirectory = vi.fn();
-		render(<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />);
+		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} onEnterDirectory={onEnterDirectory} />);
 		await userEvent.click(screen.getByText("projects"));
+		expect(onSelectEntry).toHaveBeenCalledWith("projects", false, false, ["documents", "projects", "config.json", "readme.md"]);
 		expect(onEnterDirectory).not.toHaveBeenCalled();
+	});
+
+	it("calls onSelectEntry with ctrlKey true on Ctrl+click", async () => {
+		const onSelectEntry = vi.fn();
+		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} />);
+		const user = userEvent.setup();
+		await user.keyboard("{Control>}");
+		await user.click(screen.getByText("projects"));
+		await user.keyboard("{/Control}");
+		expect(onSelectEntry).toHaveBeenCalledWith("projects", true, false, ["documents", "projects", "config.json", "readme.md"]);
+	});
+
+	it("calls onSelectEntry with shiftKey true on Shift+click", async () => {
+		const onSelectEntry = vi.fn();
+		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} />);
+		const user = userEvent.setup();
+		await user.keyboard("{Shift>}");
+		await user.click(screen.getByText("config.json"));
+		await user.keyboard("{/Shift}");
+		expect(onSelectEntry).toHaveBeenCalledWith("config.json", false, true, ["documents", "projects", "config.json", "readme.md"]);
+	});
+
+	it("applies selection styling to entries in selectedNames", () => {
+		render(<FileList {...defaultProps} selectedNames={["readme.md", "config.json"]} />);
+		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+	});
+
+	it("does not apply selection styling to entries not in selectedNames", () => {
+		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
+		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
 	});
 });

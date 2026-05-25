@@ -25,6 +25,7 @@
 		},
 		"types": [
 			"node",
+			"electron-vite/node",
 		],
 	},
 	"include": [
