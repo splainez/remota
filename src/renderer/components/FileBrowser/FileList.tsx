@@ -12,6 +12,7 @@ interface FileListProps {
   entries: FileEntry[];
   loading: boolean;
   error: string | null;
+  errorDetail?: string;
   onEnterDirectory: (name: string) => void;
 }
 
@@ -34,9 +35,10 @@ function formatDate(iso: string): string {
   return `${String(d.getFullYear())}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function FileList({ entries, loading, error, onEnterDirectory }: FileListProps) {
+export function FileList({ entries, loading, error, errorDetail, onEnterDirectory }: FileListProps) {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [showDetail, setShowDetail] = useState(false);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -82,7 +84,26 @@ export function FileList({ entries, loading, error, onEnterDirectory }: FileList
   }
 
   if (error) {
-    return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{error}</div>;
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center text-gray-500 text-sm gap-1 p-4">
+        <span>{error}</span>
+        {errorDetail && (
+          <>
+            <button
+              className="text-xs text-blue-600 hover:underline cursor-pointer mt-1"
+              onClick={() => { setShowDetail((v) => !v); }}
+            >
+              {showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
+            </button>
+            {showDetail && (
+              <pre className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+                {errorDetail}
+              </pre>
+            )}
+          </>
+        )}
+      </div>
+    );
   }
 
   if (sorted.length === 0) {

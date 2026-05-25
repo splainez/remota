@@ -4,6 +4,7 @@ import { usePlatformStore } from "../../store/platform";
 import { useNavigationStore } from "../../store/navigation";
 import { join, parentPath } from "../../shared/path-utils";
 import { useFileList } from "../../hooks/useFileList";
+import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { Breadcrumb } from "./Breadcrumb";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
@@ -12,10 +13,11 @@ interface FilePaneProps {
 	type: "local" | "remote";
 	connectionId: number;
 	initialPath: string;
-	isMocked: boolean;
+	connectionError?: SftpErrorInfo | null;
+	onReconnect?: () => void;
 }
 
-export function FilePane({ type, connectionId, initialPath, isMocked }: FilePaneProps) {
+export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect }: FilePaneProps) {
 	const [currentPath, setCurrentPath] = useState(initialPath);
 	const [drives, setDrives] = useState<string[]>([]);
 	const prevConnectionRef = useRef(connectionId);
@@ -43,10 +45,10 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 	}, [type, connectionId, initialPath]);
 
 	useEffect(() => {
-		if (!isMocked && type === "local" && isWindows) {
+		if (type === "local" && isWindows) {
 			void window.api.filesystem.listDrives().then(setDrives);
 		}
-	}, [isMocked, type, isWindows]);
+	}, [type, isWindows]);
 
 	useEffect(() => {
 		if (pathInitialized.current) {
@@ -54,7 +56,10 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 		}
 	}, [currentPath, connectionId, type]);
 
-	const { entries, loading, error, refresh } = useFileList(currentPath, isMocked);
+	const { entries, loading, error, refresh } = useFileList(currentPath, {
+		type,
+		connectionId: type === "remote" ? connectionId : undefined,
+	});
 
 	const navigateTo = useCallback(
 		(path: string) => {
@@ -110,6 +115,12 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 		void refresh();
 	}, [refresh]);
 
+	const listingError = error;
+	const deadError = connectionError ?? (listingError?.code === "NOT_CONNECTED" ? listingError : null);
+	const isConnectionDead = deadError != null;
+	const displayError = deadError ?? listingError ?? null;
+	const errorMessage = displayError ? t(getErrorI18nKey(displayError.code)) : null;
+
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
 			if (e.button === 3) {
@@ -126,18 +137,13 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 	const driveRoot = isWindows
 		? drives.find((d) => d === currentPath) ?? null
 		: null;
-	const showDriveSelector = isWindows && !isMocked && type === "local" && drives.length > 1;
+	const showDriveSelector = isWindows && type === "local" && drives.length > 1;
 
 	return (
 		<div
 			className="flex-1 flex flex-col overflow-hidden bg-gray-100 border border-gray-300 rounded-md min-w-0"
 			onMouseDown={handleMouseDown}
 		>
-			{isMocked && (
-				<div className="px-2 py-1 bg-blue-600 text-white text-xs font-semibold text-center shrink-0">
-					{t("file.mockBanner")}
-				</div>
-			)}
 			<Toolbar
 				onGoBack={handleGoBack}
 				onGoForward={handleGoForward}
@@ -151,17 +157,33 @@ export function FilePane({ type, connectionId, initialPath, isMocked }: FilePane
 				isAtDriveRoot={driveRoot !== null}
 			/>
 			<Breadcrumb path={currentPath} onNavigate={handleNavigate} />
-			<FileList
-				entries={entries}
-				loading={loading}
-				error={error}
-				onEnterDirectory={handleEnterDirectory}
-			/>
-			{!isMocked && (
-				<div className="h-[22px] flex items-center px-2 bg-gray-200 border-t border-gray-300 text-xs text-gray-500 shrink-0">
-					{loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
+			{isConnectionDead ? (
+				<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-gray-600">
+					<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>
+					{onReconnect && (
+						<button
+							className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 cursor-pointer"
+							onClick={onReconnect}
+						>
+							{t("remote.reconnect")}
+						</button>
+					)}
+					<pre className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+						{deadError.technicalDetail}
+					</pre>
 				</div>
+			) : (
+				<FileList
+					entries={entries}
+					loading={loading}
+					error={errorMessage}
+					errorDetail={displayError?.technicalDetail}
+					onEnterDirectory={handleEnterDirectory}
+				/>
 			)}
+			<div className="h-[22px] flex items-center px-2 bg-gray-200 border-t border-gray-300 text-xs text-gray-500 shrink-0">
+				{loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
+			</div>
 		</div>
 	);
 }
