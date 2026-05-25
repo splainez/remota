@@ -15,6 +15,12 @@ function makeConn(count: number): Connection[] {
     authType: "password" as const,
     password: "",
     privateKeyPath: "",
+    accessKey: "",
+    secretKey: "",
+    region: "us-east-1",
+    bucket: "",
+    endpoint: "",
+    useHttps: true,
     createdAt: "",
     updatedAt: "",
   }));
@@ -96,6 +102,12 @@ describe("useConnections", () => {
           authType: "password",
           password: "",
           privateKeyPath: "",
+          accessKey: "",
+          secretKey: "",
+          region: "us-east-1",
+          bucket: "",
+          endpoint: "",
+          useHttps: true,
           createdAt: "",
           updatedAt: "",
         }),
@@ -119,6 +131,12 @@ describe("useConnections", () => {
         authType: "password",
         password: "",
         privateKeyPath: "",
+        accessKey: "",
+        secretKey: "",
+        region: "us-east-1",
+        bucket: "",
+        endpoint: "",
+        useHttps: true,
       });
     });
 

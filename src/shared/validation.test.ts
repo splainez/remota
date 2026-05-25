@@ -201,6 +201,12 @@ describe("connectionFormSchema", () => {
 		authType: "password" as const,
 		password: "secret",
 		privateKeyPath: "",
+		accessKey: "",
+		secretKey: "",
+		region: "us-east-1",
+		bucket: "",
+		endpoint: "",
+		useHttps: true,
 	};
 
 	it("accepts valid password auth data", () => {
@@ -321,6 +327,94 @@ describe("connectionFormSchema", () => {
 	it("rejects whitespace-only name", () => {
 		const result = connectionFormSchema.safeParse({ ...validBase, name: "   " });
 		expect(result.success).toBe(false);
+	});
+
+	it("rejects S3 protocol without access key", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "",
+			secretKey: "sk",
+			region: "us-east-1",
+			bucket: "my-bucket",
+		});
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("accessKey"))).toBe(true);
+		}
+	});
+
+	it("rejects S3 protocol without secret key", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "ak",
+			secretKey: "",
+			region: "us-east-1",
+			bucket: "my-bucket",
+		});
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("secretKey"))).toBe(true);
+		}
+	});
+
+	it("rejects S3 protocol without region", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "ak",
+			secretKey: "sk",
+			region: "",
+			bucket: "my-bucket",
+		});
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("region"))).toBe(true);
+		}
+	});
+
+	it("rejects S3 protocol without bucket", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "ak",
+			secretKey: "sk",
+			region: "us-east-1",
+			bucket: "",
+		});
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("bucket"))).toBe(true);
+		}
+	});
+
+	it("accepts valid S3 data", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "AKIATEST",
+			secretKey: "secret123",
+			region: "eu-west-1",
+			bucket: "my-bucket",
+			endpoint: "",
+			useHttps: true,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts S3 with custom endpoint", () => {
+		const result = connectionFormSchema.safeParse({
+			...validBase,
+			protocol: "s3" as const,
+			accessKey: "AKIATEST",
+			secretKey: "secret123",
+			region: "us-east-1",
+			bucket: "my-bucket",
+			endpoint: "http://localhost:9000",
+			useHttps: false,
+		});
+		expect(result.success).toBe(true);
 	});
 });
 

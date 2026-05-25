@@ -41,6 +41,12 @@ const testConnection = {
 	authType: "password" as const,
 	password: "",
 	privateKeyPath: "",
+	accessKey: "",
+	secretKey: "",
+	region: "us-east-1",
+	bucket: "",
+	endpoint: "",
+	useHttps: true,
 	createdAt: "2024-01-01T00:00:00Z",
 	updatedAt: "2024-01-01T00:00:00Z",
 };

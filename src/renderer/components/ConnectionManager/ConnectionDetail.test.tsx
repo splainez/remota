@@ -14,6 +14,12 @@ const sampleConnection: Connection = {
   authType: "password",
   password: "secret",
   privateKeyPath: "",
+  accessKey: "",
+  secretKey: "",
+  region: "us-east-1",
+  bucket: "",
+  endpoint: "",
+  useHttps: true,
   createdAt: "",
   updatedAt: "",
 };
