@@ -78,6 +78,7 @@ src/
 - **Component pattern**: each component folder (e.g. `ConnectionManager/`) contains the component `.tsx`, its CSS module `.module.css`, and co-located test `.test.tsx`.
 - **CSS Modules**: use `*.module.css` for component styles (Tailwind is also available).
 - **IPC channel constants**: always use `IPC.*` from `src/shared/ipc-channels.ts`, never hardcode channel strings.
+- **Logging**: use `@sym:Logger` for logs and ensure any error is recorded through the shared logger.
 
 ## Gotchas
 
