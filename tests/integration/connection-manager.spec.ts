@@ -69,6 +69,11 @@ async function initMock(page: Page, seed?: SeedData) {
 				pathExists: () => Promise.resolve(true),
 				getLastPath: () => Promise.resolve(null),
 				setLastPath: () => Promise.resolve(),
+				getIcon: () => Promise.resolve(null),
+				remoteConnect: () => Promise.resolve("/home/testuser"),
+				remoteDisconnect: () => Promise.resolve(),
+				remoteList: () => Promise.resolve([]),
+				remoteHomeDir: () => Promise.resolve("/"),
 			},
 			platform: "linux",
 		};
@@ -104,13 +109,16 @@ test.describe("Connection Manager", () => {
 			await page.getByRole("button", { name: "+ Add Connection" }).click();
 			await expect(page.getByText("New Connection")).toBeVisible();
 
+			await page.locator("#conn-name").fill("Test Connection");
 			await page.getByLabel("Host").fill("test.example.com");
+			await page.getByLabel("Username").fill("testuser");
+			await page.locator("#conn-password").fill("testpass");
 			await page.getByRole("button", { name: "Save" }).click();
 
 			await expect(page.getByRole("button", { name: "Disconnect" })).toBeVisible();
 			await page.getByRole("button", { name: "Disconnect" }).click();
 
-			await expect(page.getByText("test.example.com")).toBeVisible();
+			await expect(page.getByText("Test Connection")).toBeVisible();
 		});
 	});
 
@@ -132,7 +140,7 @@ test.describe("Connection Manager", () => {
 			await page.getByText("Existing Server").click();
 			await page.getByRole("button", { name: "Edit Connection" }).click();
 
-			const nameInput = page.getByRole("textbox", { name: "Name", exact: true });
+			const nameInput = page.locator("#conn-name");
 			await nameInput.clear();
 			await nameInput.fill("Renamed Server");
 			await page.getByRole("button", { name: "Save" }).click();

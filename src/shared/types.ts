@@ -24,6 +24,7 @@ export type ConnectionUpdate = Partial<NewConnection> & { id: number };
 
 export interface FileEntry {
   name: string;
+  fullPath: string;
   isDirectory: boolean;
   size: number;
   modified: string;
@@ -44,6 +45,7 @@ export interface ElectronAPI {
     pathExists: (path: string) => Promise<boolean>;
     getLastPath: (connectionId: number, pane: "local" | "remote") => Promise<string | null>;
     setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
+    getIcon: (path: string) => Promise<string | null>;
     remoteConnect: (connectionId: number) => Promise<string>;
     remoteDisconnect: (connectionId: number) => Promise<void>;
     remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;

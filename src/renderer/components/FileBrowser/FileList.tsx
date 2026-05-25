@@ -146,7 +146,7 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 						<div className="flex-1 flex items-center gap-1.5 px-1 overflow-hidden">
 							{entry.isDirectory
 								? <FolderIcon path={entry.name} size={14} className="shrink-0" />
-								: <FileIcon path={entry.name} size={14} className="shrink-0" />
+								: <FileIcon path={entry.name} filePath={entry.fullPath} size={14} className="shrink-0" />
 							}
 							<span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">{entry.name}</span>
 						</div>

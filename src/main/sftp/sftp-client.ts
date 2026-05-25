@@ -115,6 +115,7 @@ export class SftpConnectionManager {
           .filter((entry) => entry.filename !== "." && entry.filename !== "..")
           .map((entry) => ({
             name: entry.filename,
+            fullPath: `${path}/${entry.filename}`,
             isDirectory: entry.attrs.isDirectory(),
             size: entry.attrs.size,
             modified: new Date(entry.attrs.mtime * 1000).toISOString(),

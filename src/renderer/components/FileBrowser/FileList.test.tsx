@@ -10,7 +10,7 @@ function makeEntry(
 	size: number,
 	modified: string,
 ): FileEntry {
-	return { name, isDirectory, size, modified };
+	return { name, fullPath: `/${name}`, isDirectory, size, modified };
 }
 
 const sampleEntries: FileEntry[] = [

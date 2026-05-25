@@ -27,4 +27,10 @@ describe("FolderIcon", () => {
 		render(<FolderIcon path="src" size={24} data-testid="folder-icon" />);
 		expect(screen.getByTestId("folder-icon")).toBeInTheDocument();
 	});
+
+	it("renders SVG icon", () => {
+		render(<FolderIcon path="src" data-testid="folder-icon" />);
+		const el = screen.getByTestId("folder-icon");
+		expect(el.tagName).toBe("svg");
+	});
 });

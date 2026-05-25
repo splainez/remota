@@ -10,6 +10,7 @@ export const IPC = {
   FILE_PATH_EXISTS: "file:pathExists",
   FILE_GET_LAST_PATH: "file:getLastPath",
   FILE_SET_LAST_PATH: "file:setLastPath",
+  FILE_GET_ICON: "file:getIcon",
   REMOTE_CONNECT: "remote:connect",
   REMOTE_DISCONNECT: "remote:disconnect",
   REMOTE_LIST: "remote:list",
