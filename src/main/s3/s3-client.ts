@@ -124,12 +124,13 @@ export class S3ConnectionManager {
 						if (cp.Prefix) {
 							const name = cp.Prefix.slice((prefix || "").length).replace(/\/$/, "");
 							if (name.length > 0) {
-								entries.push({
-									name,
-									isDirectory: true,
-									size: 0,
-									modified: new Date().toISOString(),
-								});
+							entries.push({
+								name,
+								fullPath: "/" + cp.Prefix.replace(/\/$/, ""),
+								isDirectory: true,
+								size: 0,
+								modified: new Date().toISOString(),
+							});
 							}
 						}
 					}
@@ -142,6 +143,7 @@ export class S3ConnectionManager {
 						if (name.length === 0) continue;
 						entries.push({
 							name,
+							fullPath: "/" + obj.Key,
 							isDirectory: false,
 							size: obj.Size ?? 0,
 							modified: obj.LastModified
