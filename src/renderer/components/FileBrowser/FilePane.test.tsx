@@ -466,7 +466,12 @@ describe("FilePane", () => {
 	});
 
 	it("clears selection on navigate up", async () => {
-		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
+		window.api.filesystem.list = vi.fn()
+			.mockResolvedValueOnce(selectionEntries)
+			.mockResolvedValueOnce([
+				{ name: "admin", isDirectory: true, size: 0, modified: "" },
+				{ name: "deploy", isDirectory: false, size: 100, modified: "" },
+			]);
 
 		render(
 			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
