@@ -17,6 +17,10 @@ declare global {
         pathExists: (path: string) => Promise<boolean>;
         getLastPath: (connectionId: number, pane: "local" | "remote") => Promise<string | null>;
         setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
+        remoteConnect: (connectionId: number) => Promise<string>;
+        remoteDisconnect: (connectionId: number) => Promise<void>;
+        remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
+        remoteHomeDir: (connectionId: number) => Promise<string>;
       };
       platform: string;
     };
