@@ -40,6 +40,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
       pathExists: vi.fn().mockResolvedValue(true),
       getLastPath: vi.fn().mockResolvedValue(null),
       setLastPath: vi.fn().mockResolvedValue(undefined),
+      getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
       ...overrides?.filesystem,
     },
     platform: overrides?.platform ?? "linux",

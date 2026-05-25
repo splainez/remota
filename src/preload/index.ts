@@ -19,6 +19,7 @@ const api = {
       ipcRenderer.invoke(IPC.FILE_GET_LAST_PATH, connectionId, pane),
     setLastPath: (connectionId: number, pane: "local" | "remote", path: string): Promise<void> =>
       ipcRenderer.invoke(IPC.FILE_SET_LAST_PATH, connectionId, pane, path),
+    getIcon: (path: string): Promise<string | null> => ipcRenderer.invoke(IPC.FILE_GET_ICON, path),
   },
   platform: process.platform,
 };
