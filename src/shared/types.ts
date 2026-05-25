@@ -8,6 +8,12 @@ export interface Connection {
   authType: "password" | "key" | "agent";
   password: string;
   privateKeyPath: string;
+  accessKey: string;
+  secretKey: string;
+  region: string;
+  bucket: string;
+  endpoint: string;
+  useHttps: boolean;
   createdAt: string;
   updatedAt: string;
 }

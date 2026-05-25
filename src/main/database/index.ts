@@ -35,10 +35,26 @@ export async function initDatabase(userDataPath: string): Promise<DatabaseInstan
       auth_type TEXT NOT NULL DEFAULT 'password',
       password TEXT NOT NULL DEFAULT '',
       private_key_path TEXT NOT NULL DEFAULT '',
+      access_key TEXT NOT NULL DEFAULT '',
+      secret_key TEXT NOT NULL DEFAULT '',
+      region TEXT NOT NULL DEFAULT 'us-east-1',
+      bucket TEXT NOT NULL DEFAULT '',
+      endpoint TEXT NOT NULL DEFAULT '',
+      use_https INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
   `);
+
+	const migrateColumn = (col: string, def: string) => {
+		try { sqlJsDb.run(`ALTER TABLE connections ADD COLUMN ${col} ${def}`); } catch { /* already exists */ }
+	};
+	migrateColumn("access_key", "TEXT NOT NULL DEFAULT ''");
+	migrateColumn("secret_key", "TEXT NOT NULL DEFAULT ''");
+	migrateColumn("region", "TEXT NOT NULL DEFAULT 'us-east-1'");
+	migrateColumn("bucket", "TEXT NOT NULL DEFAULT ''");
+	migrateColumn("endpoint", "TEXT NOT NULL DEFAULT ''");
+	migrateColumn("use_https", "INTEGER NOT NULL DEFAULT 1");
 
 	const wrapper = new SqlJsDatabase(sqlJsDb);
 

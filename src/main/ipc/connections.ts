@@ -16,6 +16,12 @@ function rowToConnection(row: typeof connections.$inferSelect): Connection {
     authType: row.authType as Connection["authType"],
     password: row.password,
     privateKeyPath: row.privateKeyPath,
+    accessKey: row.accessKey,
+    secretKey: row.secretKey,
+    region: row.region,
+    bucket: row.bucket,
+    endpoint: row.endpoint,
+    useHttps: row.useHttps === 1,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -45,6 +51,12 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
         authType: data.authType,
         password: data.password,
         privateKeyPath: data.privateKeyPath,
+        accessKey: data.accessKey,
+        secretKey: data.secretKey,
+        region: data.region,
+        bucket: data.bucket,
+        endpoint: data.endpoint,
+        useHttps: data.useHttps ? 1 : 0,
         createdAt: now,
         updatedAt: now,
       })
@@ -55,9 +67,13 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
 
   ipcMain.handle(IPC.CONNECTION_UPDATE, (_event, data: ConnectionUpdate) => {
     const now = new Date().toISOString();
+    const setData: Record<string, unknown> = { ...data, updatedAt: now };
+    if (typeof data.useHttps === "boolean") {
+      setData.useHttps = data.useHttps ? 1 : 0;
+    }
     const result = db
       .update(connections)
-      .set({ ...data, updatedAt: now })
+      .set(setData)
       .where(eq(connections.id, data.id))
       .returning()
       .get();

@@ -6,6 +6,7 @@ import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { LastPathStore } from "./last-path-store";
 import { SftpConnectionManager } from "./sftp/sftp-client";
+import { S3ConnectionManager } from "./s3/s3-client";
 
 let mainWindow: BrowserWindow | null = null;
 let lastPathStore: LastPathStore;
@@ -46,13 +47,15 @@ void app.whenReady().then(async () => {
 	const db = await initDatabase(userDataPath);
 	lastPathStore = new LastPathStore(userDataPath);
 	const sftp = new SftpConnectionManager();
+	const s3 = new S3ConnectionManager();
 	registerConnectionHandlers(db);
 	registerFilesystemHandlers(lastPathStore);
-	registerRemoteFilesystemHandlers(sftp, db);
+	registerRemoteFilesystemHandlers(sftp, s3, db);
 	createWindow();
 
 	app.on("will-quit", () => {
 		sftp.disconnectAll();
+		s3.disconnectAll();
 	});
 
 	app.on("activate", () => {

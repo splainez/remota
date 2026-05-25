@@ -39,22 +39,47 @@ export const usernameSchema = z.string().trim().min(1, "validation.usernameRequi
 export const passwordSchema = z.string().min(1, "validation.passwordRequired");
 export const privateKeyPathSchema = z.string().min(1, "validation.privateKeyRequired");
 export const nameSchema = z.string().trim().min(1, "validation.nameRequired");
+export const accessKeySchema = z.string().trim().min(1, "validation.accessKeyRequired");
+export const secretKeySchema = z.string().trim().min(1, "validation.secretKeyRequired");
+export const regionSchema = z.string().trim().min(1, "validation.regionRequired");
+export const bucketSchema = z.string().trim().min(1, "validation.bucketRequired");
 
 export const connectionFormSchema = z.object({
 	name: nameSchema,
 	protocol: z.enum(protocols),
 	host: hostSchema,
 	port: portSchema,
-	username: usernameSchema,
+	username: z.string(),
 	authType: z.enum(authTypes),
 	password: z.string(),
 	privateKeyPath: z.string(),
+	accessKey: z.string(),
+	secretKey: z.string(),
+	region: z.string(),
+	bucket: z.string(),
+	endpoint: z.string(),
+	useHttps: z.boolean(),
 }).refine(
-	(data) => data.authType !== "password" || data.password.trim().length > 0,
+	(data) => data.protocol === "s3" || data.authType !== "password" || data.password.trim().length > 0,
 	{ message: "validation.passwordRequired", path: ["password"] },
 ).refine(
-	(data) => data.authType !== "key" || data.privateKeyPath.trim().length > 0,
+	(data) => data.protocol === "s3" || data.authType !== "key" || data.privateKeyPath.trim().length > 0,
 	{ message: "validation.privateKeyRequired", path: ["privateKeyPath"] },
+).refine(
+	(data) => data.protocol === "s3" || data.username.trim().length > 0,
+	{ message: "validation.usernameRequired", path: ["username"] },
+).refine(
+	(data) => data.protocol !== "s3" || data.accessKey.trim().length > 0,
+	{ message: "validation.accessKeyRequired", path: ["accessKey"] },
+).refine(
+	(data) => data.protocol !== "s3" || data.secretKey.trim().length > 0,
+	{ message: "validation.secretKeyRequired", path: ["secretKey"] },
+).refine(
+	(data) => data.protocol !== "s3" || data.region.trim().length > 0,
+	{ message: "validation.regionRequired", path: ["region"] },
+).refine(
+	(data) => data.protocol !== "s3" || data.bucket.trim().length > 0,
+	{ message: "validation.bucketRequired", path: ["bucket"] },
 );
 
 export type ConnectionFormData = z.infer<typeof connectionFormSchema>;
