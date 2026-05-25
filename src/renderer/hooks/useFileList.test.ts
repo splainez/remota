@@ -13,7 +13,7 @@ describe("useFileList", () => {
 
 	it("loads local directory listing via IPC", async () => {
 		const mockEntries: FileEntry[] = [
-			{ name: "src", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
+			{ name: "src", fullPath: "/home/src", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
 		];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(mockEntries);
 
@@ -66,10 +66,10 @@ describe("useFileList", () => {
 	});
 
 	it("refresh reloads the directory listing", async () => {
-		const firstEntries: FileEntry[] = [{ name: "a.txt", isDirectory: false, size: 10, modified: "" }];
+		const firstEntries: FileEntry[] = [{ name: "a.txt", fullPath: "/tmp/a.txt", isDirectory: false, size: 10, modified: "" }];
 		const refreshedEntries: FileEntry[] = [
-			{ name: "a.txt", isDirectory: false, size: 10, modified: "" },
-			{ name: "b.txt", isDirectory: false, size: 20, modified: "" },
+			{ name: "a.txt", fullPath: "/tmp/a.txt", isDirectory: false, size: 10, modified: "" },
+			{ name: "b.txt", fullPath: "/tmp/b.txt", isDirectory: false, size: 20, modified: "" },
 		];
 		const listMock = vi
 			.fn()
