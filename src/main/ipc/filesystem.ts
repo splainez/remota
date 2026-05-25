@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeImage } from "electron";
+import { app, ipcMain } from "electron";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join, sep } from "node:path";
 import { homedir } from "node:os";
@@ -61,7 +61,7 @@ export function listDrives(): string[] {
 }
 
 export function registerFilesystemHandlers(lastPathStore: LastPathStore) {
-	ipcMain.handle(IPC.FILE_LIST, async (_event, dirPath: string) => {
+	ipcMain.handle(IPC.FILE_LIST, (_event, dirPath: string) => {
 		const normalized = normalizePath(dirPath);
 		return listDirectory(normalized);
 	});

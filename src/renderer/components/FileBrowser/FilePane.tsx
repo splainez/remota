@@ -108,7 +108,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 	const handleSelectEntry = useCallback(
 		(name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => {
 			if (shiftKey) {
-				const anchor = lastClickedNameRef.current ?? sortedNames[0] ?? name;
+				const anchor = lastClickedNameRef.current ?? sortedNames[0];
 				const anchorIdx = sortedNames.indexOf(anchor);
 				const clickedIdx = sortedNames.indexOf(name);
 				if (anchorIdx === -1 || clickedIdx === -1) {

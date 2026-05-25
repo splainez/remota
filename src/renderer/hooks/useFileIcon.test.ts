@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 
 describe("useFileIcon", () => {
-	beforeEach(async () => {
+	beforeEach(() => {
 		vi.resetModules();
 		window.api.filesystem.getIcon = vi.fn().mockResolvedValue(null);
 	});
@@ -15,7 +15,7 @@ describe("useFileIcon", () => {
 
 	it("returns null icon initially while fetching", async () => {
 		const { useFileIcon: useIcon } = await import("./useFileIcon");
-		window.api.filesystem.getIcon = vi.fn().mockImplementation(() => new Promise(() => {}));
+		window.api.filesystem.getIcon = vi.fn().mockImplementation(() => new Promise<null>(() => undefined));
 		const { result } = renderHook(() => useIcon("/tmp/a.txt"));
 		expect(result.current.icon).toBeNull();
 	});
