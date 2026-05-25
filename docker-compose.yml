@@ -5,7 +5,7 @@ services:
     ports:
       - "2222:22"
     environment:
-      SFTP_USERS: "testuser:testpass:::"
+      SFTP_USERS: "testuser:testpass:::upload"
     volumes:
       - sftp_data:/home/testuser
     restart: unless-stopped
