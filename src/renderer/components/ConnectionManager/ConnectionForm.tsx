@@ -9,6 +9,10 @@ import {
 	passwordSchema,
 	privateKeyPathSchema,
 	nameSchema,
+	accessKeySchema,
+	secretKeySchema,
+	regionSchema,
+	bucketSchema,
 	authTypes,
 	DEFAULT_PORT,
 } from "../../../shared/validation";
@@ -51,6 +55,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 			authType: initial?.authType ?? "password",
 			password: initial?.password ?? "",
 			privateKeyPath: initial?.privateKeyPath ?? "",
+			accessKey: initial?.accessKey ?? "",
+			secretKey: initial?.secretKey ?? "",
+			region: initial?.region ?? "us-east-1",
+			bucket: initial?.bucket ?? "",
+			endpoint: initial?.endpoint ?? "",
+			useHttps: initial?.useHttps ?? true,
 		},
 		onSubmit: async ({ value }) => {
 			await onSave({
@@ -62,6 +72,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 				authType: value.authType,
 				password: value.password,
 				privateKeyPath: value.privateKeyPath.trim(),
+				accessKey: value.accessKey.trim(),
+				secretKey: value.secretKey.trim(),
+				region: value.region.trim(),
+				bucket: value.bucket.trim(),
+				endpoint: value.endpoint.trim(),
+				useHttps: value.useHttps,
 			});
 		},
 		validators: {
@@ -169,93 +185,221 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 				)}
 			</form.Field>
 
-			<form.Field name="username" validators={{ onBlur: usernameSchema }}>
-				{(field) => (
-					<div className="flex flex-col gap-1">
-						<label className={requiredLabelClass} htmlFor="conn-username">{t("connection.username")}</label>
-						<input
-							id="conn-username"
-							className={inputClass}
-							type="text"
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(e) => { field.handleChange(e.target.value); }}
-							placeholder="user"
-						/>
-						{field.state.meta.errors.map((err, i) => (
-							<span key={i} className={errorClass}>{errorMessage(err)}</span>
-						))}
-					</div>
-				)}
-			</form.Field>
-
-			<form.Field name="authType">
-				{(field) => (
-					<div className="flex flex-col gap-1">
-						<label className={labelClass}>{t("connection.authType")}</label>
-						<div className="flex gap-4">
-							{authTypes.map((at) => (
-								<label key={at} className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
-									<input
-										type="radio"
-										name="authType"
-										value={at}
-										checked={field.state.value === at}
-										onBlur={field.handleBlur}
-										onChange={() => { field.handleChange(at); }}
-									/>
-									{t(AUTH_LABELS[at])}
-								</label>
-							))}
-						</div>
-					</div>
-				)}
-			</form.Field>
-
-			<form.Subscribe selector={(s) => s.values.authType}>
-				{(authType) => (
+			<form.Subscribe selector={(s) => s.values.protocol}>
+				{(protocol) => (
 					<>
-						{authType === "password" && (
-							<form.Field name="password" validators={{ onBlur: passwordSchema }}>
-								{(field) => (
-									<div className="flex flex-col gap-1">
-										<label className={requiredLabelClass} htmlFor="conn-password">{t("connection.password")}</label>
-										<input
-											id="conn-password"
-											className={inputClass}
-											type="password"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => { field.handleChange(e.target.value); }}
-										/>
-										{field.state.meta.errors.map((err, i) => (
-											<span key={i} className={errorClass}>{errorMessage(err)}</span>
-										))}
-									</div>
-								)}
-							</form.Field>
+						{protocol !== "s3" && (
+							<>
+								<form.Field name="username" validators={{ onBlur: usernameSchema }}>
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={requiredLabelClass} htmlFor="conn-username">{t("connection.username")}</label>
+											<input
+												id="conn-username"
+												className={inputClass}
+												type="text"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+												placeholder="user"
+											/>
+											{field.state.meta.errors.map((err, i) => (
+												<span key={i} className={errorClass}>{errorMessage(err)}</span>
+											))}
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="authType">
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={labelClass}>{t("connection.authType")}</label>
+											<div className="flex gap-4">
+												{authTypes.map((at) => (
+													<label key={at} className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
+														<input
+															type="radio"
+															name="authType"
+															value={at}
+															checked={field.state.value === at}
+															onBlur={field.handleBlur}
+															onChange={() => { field.handleChange(at); }}
+														/>
+														{t(AUTH_LABELS[at])}
+													</label>
+												))}
+											</div>
+										</div>
+									)}
+								</form.Field>
+
+								<form.Subscribe selector={(s) => s.values.authType}>
+									{(authType) => (
+										<>
+											{authType === "password" && (
+												<form.Field name="password" validators={{ onBlur: passwordSchema }}>
+													{(field) => (
+														<div className="flex flex-col gap-1">
+															<label className={requiredLabelClass} htmlFor="conn-password">{t("connection.password")}</label>
+															<input
+																id="conn-password"
+																className={inputClass}
+																type="password"
+																value={field.state.value}
+																onBlur={field.handleBlur}
+																onChange={(e) => { field.handleChange(e.target.value); }}
+															/>
+															{field.state.meta.errors.map((err, i) => (
+																<span key={i} className={errorClass}>{errorMessage(err)}</span>
+															))}
+														</div>
+													)}
+												</form.Field>
+											)}
+
+											{authType === "key" && (
+												<form.Field name="privateKeyPath" validators={{ onBlur: privateKeyPathSchema }}>
+													{(field) => (
+														<div className="flex flex-col gap-1">
+															<label className={requiredLabelClass} htmlFor="conn-privatekey">{t("connection.privateKey")}</label>
+															<input
+																id="conn-privatekey"
+																className={inputClass}
+																type="text"
+																value={field.state.value}
+																onBlur={field.handleBlur}
+																onChange={(e) => { field.handleChange(e.target.value); }}
+																placeholder="~/.ssh/id_rsa"
+															/>
+															{field.state.meta.errors.map((err, i) => (
+																<span key={i} className={errorClass}>{errorMessage(err)}</span>
+															))}
+														</div>
+													)}
+												</form.Field>
+											)}
+										</>
+									)}
+								</form.Subscribe>
+							</>
 						)}
 
-						{authType === "key" && (
-							<form.Field name="privateKeyPath" validators={{ onBlur: privateKeyPathSchema }}>
-								{(field) => (
-									<div className="flex flex-col gap-1">
-										<label className={requiredLabelClass} htmlFor="conn-privatekey">{t("connection.privateKey")}</label>
-										<input
-											id="conn-privatekey"
-											className={inputClass}
-											type="text"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => { field.handleChange(e.target.value); }}
-											placeholder="~/.ssh/id_rsa"
-										/>
-										{field.state.meta.errors.map((err, i) => (
-											<span key={i} className={errorClass}>{errorMessage(err)}</span>
-										))}
-									</div>
-								)}
-							</form.Field>
+						{protocol === "s3" && (
+							<>
+								<form.Field name="accessKey" validators={{ onBlur: accessKeySchema }}>
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={requiredLabelClass} htmlFor="conn-accesskey">{t("connection.accessKey")}</label>
+											<input
+												id="conn-accesskey"
+												className={inputClass}
+												type="text"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+												placeholder="AKIAIOSFODNN7EXAMPLE"
+											/>
+											{field.state.meta.errors.map((err, i) => (
+												<span key={i} className={errorClass}>{errorMessage(err)}</span>
+											))}
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="secretKey" validators={{ onBlur: secretKeySchema }}>
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={requiredLabelClass} htmlFor="conn-secretkey">{t("connection.secretKey")}</label>
+											<input
+												id="conn-secretkey"
+												className={inputClass}
+												type="password"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+											/>
+											{field.state.meta.errors.map((err, i) => (
+												<span key={i} className={errorClass}>{errorMessage(err)}</span>
+											))}
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="region" validators={{ onBlur: regionSchema }}>
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={requiredLabelClass} htmlFor="conn-region">{t("connection.region")}</label>
+											<input
+												id="conn-region"
+												className={inputClass}
+												type="text"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+												placeholder="us-east-1"
+											/>
+											{field.state.meta.errors.map((err, i) => (
+												<span key={i} className={errorClass}>{errorMessage(err)}</span>
+											))}
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="bucket" validators={{ onBlur: bucketSchema }}>
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={requiredLabelClass} htmlFor="conn-bucket">{t("connection.bucket")}</label>
+											<input
+												id="conn-bucket"
+												className={inputClass}
+												type="text"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+												placeholder="my-bucket"
+											/>
+											{field.state.meta.errors.map((err, i) => (
+												<span key={i} className={errorClass}>{errorMessage(err)}</span>
+											))}
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="endpoint">
+									{(field) => (
+										<div className="flex flex-col gap-1">
+											<label className={labelClass} htmlFor="conn-endpoint">{t("connection.endpoint")}</label>
+											<input
+												id="conn-endpoint"
+												className={inputClass}
+												type="text"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.value); }}
+												placeholder="s3.amazonaws.com"
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="useHttps">
+									{(field) => (
+										<div className="flex items-center gap-2 mt-1">
+											<input
+												id="conn-usehttps"
+												type="checkbox"
+												className="accent-blue-600"
+												checked={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => { field.handleChange(e.target.checked); }}
+											/>
+											<label className="text-sm text-gray-700 cursor-pointer select-none" htmlFor="conn-usehttps">
+												{t("connection.useHttps")}
+											</label>
+										</div>
+									)}
+								</form.Field>
+							</>
 						)}
 					</>
 				)}

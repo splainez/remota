@@ -14,6 +14,12 @@
 	"connection.authKey": "Private Key",
 	"connection.authAgent": "SSH Agent",
 	"connection.privateKey": "Key File Path",
+	"connection.accessKey": "Access Key",
+	"connection.secretKey": "Secret Key",
+	"connection.region": "Region",
+	"connection.bucket": "Bucket",
+	"connection.endpoint": "Endpoint URL",
+	"connection.useHttps": "Use HTTPS",
 	"connection.save": "Save",
 	"connection.cancel": "Cancel",
 	"connection.delete": "Delete",
@@ -63,5 +69,9 @@
 	"validation.nameRequired": "Name is required",
 	"validation.passwordRequired": "Password is required",
 	"validation.privateKeyRequired": "Private key path is required",
+	"validation.accessKeyRequired": "Access key is required",
+	"validation.secretKeyRequired": "Secret key is required",
+	"validation.regionRequired": "Region is required",
+	"validation.bucketRequired": "Bucket is required",
 	"validation.default": "Invalid value"
 }
