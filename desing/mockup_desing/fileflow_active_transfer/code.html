@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Active file transfer screen for a dual-pane FTP client.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#b7b8bd",
+                        "inverse-primary": "#3f4cda",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#2e3035",
+                        "surface-tint": "#bec2ff",
+                        "inverse-on-surface": "#2a3138",
+                        "primary-fixed-dim": "#bec2ff",
+                        "background": "#0d141b",
+                        "on-primary": "#000da4",
+                        "on-tertiary-fixed": "#191c20",
+                        "on-background": "#dce3ed",
+                        "surface-container-highest": "#2e353d",
+                        "on-tertiary-fixed-variant": "#45474c",
+                        "on-secondary": "#2e3034",
+                        "on-secondary-fixed-variant": "#45474b",
+                        "on-primary-fixed-variant": "#222fc2",
+                        "on-surface-variant": "#c6c5d7",
+                        "surface-container-high": "#242b32",
+                        "secondary": "#c6c6cb",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#151c23",
+                        "secondary-container": "#47494d",
+                        "tertiary-fixed-dim": "#c5c6cc",
+                        "surface": "#0d141b",
+                        "on-surface": "#dce3ed",
+                        "tertiary-container": "#73757b",
+                        "tertiary-fixed": "#e2e2e8",
+                        "inverse-surface": "#dce3ed",
+                        "secondary-fixed": "#e2e2e7",
+                        "primary-fixed": "#e0e0ff",
+                        "primary-container": "#5865f2",
+                        "on-secondary-fixed": "#1a1c1f",
+                        "secondary-fixed-dim": "#c6c6cb",
+                        "tertiary": "#c5c6cc",
+                        "on-primary-container": "#fffdff",
+                        "outline-variant": "#454655",
+                        "surface-variant": "#2e353d",
+                        "primary": "#bec2ff",
+                        "surface-bright": "#333a41",
+                        "surface-container-lowest": "#080f15",
+                        "on-primary-fixed": "#000569",
+                        "surface-container": "#192027",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8f8fa0",
+                        "surface-dim": "#0d141b",
+                        "on-tertiary-container": "#fffdff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-md": "1rem",
+                        "header-height": "48px",
+                        "gutter": "1rem",
+                        "footer-height": "32px",
+                        "margin-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "margin-lg": "1.5rem",
+                        "collapsed-sidebar-width": "64px",
+                        "transfer-panel-height": "120px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "mono-sm": ["JetBrains Mono"],
+                        "label-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "mono-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+        }
+        
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d141b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e353d; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #454655; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen w-screen overflow-hidden flex flex-col font-body-sm selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface-dim dark:bg-surface-dim text-primary dark:text-primary font-label-md text-label-md uppercase tracking-wider h-[header-height] w-full border-b border-outline-variant flex items-center justify-between px-gutter flex-shrink-0 z-20 relative">
+<div class="flex items-center gap-4 h-full">
+<div class="font-headline-lg text-headline-lg font-black text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary fill">cloud_sync</span>
+                FileFlow
+            </div>
+<nav class="hidden md:flex items-center h-full ml-4 space-x-6">
+<a class="h-full flex items-center text-primary border-b-2 border-primary pb-1 cursor-pointer" href="#">
+                    Explorer
+                </a>
+<a class="h-full flex items-center text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer" href="#">
+                    Sessions
+                </a>
+<a class="h-full flex items-center text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer" href="#">
+                    Logs
+                </a>
+<a class="h-full flex items-center text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer" href="#">
+                    Settings
+                </a>
+</nav>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center space-x-2 mr-2 text-on-surface-variant">
+<button class="p-1.5 hover:bg-surface-container hover:text-primary rounded transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span></button>
+<button class="p-1.5 hover:bg-surface-container hover:text-primary rounded transition-colors"><span class="material-symbols-outlined text-[20px]">settings</span></button>
+<button class="p-1.5 hover:bg-surface-container hover:text-primary rounded transition-colors"><span class="material-symbols-outlined text-[20px]">help</span></button>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1.5">
+                Connect
+            </button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden ml-2 flex items-center justify-center">
+<img alt="Admin Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a person, serving as a user profile avatar. The person has a neutral, approachable expression. The lighting is soft and flattering, typical of a modern corporate headshot. The background is slightly blurred, ensuring the focus remains on the subject. The image fits perfectly within a circular container." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBet-vLCJsIdvdFEZYE0m_BY4NqBSqIPEuDz6OU_bqtRxa8kBIxahDr0sRtFsWX1ZzNCS0hOv8nI6rLKQXZm93G-O-01ro5HkfjkuY2jXdaeemCs1qp7q-rzoqRW_q6CFadegIfyZm1yhB3B3wczvLZf80gYBdh4OcvuSc73o_8Wnjqse4IMgmmLeGyX7-bW3H54beFvaqultUCHEVYdeYuhj_t-Ux8OTJpmWN-NgC9sv4DSszIbJLk_6NQ4j0cH4KkurZ45MKCkqc"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- Collapsed SideNavBar (Simulating user intent focus) -->
+<aside class="bg-background dark:bg-background text-primary dark:text-primary font-body-md text-body-md w-[collapsed-sidebar-width] h-full flex-shrink-0 border-r border-outline-variant flex flex-col items-center py-4 gap-4 z-10">
+<!-- Active Connection Initial -->
+<div class="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center font-headline-md shadow-sm cursor-pointer group relative">
+                P
+                <div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Production Server
+                </div>
+</div>
+<div class="w-8 h-px bg-outline-variant my-2"></div>
+<!-- Other Tabs (Icons only) -->
+<a class="w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-center group relative cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+<div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Home
+                </div>
+</a>
+<a class="w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-center group relative cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">storage</span>
+<div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Production Server
+                </div>
+</a>
+<a class="w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-center group relative cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">cloud_sync</span>
+<div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Backups
+                </div>
+</a>
+<a class="w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-center group relative cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">code</span>
+<div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Dev Sandbox
+                </div>
+</a>
+<div class="mt-auto mb-4">
+<a class="w-10 h-10 rounded-lg text-primary hover:bg-surface-container-highest transition-colors flex items-center justify-center group relative cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<div class="absolute left-full ml-2 px-2 py-1 bg-surface-bright text-on-surface text-label-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                        Add Connection
+                    </div>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-surface">
+<!-- Dual Pane Area -->
+<div class="flex-1 flex overflow-hidden mb-[footer-height]">
+<!-- Left Pane: Local Files -->
+<section class="flex-1 flex flex-col border-r border-outline-variant min-w-0">
+<!-- Pane Header / Breadcrumbs -->
+<div class="h-10 border-b border-outline-variant bg-surface-container-low flex items-center px-3 gap-2 flex-shrink-0">
+<div class="flex items-center text-on-surface-variant space-x-1">
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">refresh</span></button>
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">create_new_folder</span></button>
+</div>
+<div class="w-px h-5 bg-outline-variant mx-1"></div>
+<!-- Breadcrumbs -->
+<div class="flex-1 flex items-center overflow-x-auto no-scrollbar whitespace-nowrap font-mono-sm text-mono-sm text-on-surface-variant">
+<span class="flex items-center cursor-pointer hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px] mr-1">computer</span> Local</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="cursor-pointer hover:text-primary transition-colors">Users</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="cursor-pointer hover:text-primary transition-colors">Admin</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="text-on-surface font-medium">Documents</span>
+</div>
+<!-- Drive Status -->
+<div class="text-xs text-on-surface-variant font-mono-sm bg-surface-container px-2 py-1 rounded">
+                            24.5 GB free
+                        </div>
+</div>
+<!-- File List Header -->
+<div class="flex items-center px-4 py-2 border-b border-outline-variant bg-surface-container-lowest text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider flex-shrink-0 pr-8">
+<div class="w-8"></div>
+<div class="flex-1">Name</div>
+<div class="w-24 text-right">Size</div>
+<div class="w-32 text-right ml-4">Modified</div>
+</div>
+<!-- File List Body -->
+<div class="flex-1 overflow-y-auto bg-surface">
+<!-- Up dir row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface-variant transition-colors group">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-tertiary">folder</span></div>
+<div class="flex-1 font-mono-sm text-mono-sm">..</div>
+<div class="w-24 text-right"></div>
+<div class="w-32 text-right ml-4"></div>
+</div>
+<!-- Folder Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-primary fill">folder</span></div>
+<div class="flex-1 font-body-sm truncate">Project_Alpha</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">-</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 24, 09:15</div>
+</div>
+<!-- Folder Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-primary fill">folder</span></div>
+<div class="flex-1 font-body-sm truncate">Q4_Financials</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">-</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 20, 14:30</div>
+</div>
+<!-- File Row (Selected) -->
+<div class="flex items-center px-4 h-8 bg-surface-container-high cursor-pointer text-on-surface relative">
+<div class="absolute left-0 top-0 bottom-0 w-0.5 bg-primary"></div>
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant">description</span></div>
+<div class="flex-1 font-body-sm truncate text-primary">backup.zip</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">1.2 GB</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Today, 10:45</div>
+</div>
+<!-- File Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant">html</span></div>
+<div class="flex-1 font-body-sm truncate">index.html</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">45 KB</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Today, 09:12</div>
+</div>
+<!-- File Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant">image</span></div>
+<div class="flex-1 font-body-sm truncate">hero_banner.png</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">2.4 MB</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 23, 16:20</div>
+</div>
+</div>
+</section>
+<!-- Right Pane: Remote Files -->
+<section class="flex-1 flex flex-col min-w-0">
+<!-- Pane Header / Breadcrumbs -->
+<div class="h-10 border-b border-outline-variant bg-surface-container-low flex items-center px-3 gap-2 flex-shrink-0">
+<div class="flex items-center text-on-surface-variant space-x-1">
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button>
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">refresh</span></button>
+<button class="w-7 h-7 rounded hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">create_new_folder</span></button>
+</div>
+<div class="w-px h-5 bg-outline-variant mx-1"></div>
+<!-- Breadcrumbs -->
+<div class="flex-1 flex items-center overflow-x-auto no-scrollbar whitespace-nowrap font-mono-sm text-mono-sm text-on-surface-variant">
+<span class="flex items-center cursor-pointer hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px] mr-1">dns</span> Production</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="cursor-pointer hover:text-primary transition-colors">var</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="cursor-pointer hover:text-primary transition-colors">www</span>
+<span class="material-symbols-outlined text-[16px] mx-1 opacity-50">chevron_right</span>
+<span class="text-on-surface font-medium">html</span>
+</div>
+<!-- Connection Status -->
+<div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-surface-container border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-[#10B981]"></div>
+<span class="text-xs text-on-surface-variant font-mono-sm">Connected</span>
+</div>
+</div>
+<!-- File List Header -->
+<div class="flex items-center px-4 py-2 border-b border-outline-variant bg-surface-container-lowest text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider flex-shrink-0 pr-8">
+<div class="w-8"></div>
+<div class="flex-1">Name</div>
+<div class="w-24 text-right">Size</div>
+<div class="w-32 text-right ml-4">Modified</div>
+</div>
+<!-- File List Body -->
+<div class="flex-1 overflow-y-auto bg-surface">
+<!-- Up dir row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface-variant transition-colors group">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-tertiary">folder</span></div>
+<div class="flex-1 font-mono-sm text-mono-sm">..</div>
+<div class="w-24 text-right"></div>
+<div class="w-32 text-right ml-4"></div>
+</div>
+<!-- Folder Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-primary fill">folder</span></div>
+<div class="flex-1 font-body-sm truncate">assets</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">-</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 15, 11:20</div>
+</div>
+<!-- Folder Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-primary fill">folder</span></div>
+<div class="flex-1 font-body-sm truncate">css</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">-</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 24, 08:00</div>
+</div>
+<!-- File Row -->
+<div class="flex items-center px-4 h-8 hover:bg-surface-container cursor-pointer text-on-surface transition-colors group relative">
+<div class="w-8 flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant">html</span></div>
+<div class="flex-1 font-body-sm truncate">index.old.html</div>
+<div class="w-24 text-right text-on-surface-variant text-mono-sm font-mono-sm">44 KB</div>
+<div class="w-32 text-right ml-4 text-on-surface-variant text-mono-sm font-mono-sm">Oct 22, 14:10</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Transfer Queue Panel -->
+<div class="absolute bottom-[footer-height] left-0 right-0 h-[transfer-panel-height] bg-surface-container-high border-t border-outline-variant flex flex-col shadow-[0_-4px_20px_rgba(0,0,0,0.3)] z-20">
+<!-- Panel Header -->
+<div class="flex items-center justify-between px-4 py-2 border-b border-outline-variant bg-surface-container-highest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">swap_vert</span>
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface">Transfer Queue</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container text-[10px] font-bold">2 Active</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">pause</span></button>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">cancel</span></button>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span></button>
+</div>
+</div>
+<!-- Active Transfers List -->
+<div class="flex-1 overflow-y-auto p-2 space-y-2">
+<!-- Transfer Item: In Progress -->
+<div class="bg-surface rounded border border-outline-variant p-2 flex items-center gap-3">
+<div class="w-8 flex justify-center"><span class="material-symbols-outlined text-primary">arrow_forward</span></div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-mono-sm text-mono-sm text-on-surface truncate">backup.zip</span>
+<span class="font-mono-sm text-xs text-on-surface-variant">15 MB/s • ETA: 00:02:14</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full relative overflow-hidden">
+<!-- Subtle shine effect for active progress -->
+<div class="absolute top-0 bottom-0 left-0 right-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+</div>
+</div>
+<span class="font-mono-sm text-[10px] text-primary w-8 text-right">85%</span>
+</div>
+<div class="font-mono-sm text-[10px] text-on-surface-variant truncate mt-1">
+                                Local/Users/Admin/Documents → Production/var/backups
+                            </div>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[16px]">close</span></button>
+</div>
+<!-- Transfer Item: Pending -->
+<div class="bg-surface rounded border border-outline-variant p-2 flex items-center gap-3 opacity-70">
+<div class="w-8 flex justify-center"><span class="material-symbols-outlined text-on-surface-variant">schedule</span></div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-mono-sm text-mono-sm text-on-surface truncate">index.html</span>
+<span class="font-mono-sm text-xs text-on-surface-variant">Pending</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-outline-variant w-0 rounded-full"></div>
+</div>
+<span class="font-mono-sm text-[10px] text-on-surface-variant w-8 text-right">0%</span>
+</div>
+<div class="font-mono-sm text-[10px] text-on-surface-variant truncate mt-1">
+                                Local/Users/Admin/Documents → Production/var/www/html
+                            </div>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[16px]">close</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest text-primary dark:text-primary font-mono-sm text-mono-sm font-label-sm text-label-sm text-on-surface-variant fixed bottom-0 left-[collapsed-sidebar-width] right-0 h-[footer-height] border-t border-outline-variant backdrop-blur-md flat no shadows flex items-center justify-between px-4 z-30 cursor-default">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Transfer Queue Active: 3 Files remaining
+        </div>
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+                Queue Details
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+                Speed Limits
+            </a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+                Clear Finished
+            </a>
+</div>
+</footer>
+<style>
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</body></html>

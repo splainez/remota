@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FileFlow - Add Connection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#b7b8bd",
+                        "inverse-primary": "#3f4cda",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#2e3035",
+                        "surface-tint": "#bec2ff",
+                        "inverse-on-surface": "#2a3138",
+                        "primary-fixed-dim": "#bec2ff",
+                        "background": "#0d141b",
+                        "on-primary": "#000da4",
+                        "on-tertiary-fixed": "#191c20",
+                        "on-background": "#dce3ed",
+                        "surface-container-highest": "#2e353d",
+                        "on-tertiary-fixed-variant": "#45474c",
+                        "on-secondary": "#2e3034",
+                        "on-secondary-fixed-variant": "#45474b",
+                        "on-primary-fixed-variant": "#222fc2",
+                        "on-surface-variant": "#c6c5d7",
+                        "surface-container-high": "#242b32",
+                        "secondary": "#c6c6cb",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#151c23",
+                        "secondary-container": "#47494d",
+                        "tertiary-fixed-dim": "#c5c6cc",
+                        "surface": "#0d141b",
+                        "on-surface": "#dce3ed",
+                        "tertiary-container": "#73757b",
+                        "tertiary-fixed": "#e2e2e8",
+                        "inverse-surface": "#dce3ed",
+                        "secondary-fixed": "#e2e2e7",
+                        "primary-fixed": "#e0e0ff",
+                        "primary-container": "#5865f2",
+                        "on-secondary-fixed": "#1a1c1f",
+                        "secondary-fixed-dim": "#c6c6cb",
+                        "tertiary": "#c5c6cc",
+                        "on-primary-container": "#fffdff",
+                        "outline-variant": "#454655",
+                        "surface-variant": "#2e353d",
+                        "primary": "#bec2ff",
+                        "surface-bright": "#333a41",
+                        "surface-container-lowest": "#080f15",
+                        "on-primary-fixed": "#000569",
+                        "surface-container": "#192027",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#8f8fa0",
+                        "surface-dim": "#0d141b",
+                        "on-tertiary-container": "#fffdff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-md": "1rem",
+                        "header-height": "48px",
+                        "gutter": "1rem",
+                        "footer-height": "32px",
+                        "sidebar-width": "240px",
+                        "margin-sm": "0.5rem",
+                        "margin-lg": "1.5rem"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter", "sans-serif"],
+                        "mono-sm": ["JetBrains Mono", "monospace"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "body-lg": ["15px", { lineHeight: "22px", fontWeight: "400" }],
+                        "mono-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "label-sm": ["11px", { lineHeight: "14px", fontWeight: "500" }],
+                        "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e353d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #454655;
+        }
+        
+        /* Subtle glowing background effect for the main area */
+        .bg-glow-effect {
+            background: radial-gradient(circle at 50% 0%, rgba(88, 101, 242, 0.08) 0%, transparent 70%), #0d141b;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface h-screen w-screen overflow-hidden flex antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<nav class="bg-background dark:bg-background w-[sidebar-width] h-screen flex-shrink-0 border-r border-outline-variant flex flex-col py-4 gap-2 z-20 shadow-[1px_0_10px_rgba(0,0,0,0.2)]">
+<!-- Header / Brand -->
+<div class="px-gutter mb-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</div>
+<div class="flex flex-col overflow-hidden">
+<span class="font-headline-md text-headline-md font-bold text-primary truncate">FileFlow Pro</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-surface-tint"></div> Connected
+                </span>
+</div>
+</div>
+<!-- Scrollable Navigation Items -->
+<div class="flex-1 overflow-y-auto px-2 space-y-6">
+<!-- Quick Actions Group -->
+<div class="space-y-1">
+<div class="font-label-sm text-label-sm text-on-surface-variant px-3 mb-2 uppercase tracking-wider opacity-70">Actions</div>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">home</span>
+<span class="font-body-md text-body-md">Home</span>
+</a>
+<!-- Active Item -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-primary-container bg-primary-container rounded-lg mx-2 active:scale-95 transition-transform shadow-[0_2px_8px_rgba(88,101,242,0.25)]" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-body-md text-body-md font-medium">Add Connection</span>
+</a>
+</div>
+<!-- Server Folders (Discord-inspired styling) -->
+<div class="space-y-1">
+<div class="font-label-sm text-label-sm text-on-surface-variant px-3 mb-2 uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    Work Servers
+                    <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-on-surface">keyboard_arrow_down</span>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform group relative" href="#">
+<div class="absolute left-0 w-[2px] h-0 bg-primary group-hover:h-full rounded-r transition-all duration-200"></div>
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">storage</span>
+<span class="font-body-md text-body-md truncate">Production Server</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform group relative" href="#">
+<div class="absolute left-0 w-[2px] h-0 bg-primary group-hover:h-full rounded-r transition-all duration-200"></div>
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">code</span>
+<span class="font-body-md text-body-md truncate">Dev Sandbox</span>
+</a>
+</div>
+<div class="space-y-1">
+<div class="font-label-sm text-label-sm text-on-surface-variant px-3 mb-2 uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    Personal Projects
+                    <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-on-surface">keyboard_arrow_down</span>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 hover:bg-surface-container-highest transition-colors active:scale-95 transition-transform group relative" href="#">
+<div class="absolute left-0 w-[2px] h-0 bg-primary group-hover:h-full rounded-r transition-all duration-200"></div>
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary transition-colors">cloud_sync</span>
+<span class="font-body-md text-body-md truncate">Backups</span>
+</a>
+</div>
+</div>
+<!-- User Profile Area at bottom of sidebar -->
+<div class="mt-auto px-4 py-3 border-t border-outline-variant bg-surface-container-lowest flex items-center gap-3 cursor-pointer hover:bg-surface-container-low transition-colors mx-2 rounded-lg">
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant relative">
+<span class="material-symbols-outlined absolute inset-0 m-auto text-on-surface-variant text-[20px]">person</span>
+</div>
+<div class="flex flex-col flex-1 overflow-hidden">
+<span class="font-label-md text-label-md text-on-surface truncate">Admin User</span>
+<span class="font-mono-sm text-mono-sm text-on-surface-variant truncate">#8492</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] hover:text-on-surface">settings</span>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 bg-glow-effect relative">
+<!-- TopAppBar -->
+<header class="bg-surface-dim dark:bg-surface-dim h-[header-height] w-full border-b border-outline-variant flex items-center justify-between px-gutter w-full z-10 sticky top-0 backdrop-blur-md bg-opacity-80">
+<div class="flex items-center gap-6 h-full">
+<span class="font-headline-lg text-headline-lg font-black text-on-surface mr-4 tracking-tight">FileFlow</span>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-1 h-full">
+<a class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer px-3 h-full flex items-center border-b-2 border-transparent hover:border-surface-variant hover:bg-surface-container-lowest" href="#">Explorer</a>
+<a class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer px-3 h-full flex items-center border-b-2 border-transparent hover:border-surface-variant hover:bg-surface-container-lowest" href="#">Sessions</a>
+<a class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer px-3 h-full flex items-center border-b-2 border-transparent hover:border-surface-variant hover:bg-surface-container-lowest" href="#">Logs</a>
+<a class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:text-primary transition-colors cursor-pointer px-3 h-full flex items-center border-b-2 border-transparent hover:border-surface-variant hover:bg-surface-container-lowest" href="#">Settings</a>
+</nav>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="p-1.5 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+<button class="hidden sm:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-1.5 rounded-lg font-label-md text-label-md uppercase tracking-wider hover:bg-inverse-primary transition-colors shadow-sm cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+                    Connect
+                </button>
+</div>
+</header>
+<!-- Main Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-6 md:p-10 pb-[calc(32px+3rem)] flex justify-center items-start">
+<!-- Connection Form Card -->
+<div class="w-full max-w-2xl bg-surface-container-low border border-outline-variant rounded-xl shadow-2xl overflow-hidden mt-4 animate-[fadeIn_0.3s_ease-out]">
+<!-- Card Header -->
+<div class="px-6 py-5 border-b border-outline-variant bg-surface-container flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">cast_connected</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">New Connection</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Configure details to establish a secure file transfer link.</p>
+</div>
+</div>
+<!-- Form Body -->
+<form class="p-6 space-y-6">
+<!-- Row 1: Name & Protocol -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="connName">Connection Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner" id="connName" placeholder="e.g. Production Web Server" type="text"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="protocol">Protocol</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-body-md text-on-surface appearance-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner cursor-pointer" id="protocol">
+<option value="sftp">SFTP (SSH)</option>
+<option value="ftp">FTP</option>
+<option value="ftps">FTPS (Implicit)</option>
+<option value="scp">SCP</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Divider -->
+<div class="h-px w-full bg-outline-variant/50"></div>
+<!-- Row 2: Host & Port -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-3">
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="host">Host / IP Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">dns</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-mono-sm text-mono-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner" id="host" placeholder="ftp.example.com or 192.168.1.10" type="text"/>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="port">Port</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-mono-sm text-mono-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner" id="port" type="number" value="22"/>
+</div>
+</div>
+<!-- Row 3: Credentials -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="username">Username</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">person</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-mono-sm text-mono-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner" id="username" placeholder="root" type="text"/>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block uppercase tracking-wider" for="password">Password / Key Passphrase</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">key</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-10 py-2.5 font-mono-sm text-mono-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Advanced Toggle (Visual only) -->
+<div class="pt-2">
+<button class="font-label-md text-label-md text-primary hover:text-primary-fixed-dim transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+                            Advanced Settings (SSH Keys, Proxy...)
+                        </button>
+</div>
+</form>
+<!-- Card Footer / Actions -->
+<div class="px-6 py-4 border-t border-outline-variant bg-surface-container-highest flex items-center justify-end gap-3">
+<button class="px-5 py-2.5 rounded-lg font-label-md text-label-md uppercase tracking-wider text-on-surface border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95" type="button">
+                        Cancel
+                    </button>
+<button class="px-5 py-2.5 rounded-lg font-label-md text-label-md uppercase tracking-wider bg-surface-bright text-on-surface border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Connection
+                    </button>
+<button class="px-6 py-2.5 rounded-lg font-label-md text-label-md uppercase tracking-wider bg-primary-container text-on-primary-container hover:bg-inverse-primary transition-colors active:scale-95 shadow-md flex items-center gap-2 ml-2" type="button">
+<span class="material-symbols-outlined text-[18px]">link</span>
+                        Connect
+                    </button>
+</div>
+</div>
+</main>
+<!-- Footer / Transfer Queue Status -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest fixed bottom-0 left-[sidebar-width] right-0 h-[footer-height] border-t border-outline-variant backdrop-blur-md flex items-center justify-between px-4 z-20">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(190,194,255,0.6)]"></div>
+<span class="font-mono-sm text-mono-sm text-primary font-bold">Transfer Queue Active: 3 Files remaining</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="font-mono-sm text-mono-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-default" href="#">Queue Details</a>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<a class="font-mono-sm text-mono-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-default" href="#">Speed Limits</a>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<a class="font-mono-sm text-mono-sm text-on-surface-variant hover:text-on-surface transition-colors cursor-default" href="#">Clear Finished</a>
+</div>
+</footer>
+</div>
+<!-- Simple script to handle password visibility toggle purely for visual completeness -->
+<script>
+        document.querySelector('button .material-symbols-outlined:contains("visibility")')?.parentElement.addEventListener('click', function() {
+            const input = document.getElementById('password');
+            const icon = this.querySelector('span');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        });
+    </script>
+</body></html>

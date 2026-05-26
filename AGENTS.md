@@ -80,6 +80,56 @@ src/
 - **IPC channel constants**: always use `IPC.*` from `src/shared/ipc-channels.ts`, never hardcode channel strings.
 - **Logging**: use `@sym:Logger` for logs and ensure any error is recorded through the shared logger.
 
+## Design System
+
+The application uses a comprehensive design system with **Light** and **Dark** modes. When adding new views or modifying existing ones, always reference the corresponding design guidelines:
+
+- **Light Mode:** [desing/light/DESIGN.md](desing/light/DESIGN.md)
+- **Dark Mode:** [desing/dark/DESIGN.md](desing/dark/DESIGN.md)
+
+### Style Guidelines Summary
+
+#### Colors
+- **Primary:** `#5865f2` (Blurple) - used for brand recognition, primary actions, and active states
+- **Light Mode Surfaces:** `#ffffff` (content), `#f8f9fa` (background), `#f3f4f5` (containers)
+- **Dark Mode Surfaces:** `#0d141b` (background), `#151c23` (container low), `#192027` (container)
+- **Text:** High contrast (`#191c1d` light / `#dce3ed` dark) for WCAG AA/AAA compliance
+- **Borders & Dividers:** `#e1e3e4` (light) / `#454655` (dark) for subtle separation
+
+#### Typography (Inter font exclusively)
+- **headline-lg:** 32px / 700 weight (24px on dark, 600 weight)
+- **headline-md:** 24px / 600 weight (18px on dark)
+- **body-lg:** 16px / 400 weight (15px on dark)
+- **body-md:** 14px / 400 weight
+- **label-md:** 12px / 600 weight with 0.01em letter-spacing
+- **mono-sm:** JetBrains Mono, 12px (dark mode only, for logs/terminals)
+
+#### Spacing & Layout
+- **Base unit:** 8px grid rhythm
+- **Gutter:** 16px
+- **Margin (desktop):** 24px / 16px (mobile)
+- **Sidebar width:** 240px (dark mode)
+- **Header height:** 48px
+
+#### Border Radius
+- **sm:** 0.25rem (4px)
+- **DEFAULT:** 0.5rem (8px)
+- **md:** 0.75rem (12px)
+- **lg:** 1rem (16px)
+- **xl:** 1.5rem (24px)
+
+#### Elevation & Depth
+- **Light mode:** Tonal layers with 1px subtle borders; minimal shadows
+- **Dark mode:** Tonal layering through charcoal shifts; subtle outlines; glassmorphism overlays with `backdrop-filter: blur(12px)`
+- **Hover states:** Light tint overlay (10% opacity) on light mode; subtle background highlight on dark mode
+
+#### Components Standards
+- **Buttons:** Primary (Blurple bg + white text), Secondary (light gray bg + dark text), 8px radius
+- **Inputs:** White/dark bg, 1px border, focus state with 2px primary glow, 8px radius
+- **Cards:** White/dark bg, 1px border, no shadow for static cards
+- **File lists:** 32-40px row height, monospace font for metadata
+- **Transfer panel:** Bottom-anchored, 4px progress bar, collapsible
+
 ## Gotchas
 
 - **Context isolation** is on — renderer code never imports Node/native modules. All OS/db access goes through `contextBridge` + `ipcRenderer.invoke`.

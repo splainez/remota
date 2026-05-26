@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FileFlow - Active Transfers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#bb5a00",
+                      "surface-dim": "#d9dadb",
+                      "primary-fixed": "#e0e0ff",
+                      "secondary-fixed-dim": "#c0c7cf",
+                      "inverse-surface": "#2e3132",
+                      "outline": "#767686",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#3d4ad8",
+                      "surface": "#f8f9fa",
+                      "primary-fixed-dim": "#bec2ff",
+                      "primary-container": "#5865f2",
+                      "surface-container-high": "#e7e8e9",
+                      "outline-variant": "#c6c5d7",
+                      "tertiary": "#954700",
+                      "surface-container-highest": "#e1e3e4",
+                      "on-surface-variant": "#454655",
+                      "on-secondary-container": "#5e656c",
+                      "on-tertiary-fixed-variant": "#743500",
+                      "inverse-on-surface": "#f0f1f2",
+                      "secondary-container": "#dce3ec",
+                      "surface-tint": "#3f4cda",
+                      "on-secondary-fixed-variant": "#41484e",
+                      "error": "#ba1a1a",
+                      "secondary": "#585f66",
+                      "secondary-fixed": "#dce3ec",
+                      "inverse-primary": "#bec2ff",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#151c22",
+                      "error-container": "#ffdad6",
+                      "on-background": "#191c1d",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb689",
+                      "on-tertiary-fixed": "#311300",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f3f4f5",
+                      "on-primary-fixed-variant": "#222fc2",
+                      "on-tertiary-container": "#fffdff",
+                      "tertiary-fixed": "#ffdbc8",
+                      "surface-bright": "#f8f9fa",
+                      "on-surface": "#191c1d",
+                      "on-primary-container": "#fffdff",
+                      "surface-container": "#edeeef",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e1e3e4",
+                      "background": "#f8f9fa",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed": "#000569"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "24px",
+                      "container-max": "1440px",
+                      "unit": "8px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Scrollbar Styling for a clean utility look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface-container-low');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden">
+<!-- Minimized Sidebar (Servers) -->
+<nav class="w-20 bg-surface-container-low border-r border-outline-variant flex flex-col items-center py-4 gap-4 z-40 shrink-0">
+<!-- Brand/Home -->
+<a class="w-12 h-12 rounded-[16px] bg-primary text-on-primary flex items-center justify-center hover:rounded-xl transition-all duration-300 ease-in-out group shadow-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder_data</span>
+</a>
+<div class="w-8 h-[2px] bg-outline-variant rounded-full my-1"></div>
+<!-- Server List -->
+<div class="flex flex-col gap-3 w-full items-center flex-1 overflow-y-auto no-scrollbar">
+<!-- Active Server -->
+<button class="relative w-12 h-12 rounded-[16px] bg-surface-container-highest flex items-center justify-center group transition-all duration-300">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"></div>
+<img alt="Server 1" class="w-12 h-12 rounded-[16px] object-cover" data-alt="A clean minimalist macro photograph of a metallic server rack illuminated by soft white light, reflecting a modern light-mode tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiRuatxFgXSlplUel9O20hJWwO8bTbYmjDrdoxN8UyUlZDkdUe7xf0OVk-mxKsbV6ZXWpAxj1zrwkHK-Sc-qI3fC5mSPDr7dAxCl6MTkBJI80_wrLnlsRL3-GWL1QbzcwBLuYHr_oO4nQLXTndjHiSL0QaIaLMviuZsK-urY7SxfvaG5pJMcqrXblSzuS7Be4YgOW5hoo_UmqIdvWXokMd33FGYbsaiOyYjxHHR842P6SCFqYUaluprzfK5dd0HwZQaiST34VP4sw"/>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container-highest hover:bg-surface-container-high hover:rounded-[16px] transition-all duration-300 flex items-center justify-center text-on-surface-variant group">
+<span class="font-label-md text-label-md text-on-surface-variant group-hover:text-primary">AWS</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container-highest hover:bg-surface-container-high hover:rounded-[16px] transition-all duration-300 flex items-center justify-center text-on-surface-variant group">
+<span class="font-label-md text-label-md text-on-surface-variant group-hover:text-primary">GCP</span>
+</button>
+<button class="w-12 h-12 rounded-full border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary group">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<!-- Footer Actions -->
+<div class="flex flex-col gap-3 w-full items-center mt-auto pt-4 border-t border-outline-variant">
+<button class="w-12 h-12 rounded-full hover:bg-surface-container hover:rounded-[16px] transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-12 h-12 rounded-full overflow-hidden hover:rounded-[16px] transition-all duration-300 ring-2 ring-transparent hover:ring-primary">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A portrait of a professional in a bright, modern office space with plenty of natural light. Light mode aesthetic, sharp focus, clean composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHiKALWI4h-grDuKqJhuqEij5wqDBnoVsc2CdpYahFiUDC5asiStYXfyTtH9O7slcaoCiPBx7GJzbPP9oAz_8cYiDJ3PUDdhcrl8L7_4XLiiCl1wIF84FTachVObDXeFJpIWqLJh3wJivFmns6ZRJKrA5PHQgHjBO4dMF1hN40uDC3h12RTHHzT2vtLtifx4fJ4ZWp_Hz9m-1qxgrWZVOJDVKwFWdCWHb4aertZ9KU2AHKk74_g6KOca_yZyKLELbYYq82Esz3b9s"/>
+</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- Top App Bar / Breadcrumbs -->
+<header class="h-16 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop shrink-0">
+<!-- Local Path -->
+<div class="flex items-center flex-1 min-w-0 pr-4">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">computer</span>
+<div class="flex items-center gap-1 font-body-md text-body-md text-on-surface-variant overflow-hidden whitespace-nowrap">
+<span class="hover:text-primary cursor-pointer hover:underline">Users</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer hover:underline">admin</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer hover:underline">Projects</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface font-medium truncate">FileFlow_v2</span>
+</div>
+</div>
+<!-- Transfer Action -->
+<div class="flex items-center justify-center px-4 shrink-0">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                    Sync Folders
+                </button>
+</div>
+<!-- Remote Path -->
+<div class="flex items-center flex-1 min-w-0 pl-4 justify-end">
+<div class="flex items-center gap-1 font-body-md text-body-md text-on-surface-variant overflow-hidden whitespace-nowrap justify-end w-full">
+<span class="hover:text-primary cursor-pointer hover:underline">var</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer hover:underline">www</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer hover:underline">html</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface font-medium truncate">production_build</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant ml-3" style="font-variation-settings: 'FILL' 1;">dns</span>
+</div>
+</header>
+<!-- Dual Pane Explorer -->
+<main class="flex-1 flex min-h-0 relative">
+<!-- Local Pane -->
+<div class="flex-1 flex flex-col border-r border-outline-variant bg-surface-container-lowest min-w-0">
+<!-- Toolbar -->
+<div class="h-10 border-b border-outline-variant bg-surface flex items-center px-4 justify-between">
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">arrow_upward</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">refresh</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">create_new_folder</span></button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-8 pr-2 py-1 h-7 text-body-md font-body-md bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-48" placeholder="Filter local..." type="text"/>
+</div>
+</div>
+<!-- File List Header -->
+<div class="flex px-4 py-2 border-b border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant select-none">
+<div class="w-8"></div>
+<div class="flex-1 cursor-pointer hover:text-on-surface flex items-center gap-1">Name <span class="material-symbols-outlined text-[14px]">arrow_downward</span></div>
+<div class="w-24 text-right cursor-pointer hover:text-on-surface">Size</div>
+<div class="w-32 text-right cursor-pointer hover:text-on-surface hidden xl:block">Date Modified</div>
+</div>
+<!-- File List Content -->
+<div class="flex-1 overflow-y-auto">
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center bg-primary-fixed-dim/20">
+<div class="w-8 flex items-center justify-center text-primary"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">src</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">--</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Today 10:42</div>
+</div>
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center">
+<div class="w-8 flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">public</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">--</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Yesterday</div>
+</div>
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center">
+<div class="w-8 flex items-center justify-center text-secondary"><span class="material-symbols-outlined">description</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">package.json</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">2.4 KB</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Oct 12, 2023</div>
+</div>
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center">
+<div class="w-8 flex items-center justify-center text-secondary"><span class="material-symbols-outlined">description</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">webpack.config.js</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">4.1 KB</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Oct 10, 2023</div>
+</div>
+</div>
+</div>
+<!-- Remote Pane -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest min-w-0">
+<!-- Toolbar -->
+<div class="h-10 border-b border-outline-variant bg-surface flex items-center px-4 justify-between">
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">arrow_upward</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">refresh</span></button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">create_new_folder</span></button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-8 pr-2 py-1 h-7 text-body-md font-body-md bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-48" placeholder="Filter remote..." type="text"/>
+</div>
+</div>
+<!-- File List Header -->
+<div class="flex px-4 py-2 border-b border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant select-none">
+<div class="w-8"></div>
+<div class="flex-1 cursor-pointer hover:text-on-surface flex items-center gap-1">Name <span class="material-symbols-outlined text-[14px]">arrow_downward</span></div>
+<div class="w-24 text-right cursor-pointer hover:text-on-surface">Size</div>
+<div class="w-32 text-right cursor-pointer hover:text-on-surface hidden xl:block">Date Modified</div>
+</div>
+<!-- File List Content -->
+<div class="flex-1 overflow-y-auto">
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center">
+<div class="w-8 flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">folder</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">assets</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">--</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Sep 01, 2023</div>
+</div>
+<div class="flex px-4 py-2 hover:bg-surface-container-low border-b border-outline-variant/30 cursor-pointer group items-center opacity-60">
+<div class="w-8 flex items-center justify-center text-secondary"><span class="material-symbols-outlined">description</span></div>
+<div class="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">index.html</div>
+<div class="w-24 text-right font-body-md text-body-md text-on-surface-variant">1.2 KB</div>
+<div class="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">Sep 15, 2023</div>
+<div class="absolute right-4 text-primary font-label-sm text-label-sm animate-pulse">Syncing...</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Transfer Queue Panel -->
+<section class="h-64 border-t border-outline-variant bg-surface-container flex flex-col shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] z-10">
+<!-- Panel Header -->
+<div class="h-12 px-6 flex justify-between items-center border-b border-outline-variant bg-surface-container-highest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">swap_vert</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Active Transfers</h2>
+<span class="bg-primary-fixed text-primary px-2 py-0.5 rounded font-label-sm text-label-sm ml-2">3 Pending</span>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">pause</span></button>
+<button class="p-1.5 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">cancel</span></button>
+</div>
+</div>
+<!-- Queue List -->
+<div class="flex-1 overflow-y-auto p-4 space-y-3">
+<!-- Transfer Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-4 hover:border-outline transition-colors relative overflow-hidden">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">main.8f4b2c.js</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">src/build → /var/www/html/assets</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md text-primary">45%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">12.5 MB / 28.0 MB @ 2.4 MB/s</div>
+</div>
+</div>
+<!-- Progress Bar container -->
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-300" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Transfer Item 2 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-4 hover:border-outline transition-colors relative overflow-hidden">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">styles.css</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">src/css → /var/www/html/css</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md text-on-surface-variant">Queued</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">450 KB</div>
+</div>
+</div>
+<!-- Progress Bar container -->
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-surface-variant rounded-full" style="width: 0%;"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</body></html>
