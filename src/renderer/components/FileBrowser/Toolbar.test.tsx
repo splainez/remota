@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Toolbar, canGoUp } from "./Toolbar";
+import { Toolbar } from "./Toolbar";
+import { canGoUp } from "../../lib/utils";
 
 describe("canGoUp", () => {
 	it("returns false for /", () => {

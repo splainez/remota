@@ -46,28 +46,28 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 					window.api.filesystem.getLastPath(connection.id, "remote"),
 				]);
 
-			if (cancelled) return;
+				if (cancelled) return;
 
-			const resolvedLocal = savedLocal
-				? await resolvePath(savedLocal)
-				: homeDir;
+				const resolvedLocal = savedLocal
+					? await resolvePath(savedLocal)
+					: homeDir;
 
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled may change during await
-			if (cancelled) return;  
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled may change during await
+				if (cancelled) return;
 
 				setLocalPath(resolvedLocal);
 				setRemotePath(savedRemote ?? "/");
-		} catch {
-			if (cancelled) return;
-			const homeDir = await window.api.filesystem.homeDir();
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled may change during await
-			if (cancelled) return;
-			setLocalPath(homeDir);
-			setRemotePath("/");
-		}
+			} catch {
+				if (cancelled) return;
+				const homeDir = await window.api.filesystem.homeDir();
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled may change during await
+				if (cancelled) return;
+				setLocalPath(homeDir);
+				setRemotePath("/");
+			}
 
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- always set but checked for clarity
-		if (!cancelled) {
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- always set but checked for clarity
+			if (!cancelled) {
 				setReady(true);
 			}
 		}
@@ -119,6 +119,7 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 				/>
 				{remoteStatus === "connected" ? (
 					<FilePane
+						// eslint-disable-next-line react-hooks/refs
 						key={reconnectKey.current}
 						type="remote"
 						connectionId={connection.id}

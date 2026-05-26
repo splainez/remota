@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
+import { canGoUp } from "../../lib/utils";
 
 interface ToolbarProps {
 	onGoBack: () => void;
@@ -90,10 +91,4 @@ export function Toolbar({
 			</button>
 		</div>
 	);
-}
-
-export function canGoUp(path: string): boolean {
-	if (path === "/") return false;
-	if (/^[a-zA-Z]:\\$/.test(path)) return false;
-	return true;
 }
