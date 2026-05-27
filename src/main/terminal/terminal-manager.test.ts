@@ -41,7 +41,7 @@ describe("TerminalManager", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		mockWebContents = { send: vi.fn() };
+		mockWebContents = { send: vi.fn(), isDestroyed: vi.fn().mockReturnValue(false) };
 		mockSftp = {
 			openShell: vi.fn().mockResolvedValue({
 				on: vi.fn(),
@@ -225,5 +225,41 @@ describe("TerminalManager", () => {
 
 	it("has returns false for unknown session", () => {
 		expect(manager.has("unknown")).toBe(false);
+	});
+
+	it("spawnLocal onData does not send when webContents is destroyed", () => {
+		mockWebContents.isDestroyed.mockReturnValue(true);
+		manager.spawnLocal("local-1");
+		const onDataCb = mockPty.onData.mock.calls[0][0] as (data: string) => void;
+		onDataCb("hello");
+		expect(mockWebContents.send).not.toHaveBeenCalled();
+	});
+
+	it("spawnLocal onExit does not send when webContents is destroyed", () => {
+		mockWebContents.isDestroyed.mockReturnValue(true);
+		manager.spawnLocal("local-1");
+		const onExitCb = mockPty.onExit.mock.calls[0][0] as (event: { exitCode: number }) => void;
+		onExitCb({ exitCode: 0 });
+		expect(mockWebContents.send).not.toHaveBeenCalled();
+		expect(manager.has("local-1")).toBe(false);
+	});
+
+	it("spawnRemote data handler does not send when webContents is destroyed", async () => {
+		mockWebContents.isDestroyed.mockReturnValue(true);
+		await manager.spawnRemote("remote-1", 1);
+		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const dataCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "data")?.[1] as (data: Buffer) => void;
+		dataCb(Buffer.from("remote output"));
+		expect(mockWebContents.send).not.toHaveBeenCalled();
+	});
+
+	it("spawnRemote close handler does not send when webContents is destroyed", async () => {
+		mockWebContents.isDestroyed.mockReturnValue(true);
+		await manager.spawnRemote("remote-1", 1);
+		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const closeCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "close")?.[1] as (code: number) => void;
+		closeCb(0);
+		expect(mockWebContents.send).not.toHaveBeenCalled();
+		expect(manager.has("remote-1")).toBe(false);
 	});
 });

@@ -60,11 +60,15 @@ export class TerminalManager {
 		this.sessions.set(sessionId, { type: "local", pty });
 
 		pty.onData((data: string) => {
-			this.webContents.send(`terminal:data:${sessionId}`, data);
+			if (!this.webContents.isDestroyed()) {
+				this.webContents.send(`terminal:data:${sessionId}`, data);
+			}
 		});
 
 		pty.onExit(({ exitCode }) => {
-			this.webContents.send(`terminal:exit:${sessionId}`, exitCode);
+			if (!this.webContents.isDestroyed()) {
+				this.webContents.send(`terminal:exit:${sessionId}`, exitCode);
+			}
 			this.sessions.delete(sessionId);
 		});
 	}
@@ -79,16 +83,22 @@ export class TerminalManager {
 		this.sessions.set(sessionId, { type: "remote", stream });
 
 		stream.on("data", (data: Buffer) => {
-			this.webContents.send(`terminal:data:${sessionId}`, data.toString("utf-8"));
+			if (!this.webContents.isDestroyed()) {
+				this.webContents.send(`terminal:data:${sessionId}`, data.toString("utf-8"));
+			}
 		});
 
 		stream.on("close", (code: number | null) => {
-			this.webContents.send(`terminal:exit:${sessionId}`, code);
+			if (!this.webContents.isDestroyed()) {
+				this.webContents.send(`terminal:exit:${sessionId}`, code);
+			}
 			this.sessions.delete(sessionId);
 		});
 
 		stream.on("error", (_err: Error) => {
-			this.webContents.send(`terminal:exit:${sessionId}`, -1);
+			if (!this.webContents.isDestroyed()) {
+				this.webContents.send(`terminal:exit:${sessionId}`, -1);
+			}
 			this.sessions.delete(sessionId);
 		});
 	}
