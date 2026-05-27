@@ -16,6 +16,7 @@ import {
 	authTypes,
 	DEFAULT_PORT,
 } from "../../../shared/validation";
+import { Button } from "../ui/button";
 
 interface ConnectionFormProps {
 	initial: Connection | null;
@@ -30,10 +31,10 @@ const AUTH_LABELS: Record<string, string> = {
 	agent: "connection.authAgent",
 };
 
-const inputClass = "px-2.5 py-[7px] border border-gray-400 rounded bg-white text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
-const labelClass = "text-xs font-medium text-gray-500";
-const errorClass = "text-xs text-red-600 mt-0.5";
-const requiredLabelClass = `${labelClass} after:content-['_*'] after:text-red-500 after:ml-0.5`;
+const inputClass = "px-2.5 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30";
+const labelClass = "text-xs font-medium text-muted-foreground";
+const errorClass = "text-xs text-destructive mt-0.5";
+const requiredLabelClass = `${labelClass} after:content-['_*'] after:text-destructive after:ml-0.5`;
 
 function errorMessage(err: unknown): string {
 	if (err !== null && typeof err === "object" && "message" in err) {
@@ -216,7 +217,7 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 											<label className={labelClass}>{t("connection.authType")}</label>
 											<div className="flex gap-4">
 												{authTypes.map((at) => (
-													<label key={at} className="flex items-center gap-1 cursor-pointer text-sm [&_input]:accent-blue-600">
+													<label key={at} className="flex items-center gap-1 cursor-pointer text-sm text-foreground [&_input]:accent-primary">
 														<input
 															type="radio"
 															name="authType"
@@ -388,12 +389,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 											<input
 												id="conn-usehttps"
 												type="checkbox"
-												className="accent-blue-600"
+												className="accent-primary"
 												checked={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => { field.handleChange(e.target.checked); }}
 											/>
-											<label className="text-sm text-gray-700 cursor-pointer select-none" htmlFor="conn-usehttps">
+											<label className="text-sm text-foreground cursor-pointer select-none" htmlFor="conn-usehttps">
 												{t("connection.useHttps")}
 											</label>
 										</div>
@@ -406,12 +407,12 @@ export function ConnectionForm({ initial, onSave, onCancel }: ConnectionFormProp
 			</form.Subscribe>
 
 			<div className="flex gap-2 justify-end mt-2">
-				<button type="button" className="px-5 py-2 text-gray-900 border border-gray-300 rounded hover:bg-gray-300" onClick={onCancel}>
+				<Button type="button" variant="outline" onClick={onCancel}>
 					{t("connection.cancel")}
-				</button>
-				<button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">
+				</Button>
+				<Button type="submit" variant="default">
 					{t("connection.save")}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);
