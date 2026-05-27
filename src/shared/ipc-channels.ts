@@ -15,4 +15,8 @@ export const IPC = {
   REMOTE_DISCONNECT: "remote:disconnect",
   REMOTE_LIST: "remote:list",
   REMOTE_HOME_DIR: "remote:homeDir",
+  TERMINAL_SPAWN: "terminal:spawn",
+  TERMINAL_WRITE: "terminal:write",
+  TERMINAL_RESIZE: "terminal:resize",
+  TERMINAL_KILL: "terminal:kill",
 } as const;
