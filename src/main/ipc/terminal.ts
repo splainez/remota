@@ -9,7 +9,9 @@ export function registerTerminalHandlers(terminalManager: TerminalManager): void
 			if (type === "local") {
 				terminalManager.spawnLocal(sessionId);
 			} else if (connectionId !== undefined) {
-				void terminalManager.spawnRemote(sessionId, connectionId);
+				terminalManager.spawnRemote(sessionId, connectionId).catch(() => {
+					// spawnRemote failure already handled internally
+				});
 			}
 		},
 	);

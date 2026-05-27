@@ -18,27 +18,16 @@ interface RemoteShellSession {
 
 function getShell(): { file: string; args: string[] } {
 	if (process.platform === "win32") {
-		const pwsh = "pwsh.exe";
-		const powershell = "powershell.exe";
-		const fallback = "cmd.exe";
+		const pwshPath = "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
+		const psPath = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
 
-		try {
-			if (existsSync(`C:\\Program Files\\PowerShell\\7\\${pwsh}`)) {
-				return { file: `C:\\Program Files\\PowerShell\\7\\${pwsh}`, args: ["-NoLogo"] };
-			}
-		} catch {
-			// ignore
+		if (existsSync(pwshPath)) {
+			return { file: pwshPath, args: ["-NoLogo"] };
 		}
-
-		try {
-			if (existsSync(`C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\${powershell}`)) {
-				return { file: `C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\${powershell}`, args: ["-NoLogo"] };
-			}
-		} catch {
-			// ignore
+		if (existsSync(psPath)) {
+			return { file: psPath, args: ["-NoLogo"] };
 		}
-
-		return { file: fallback, args: [] };
+		return { file: "cmd.exe", args: [] };
 	}
 
 	return { file: process.env.SHELL ?? "/bin/bash", args: [] };
@@ -95,6 +84,11 @@ export class TerminalManager {
 
 		stream.on("close", (code: number | null) => {
 			this.webContents.send(`terminal:exit:${sessionId}`, code);
+			this.sessions.delete(sessionId);
+		});
+
+		stream.on("error", (_err: Error) => {
+			this.webContents.send(`terminal:exit:${sessionId}`, -1);
 			this.sessions.delete(sessionId);
 		});
 	}
