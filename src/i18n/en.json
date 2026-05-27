@@ -36,6 +36,7 @@
 	"connection.cancel": "Cancel",
 	"connection.delete": "Delete",
 	"connection.noSelection": "Select a connection or create a new one.",
+	"connection.noActive": "No active connection",
 	"connection.add": "Add Connection",
 	"connection.configureDescription": "Configure details to establish a secure file transfer link.",
 	"connection.advancedSettings": "Advanced Settings (SSH Keys, Proxy...)",

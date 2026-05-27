@@ -2,7 +2,9 @@ import { useState } from "react";
 import { t } from "../i18n";
 import type { Connection, NewConnection } from "../shared/types";
 import { useConnections } from "./hooks/useConnections";
+import { useAppNavigation } from "./store/appNavigation";
 import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
+import { ConnectionListView } from "./components/ConnectionManager/ConnectionListView";
 import { ConnectionDetail } from "./components/ConnectionManager/ConnectionDetail";
 import { ConnectionForm } from "./components/ConnectionManager/ConnectionForm";
 import { FileBrowser } from "./components/FileBrowser/FileBrowser";
@@ -20,68 +22,57 @@ export function App() {
 		remove,
 	} = useConnections();
 
-	const [isNew, setIsNew] = useState(false);
-	const [isEditing, setIsEditing] = useState(false);
-	const [activeConnection, setActiveConnection] = useState<Connection | null>(null);
+	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser } = useAppNavigation();
 	const [showTransfers, setShowTransfers] = useState(true);
 
 	const handleSelect = (id: number) => {
-		setIsNew(false);
-		setIsEditing(false);
-		setActiveConnection(null);
 		select(id);
+		openConnectionDetail(id);
 	};
 
 	const handleAdd = () => {
 		select(null);
-		setIsNew(true);
-		setIsEditing(true);
-		setActiveConnection(null);
+		openConnectionForm("new");
 	};
 
 	const handleDoubleClick = (id: number) => {
 		const conn = connections.find((c) => c.id === id);
 		if (conn) {
-			setActiveConnection(conn);
+			openFileBrowser(conn);
 		}
 	};
 
 	const handleCancel = () => {
-		if (isNew) {
-			setIsNew(false);
-			setIsEditing(false);
-			if (connections.length > 0) {
-				select(connections[0].id);
-			}
-		} else {
-			setIsEditing(false);
-		}
+		openConnectionList();
 	};
 
 	const handleSave = async (data: NewConnection): Promise<Connection | undefined> => {
-		if (isNew) {
+		if (currentView.view === "connectionForm" && currentView.mode === "new") {
 			const created = await create(data);
-			setIsNew(false);
-			setIsEditing(false);
+			openConnectionDetail(created.id);
 			return created;
-		} else if (selected) {
-			await update({ ...data, id: selected.id });
-			setIsEditing(false);
-			return { ...selected, ...data };
+		} else if (currentView.view === "connectionForm" && currentView.mode === "edit" && currentView.id != null) {
+			await update({ ...data, id: currentView.id });
+			openConnectionDetail(currentView.id);
+			return { ...selected, ...data } as Connection;
+		} else if (currentView.view === "connectionDetail") {
+			await update({ ...data, id: currentView.id });
+			openConnectionDetail(currentView.id);
+			return { ...selected, ...data } as Connection;
 		}
 	};
 
-	const handleSaveAndConnect = async (data: NewConnection) => {
-		const conn = await handleSave(data);
-		if (conn) {
-			setActiveConnection(conn);
-		} else if (selected) {
-			setActiveConnection(selected);
-		}
+	const handleSaveAndConnect = (data: NewConnection) => {
+		void handleSave(data).then((conn) => {
+			if (conn) {
+				openFileBrowser(conn);
+			}
+		});
 	};
 
 	const handleDelete = async (id: number) => {
 		await remove(id);
+		openConnectionList();
 	};
 
 	if (loading) {
@@ -95,65 +86,94 @@ export function App() {
 		);
 	}
 
-	return (
-		<div className="flex h-screen overflow-hidden bg-background">
-			<ServerSidebar
-				connections={connections}
-				selectedId={selected?.id ?? null}
-				activeConnectionId={activeConnection?.id ?? null}
-				onSelect={handleSelect}
-				onAdd={handleAdd}
-				onDoubleClick={handleDoubleClick}
-			/>
-
-			<div className="flex-1 flex flex-col min-w-0">
-				{activeConnection ? (
-					<FileBrowser
-						connection={activeConnection}
+	const renderMainContent = () => {
+		switch (currentView.view) {
+			case "connectionList":
+				return (
+					<ConnectionListView
+						connections={connections}
+						selectedId={selected?.id ?? null}
+						activeConnectionId={null}
+						onSelect={handleSelect}
+						onAdd={handleAdd}
+						onDoubleClick={handleDoubleClick}
+						onDelete={(id) => { void handleDelete(id); }}
 					/>
-				) : isNew || (selected && isEditing) ? (
+				);
+
+			case "fileBrowser":
+				return (
+					<FileBrowser connection={currentView.connection} />
+				);
+
+			case "connectionForm": {
+				const editingConnection = currentView.mode === "edit" && currentView.id != null
+					? connections.find((c) => c.id === currentView.id) ?? null
+					: null;
+				return (
 					<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 						<div className="w-full max-w-2xl p-6 md:p-10">
-							{isNew ? (
-								<ConnectionForm
-									initial={null}
-									onSave={handleSave}
-									onCancel={handleCancel}
-									onConnect={(data) => { handleSaveAndConnect(data).catch(() => { /* noop */ }); }}
-								/>
-							) : (
-								<ConnectionForm
-									initial={selected}
-									onSave={handleSave}
-									onCancel={handleCancel}
-									onConnect={(data) => { handleSaveAndConnect(data).catch(() => { /* noop */ }); }}
-								/>
-							)}
+							<ConnectionForm
+								initial={editingConnection}
+								onSave={handleSave}
+								onCancel={handleCancel}
+								onConnect={handleSaveAndConnect}
+							/>
 						</div>
 					</div>
-				) : selected ? (
+				);
+			}
+
+			case "connectionDetail": {
+				const detailConnection = connections.find((c) => c.id === currentView.id) ?? null;
+				return (
 					<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 						<div className="w-full max-w-2xl p-6 md:p-10">
 							<ConnectionDetail
-								connection={selected}
+								connection={detailConnection}
 								isNew={false}
 								isEditing={false}
-								onEdit={() => { setIsEditing(true); }}
+								onEdit={() => { openConnectionForm("edit", currentView.id); }}
 								onCancel={handleCancel}
-								onConnect={() => { setActiveConnection(selected); }}
+								onConnect={() => {
+									if (detailConnection) openFileBrowser(detailConnection);
+								}}
 								onSave={handleSave}
 								onDelete={handleDelete}
 							/>
 						</div>
 					</div>
-				) : (
+				);
+			}
+
+			case "empty":
+			default:
+				return (
 					<div className="flex-1 flex items-center justify-center bg-surface overflow-auto">
 						<div className="text-center text-muted-foreground">
 							<Icon name="plug" size={48} className="mb-3 opacity-40 mx-auto" />
 							<div className="text-base">{t("connection.noSelection")}</div>
 						</div>
 					</div>
-				)}
+				);
+		}
+	};
+
+	return (
+		<div className="flex h-screen overflow-hidden bg-background">
+			<ServerSidebar
+				connections={connections}
+				selectedId={selected?.id ?? null}
+				activeConnectionId={currentView.view === "fileBrowser" ? currentView.connection.id : null}
+				onSelect={handleSelect}
+				onAdd={handleAdd}
+				onDoubleClick={handleDoubleClick}
+				onViewAll={openConnectionList}
+				onDisconnect={openConnectionList}
+			/>
+
+			<div className="flex-1 flex flex-col min-w-0">
+				{renderMainContent()}
 
 				<ActiveTransfers visible={showTransfers} onToggle={() => { setShowTransfers((v) => !v); }} />
 

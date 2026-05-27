@@ -25,6 +25,7 @@
 	"connection.cancel": "Cancelar",
 	"connection.delete": "Eliminar",
 	"connection.noSelection": "Selecciona una conexión o crea una nueva.",
+	"connection.noActive": "Sin conexión activa",
 	"connection.add": "Añadir Conexión",
 	"connection.configureDescription": "Configura los detalles para establecer un enlace seguro de transferencia de archivos.",
 	"connection.advancedSettings": "Ajustes Avanzados (Claves SSH, Proxy...)",
