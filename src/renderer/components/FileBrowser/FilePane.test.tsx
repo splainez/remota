@@ -61,24 +61,22 @@ describe("FilePane", () => {
 		flushStore();
 	});
 
-	it("renders toolbar with back, forward, up and refresh buttons (local)", () => {
+	it("renders toolbar with up, refresh and new folder buttons (local)", () => {
 		render(
 			<FilePane type="local" connectionId={1} initialPath="/home/user" />
 		);
-		expect(screen.getByTitle("Back")).toBeInTheDocument();
-		expect(screen.getByTitle("Forward")).toBeInTheDocument();
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
+		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
-	it("renders toolbar with back, forward, up and refresh buttons (remote)", () => {
+	it("renders toolbar with up, refresh and new folder buttons (remote)", () => {
 		render(
 			<FilePane type="remote" connectionId={1} initialPath="/" />
 		);
-		expect(screen.getByTitle("Back")).toBeInTheDocument();
-		expect(screen.getByTitle("Forward")).toBeInTheDocument();
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
+		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("initializes navigation history with initialPath", () => {
@@ -120,7 +118,11 @@ describe("FilePane", () => {
 		expect(store.panes.local.entries).toEqual(["/home", "/home/admin"]);
 		expect(store.canGoBack("local")).toBe(true);
 
-		await userEvent.click(screen.getByTitle("Back"));
+		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		if (!pane) throw new Error("Pane element not found");
+		const event = new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true });
+		pane.dispatchEvent(event);
+
 		expect(useNavigationStore.getState().panes.local.index).toBe(0);
 	});
 
@@ -137,21 +139,23 @@ describe("FilePane", () => {
 		const adminDir = await screen.findByText("admin");
 		await userEvent.dblClick(adminDir);
 
-		await userEvent.click(screen.getByTitle("Back"));
+		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		if (!pane) throw new Error("Pane element not found");
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true }));
 
 		const storeAfterBack = useNavigationStore.getState();
 		expect(storeAfterBack.canGoForward("local")).toBe(true);
 
-		await userEvent.click(screen.getByTitle("Forward"));
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 4, bubbles: true, cancelable: true }));
 		expect(useNavigationStore.getState().panes.local.index).toBe(1);
 	});
 
-	it("back button is disabled with no history", () => {
+	it("back and forward are not available as buttons", () => {
 		render(
 			<FilePane type="local" connectionId={1} initialPath="/home/user" />
 		);
-		expect(screen.getByTitle("Back")).toBeDisabled();
-		expect(screen.getByTitle("Forward")).toBeDisabled();
+		expect(screen.queryByTitle("Back")).not.toBeInTheDocument();
+		expect(screen.queryByTitle("Forward")).not.toBeInTheDocument();
 	});
 
 	it("calls goBack on mouse button 3 (back)", () => {
@@ -303,7 +307,6 @@ describe("FilePane", () => {
 
 		await screen.findByText("Permission denied");
 
-		expect(screen.getByTitle("Back")).toBeInTheDocument();
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 	});
@@ -337,8 +340,8 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("clears previous selection on plain click", async () => {
@@ -354,13 +357,13 @@ describe("FilePane", () => {
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("backups"));
 		await user.keyboard("{/Control}");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 
 		await user.click(screen.getByText("notes.txt"));
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("toggles entries with Ctrl+click", async () => {
@@ -377,15 +380,15 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("backups"));
 		await user.keyboard("{/Control}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("projects"));
 		await user.keyboard("{/Control}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("selects a range with Shift+click", async () => {
@@ -402,10 +405,10 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("notes.txt"));
 		await user.keyboard("{/Shift}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("uses first entry as anchor when Shift+click with no prior selection", async () => {
@@ -421,10 +424,10 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("config.json"));
 		await user.keyboard("{/Shift}");
 
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("clears selection on navigate back", async () => {
@@ -436,12 +439,16 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 
 		await userEvent.dblClick(screen.getByText("projects"));
-		await userEvent.click(screen.getByTitle("Back"));
+		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		if (!pane) throw new Error("Pane element not found");
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true }));
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		await waitFor(() => {
+			expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		});
 	});
 
 	it("clears selection on navigate forward", async () => {
@@ -459,12 +466,16 @@ describe("FilePane", () => {
 
 		await user.dblClick(screen.getByText("projects"));
 		await user.click(screen.getByText("webapp"));
-		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 
-		await user.click(screen.getByTitle("Back"));
-		await user.click(screen.getByTitle("Forward"));
+		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		if (!pane) throw new Error("Pane element not found");
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true }));
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 4, bubbles: true, cancelable: true }));
 
-		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		await waitFor(() => {
+			expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		});
 	});
 
 	it("uses forward slashes for remote paths on Windows platform", async () => {
@@ -610,7 +621,9 @@ describe("FilePane", () => {
 		await screen.findByText("docs");
 		await userEvent.dblClick(screen.getByText("docs"));
 
-		await userEvent.click(screen.getByTitle("Back"));
+		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		if (!pane) throw new Error("Pane element not found");
+		pane.dispatchEvent(new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true }));
 		expect(mockApiWin3.filesystem.remoteList).toHaveBeenCalledWith(1, "/home");
 
 		usePlatformStore.setState({
@@ -637,11 +650,11 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 
 		await userEvent.click(screen.getByTitle("Parent Directory"));
 
-		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
-		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 });

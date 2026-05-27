@@ -61,41 +61,12 @@ describe("FileBrowser", () => {
 		vi.stubGlobal("api", mockApi);
 	});
 
-	it("renders connection name in header", async () => {
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
-
-		await waitFor(() => {
-			expect(screen.getByText("Test SFTP")).toBeInTheDocument();
-		});
-	});
-
 	it("calls remoteConnect on mount", async () => {
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(window.api.filesystem.remoteConnect).toHaveBeenCalledWith(1);
 		});
-	});
-
-	it("calls remoteDisconnect when disconnect button is clicked", async () => {
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
-
-		await waitFor(() => {
-			expect(screen.getByText("Disconnect")).toBeInTheDocument();
-		});
-
-		await userEvent.click(screen.getByText("Disconnect"));
-		expect(window.api.filesystem.remoteDisconnect).toHaveBeenCalledWith(1);
-		expect(onDisconnect).toHaveBeenCalled();
 	});
 
 	it("shows error overlay when remoteConnect fails", async () => {
@@ -105,10 +76,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connection refused")).toBeInTheDocument();
@@ -124,10 +92,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Show details")).toBeInTheDocument();
@@ -147,10 +112,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connecting...")).toBeInTheDocument();
@@ -168,10 +130,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Retry")).toBeInTheDocument();
@@ -182,29 +141,10 @@ describe("FileBrowser", () => {
 		await waitFor(() => {
 			expect(window.api.filesystem.remoteConnect).toHaveBeenCalledTimes(2);
 		});
-
-		await waitFor(() => {
-			expect(screen.getAllByTitle("Back").length).toBeGreaterThanOrEqual(2);
-		});
-	});
-
-	it("renders both local and remote panes after successful connection", async () => {
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
-
-		await waitFor(() => {
-			expect(screen.getAllByTitle("Back").length).toBeGreaterThanOrEqual(2);
-			expect(screen.getAllByTitle("Forward").length).toBeGreaterThanOrEqual(2);
-		});
 	});
 
 	it("calls homeDir and getLastPath on mount", async () => {
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(window.api.filesystem.homeDir).toHaveBeenCalled();
@@ -220,10 +160,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Authentication failed")).toBeInTheDocument();
@@ -237,10 +174,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connection timed out")).toBeInTheDocument();
@@ -254,10 +188,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Host unreachable")).toBeInTheDocument();
@@ -271,10 +202,7 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		const onDisconnect = vi.fn();
-		render(
-			<FileBrowser connection={testConnection} onDisconnect={onDisconnect} />
-		);
+		render(<FileBrowser connection={testConnection} />);
 
 		await waitFor(() => {
 			expect(screen.getByText("Host key verification failed")).toBeInTheDocument();

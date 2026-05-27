@@ -75,20 +75,20 @@ describe("FileList", () => {
 		render(<FileList {...defaultProps} />);
 		const nameHeader = screen.getByRole("button", { name: /name/i });
 		await userEvent.click(nameHeader);
-		const cells = document.querySelectorAll('[class*="gap-1.5"]');
-		expect(cells[0].textContent).toContain("projects");
-		expect(cells[1].textContent).toContain("documents");
-		expect(cells[2].textContent).toContain("readme.md");
-		expect(cells[3].textContent).toContain("config.json");
+		const rows = document.querySelectorAll("div.cursor-pointer");
+		expect(rows[0].textContent).toContain("projects");
+		expect(rows[1].textContent).toContain("documents");
+		expect(rows[2].textContent).toContain("readme.md");
+		expect(rows[3].textContent).toContain("config.json");
 	});
 
 	it("default sort is by name ascending (folders first)", () => {
 		render(<FileList {...defaultProps} />);
-		const cells = document.querySelectorAll('[class*="gap-1.5"]');
-		expect(cells[0].textContent).toContain("documents");
-		expect(cells[1].textContent).toContain("projects");
-		expect(cells[2].textContent).toContain("config.json");
-		expect(cells[3].textContent).toContain("readme.md");
+		const rows = document.querySelectorAll("div.cursor-pointer");
+		expect(rows[0].textContent).toContain("documents");
+		expect(rows[1].textContent).toContain("projects");
+		expect(rows[2].textContent).toContain("config.json");
+		expect(rows[3].textContent).toContain("readme.md");
 	});
 
 	it("shows sort indicator with correct direction on active column", async () => {
@@ -111,10 +111,10 @@ describe("FileList", () => {
 
 	it("does not show size for directories", () => {
 		render(<FileList {...defaultProps} />);
-		const cells = document.querySelectorAll('[class*="text-right"]');
-		const dirCells = Array.from(cells).filter((_, i) => i < 2);
-		for (const cell of dirCells) {
-			expect(cell.textContent).toBe("");
+		const rows = document.querySelectorAll("div.cursor-pointer");
+		// First two rows are directories
+		for (let i = 0; i < 2; i++) {
+			expect(rows[i].textContent).toContain("--");
 		}
 	});
 
@@ -149,12 +149,12 @@ describe("FileList", () => {
 
 	it("applies selection styling to entries in selectedNames", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md", "config.json"]} />);
-		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("does not apply selection styling to entries not in selectedNames", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
-		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
 });

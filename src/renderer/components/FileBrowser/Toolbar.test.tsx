@@ -41,60 +41,11 @@ describe("Toolbar", () => {
 	const cDriveRoot = ["C:", ""].join("\\");
 	const dDriveRoot = ["D:", ""].join("\\");
 
-	it("renders Back, Forward, Up and Refresh buttons", () => {
+	it("renders Up, Refresh and New Folder buttons", () => {
 		render(<Toolbar {...defaultProps} />);
-		expect(screen.getByTitle("Back")).toBeInTheDocument();
-		expect(screen.getByTitle("Forward")).toBeInTheDocument();
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
-	});
-
-	it("disables Back button when canGoBack is false", () => {
-		render(<Toolbar {...defaultProps} canGoBack={false} />);
-		expect(screen.getByTitle("Back")).toBeDisabled();
-	});
-
-	it("enables Back button when canGoBack is true", () => {
-		render(<Toolbar {...defaultProps} canGoBack={true} />);
-		expect(screen.getByTitle("Back")).not.toBeDisabled();
-	});
-
-	it("disables Forward button when canGoForward is false", () => {
-		render(<Toolbar {...defaultProps} canGoForward={false} />);
-		expect(screen.getByTitle("Forward")).toBeDisabled();
-	});
-
-	it("enables Forward button when canGoForward is true", () => {
-		render(<Toolbar {...defaultProps} canGoForward={true} />);
-		expect(screen.getByTitle("Forward")).not.toBeDisabled();
-	});
-
-	it("calls onGoBack when Back is clicked", async () => {
-		const onGoBack = vi.fn();
-		render(<Toolbar {...defaultProps} onGoBack={onGoBack} canGoBack={true} />);
-		await userEvent.click(screen.getByTitle("Back"));
-		expect(onGoBack).toHaveBeenCalledOnce();
-	});
-
-	it("calls onGoForward when Forward is clicked", async () => {
-		const onGoForward = vi.fn();
-		render(<Toolbar {...defaultProps} onGoForward={onGoForward} canGoForward={true} />);
-		await userEvent.click(screen.getByTitle("Forward"));
-		expect(onGoForward).toHaveBeenCalledOnce();
-	});
-
-	it("does not call onGoBack when Back is disabled", async () => {
-		const onGoBack = vi.fn();
-		render(<Toolbar {...defaultProps} onGoBack={onGoBack} canGoBack={false} />);
-		await userEvent.click(screen.getByTitle("Back"));
-		expect(onGoBack).not.toHaveBeenCalled();
-	});
-
-	it("does not call onGoForward when Forward is disabled", async () => {
-		const onGoForward = vi.fn();
-		render(<Toolbar {...defaultProps} onGoForward={onGoForward} canGoForward={false} />);
-		await userEvent.click(screen.getByTitle("Forward"));
-		expect(onGoForward).not.toHaveBeenCalled();
+		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("enables Up button when not at root", () => {
