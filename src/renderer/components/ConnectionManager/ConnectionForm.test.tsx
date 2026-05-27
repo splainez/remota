@@ -158,9 +158,29 @@ describe("ConnectionForm", () => {
 		);
 	});
 
-	it("calls onSave and onConnect with form data on Connect button click", async () => {
+	it("calls onSave and onConnect with the saved Connection on Connect button click", async () => {
 		const user = userEvent.setup();
-		const onSave = vi.fn();
+		const savedConnection: Connection = {
+			id: 42,
+			name: "My Server",
+			protocol: "sftp",
+			host: "newhost.com",
+			port: 22,
+			username: "newuser",
+			authType: "password",
+			password: "newpass",
+			privateKeyPath: "",
+			accessKey: "",
+			secretKey: "",
+			region: "us-east-1",
+			bucket: "",
+			endpoint: "",
+			useHttps: true,
+			groupName: "",
+			createdAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z",
+		};
+		const onSave = vi.fn().mockResolvedValue(savedConnection);
 		const onConnect = vi.fn();
 		render(
 			<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />
@@ -177,6 +197,25 @@ describe("ConnectionForm", () => {
 
 		expect(onSave).toHaveBeenCalledOnce();
 		expect(onConnect).toHaveBeenCalledOnce();
+		expect(onConnect).toHaveBeenCalledWith(savedConnection);
+	});
+
+	it("does not call onConnect when Connect is clicked but validation fails", async () => {
+		const user = userEvent.setup();
+		const onSave = vi.fn();
+		const onConnect = vi.fn();
+		render(
+			<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />
+		);
+
+		await user.type(screen.getByLabelText("Host"), "newhost.com");
+		await user.type(screen.getByLabelText("Username"), "newuser");
+		await user.type(screen.getByLabelText("Password", { selector: "input[type='password']" }), "pass");
+
+		await user.click(screen.getByRole("button", { name: "Connect" }));
+
+		expect(onSave).not.toHaveBeenCalled();
+		expect(onConnect).not.toHaveBeenCalled();
 	});
 
 	it("calls onSave with S3 fields on submit", async () => {
