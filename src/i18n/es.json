@@ -78,6 +78,5 @@
 	"validation.passwordRequired": "La contraseña es obligatoria",
 	"validation.privateKeyRequired": "La ruta de clave privada es obligatoria",
   "validation.default": "Valor inválido",
-  "terminal.toggle": "Alternar Terminal",
-  "terminal.close": "Cerrar Terminal"
+	"terminal.toggle": "Alternar Terminal"
 }

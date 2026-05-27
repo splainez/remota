@@ -88,6 +88,5 @@
 	"validation.regionRequired": "Region is required",
 	"validation.bucketRequired": "Bucket is required",
   "validation.default": "Invalid value",
-  "terminal.toggle": "Toggle Terminal",
-  "terminal.close": "Close Terminal"
+	"terminal.toggle": "Toggle Terminal"
 }
