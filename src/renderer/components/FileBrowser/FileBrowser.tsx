@@ -99,10 +99,10 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 	return (
 		<div className="flex flex-col h-full overflow-hidden">
 			{/* Top App Bar / Breadcrumbs */}
-			<header className="h-16 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-6 shrink-0">
+			<header className="h-12 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-4 shrink-0">
 				{/* Local Path */}
-				<div className="flex items-center flex-1 min-w-0 pr-4">
-					<Icon name="server" size={20} className="text-on-surface-variant mr-3 shrink-0" />
+				<div className="flex items-center flex-1 min-w-0 pr-4 gap-2">
+					<Icon name="server" size={16} className="text-on-surface-variant shrink-0" />
 					<PathBreadcrumb path={localPath} />
 				</div>
 
@@ -110,18 +110,18 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 				<div className="flex items-center justify-center px-4 shrink-0">
 					<Button
 						variant="default"
-						className="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm"
+						className="bg-primary text-on-primary text-xs font-semibold px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-surface-tint transition-colors shadow-sm h-8"
 						onClick={() => { /* Sync folders - no-op for now */ }}
 					>
-						<Icon name="sync" size={18} />
+						<Icon name="sync" size={14} />
 						{t("file.syncFolders")}
 					</Button>
 				</div>
 
 				{/* Remote Path */}
-				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end">
+				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end gap-2">
 					<PathBreadcrumb path={remotePath} />
-					<Icon name="globe" size={20} className="text-on-surface-variant ml-3 shrink-0" />
+					<Icon name="globe" size={16} className="text-on-surface-variant shrink-0" />
 				</div>
 			</header>
 
@@ -180,10 +180,10 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 function PathBreadcrumb({ path }: { path: string }) {
 	const segments = path.split(/[/\\]/).filter(Boolean);
 	return (
-		<div className="flex items-center gap-1 font-body-md text-body-md text-on-surface-variant overflow-hidden whitespace-nowrap">
+		<div className="flex items-center gap-0.5 text-sm text-on-surface-variant overflow-hidden whitespace-nowrap">
 			{segments.map((seg, i) => (
-				<span key={`${seg}-${i}`} className="flex items-center gap-1 shrink-0">
-									{i > 0 && <Icon name="arrow-right" size={14} className="text-on-surface-variant shrink-0" />}
+				<span key={`${seg}-${i}`} className="flex items-center gap-0.5 shrink-0">
+					{i > 0 && <span className="text-on-surface-variant text-xs select-none">&gt;</span>}
 					{i === segments.length - 1 ? (
 						<span className="text-on-surface font-medium truncate">{seg}</span>
 					) : (
