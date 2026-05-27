@@ -48,6 +48,7 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -67,6 +68,7 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -87,6 +89,7 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -108,6 +111,7 @@ describe("ServerSidebar", () => {
 					onAdd={onAdd}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -128,6 +132,7 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -152,6 +157,7 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -175,11 +181,56 @@ describe("ServerSidebar", () => {
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
 					onViewAll={onViewAll}
+					onDisconnect={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
 
 		await user.click(screen.getByTitle("OpenSCP"));
 		expect(onViewAll).toHaveBeenCalledOnce();
+	});
+
+	it("calls onViewAll when header area is clicked", async () => {
+		const user = userEvent.setup();
+		const onViewAll = vi.fn();
+		render(
+			<ThemeProvider defaultTheme="dark">
+				<ServerSidebar
+					connections={connections}
+					selectedId={null}
+					activeConnectionId={1}
+					onSelect={vi.fn()}
+					onAdd={vi.fn()}
+					onDoubleClick={vi.fn()}
+					onViewAll={onViewAll}
+					onDisconnect={vi.fn()}
+				/>
+			</ThemeProvider>
+		);
+
+		await user.click(screen.getByText("OpenSCP"));
+		expect(onViewAll).toHaveBeenCalledOnce();
+	});
+
+	it("calls onDisconnect when disconnect button is clicked", async () => {
+		const user = userEvent.setup();
+		const onDisconnect = vi.fn();
+		render(
+			<ThemeProvider defaultTheme="dark">
+				<ServerSidebar
+					connections={connections}
+					selectedId={null}
+					activeConnectionId={1}
+					onSelect={vi.fn()}
+					onAdd={vi.fn()}
+					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
+					onDisconnect={onDisconnect}
+				/>
+			</ThemeProvider>
+		);
+
+		await user.click(screen.getByTitle("Disconnect"));
+		expect(onDisconnect).toHaveBeenCalledOnce();
 	});
 });

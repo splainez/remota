@@ -169,6 +169,7 @@ export function App() {
 				onAdd={handleAdd}
 				onDoubleClick={handleDoubleClick}
 				onViewAll={openConnectionList}
+				onDisconnect={openConnectionList}
 			/>
 
 			<div className="flex-1 flex flex-col min-w-0">

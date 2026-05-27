@@ -12,6 +12,7 @@ interface ServerSidebarProps {
 	onAdd: () => void;
 	onDoubleClick: (id: number) => void;
 	onViewAll: () => void;
+	onDisconnect: () => void;
 }
 
 function getInitials(name: string): string {
@@ -86,6 +87,7 @@ export function ServerSidebar({
 	onAdd,
 	onDoubleClick,
 	onViewAll,
+	onDisconnect,
 }: ServerSidebarProps) {
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -105,11 +107,17 @@ export function ServerSidebar({
 			className={`bg-surface-container-low border-r border-outline-variant flex flex-col py-3 gap-3 z-40 shrink-0 transition-all duration-300 ${collapsed ? "w-16 items-center" : "w-60 px-3"}`}
 		>
 			{/* Brand/Home */}
-			<div className={`flex items-center gap-2 ${collapsed ? "justify-center" : ""}`}>
+			<div
+				className={`flex items-center gap-2 cursor-pointer hover:bg-surface-container rounded-lg transition-colors ${collapsed ? "justify-center" : "px-1 py-1"}`}
+				onClick={onViewAll}
+				role="button"
+				tabIndex={0}
+				onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onViewAll(); }}
+			>
 				<button
 					className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:rounded-lg transition-all duration-300 ease-in-out shadow-sm shrink-0"
 					title={t("app.title")}
-					onClick={onViewAll}
+					tabIndex={-1}
 				>
 					<Icon name="server" size={20} />
 				</button>
@@ -162,12 +170,18 @@ export function ServerSidebar({
 							{isSelected && !collapsed && (
 								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
 							)}
-							<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
-								{collapsed ? getInitials(conn.name) : conn.name}
-							</span>
-							{!collapsed && isConnActive && (
-								<span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-							)}
+						<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
+							{collapsed ? getInitials(conn.name) : conn.name}
+						</span>
+						{!collapsed && isConnActive && (
+							<button
+								className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+								title={t("connection.disconnect")}
+								onClick={(e) => { e.stopPropagation(); onDisconnect(); }}
+							>
+								<Icon name="close" size={12} />
+							</button>
+						)}
 						</button>
 					);
 				})}
