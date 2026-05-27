@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Sidebar } from "./Sidebar";
 import type { Connection } from "../../../shared/types";
 
-const emptyS3Fields = { accessKey: "", secretKey: "", region: "us-east-1", bucket: "", endpoint: "", useHttps: true };
+const emptyS3Fields = { accessKey: "", secretKey: "", region: "us-east-1", bucket: "", endpoint: "", useHttps: true, groupName: "" };
 
 const connections: Connection[] = [
   { id: 1, name: "Server A", protocol: "sftp", host: "a.example.com", port: 22, username: "u1", authType: "password", password: "", privateKeyPath: "", ...emptyS3Fields, createdAt: "", updatedAt: "" },

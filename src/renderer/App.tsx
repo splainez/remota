@@ -58,15 +58,25 @@ export function App() {
 		}
 	};
 
-	const handleSave = async (data: NewConnection) => {
+	const handleSave = async (data: NewConnection): Promise<Connection | undefined> => {
 		if (isNew) {
 			const created = await create(data);
 			setIsNew(false);
 			setIsEditing(false);
-			setActiveConnection(created);
+			return created;
 		} else if (selected) {
 			await update({ ...data, id: selected.id });
 			setIsEditing(false);
+			return { ...selected, ...data };
+		}
+	};
+
+	const handleSaveAndConnect = async (data: NewConnection) => {
+		const conn = await handleSave(data);
+		if (conn) {
+			setActiveConnection(conn);
+		} else if (selected) {
+			setActiveConnection(selected);
 		}
 	};
 
@@ -109,12 +119,14 @@ export function App() {
 									initial={null}
 									onSave={handleSave}
 									onCancel={handleCancel}
+									onConnect={(data) => { handleSaveAndConnect(data).catch(() => { /* noop */ }); }}
 								/>
 							) : (
 								<ConnectionForm
 									initial={selected}
 									onSave={handleSave}
 									onCancel={handleCancel}
+									onConnect={(data) => { handleSaveAndConnect(data).catch(() => { /* noop */ }); }}
 								/>
 							)}
 						</div>

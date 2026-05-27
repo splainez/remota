@@ -21,6 +21,7 @@ function makeConn(count: number): Connection[] {
     bucket: "",
     endpoint: "",
     useHttps: true,
+    groupName: "",
     createdAt: "",
     updatedAt: "",
   }));
@@ -137,6 +138,7 @@ describe("useConnections", () => {
         bucket: "",
         endpoint: "",
         useHttps: true,
+        groupName: "",
       });
     });
 

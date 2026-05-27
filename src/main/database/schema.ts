@@ -16,6 +16,7 @@ export const connections = sqliteTable("connections", {
   bucket: text("bucket").notNull().default(""),
   endpoint: text("endpoint").notNull().default(""),
   useHttps: integer("use_https").notNull().default(1),
+  groupName: text("group_name").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
