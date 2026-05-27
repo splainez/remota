@@ -44,7 +44,7 @@ export const secretKeySchema = z.string().trim().min(1, "validation.secretKeyReq
 export const regionSchema = z.string().trim().min(1, "validation.regionRequired");
 export const bucketSchema = z.string().trim().min(1, "validation.bucketRequired");
 
-export const connectionFormSchema = z.object({
+export const connectionBaseSchema = z.object({
 	name: nameSchema,
 	protocol: z.enum(protocols),
 	host: hostSchema,
@@ -60,7 +60,9 @@ export const connectionFormSchema = z.object({
 	endpoint: z.string(),
 	useHttps: z.boolean(),
 	groupName: z.string(),
-}).refine(
+});
+
+export const connectionFormSchema = connectionBaseSchema.refine(
 	(data) => data.protocol === "s3" || data.authType !== "password" || data.password.trim().length > 0,
 	{ message: "validation.passwordRequired", path: ["password"] },
 ).refine(
