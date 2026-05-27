@@ -8,6 +8,7 @@ import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error"
 import { Button } from "../ui/button";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
+import { Terminal } from "../Terminal/Terminal";
 
 interface FilePaneProps {
 	type: "local" | "remote";
@@ -23,9 +24,11 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 	const [selectedNames, setSelectedNames] = useState<string[]>([]);
 	const lastClickedNameRef = useRef<string | null>(null);
 	const [drives, setDrives] = useState<string[]>([]);
-	const prevConnectionRef = useRef(connectionId);
-	const pathInitialized = useRef(false);
-	const isWindows = usePlatformStore((s) => s.isWindows);
+  const prevConnectionRef = useRef(connectionId);
+  const pathInitialized = useRef(false);
+  const isWindows = usePlatformStore((s) => s.isWindows);
+  const [showTerminal, setShowTerminal] = useState(false);
+  const paneRef = useRef<HTMLDivElement>(null);
 
 	const push = useNavigationStore((s) => s.push);
 	const goBack = useNavigationStore((s) => s.goBack);
@@ -173,17 +176,33 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		[handleGoBack, handleGoForward],
 	);
 
-	const driveRoot = isWindows
-		? drives.find((d) => d === currentPath) ?? null
-		: null;
-	const showDriveSelector = isWindows && type === "local" && drives.length > 1;
+  const driveRoot = isWindows
+    ? drives.find((d) => d === currentPath) ?? null
+    : null;
+  const showDriveSelector = isWindows && type === "local" && drives.length > 1;
 
-	return (
-		<div
-			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
-			onMouseDown={handleMouseDown}
-		>
-			<Toolbar
+  const sessionId = `${type}-${String(connectionId)}`;
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.ctrlKey && e.key === "`") {
+      e.preventDefault();
+      setShowTerminal((prev) => !prev);
+    }
+  }, []);
+
+  const handleToggleTerminal = useCallback(() => {
+    setShowTerminal((prev) => !prev);
+  }, []);
+
+  return (
+    <div
+      ref={paneRef}
+      tabIndex={-1}
+      className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
+      onMouseDown={handleMouseDown}
+      onKeyDown={handleKeyDown}
+    >
+      <Toolbar
 				onGoBack={handleGoBack}
 				onGoForward={handleGoForward}
 				canGoBack={canGoBack}
@@ -191,6 +210,8 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				onNavigateUp={handleNavigateUp}
 				onRefresh={handleRefresh}
 				onNavigateTo={handleNavigateTo}
+				onToggleTerminal={handleToggleTerminal}
+				terminalVisible={showTerminal}
 				drives={showDriveSelector ? drives : []}
 				currentPath={currentPath}
 				isAtDriveRoot={driveRoot !== null}
@@ -217,7 +238,12 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					onSelectEntry={handleSelectEntry}
 					selectedNames={selectedNames}
 				/>
-			)}
-		</div>
-	);
+      )}
+      {showTerminal && (
+        <div className="h-48 shrink-0 border-t border-outline-variant">
+          <Terminal sessionId={sessionId} type={type} connectionId={type === "remote" ? connectionId : undefined} />
+        </div>
+      )}
+    </div>
+  );
 }

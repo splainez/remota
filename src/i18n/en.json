@@ -87,5 +87,7 @@
 	"validation.secretKeyRequired": "Secret key is required",
 	"validation.regionRequired": "Region is required",
 	"validation.bucketRequired": "Bucket is required",
-	"validation.default": "Invalid value"
+  "validation.default": "Invalid value",
+  "terminal.toggle": "Toggle Terminal",
+  "terminal.close": "Close Terminal"
 }

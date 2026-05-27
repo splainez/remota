@@ -11,6 +11,8 @@ interface ToolbarProps {
 	onNavigateUp: () => void;
 	onRefresh: () => void;
 	onNavigateTo: (path: string) => void;
+	onToggleTerminal?: () => void;
+	terminalVisible?: boolean;
 	drives: string[];
 	currentPath: string;
 	isAtDriveRoot: boolean;
@@ -20,6 +22,8 @@ export function Toolbar({
 	onNavigateUp,
 	onRefresh,
 	onNavigateTo,
+	onToggleTerminal,
+	terminalVisible,
 	drives,
 	currentPath,
 	isAtDriveRoot,
@@ -59,6 +63,15 @@ export function Toolbar({
 				>
 					<Icon name="refresh" size={16} />
 				</button>
+				{onToggleTerminal && (
+					<button
+						className={`${btnClass} ${terminalVisible ? "text-primary" : ""}`}
+						onClick={onToggleTerminal}
+						title={t("terminal.toggle")}
+					>
+						<Icon name="terminal" size={16} />
+					</button>
+				)}
 				<button
 					className={btnClass}
 					onClick={() => { /* New folder - no-op for now */ }}
