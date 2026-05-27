@@ -62,12 +62,8 @@ export function App() {
 		}
 	};
 
-	const handleSaveAndConnect = (data: NewConnection) => {
-		void handleSave(data).then((conn) => {
-			if (conn) {
-				openFileBrowser(conn);
-			}
-		});
+	const handleSaveAndConnect = (connection: Connection) => {
+		openFileBrowser(connection);
 	};
 
 	const handleDelete = async (id: number) => {

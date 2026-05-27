@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
 import {
@@ -24,7 +24,7 @@ interface ConnectionFormProps {
 	initial: Connection | null;
 	onSave: (data: NewConnection) => Promise<Connection | undefined>;
 	onCancel: () => void;
-	onConnect?: (data: NewConnection) => void;
+	onConnect?: (connection: Connection) => void;
 }
 
 const PROTOCOLS = ["sftp", "scp", "s3"] as const;
@@ -50,6 +50,7 @@ function errorMessage(err: unknown): string {
 
 export function ConnectionForm({ initial, onSave, onCancel, onConnect }: ConnectionFormProps) {
 	const [showAdvanced, setShowAdvanced] = useState(false);
+	const savedRef = useRef<{ connection?: Connection }>({});
 
 	function getFormData(value: typeof form.state.values): NewConnection {
 		return {
@@ -90,7 +91,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			groupName: initial?.groupName ?? "",
 		},
 		onSubmit: async ({ value }) => {
-			await onSave(getFormData(value));
+			savedRef.current.connection = await onSave(getFormData(value));
 		},
 		validators: {
 			onSubmit: connectionFormSchema,
@@ -98,9 +99,11 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 	});
 
 	const handleSubmit = async (shouldConnect: boolean) => {
+		savedRef.current = {};
 		await form.handleSubmit();
-		if (shouldConnect && onConnect) {
-			onConnect(getFormData(form.state.values));
+		const conn = savedRef.current.connection;
+		if (shouldConnect && onConnect && conn) {
+			onConnect(conn);
 		}
 	};
 
