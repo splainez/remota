@@ -1,4 +1,13 @@
 services:
+  ssh:
+    build:
+      context: .
+      dockerfile: Dockerfile.ssh
+    container_name: openscp-ssh
+    ports:
+      - "10022:22"
+    restart: unless-stopped
+
   sftp:
     image: atmoz/sftp
     container_name: openscp-sftp
