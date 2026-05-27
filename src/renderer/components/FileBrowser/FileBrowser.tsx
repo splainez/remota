@@ -4,6 +4,7 @@ import type { Connection } from "../../../shared/types";
 import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
+import { Breadcrumb } from "./Breadcrumb";
 import { FilePane } from "./FilePane";
 
 interface FileBrowserProps {
@@ -103,7 +104,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 				{/* Local Path */}
 				<div className="flex items-center flex-1 min-w-0 pr-4 gap-2">
 					<Icon name="server" size={16} className="text-on-surface-variant shrink-0" />
-					<PathBreadcrumb path={localPath} />
+					<Breadcrumb path={localPath} onNavigate={setLocalPath} className="bg-transparent border-none p-0 h-auto" />
 				</div>
 
 				{/* Transfer Action */}
@@ -120,7 +121,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 
 				{/* Remote Path */}
 				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end gap-2">
-					<PathBreadcrumb path={remotePath} />
+					<Breadcrumb path={remotePath} onNavigate={setRemotePath} className="bg-transparent border-none p-0 h-auto" />
 					<Icon name="globe" size={16} className="text-on-surface-variant shrink-0" />
 				</div>
 			</header>
@@ -173,24 +174,6 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 					</div>
 				)}
 			</main>
-		</div>
-	);
-}
-
-function PathBreadcrumb({ path }: { path: string }) {
-	const segments = path.split(/[/\\]/).filter(Boolean);
-	return (
-		<div className="flex items-center gap-0.5 text-sm text-on-surface-variant overflow-hidden whitespace-nowrap">
-			{segments.map((seg, i) => (
-				<span key={`${seg}-${i}`} className="flex items-center gap-0.5 shrink-0">
-					{i > 0 && <span className="text-on-surface-variant text-xs select-none">&gt;</span>}
-					{i === segments.length - 1 ? (
-						<span className="text-on-surface font-medium truncate">{seg}</span>
-					) : (
-						<span className="hover:text-primary cursor-pointer hover:underline shrink-0">{seg}</span>
-					)}
-				</span>
-			))}
 		</div>
 	);
 }

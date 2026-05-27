@@ -1,8 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { BreadcrumbProps, BreadcrumbSegment } from "./BreadcrumbTypes";
-import { parsePath } from "../../lib/utils";
+import { cn, parsePath } from "../../lib/utils";
 
-export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
+export function Breadcrumb({ path, onNavigate, className }: BreadcrumbProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const segmentRefs = useRef<(HTMLButtonElement | null)[]>([]);
 	const [hiddenStart, setHiddenStart] = useState(1);
@@ -94,12 +94,12 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
 			>
 				{seg.label}
 			</button>
-			{!isLast && <span className="text-muted-foreground text-sm shrink-0">/</span>}
+			{!isLast && seg.path !== "/" && <span className="text-muted-foreground text-sm shrink-0">/</span>}
 		</span>
 	);
 
 	return (
-		<div className="flex items-center gap-1 overflow-hidden shrink-0 h-7 px-2 bg-background border-b border-outline-variant" ref={containerRef}>
+		<div className={cn("flex items-center gap-1 overflow-hidden shrink-0 h-7 px-2 bg-background border-b border-outline-variant", className)} ref={containerRef}>
 			{headSegments.map((seg, i) =>
 				renderSegment(seg, i, !showEllipsis && i === headSegments.length - 1)
 			)}

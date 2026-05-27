@@ -23,7 +23,7 @@ export function parsePath(input: string): BreadcrumbSegment[] {
 		const segments: BreadcrumbSegment[] = [];
 		if (parts.length > 0) {
 			const root = parts[0].endsWith(":") ? parts[0] : parts[0] + sep;
-			segments.push({ label: root + sep, path: root + sep });
+			segments.push({ label: root, path: root + sep });
 
 			let acc = root + sep;
 			for (let i = 1; i < parts.length; i++) {

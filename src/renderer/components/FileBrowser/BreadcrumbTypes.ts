@@ -7,4 +7,5 @@ export interface BreadcrumbSegment {
 export interface BreadcrumbProps {
 	path: string;
 	onNavigate: (path: string) => void;
+	className?: string;
 }

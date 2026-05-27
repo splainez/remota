@@ -52,7 +52,7 @@ describe("Breadcrumb", () => {
 	});
 
 	it("renders separators between segments", () => {
-		render(<Breadcrumb {...defaultProps} />);
+		render(<Breadcrumb path="/home/user/projects" onNavigate={vi.fn()} />);
 		const separators = document.querySelectorAll<HTMLSpanElement>("span.text-muted-foreground.text-sm.shrink-0");
 		expect(separators.length).toBeGreaterThanOrEqual(2);
 	});
