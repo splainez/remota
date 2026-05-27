@@ -2,6 +2,7 @@ import { ipcMain } from "electron";
 import { eq } from "drizzle-orm";
 import { connections } from "../database/schema";
 import { IPC } from "../../shared/ipc-channels";
+import { connectionFormSchema, connectionBaseSchema } from "../../shared/validation";
 import type { DatabaseInstance } from "../database";
 import type { Connection, NewConnection, ConnectionUpdate } from "../../shared/types";
 
@@ -40,25 +41,30 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
   });
 
   ipcMain.handle(IPC.CONNECTION_CREATE, (_event, data: NewConnection) => {
+    const parsed = connectionFormSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(`Invalid connection data: ${parsed.error.message}`);
+    }
+    const validated = parsed.data;
     const now = new Date().toISOString();
     const result = db
       .insert(connections)
       .values({
-        name: data.name,
-        protocol: data.protocol,
-        host: data.host,
-        port: data.port,
-        username: data.username,
-        authType: data.authType,
-        password: data.password,
-        privateKeyPath: data.privateKeyPath,
-        accessKey: data.accessKey,
-        secretKey: data.secretKey,
-        region: data.region,
-        bucket: data.bucket,
-        endpoint: data.endpoint,
-        useHttps: data.useHttps ? 1 : 0,
-        groupName: data.groupName,
+        name: validated.name,
+        protocol: validated.protocol,
+        host: validated.host,
+        port: validated.port,
+        username: validated.username,
+        authType: validated.authType,
+        password: validated.password,
+        privateKeyPath: validated.privateKeyPath,
+        accessKey: validated.accessKey,
+        secretKey: validated.secretKey,
+        region: validated.region,
+        bucket: validated.bucket,
+        endpoint: validated.endpoint,
+        useHttps: validated.useHttps ? 1 : 0,
+        groupName: validated.groupName,
         createdAt: now,
         updatedAt: now,
       })
@@ -68,11 +74,29 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
   });
 
   ipcMain.handle(IPC.CONNECTION_UPDATE, (_event, data: ConnectionUpdate) => {
-    const now = new Date().toISOString();
-    const setData: Record<string, unknown> = { ...data, updatedAt: now };
-    if (typeof data.useHttps === "boolean") {
-      setData.useHttps = data.useHttps ? 1 : 0;
+    const partialSchema = connectionBaseSchema.partial();
+    const parsed = partialSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(`Invalid connection data: ${parsed.error.message}`);
     }
+    const validated = parsed.data;
+    const now = new Date().toISOString();
+    const setData: Record<string, unknown> = { updatedAt: now };
+    if (validated.name !== undefined) setData.name = validated.name;
+    if (validated.protocol !== undefined) setData.protocol = validated.protocol;
+    if (validated.host !== undefined) setData.host = validated.host;
+    if (validated.port !== undefined) setData.port = validated.port;
+    if (validated.username !== undefined) setData.username = validated.username;
+    if (validated.authType !== undefined) setData.authType = validated.authType;
+    if (validated.password !== undefined) setData.password = validated.password;
+    if (validated.privateKeyPath !== undefined) setData.privateKeyPath = validated.privateKeyPath;
+    if (validated.accessKey !== undefined) setData.accessKey = validated.accessKey;
+    if (validated.secretKey !== undefined) setData.secretKey = validated.secretKey;
+    if (validated.region !== undefined) setData.region = validated.region;
+    if (validated.bucket !== undefined) setData.bucket = validated.bucket;
+    if (validated.endpoint !== undefined) setData.endpoint = validated.endpoint;
+    if (validated.useHttps !== undefined) setData.useHttps = validated.useHttps ? 1 : 0;
+    if (validated.groupName !== undefined) setData.groupName = validated.groupName;
     const result = db
       .update(connections)
       .set(setData)
