@@ -66,6 +66,13 @@
 	--color-inverse-on-surface: var(--inverse-on-surface);
 	--color-inverse-primary: var(--inverse-primary);
 
+	--color-primary-fixed: var(--primary-fixed);
+	--color-primary-fixed-dim: var(--primary-fixed-dim);
+	--color-tertiary: var(--tertiary);
+	--color-tertiary-container: var(--tertiary-container);
+	--color-on-tertiary: var(--on-tertiary);
+	--color-on-tertiary-container: var(--on-tertiary-container);
+
 	--radius: 0.5rem;
 	--radius-sm: 0.25rem;
 	--radius-md: 0.75rem;
@@ -128,6 +135,13 @@
 	--inverse-surface: #2e3132;
 	--inverse-on-surface: #f0f1f2;
 	--inverse-primary: #bec2ff;
+
+	--primary-fixed: #e0e0ff;
+	--primary-fixed-dim: #bec2ff;
+	--tertiary: #954700;
+	--tertiary-container: #bb5a00;
+	--on-tertiary: #ffffff;
+	--on-tertiary-container: #fffdff;
 }
 
 .dark {
@@ -185,6 +199,13 @@
 	--inverse-surface: #dce3ed;
 	--inverse-on-surface: #2a3138;
 	--inverse-primary: #3f4cda;
+
+	--primary-fixed: #bec2ff;
+	--primary-fixed-dim: #3f4cda;
+	--tertiary: #ffb689;
+	--tertiary-container: #954700;
+	--on-tertiary: #311300;
+	--on-tertiary-container: #fffdff;
 }
 
 @layer base {
