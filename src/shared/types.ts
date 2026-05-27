@@ -14,6 +14,7 @@ export interface Connection {
   bucket: string;
   endpoint: string;
   useHttps: boolean;
+  groupName: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -59,6 +59,7 @@ export const connectionFormSchema = z.object({
 	bucket: z.string(),
 	endpoint: z.string(),
 	useHttps: z.boolean(),
+	groupName: z.string(),
 }).refine(
 	(data) => data.protocol === "s3" || data.authType !== "password" || data.password.trim().length > 0,
 	{ message: "validation.passwordRequired", path: ["password"] },

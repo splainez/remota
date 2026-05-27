@@ -207,6 +207,7 @@ describe("connectionFormSchema", () => {
 		bucket: "",
 		endpoint: "",
 		useHttps: true,
+		groupName: "",
 	};
 
 	it("accepts valid password auth data", () => {

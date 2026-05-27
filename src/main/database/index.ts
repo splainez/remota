@@ -41,6 +41,7 @@ export async function initDatabase(userDataPath: string): Promise<DatabaseInstan
       bucket TEXT NOT NULL DEFAULT '',
       endpoint TEXT NOT NULL DEFAULT '',
       use_https INTEGER NOT NULL DEFAULT 1,
+      group_name TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
@@ -55,6 +56,7 @@ export async function initDatabase(userDataPath: string): Promise<DatabaseInstan
 	migrateColumn("bucket", "TEXT NOT NULL DEFAULT ''");
 	migrateColumn("endpoint", "TEXT NOT NULL DEFAULT ''");
 	migrateColumn("use_https", "INTEGER NOT NULL DEFAULT 1");
+	migrateColumn("group_name", "TEXT NOT NULL DEFAULT ''");
 
 	const wrapper = new SqlJsDatabase(sqlJsDb);
 

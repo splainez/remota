@@ -22,6 +22,7 @@ function rowToConnection(row: typeof connections.$inferSelect): Connection {
     bucket: row.bucket,
     endpoint: row.endpoint,
     useHttps: row.useHttps === 1,
+    groupName: row.groupName,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -57,6 +58,7 @@ export function registerConnectionHandlers(db: DatabaseInstance) {
         bucket: data.bucket,
         endpoint: data.endpoint,
         useHttps: data.useHttps ? 1 : 0,
+        groupName: data.groupName,
         createdAt: now,
         updatedAt: now,
       })
