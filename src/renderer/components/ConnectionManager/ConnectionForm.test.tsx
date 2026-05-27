@@ -20,6 +20,7 @@ const sampleConnection: Connection = {
 	bucket: "",
 	endpoint: "",
 	useHttps: true,
+	groupName: "Work",
 	createdAt: "",
 	updatedAt: "",
 };
@@ -128,7 +129,7 @@ describe("ConnectionForm", () => {
 		expect(onCancel).toHaveBeenCalledOnce();
 	});
 
-	it("calls onSave with form data on submit", async () => {
+	it("calls onSave with form data on Save Connection button click", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
 		render(
@@ -142,7 +143,7 @@ describe("ConnectionForm", () => {
 		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
 		await user.type(passwordInput, "newpass");
 
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).toHaveBeenCalledOnce();
 		expect(onSave).toHaveBeenCalledWith(
@@ -155,6 +156,27 @@ describe("ConnectionForm", () => {
 				port: 22,
 			})
 		);
+	});
+
+	it("calls onSave and onConnect with form data on Connect button click", async () => {
+		const user = userEvent.setup();
+		const onSave = vi.fn();
+		const onConnect = vi.fn();
+		render(
+			<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />
+		);
+
+		await user.type(screen.getByLabelText("Name"), "My Server");
+		await user.type(screen.getByLabelText("Host"), "newhost.com");
+		await user.type(screen.getByLabelText("Username"), "newuser");
+
+		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
+		await user.type(passwordInput, "newpass");
+
+		await user.click(screen.getByRole("button", { name: "Connect" }));
+
+		expect(onSave).toHaveBeenCalledOnce();
+		expect(onConnect).toHaveBeenCalledOnce();
 	});
 
 	it("calls onSave with S3 fields on submit", async () => {
@@ -176,7 +198,7 @@ describe("ConnectionForm", () => {
 		await user.type(regionInput, "eu-west-1");
 		await user.type(screen.getByLabelText("Bucket"), "my-bucket");
 
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).toHaveBeenCalledOnce();
 		expect(onSave).toHaveBeenCalledWith(
@@ -216,7 +238,7 @@ describe("ConnectionForm", () => {
 		await user.type(screen.getByLabelText("Host"), "myhost.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
 		await user.type(screen.getByLabelText("Password", { selector: "input[type='password']" }), "pass");
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Name is required")).toBeInTheDocument();
@@ -234,7 +256,7 @@ describe("ConnectionForm", () => {
 
 		await user.type(screen.getByLabelText("Name"), "My S3");
 		await user.type(screen.getByLabelText("Host"), "s3.amazonaws.com");
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Access key is required")).toBeInTheDocument();
@@ -272,7 +294,7 @@ describe("ConnectionForm", () => {
 
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Username"), "admin");
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Host is required")).toBeInTheDocument();
@@ -287,7 +309,7 @@ describe("ConnectionForm", () => {
 
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Host"), "example.com");
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Username is required")).toBeInTheDocument();
@@ -333,7 +355,7 @@ describe("ConnectionForm", () => {
 		await user.type(screen.getByLabelText("Host"), "example.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
 		await user.clear(screen.getByLabelText("Password", { selector: "input[type='password']" }));
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Password is required")).toBeInTheDocument();
@@ -352,9 +374,22 @@ describe("ConnectionForm", () => {
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Host"), "example.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
-		await user.click(screen.getByRole("button", { name: "Save" }));
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Private key path is required")).toBeInTheDocument();
+	});
+
+	it("shows group field in advanced settings", async () => {
+		const user = userEvent.setup();
+		render(
+			<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+		);
+
+		expect(screen.queryByLabelText("Group")).not.toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: /Advanced Settings/i }));
+
+		expect(screen.getByLabelText("Group")).toBeInTheDocument();
 	});
 });
