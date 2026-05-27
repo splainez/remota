@@ -37,7 +37,26 @@ const connections: Connection[] = [
 ];
 
 describe("ServerSidebar", () => {
-	it("renders connection groups and names when expanded", () => {
+	it("renders active connection name when expanded", () => {
+		render(
+			<ThemeProvider defaultTheme="dark">
+				<ServerSidebar
+					connections={connections}
+					selectedId={null}
+					activeConnectionId={1}
+					onSelect={vi.fn()}
+					onAdd={vi.fn()}
+					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
+				/>
+			</ThemeProvider>
+		);
+
+		expect(screen.getByText("Production Server")).toBeInTheDocument();
+		expect(screen.queryByText("Dev Sandbox")).not.toBeInTheDocument();
+	});
+
+	it("shows empty message when no active connection", () => {
 		render(
 			<ThemeProvider defaultTheme="dark">
 				<ServerSidebar
@@ -47,20 +66,15 @@ describe("ServerSidebar", () => {
 					onSelect={vi.fn()}
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
 
-		expect(screen.getByText("Work")).toBeInTheDocument();
-		expect(screen.getByText("Personal")).toBeInTheDocument();
-		expect(screen.getByText("Uncategorized")).toBeInTheDocument();
-		expect(screen.getByText("Production Server")).toBeInTheDocument();
-		expect(screen.getByText("Dev Sandbox")).toBeInTheDocument();
-		expect(screen.getByText("Backups")).toBeInTheDocument();
-		expect(screen.getByText("Misc")).toBeInTheDocument();
+		expect(screen.getByText("No active connection")).toBeInTheDocument();
 	});
 
-	it("calls onSelect when a connection is clicked", async () => {
+	it("calls onSelect when active connection is clicked", async () => {
 		const user = userEvent.setup();
 		const onSelect = vi.fn();
 		render(
@@ -68,10 +82,11 @@ describe("ServerSidebar", () => {
 				<ServerSidebar
 					connections={connections}
 					selectedId={null}
-					activeConnectionId={null}
+					activeConnectionId={1}
 					onSelect={onSelect}
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -88,10 +103,11 @@ describe("ServerSidebar", () => {
 				<ServerSidebar
 					connections={connections}
 					selectedId={null}
-					activeConnectionId={null}
+					activeConnectionId={1}
 					onSelect={vi.fn()}
 					onAdd={onAdd}
 					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -107,10 +123,11 @@ describe("ServerSidebar", () => {
 				<ServerSidebar
 					connections={connections}
 					selectedId={null}
-					activeConnectionId={null}
+					activeConnectionId={1}
 					onSelect={vi.fn()}
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -130,10 +147,11 @@ describe("ServerSidebar", () => {
 				<ServerSidebar
 					connections={connections}
 					selectedId={null}
-					activeConnectionId={null}
+					activeConnectionId={1}
 					onSelect={vi.fn()}
 					onAdd={vi.fn()}
 					onDoubleClick={vi.fn()}
+					onViewAll={vi.fn()}
 				/>
 			</ThemeProvider>
 		);
@@ -142,5 +160,26 @@ describe("ServerSidebar", () => {
 		expect(screen.getByText("Dark")).toBeInTheDocument();
 		expect(screen.getByText("Light")).toBeInTheDocument();
 		expect(screen.getByText("System")).toBeInTheDocument();
+	});
+
+	it("calls onViewAll when brand button is clicked", async () => {
+		const user = userEvent.setup();
+		const onViewAll = vi.fn();
+		render(
+			<ThemeProvider defaultTheme="dark">
+				<ServerSidebar
+					connections={connections}
+					selectedId={null}
+					activeConnectionId={1}
+					onSelect={vi.fn()}
+					onAdd={vi.fn()}
+					onDoubleClick={vi.fn()}
+					onViewAll={onViewAll}
+				/>
+			</ThemeProvider>
+		);
+
+		await user.click(screen.getByTitle("OpenSCP"));
+		expect(onViewAll).toHaveBeenCalledOnce();
 	});
 });

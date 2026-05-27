@@ -11,6 +11,7 @@ interface ServerSidebarProps {
 	onSelect: (id: number) => void;
 	onAdd: () => void;
 	onDoubleClick: (id: number) => void;
+	onViewAll: () => void;
 }
 
 function getInitials(name: string): string {
@@ -21,15 +22,12 @@ function getInitials(name: string): string {
 	return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
-function groupConnections(connections: Connection[]): Map<string, Connection[]> {
-	const map = new Map<string, Connection[]>();
-	for (const conn of connections) {
-		const group = conn.groupName.trim() || t("connection.uncategorized");
-		const list = map.get(group) ?? [];
-		list.push(conn);
-		map.set(group, list);
-	}
-	return map;
+function getVisibleConnections(
+	connections: Connection[],
+	activeConnectionId: number | null,
+): Connection[] {
+	if (activeConnectionId == null) return [];
+	return connections.filter((c) => c.id === activeConnectionId);
 }
 
 function ThemeSelect() {
@@ -87,16 +85,20 @@ export function ServerSidebar({
 	onSelect,
 	onAdd,
 	onDoubleClick,
+	onViewAll,
 }: ServerSidebarProps) {
 	const [collapsed, setCollapsed] = useState(false);
+
+	const visibleConnections = useMemo(
+		() => getVisibleConnections(connections, activeConnectionId),
+		[connections, activeConnectionId],
+	);
+
 	const isActive = useMemo(() => {
 		const set = new Set<number>();
 		if (activeConnectionId != null) set.add(activeConnectionId);
 		return set;
 	}, [activeConnectionId]);
-
-	const grouped = useMemo(() => groupConnections(connections), [connections]);
-	const groups = useMemo(() => Array.from(grouped.entries()), [grouped]);
 
 	return (
 		<nav
@@ -107,7 +109,7 @@ export function ServerSidebar({
 				<button
 					className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:rounded-lg transition-all duration-300 ease-in-out shadow-sm shrink-0"
 					title={t("app.title")}
-					onClick={() => { /* Reset to connection manager */ }}
+					onClick={onViewAll}
 				>
 					<Icon name="server" size={20} />
 				</button>
@@ -124,74 +126,72 @@ export function ServerSidebar({
 
 			<div className={`h-[2px] bg-outline-variant rounded-full ${collapsed ? "w-6" : "w-full"}`} />
 
-			{/* Server List */}
-			<div className="flex flex-col gap-2 w-full flex-1 overflow-y-auto no-scrollbar">
-				{connections.length === 0 && !collapsed && (
-					<div className="text-muted-foreground text-xs text-center py-4">{t("connection.noSelection")}</div>
+			{/* Server List — active connections only */}
+			<div className="flex flex-col gap-1 w-full flex-1 overflow-y-auto no-scrollbar">
+				{visibleConnections.length === 0 && !collapsed && (
+					<div className="text-muted-foreground text-xs text-center py-4">{t("connection.noActive")}</div>
 				)}
 
-				{groups.map(([groupName, conns]) => (
-					<div key={groupName} className="flex flex-col gap-1">
-						{!collapsed && (
-							<div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1 py-1 flex items-center gap-1">
-								<Icon name="folder" size={10} />
-								<span className="truncate">{groupName}</span>
-							</div>
-						)}
-						{conns.map((conn) => {
-							const isSelected = conn.id === selectedId;
-							const isConnActive = isActive.has(conn.id);
-							return (
-								<button
-									key={conn.id}
-									className={[
-										"relative flex items-center gap-2 transition-all duration-300 text-xs font-semibold",
-										collapsed
-											? "w-10 h-10 rounded-xl justify-center mx-auto"
-											: "w-full px-3 py-2 rounded-lg justify-start",
-										isSelected
-											? collapsed
-												? "bg-surface-container-highest"
-												: "bg-primary/10 text-primary"
-											: collapsed
-												? "bg-surface-container-highest hover:bg-surface-container-high"
-												: "text-muted-foreground hover:bg-surface-container-high hover:text-foreground",
-										isConnActive && collapsed ? "ring-2 ring-primary" : "",
-									].join(" ")}
-									title={conn.name}
-									onClick={() => { onSelect(conn.id); }}
-									onDoubleClick={() => { onDoubleClick(conn.id); }}
-								>
-									{isSelected && collapsed && (
-										<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
-									)}
-									{isSelected && !collapsed && (
-										<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
-									)}
-									<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
-										{collapsed ? getInitials(conn.name) : conn.name}
-									</span>
-									{!collapsed && isConnActive && (
-										<span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-									)}
-								</button>
-							);
-						})}
-					</div>
-				))}
+				{visibleConnections.map((conn) => {
+					const isSelected = conn.id === selectedId;
+					const isConnActive = isActive.has(conn.id);
+					return (
+						<button
+							key={conn.id}
+							className={[
+								"relative flex items-center gap-2 transition-all duration-300 text-xs font-semibold",
+								collapsed
+									? "w-10 h-10 rounded-xl justify-center mx-auto"
+									: "w-full px-3 py-2 rounded-lg justify-start",
+								isSelected
+									? collapsed
+										? "bg-surface-container-highest"
+										: "bg-primary/10 text-primary"
+									: collapsed
+										? "bg-surface-container-highest hover:bg-surface-container-high"
+										: "text-muted-foreground hover:bg-surface-container-high hover:text-foreground",
+								isConnActive && collapsed ? "ring-2 ring-primary" : "",
+							].join(" ")}
+							title={conn.name}
+							onClick={() => { onSelect(conn.id); }}
+							onDoubleClick={() => { onDoubleClick(conn.id); }}
+						>
+							{isSelected && collapsed && (
+								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
+							)}
+							{isSelected && !collapsed && (
+								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
+							)}
+							<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
+								{collapsed ? getInitials(conn.name) : conn.name}
+							</span>
+							{!collapsed && isConnActive && (
+								<span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+							)}
+						</button>
+					);
+				})}
 
 				{/* Add button */}
-				<button
-					className={[
-						"border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary shrink-0",
-						collapsed ? "w-10 h-10 rounded-full mx-auto" : "w-full py-2 rounded-lg gap-2",
-					].join(" ")}
-					title={t("connection.add")}
-					onClick={onAdd}
-				>
-					<Icon name="add" size={16} />
-					{!collapsed && <span className="text-xs">{t("connection.add")}</span>}
-				</button>
+				{!collapsed && (
+					<button
+						className="border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center gap-2 w-full py-2 rounded-lg text-on-surface-variant hover:text-primary shrink-0"
+						title={t("connection.add")}
+						onClick={onAdd}
+					>
+						<Icon name="add" size={16} />
+						<span className="text-xs">{t("connection.add")}</span>
+					</button>
+				)}
+				{collapsed && (
+					<button
+						className="border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary shrink-0 w-10 h-10 rounded-full mx-auto"
+						title={t("connection.add")}
+						onClick={onAdd}
+					>
+						<Icon name="add" size={16} />
+					</button>
+				)}
 			</div>
 
 			{/* Footer Actions */}
