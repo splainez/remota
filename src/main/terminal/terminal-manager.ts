@@ -1,4 +1,5 @@
 import { spawn, type IPty } from "node-pty";
+import { existsSync } from "node:fs";
 import type { WebContents } from "electron";
 import type { ClientChannel } from "ssh2";
 import type { SftpConnectionManager } from "../sftp/sftp-client";
@@ -13,6 +14,34 @@ interface IPtySession {
 interface RemoteShellSession {
 	type: "remote";
 	stream: ClientChannel;
+}
+
+function getShell(): { file: string; args: string[] } {
+	if (process.platform === "win32") {
+		const pwsh = "pwsh.exe";
+		const powershell = "powershell.exe";
+		const fallback = "cmd.exe";
+
+		try {
+			if (existsSync(`C:\\Program Files\\PowerShell\\7\\${pwsh}`)) {
+				return { file: `C:\\Program Files\\PowerShell\\7\\${pwsh}`, args: ["-NoLogo"] };
+			}
+		} catch {
+			// ignore
+		}
+
+		try {
+			if (existsSync(`C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\${powershell}`)) {
+				return { file: `C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\${powershell}`, args: ["-NoLogo"] };
+			}
+		} catch {
+			// ignore
+		}
+
+		return { file: fallback, args: [] };
+	}
+
+	return { file: process.env.SHELL ?? "/bin/bash", args: [] };
 }
 
 export class TerminalManager {
@@ -30,15 +59,13 @@ export class TerminalManager {
 			this.kill(sessionId);
 		}
 
-		const shell = process.platform === "win32" ? "powershell.exe" : (process.env.SHELL ?? "/bin/bash");
-		const shellArgs = process.platform === "win32" ? ["-NoLogo"] : [];
+		const { file, args } = getShell();
 
-		const pty = spawn(shell, shellArgs, {
+		const pty = spawn(file, args, {
 			name: "xterm-256color",
 			cols: 80,
 			rows: 24,
 			cwd: process.env.HOME ?? process.env.USERPROFILE ?? "/",
-			env: process.env,
 		});
 
 		this.sessions.set(sessionId, { type: "local", pty });

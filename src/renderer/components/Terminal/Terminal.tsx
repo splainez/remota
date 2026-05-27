@@ -29,6 +29,7 @@ export function Terminal({ sessionId, type, connectionId }: TerminalProps) {
 			cursorBlink: true,
 			fontFamily: "JetBrains Mono, Consolas, 'Courier New', monospace",
 			fontSize: 13,
+			allowProposedApi: true,
 			theme: {
 				background: "#0d141b",
 				foreground: "#dce3ed",
@@ -39,6 +40,7 @@ export function Terminal({ sessionId, type, connectionId }: TerminalProps) {
 		const fitAddon = new FitAddon();
 		term.loadAddon(fitAddon);
 		term.open(container);
+		term.focus();
 		fitAddon.fit();
 
 		xtermRef.current = term;
@@ -67,8 +69,8 @@ export function Terminal({ sessionId, type, connectionId }: TerminalProps) {
 		return () => {
 			resizeObserver.disconnect();
 			unsubscribeData();
-			void window.api.terminal.kill(sessionId);
 			term.dispose();
+			void window.api.terminal.kill(sessionId);
 			xtermRef.current = null;
 			fitAddonRef.current = null;
 		};
