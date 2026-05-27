@@ -1,4 +1,4 @@
-import { Client, type SFTPWrapper, type ConnectConfig } from "ssh2";
+import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
 import { readFileSync } from "node:fs";
 import type { FileEntry } from "../../shared/types";
 
@@ -135,6 +135,23 @@ export class SftpConnectionManager {
     return new Promise<string>((resolve) => {
       session.sftp.realpath(".", (err, absPath) => {
         resolve(err ? "/" : absPath);
+      });
+    });
+  }
+
+  async openShell(connectionId: number): Promise<ClientChannel> {
+    const session = this.sessions.get(connectionId);
+    if (!session) {
+      throw new Error("Not connected to remote server");
+    }
+
+    return new Promise<ClientChannel>((resolve, reject) => {
+      session.client.shell({ term: "xterm-256color", cols: 80, rows: 24 }, (err, stream) => {
+        if (err) {
+          reject(new Error(`Failed to open shell: ${err.message}`));
+          return;
+        }
+        resolve(stream);
       });
     });
   }

@@ -4,12 +4,15 @@ import { initDatabase } from "./database";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
+import { registerTerminalHandlers } from "./ipc/terminal";
+import { TerminalManager } from "./terminal/terminal-manager";
 import { LastPathStore } from "./last-path-store";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { S3ConnectionManager } from "./s3/s3-client";
 
 let mainWindow: BrowserWindow | null = null;
 let lastPathStore: LastPathStore;
+let terminalManager: TerminalManager;
 
 export function getLastPathStore(): LastPathStore {
 	return lastPathStore;
@@ -53,7 +56,15 @@ void app.whenReady().then(async () => {
 	registerRemoteFilesystemHandlers(sftp, s3, db);
 	createWindow();
 
+	if (!mainWindow) {
+		throw new Error("Main window not created");
+	}
+
+	terminalManager = new TerminalManager(sftp, mainWindow.webContents);
+	registerTerminalHandlers(terminalManager);
+
 	app.on("will-quit", () => {
+		terminalManager.killAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
 	});
