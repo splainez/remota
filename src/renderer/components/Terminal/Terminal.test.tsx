@@ -101,7 +101,7 @@ describe("Terminal", () => {
 		render(<Terminal sessionId="local-1" type="local" />);
 		expect(xtermConfig).toHaveProperty("fontSize", 13);
 		expect(xtermConfig).toMatchObject({
-			fontFamily: expect.stringContaining("JetBrains Mono"),
+			fontFamily: expect.stringContaining("JetBrains Mono") as unknown as string,
 		});
 	});
 
@@ -139,7 +139,7 @@ describe("Terminal", () => {
 		expect(window.api.terminal.write).toHaveBeenCalledWith("local-1", "echo test\r");
 	});
 
-	it("terminal.onData callback writes to xterm", async () => {
+	it("terminal.onData callback writes to xterm", () => {
 		render(<Terminal sessionId="local-1" type="local" />);
 		const onDataCb = (window.api.terminal.onData as ReturnType<typeof vi.fn>).mock.calls[0][1] as (data: string) => void;
 		onDataCb("$ prompt> ");

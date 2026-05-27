@@ -15,9 +15,10 @@ vi.mock("node-pty", () => ({
 	spawn: vi.fn().mockReturnValue(mockPty),
 }));
 
-vi.mock("node:fs", () => {
+vi.mock("node:fs", async (importOriginal) => {
+	const actual = await importOriginal<{ existsSync: typeof import("node:fs").existsSync }>();
 	return {
-		default: {},
+		...actual,
 		existsSync: vi.fn().mockReturnValue(false),
 	};
 });
@@ -98,7 +99,7 @@ describe("TerminalManager", () => {
 		expect(mockWebContents.send).toHaveBeenCalledWith("terminal:exit:local-1", 0);
 	});
 
-	it("spawnLocal onExit callback sends null exit code to webContents", () => {
+	it("spawnLocal onExit callback reports exit and removes session", () => {
 		manager.spawnLocal("local-1");
 		const onExitCb = mockPty.onExit.mock.calls[0][0] as (event: { exitCode: number }) => void;
 		onExitCb({ exitCode: 0 });

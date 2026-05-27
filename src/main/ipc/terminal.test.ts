@@ -11,7 +11,7 @@ import { ipcMain } from "electron";
 describe("registerTerminalHandlers", () => {
 	const mockManager = {
 		spawnLocal: vi.fn(),
-		spawnRemote: vi.fn(),
+		spawnRemote: vi.fn().mockReturnValue(Promise.resolve()),
 		write: vi.fn(),
 		resize: vi.fn(),
 		kill: vi.fn(),
