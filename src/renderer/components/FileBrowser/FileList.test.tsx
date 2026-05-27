@@ -149,12 +149,12 @@ describe("FileList", () => {
 
 	it("applies selection styling to entries in selectedNames", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md", "config.json"]} />);
-		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 	});
 
 	it("does not apply selection styling to entries not in selectedNames", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
-		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 });

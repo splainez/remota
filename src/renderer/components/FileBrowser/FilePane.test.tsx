@@ -337,8 +337,8 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("clears previous selection on plain click", async () => {
@@ -354,13 +354,13 @@ describe("FilePane", () => {
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("backups"));
 		await user.keyboard("{/Control}");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 
 		await user.click(screen.getByText("notes.txt"));
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("toggles entries with Ctrl+click", async () => {
@@ -377,15 +377,15 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("backups"));
 		await user.keyboard("{/Control}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("projects"));
 		await user.keyboard("{/Control}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 	});
 
 	it("selects a range with Shift+click", async () => {
@@ -402,10 +402,10 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("notes.txt"));
 		await user.keyboard("{/Shift}");
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("uses first entry as anchor when Shift+click with no prior selection", async () => {
@@ -421,10 +421,10 @@ describe("FilePane", () => {
 		await user.click(screen.getByText("config.json"));
 		await user.keyboard("{/Shift}");
 
-		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("clears selection on navigate back", async () => {
@@ -436,12 +436,12 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 
 		await userEvent.dblClick(screen.getByText("projects"));
 		await userEvent.click(screen.getByTitle("Back"));
 
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("clears selection on navigate forward", async () => {
@@ -459,12 +459,12 @@ describe("FilePane", () => {
 
 		await user.dblClick(screen.getByText("projects"));
 		await user.click(screen.getByText("webapp"));
-		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 
 		await user.click(screen.getByTitle("Back"));
 		await user.click(screen.getByTitle("Forward"));
 
-		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("webapp").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 
 	it("uses forward slashes for remote paths on Windows platform", async () => {
@@ -637,11 +637,11 @@ describe("FilePane", () => {
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
-		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-blue-200");
+		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary/15");
 
 		await userEvent.click(screen.getByTitle("Parent Directory"));
 
-		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
-		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-blue-200");
+		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
+		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-primary/15");
 	});
 });
