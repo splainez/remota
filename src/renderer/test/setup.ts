@@ -53,6 +53,15 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
       remoteHomeDir: vi.fn().mockResolvedValue("/"),
       ...overrides?.filesystem,
     },
+    terminal: {
+      spawn: vi.fn().mockResolvedValue(undefined),
+      write: vi.fn().mockResolvedValue(undefined),
+      resize: vi.fn().mockResolvedValue(undefined),
+      kill: vi.fn().mockResolvedValue(undefined),
+      onData: vi.fn().mockReturnValue(vi.fn()),
+      onExit: vi.fn().mockReturnValue(vi.fn()),
+      ...overrides?.terminal,
+    },
     platform: overrides?.platform ?? "linux",
   };
 }

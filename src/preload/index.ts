@@ -29,6 +29,34 @@ const api = {
     remoteHomeDir: (connectionId: number): Promise<string> =>
       ipcRenderer.invoke(IPC.REMOTE_HOME_DIR, connectionId),
   },
+  terminal: {
+    spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => {
+      void ipcRenderer.invoke(IPC.TERMINAL_SPAWN, sessionId, type, connectionId);
+    },
+    write: (sessionId: string, data: string): Promise<void> =>
+      ipcRenderer.invoke(IPC.TERMINAL_WRITE, sessionId, data),
+    resize: (sessionId: string, cols: number, rows: number): Promise<void> =>
+      ipcRenderer.invoke(IPC.TERMINAL_RESIZE, sessionId, cols, rows),
+    kill: (sessionId: string) => {
+      void ipcRenderer.invoke(IPC.TERMINAL_KILL, sessionId);
+    },
+    onData: (sessionId: string, callback: (data: string) => void) => {
+      const channel = `terminal:data:${sessionId}`;
+      const handler = (_event: Electron.IpcRendererEvent, data: string) => { callback(data); };
+      ipcRenderer.on(channel, handler);
+      return () => {
+        ipcRenderer.removeListener(channel, handler);
+      };
+    },
+    onExit: (sessionId: string, callback: (code: number | null) => void) => {
+      const channel = `terminal:exit:${sessionId}`;
+      const handler = (_event: Electron.IpcRendererEvent, code: number | null) => { callback(code); };
+      ipcRenderer.on(channel, handler);
+      return () => {
+        ipcRenderer.removeListener(channel, handler);
+      };
+    },
+  },
   platform: process.platform,
 };
 

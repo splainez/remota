@@ -51,6 +51,14 @@ export interface ElectronAPI {
     remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
     remoteHomeDir: (connectionId: number) => Promise<string>;
   };
+  terminal: {
+    spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;
+    write: (sessionId: string, data: string) => Promise<void>;
+    resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
+    kill: (sessionId: string) => Promise<void>;
+    onData: (sessionId: string, callback: (data: string) => void) => () => void;
+    onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
+  };
   platform: string;
 }
 
