@@ -6,7 +6,6 @@ import { join, parentPath } from "../../shared/path-utils";
 import { useFileList } from "../../hooks/useFileList";
 import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { Button } from "../ui/button";
-import { Breadcrumb } from "./Breadcrumb";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
 
@@ -16,9 +15,10 @@ interface FilePaneProps {
 	initialPath: string;
 	connectionError?: SftpErrorInfo | null;
 	onReconnect?: () => void;
+	onPathChange?: (path: string) => void;
 }
 
-export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect }: FilePaneProps) {
+export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect, onPathChange }: FilePaneProps) {
 	const [currentPath, setCurrentPath] = useState(initialPath);
 	const [selectedNames, setSelectedNames] = useState<string[]>([]);
 	const lastClickedNameRef = useRef<string | null>(null);
@@ -59,6 +59,10 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		}
 	}, [currentPath, connectionId, type]);
 
+	useEffect(() => {
+		onPathChange?.(currentPath);
+	}, [currentPath, onPathChange]);
+
 	const { entries, loading, error, refresh } = useFileList(currentPath, {
 		type,
 		connectionId: type === "remote" ? connectionId : undefined,
@@ -70,15 +74,6 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 			setCurrentPath(path);
 		},
 		[push, type],
-	);
-
-	const handleNavigate = useCallback(
-		(path: string) => {
-			setSelectedNames([]);
-			lastClickedNameRef.current = null;
-			navigateTo(path);
-		},
-		[navigateTo],
 	);
 
 	const handleNavigateUp = useCallback(() => {
@@ -185,7 +180,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 
 	return (
 		<div
-			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-md min-w-0"
+			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
 			onMouseDown={handleMouseDown}
 		>
 			<Toolbar
@@ -200,7 +195,6 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				currentPath={currentPath}
 				isAtDriveRoot={driveRoot !== null}
 			/>
-			<Breadcrumb path={currentPath} onNavigate={handleNavigate} />
 			{isConnectionDead ? (
 				<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
 					<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>
@@ -224,9 +218,6 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					selectedNames={selectedNames}
 				/>
 			)}
-			<div className="h-[22px] flex items-center px-2 bg-surface-container-low border-t border-outline-variant text-xs text-muted-foreground shrink-0">
-				{loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
-			</div>
 		</div>
 	);
 }

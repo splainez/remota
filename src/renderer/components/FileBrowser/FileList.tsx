@@ -115,47 +115,58 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 
 	return (
 		<div className="flex-1 flex flex-col overflow-hidden">
-			<div className="flex items-center h-[26px] px-2 bg-surface-container-low border-b border-outline-variant shrink-0">
+			{/* File List Header */}
+			<div className="flex px-4 py-2 border-b border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface-variant select-none shrink-0">
+				<div className="w-8" />
 				<button
-					className="flex-1 flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
+					className="flex-1 cursor-pointer hover:text-on-surface flex items-center gap-1 text-left"
 					onClick={() => { handleSort("name"); }}
 				>
 					{t("file.name")}{sortIndicator("name")}
 				</button>
 				<button
-					className="shrink-0 basis-[100px] flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
+					className="w-24 text-right cursor-pointer hover:text-on-surface"
 					onClick={() => { handleSort("size"); }}
 				>
 					{t("file.size")}{sortIndicator("size")}
 				</button>
 				<button
-					className="shrink-0 basis-[150px] flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
+					className="w-32 text-right cursor-pointer hover:text-on-surface hidden xl:block"
 					onClick={() => { handleSort("modified"); }}
 				>
 					{t("file.modified")}{sortIndicator("modified")}
 				</button>
 			</div>
+			{/* File List Content */}
 			<div className="flex-1 overflow-y-auto">
-				{sorted.map((entry) => (
-					<div
-						key={entry.name}
-						className={`flex items-center h-6 px-2 cursor-pointer hover:bg-surface-container-high transition-colors ${selectedSet.has(entry.name) ? "bg-primary/15" : ""}`}
-						onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sorted.map((s) => s.name)); }}
-						onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
-					>
-						<div className="flex-1 flex items-center gap-1.5 px-1 overflow-hidden">
-							{entry.isDirectory
-								? <FolderIcon path={entry.name} size={14} className="shrink-0" />
-								: <FileIcon path={entry.name} filePath={entry.fullPath} size={14} className="shrink-0" />
-							}
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground">{entry.name}</span>
+				{sorted.map((entry) => {
+					const isSelected = selectedSet.has(entry.name);
+					return (
+						<div
+							key={entry.name}
+							className={[
+								"flex px-4 py-2 border-b border-outline-variant/30 cursor-pointer group items-center transition-colors",
+								isSelected ? "bg-primary-fixed-dim/20" : "hover:bg-surface-container-low",
+							].join(" ")}
+							onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sorted.map((s) => s.name)); }}
+							onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
+						>
+							<div className="w-8 flex items-center justify-center">
+								{entry.isDirectory
+									? <FolderIcon path={entry.name} size={18} className="shrink-0 text-primary" />
+									: <FileIcon path={entry.name} filePath={entry.fullPath} size={18} className="shrink-0 text-secondary" />
+								}
+							</div>
+							<div className="flex-1 font-body-md text-body-md text-on-surface truncate pr-4">{entry.name}</div>
+							<div className="w-24 text-right font-body-md text-body-md text-on-surface-variant">
+								{entry.isDirectory ? "--" : formatSize(entry.size)}
+							</div>
+							<div className="w-32 text-right font-body-md text-body-md text-on-surface-variant hidden xl:block">
+								{formatDate(entry.modified)}
+							</div>
 						</div>
-						<div className="shrink-0 basis-[100px] px-1 text-xs text-muted-foreground text-right">
-							{entry.isDirectory ? "" : formatSize(entry.size)}
-						</div>
-						<div className="shrink-0 basis-[150px] px-1 text-xs text-muted-foreground">{formatDate(entry.modified)}</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</div>
 	);

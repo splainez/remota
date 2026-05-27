@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { canGoUp } from "../../lib/utils";
@@ -17,10 +17,6 @@ interface ToolbarProps {
 }
 
 export function Toolbar({
-	onGoBack,
-	onGoForward,
-	canGoBack,
-	canGoForward,
 	onNavigateUp,
 	onRefresh,
 	onNavigateTo,
@@ -28,6 +24,7 @@ export function Toolbar({
 	currentPath,
 	isAtDriveRoot,
 }: ToolbarProps) {
+	const [filter, setFilter] = useState("");
 	const upDisabled = isAtDriveRoot || !canGoUp(currentPath);
 
 	const handleDriveChange = useCallback(
@@ -37,58 +34,66 @@ export function Toolbar({
 				onNavigateTo(value);
 			}
 		},
-		[onNavigateTo, currentPath],
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- onNavigateTo omitted to avoid loop
+		[currentPath],
 	);
 
 	const btnClass =
-		"flex items-center justify-center size-7 border border-transparent rounded text-muted-foreground hover:bg-surface-container-high hover:border-outline-variant hover:text-foreground disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent disabled:hover:border-transparent disabled:hover:text-muted-foreground";
+		"p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors";
 
 	return (
-		<div className="flex items-center gap-0.5 px-1 py-0.5 bg-background border-b border-outline-variant shrink-0 h-8">
-			<button
-				className={btnClass}
-				onClick={onGoBack}
-				disabled={!canGoBack}
-				title={t("file.navigateBack")}
-			>
-				<Icon name="arrow-left" size={16} />
-			</button>
-			<button
-				className={btnClass}
-				onClick={onGoForward}
-				disabled={!canGoForward}
-				title={t("file.navigateForward")}
-			>
-				<Icon name="arrow-right" size={16} />
-			</button>
-			<button
-				className={btnClass}
-				onClick={onNavigateUp}
-				disabled={upDisabled}
-				title={t("file.navigateUp")}
-			>
-				<Icon name="arrow-up" size={16} />
-			</button>
-			{drives.length > 0 && (
-				<select
-					className="h-6 px-1 border border-input rounded bg-background text-foreground text-sm min-w-[60px] focus:outline-none focus:border-ring"
-					value={isAtDriveRoot ? currentPath : ""}
-					onChange={handleDriveChange}
-					title={t("file.selectDrive")}
+		<div className="h-10 border-b border-outline-variant bg-surface flex items-center px-4 justify-between shrink-0">
+			<div className="flex items-center gap-2">
+				<button
+					className={btnClass}
+					onClick={onNavigateUp}
+					disabled={upDisabled}
+					title={t("file.navigateUp")}
 				>
-					<option value="" disabled>
-						{t("file.selectDrive")}
-					</option>
-					{drives.map((d) => (
-						<option key={d} value={d}>
-							{d}
+					<Icon name="arrow-up" size={20} />
+				</button>
+				<button
+					className={btnClass}
+					onClick={onRefresh}
+					title={t("file.refresh")}
+				>
+					<Icon name="refresh" size={20} />
+				</button>
+				<button
+					className={btnClass}
+					onClick={() => { /* New folder - no-op for now */ }}
+					title={t("file.newFolder")}
+				>
+					<Icon name="new-folder" size={20} />
+				</button>
+				{drives.length > 0 && (
+					<select
+						className="h-7 px-2 border border-outline-variant rounded bg-surface-container-lowest text-on-surface text-sm min-w-[60px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+						value={isAtDriveRoot ? currentPath : ""}
+						onChange={handleDriveChange}
+						title={t("file.selectDrive")}
+					>
+						<option value="" disabled>
+							{t("file.selectDrive")}
 						</option>
-					))}
-				</select>
-			)}
-			<button className={btnClass} onClick={onRefresh} title={t("file.refresh")}>
-				<Icon name="refresh" size={16} />
-			</button>
+						{drives.map((d) => (
+							<option key={d} value={d}>
+								{d}
+							</option>
+						))}
+					</select>
+				)}
+			</div>
+			<div className="relative">
+				<Icon name="search" size={18} className="absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+				<input
+					className="pl-8 pr-2 py-1 h-7 text-body-md font-body-md bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-48"
+					placeholder={t("file.filter")}
+					type="text"
+					value={filter}
+					onChange={(e) => { setFilter(e.target.value); }}
+				/>
+			</div>
 		</div>
 	);
 }

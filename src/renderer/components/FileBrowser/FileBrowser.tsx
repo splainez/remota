@@ -3,16 +3,16 @@ import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
 import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { Button } from "../ui/button";
+import { Icon } from "../icons/Icon";
 import { FilePane } from "./FilePane";
 
 interface FileBrowserProps {
 	connection: Connection;
-	onDisconnect: () => void;
 }
 
 type RemoteStatus = "connecting" | "connected" | "error";
 
-export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
+export function FileBrowser({ connection }: FileBrowserProps) {
 	const [localPath, setLocalPath] = useState<string>("");
 	const [remotePath, setRemotePath] = useState<string>("/");
 	const [ready, setReady] = useState(false);
@@ -90,11 +90,6 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 		}
 	}, [ready, doConnect]);
 
-	const handleDisconnect = useCallback(() => {
-		void window.api.filesystem.remoteDisconnect(connection.id);
-		onDisconnect();
-	}, [connection.id, onDisconnect]);
-
 	if (!ready) {
 		return <div className="flex flex-col h-full overflow-hidden" />;
 	}
@@ -103,22 +98,40 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 
 	return (
 		<div className="flex flex-col h-full overflow-hidden">
-			<div className="flex items-center justify-between px-3 py-1 bg-surface-container-low border-b border-outline-variant shrink-0 h-9">
-				<span className="text-base font-semibold text-on-surface">{connection.name}</span>
-				<Button
-					variant="ghost"
-					size="xs"
-					className="hover:bg-destructive hover:text-destructive-foreground"
-					onClick={handleDisconnect}
-				>
-					{t("connection.disconnect")}
-				</Button>
-			</div>
-			<div className="flex-1 flex gap-1 p-1 overflow-hidden min-h-0">
+			{/* Top App Bar / Breadcrumbs */}
+			<header className="h-16 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-6 shrink-0">
+				{/* Local Path */}
+				<div className="flex items-center flex-1 min-w-0 pr-4">
+					<Icon name="server" size={20} className="text-on-surface-variant mr-3 shrink-0" />
+					<PathBreadcrumb path={localPath} />
+				</div>
+
+				{/* Transfer Action */}
+				<div className="flex items-center justify-center px-4 shrink-0">
+					<Button
+						variant="default"
+						className="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm"
+						onClick={() => { /* Sync folders - no-op for now */ }}
+					>
+						<Icon name="sync" size={18} />
+						{t("file.syncFolders")}
+					</Button>
+				</div>
+
+				{/* Remote Path */}
+				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end">
+					<PathBreadcrumb path={remotePath} />
+					<Icon name="globe" size={20} className="text-on-surface-variant ml-3 shrink-0" />
+				</div>
+			</header>
+
+			{/* Dual Pane Explorer */}
+			<main className="flex-1 flex min-h-0 relative">
 				<FilePane
 					type="local"
 					connectionId={connection.id}
 					initialPath={localPath}
+					onPathChange={setLocalPath}
 				/>
 				{remoteStatus === "connected" ? (
 					<FilePane
@@ -128,13 +141,14 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 						connectionId={connection.id}
 						initialPath={remotePath}
 						onReconnect={() => { void doConnect(); }}
+						onPathChange={setRemotePath}
 					/>
 				) : remoteStatus === "connecting" ? (
-					<div className="flex-1 flex flex-col items-center justify-center bg-surface-container-low border border-outline-variant rounded-md text-muted-foreground text-sm">
+					<div className="flex-1 flex flex-col items-center justify-center bg-surface-container-lowest border-l border-outline-variant text-muted-foreground text-sm">
 						{t("remote.connecting")}
 					</div>
 				) : (
-					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-low border border-destructive/30 rounded-md">
+					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-lowest border-l border-outline-variant">
 						<span className="text-sm font-semibold text-destructive text-center">
 							{errorMessage ?? t("remote.connectionError")}
 						</span>
@@ -158,7 +172,25 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 						)}
 					</div>
 				)}
-			</div>
+			</main>
+		</div>
+	);
+}
+
+function PathBreadcrumb({ path }: { path: string }) {
+	const segments = path.split(/[/\\]/).filter(Boolean);
+	return (
+		<div className="flex items-center gap-1 font-body-md text-body-md text-on-surface-variant overflow-hidden whitespace-nowrap">
+			{segments.map((seg, i) => (
+				<span key={`${seg}-${i}`} className="flex items-center gap-1 shrink-0">
+									{i > 0 && <Icon name="arrow-right" size={14} className="text-on-surface-variant shrink-0" />}
+					{i === segments.length - 1 ? (
+						<span className="text-on-surface font-medium truncate">{seg}</span>
+					) : (
+						<span className="hover:text-primary cursor-pointer hover:underline shrink-0">{seg}</span>
+					)}
+				</span>
+			))}
 		</div>
 	);
 }
