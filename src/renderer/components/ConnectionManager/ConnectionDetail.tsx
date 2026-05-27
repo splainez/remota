@@ -108,7 +108,7 @@ export function ConnectionDetail({
                   <Button variant="destructive" onClick={() => { void onDelete(connection.id); setConfirmDelete(false); }}>
                     {t("connection.delete")}
                   </Button>
-                  <Button variant="ghost" onClick={() => { setConfirmDelete(false); }}>
+                  <Button variant="outline" onClick={() => { setConfirmDelete(false); }}>
                     {t("connection.cancel")}
                   </Button>
                 </>
