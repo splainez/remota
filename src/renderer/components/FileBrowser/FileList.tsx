@@ -83,23 +83,23 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 	};
 
 	if (loading) {
-		return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{t("file.loading")}</div>;
+		return <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">{t("file.loading")}</div>;
 	}
 
 	if (error) {
 		return (
-			<div className="flex-1 flex flex-col items-center justify-center text-gray-500 text-sm gap-1 p-4">
+			<div className="flex-1 flex flex-col items-center justify-center text-muted-foreground text-sm gap-1 p-4">
 				<span>{error}</span>
 				{errorDetail && (
 					<>
 						<button
-							className="text-xs text-blue-600 hover:underline cursor-pointer mt-1"
+							className="text-xs text-primary hover:underline cursor-pointer mt-1"
 							onClick={() => { setShowDetail((v) => !v); }}
 						>
 							{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
 						</button>
 						{showDetail && (
-							<pre className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+							<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
 								{errorDetail}
 							</pre>
 						)}
@@ -110,26 +110,26 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 	}
 
 	if (sorted.length === 0) {
-		return <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">{t("file.empty")}</div>;
+		return <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">{t("file.empty")}</div>;
 	}
 
 	return (
 		<div className="flex-1 flex flex-col overflow-hidden">
-			<div className="flex items-center h-[26px] px-2 bg-gray-200 border-b border-gray-300 shrink-0">
+			<div className="flex items-center h-[26px] px-2 bg-surface-container-low border-b border-outline-variant shrink-0">
 				<button
-					className="flex-1 flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+					className="flex-1 flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
 					onClick={() => { handleSort("name"); }}
 				>
 					{t("file.name")}{sortIndicator("name")}
 				</button>
 				<button
-					className="shrink-0 basis-[100px] flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+					className="shrink-0 basis-[100px] flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
 					onClick={() => { handleSort("size"); }}
 				>
 					{t("file.size")}{sortIndicator("size")}
 				</button>
 				<button
-					className="shrink-0 basis-[150px] flex items-center px-1 text-gray-500 text-xs font-semibold whitespace-nowrap h-full hover:text-gray-900 hover:bg-gray-300 cursor-pointer"
+					className="shrink-0 basis-[150px] flex items-center px-1 text-muted-foreground text-xs font-semibold whitespace-nowrap h-full hover:text-foreground hover:bg-surface-container-high cursor-pointer"
 					onClick={() => { handleSort("modified"); }}
 				>
 					{t("file.modified")}{sortIndicator("modified")}
@@ -139,7 +139,7 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 				{sorted.map((entry) => (
 					<div
 						key={entry.name}
-						className={`flex items-center h-6 px-2 cursor-pointer hover:bg-gray-300 ${selectedSet.has(entry.name) ? "bg-blue-200" : ""}`}
+						className={`flex items-center h-6 px-2 cursor-pointer hover:bg-surface-container-high transition-colors ${selectedSet.has(entry.name) ? "bg-primary/15" : ""}`}
 						onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sorted.map((s) => s.name)); }}
 						onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
 					>
@@ -148,12 +148,12 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 								? <FolderIcon path={entry.name} size={14} className="shrink-0" />
 								: <FileIcon path={entry.name} filePath={entry.fullPath} size={14} className="shrink-0" />
 							}
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">{entry.name}</span>
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground">{entry.name}</span>
 						</div>
-						<div className="shrink-0 basis-[100px] px-1 text-xs text-gray-500 text-right">
+						<div className="shrink-0 basis-[100px] px-1 text-xs text-muted-foreground text-right">
 							{entry.isDirectory ? "" : formatSize(entry.size)}
 						</div>
-						<div className="shrink-0 basis-[150px] px-1 text-xs text-gray-500">{formatDate(entry.modified)}</div>
+						<div className="shrink-0 basis-[150px] px-1 text-xs text-muted-foreground">{formatDate(entry.modified)}</div>
 					</div>
 				))}
 			</div>

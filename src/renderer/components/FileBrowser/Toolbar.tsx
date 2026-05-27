@@ -41,10 +41,10 @@ export function Toolbar({
 	);
 
 	const btnClass =
-		"flex items-center justify-center size-7 border border-transparent rounded text-gray-500 hover:bg-gray-300 hover:border-gray-300 hover:text-gray-900 disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent disabled:hover:border-transparent disabled:hover:text-gray-500";
+		"flex items-center justify-center size-7 border border-transparent rounded text-muted-foreground hover:bg-surface-container-high hover:border-outline-variant hover:text-foreground disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent disabled:hover:border-transparent disabled:hover:text-muted-foreground";
 
 	return (
-		<div className="flex items-center gap-0.5 px-1 py-0.5 bg-white border-b border-gray-300 shrink-0 h-8">
+		<div className="flex items-center gap-0.5 px-1 py-0.5 bg-background border-b border-outline-variant shrink-0 h-8">
 			<button
 				className={btnClass}
 				onClick={onGoBack}
@@ -71,7 +71,7 @@ export function Toolbar({
 			</button>
 			{drives.length > 0 && (
 				<select
-					className="h-6 px-1 border border-gray-300 rounded bg-white text-gray-900 text-sm min-w-[60px] focus:outline-none focus:border-blue-500"
+					className="h-6 px-1 border border-input rounded bg-background text-foreground text-sm min-w-[60px] focus:outline-none focus:border-ring"
 					value={isAtDriveRoot ? currentPath : ""}
 					onChange={handleDriveChange}
 					title={t("file.selectDrive")}

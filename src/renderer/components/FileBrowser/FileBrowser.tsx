@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
 import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
+import { Button } from "../ui/button";
 import { FilePane } from "./FilePane";
 
 interface FileBrowserProps {
@@ -102,14 +103,16 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 
 	return (
 		<div className="flex flex-col h-full overflow-hidden">
-			<div className="flex items-center justify-between px-3 py-1 bg-gray-200 border-b border-gray-300 shrink-0 h-9">
-				<span className="text-base font-semibold text-gray-900">{connection.name}</span>
-				<button
-					className="px-3 py-0.5 border border-gray-300 rounded bg-white text-gray-500 text-xs hover:bg-red-600 hover:text-white hover:border-red-600 cursor-pointer"
+			<div className="flex items-center justify-between px-3 py-1 bg-surface-container-low border-b border-outline-variant shrink-0 h-9">
+				<span className="text-base font-semibold text-on-surface">{connection.name}</span>
+				<Button
+					variant="ghost"
+					size="xs"
+					className="hover:bg-destructive hover:text-destructive-foreground"
 					onClick={handleDisconnect}
 				>
 					{t("connection.disconnect")}
-				</button>
+				</Button>
 			</div>
 			<div className="flex-1 flex gap-1 p-1 overflow-hidden min-h-0">
 				<FilePane
@@ -127,32 +130,27 @@ export function FileBrowser({ connection, onDisconnect }: FileBrowserProps) {
 						onReconnect={() => { void doConnect(); }}
 					/>
 				) : remoteStatus === "connecting" ? (
-					<div className="flex-1 flex flex-col items-center justify-center bg-gray-100 border border-gray-300 rounded-md text-gray-500 text-sm">
+					<div className="flex-1 flex flex-col items-center justify-center bg-surface-container-low border border-outline-variant rounded-md text-muted-foreground text-sm">
 						{t("remote.connecting")}
 					</div>
 				) : (
-					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-gray-100 border border-red-300 rounded-md">
-						<span className="text-sm font-semibold text-red-700 text-center">
+					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-low border border-destructive/30 rounded-md">
+						<span className="text-sm font-semibold text-destructive text-center">
 							{errorMessage ?? t("remote.connectionError")}
 						</span>
-						<div className="flex gap-2">
-							<button
-								className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 cursor-pointer"
-								onClick={() => { void doConnect(); }}
-							>
-								{t("remote.retry")}
-							</button>
-						</div>
+						<Button variant="default" size="sm" onClick={() => { void doConnect(); }}>
+							{t("remote.retry")}
+						</Button>
 						{remoteError && (
 							<div className="w-full max-w-md">
 								<button
-									className="text-xs text-blue-600 hover:underline cursor-pointer"
+									className="text-xs text-primary hover:underline cursor-pointer"
 									onClick={() => { setShowDetail((v) => !v); }}
 								>
 									{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
 								</button>
 								{showDetail && (
-									<pre className="text-xs text-gray-400 bg-gray-200 p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+									<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
 										{remoteError.technicalDetail}
 									</pre>
 								)}

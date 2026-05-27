@@ -5,6 +5,7 @@ import { useNavigationStore } from "../../store/navigation";
 import { join, parentPath } from "../../shared/path-utils";
 import { useFileList } from "../../hooks/useFileList";
 import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
+import { Button } from "../ui/button";
 import { Breadcrumb } from "./Breadcrumb";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
@@ -184,7 +185,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 
 	return (
 		<div
-			className="flex-1 flex flex-col overflow-hidden bg-gray-100 border border-gray-300 rounded-md min-w-0"
+			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-md min-w-0"
 			onMouseDown={handleMouseDown}
 		>
 			<Toolbar
@@ -201,17 +202,14 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 			/>
 			<Breadcrumb path={currentPath} onNavigate={handleNavigate} />
 			{isConnectionDead ? (
-				<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-gray-600">
+				<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
 					<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>
 					{onReconnect && (
-						<button
-							className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 cursor-pointer"
-							onClick={onReconnect}
-						>
+						<Button variant="default" size="sm" onClick={onReconnect}>
 							{t("remote.reconnect")}
-						</button>
+						</Button>
 					)}
-					<pre className="text-xs text-gray-400 bg-gray-100 p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+					<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
 						{deadError.technicalDetail}
 					</pre>
 				</div>
@@ -226,7 +224,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					selectedNames={selectedNames}
 				/>
 			)}
-			<div className="h-[22px] flex items-center px-2 bg-gray-200 border-t border-gray-300 text-xs text-gray-500 shrink-0">
+			<div className="h-[22px] flex items-center px-2 bg-surface-container-low border-t border-outline-variant text-xs text-muted-foreground shrink-0">
 				{loading ? t("file.loading") : `${String(entries.length)} ${t("file.items")}`}
 			</div>
 		</div>

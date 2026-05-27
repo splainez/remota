@@ -88,31 +88,31 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
 	const renderSegment = (seg: BreadcrumbSegment, _idx: number, isLast: boolean) => (
 		<span key={seg.path} className="flex items-center gap-1 shrink-0">
 			<button
-				className="px-1 py-0.5 border border-transparent rounded text-gray-900 text-sm whitespace-nowrap shrink-0 hover:bg-gray-300 hover:border-gray-300"
+				className="px-1 py-0.5 border border-transparent rounded text-foreground text-sm whitespace-nowrap shrink-0 hover:bg-surface-container-high hover:border-outline-variant"
 				onClick={() => { onNavigate(seg.path); }}
 				title={seg.path}
 			>
 				{seg.label}
 			</button>
-			{!isLast && <span className="text-gray-500 text-sm shrink-0">/</span>}
+			{!isLast && <span className="text-muted-foreground text-sm shrink-0">/</span>}
 		</span>
 	);
 
 	return (
-		<div className="flex items-center gap-1 overflow-hidden shrink-0 h-7 px-2 bg-white border-b border-gray-300" ref={containerRef}>
+		<div className="flex items-center gap-1 overflow-hidden shrink-0 h-7 px-2 bg-background border-b border-outline-variant" ref={containerRef}>
 			{headSegments.map((seg, i) =>
 				renderSegment(seg, i, !showEllipsis && i === headSegments.length - 1)
 			)}
 			{showEllipsis && (
 				<span className="flex items-center gap-1 shrink-0">
 					<button
-						className="px-1 py-0.5 border border-transparent rounded text-gray-500 text-sm cursor-default whitespace-nowrap shrink-0"
+						className="px-1 py-0.5 border border-transparent rounded text-muted-foreground text-sm cursor-default whitespace-nowrap shrink-0"
 						disabled
 						title={allSegments.map((s) => s.path).join(" / ")}
 					>
 						...
 					</button>
-					<span className="text-gray-500 text-sm shrink-0">/</span>
+					<span className="text-muted-foreground text-sm shrink-0">/</span>
 				</span>
 			)}
 			{tailSegments.map((seg, i) =>
@@ -127,7 +127,7 @@ export function Breadcrumb({ path, onNavigate }: BreadcrumbProps) {
 						ref={(el) => {
 							segmentRefs.current[i] = el;
 						}}
-						className="px-1 py-0.5 border border-transparent rounded text-gray-900 text-sm whitespace-nowrap shrink-0 hover:bg-gray-300 hover:border-gray-300"
+						className="px-1 py-0.5 border border-transparent rounded text-foreground text-sm whitespace-nowrap shrink-0 hover:bg-surface-container-high hover:border-outline-variant"
 					>
 						{seg.label}
 					</button>
