@@ -1,5 +1,11 @@
 {
 	"app.title": "OpenSCP",
+	"app.ready": "Listo",
+	"app.version": "OpenSCP v0.1.0",
+	"navigation.explorer": "Explorador",
+	"navigation.sessions": "Sesiones",
+	"navigation.logs": "Registros",
+	"navigation.settings": "Ajustes",
 	"connection.manager": "Conexiones",
 	"connection.new": "Nueva Conexión",
 	"connection.edit": "Editar Conexión",
