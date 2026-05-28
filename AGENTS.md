@@ -17,16 +17,13 @@ Refer to these for protocol behavior, UI patterns, and i18n conventions.
 ## Commands
 
 ```bash
-pnpm dev              # Start Electron in dev mode (electron-vite dev)
-pnpm build            # Production build (electron-vite build)
-pnpm typecheck        # Type-check all packages (tsc --noEmit for node + web configs)
-pnpm lint             # run linter
-pnpm lint:fix         # run linter with autofix
-pnpm test             # Run all vitest unit tests
-pnpm test:watch       # Vitest in watch mode
-pnpm test:coverage    # Vitest with coverage (v8 provider)
-pnpm test:e2e         # Playwright integration tests
-pnpm test:e2e:ui      # Playwright interactive UI mode
+pnpm run dev              # Start Electron in dev mode (electron-vite dev)
+pnpm run build            # Production build (electron-vite build)
+pnpm run typecheck        # Type-check all packages (tsc --noEmit for node + web configs)
+pnpm run lint             # run linter
+pnpm run lint:fix         # run linter with autofix
+pnpm run test             # Run all vitest unit tests
+pnpm run test:e2e         # Playwright integration tests
 ```
 
 ## Architecture
@@ -70,6 +67,19 @@ src/
 - Located in `tests/integration/`.
 - Uses a standalone Vite dev server (`vite.renderer.test.config.ts`, port 5174) with in-page mock API via `page.addInitScript()`.
 - Run with `pnpm test:e2e`.
+
+## Workflow
+
+Before considering any task complete, the following checks **must** pass:
+
+```bash
+pnpm run typecheck   # Verify all types are correct
+pnpm run lint        # Verify no linting errors
+pnpm run test:all    # Run all tests (unit + e2e + integration)
+pnpm run build       # Production build (electron-vite build)
+```
+
+If any of these commands fail, fix the issues before marking the task as done.
 
 ## Code Style
 

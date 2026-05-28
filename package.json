@@ -11,6 +11,7 @@
 		"build": "electron-vite build",
 		"preview": "electron-vite preview",
 		"typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+		"test:all": "pnpm run test && pnpm run test:integration",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
