@@ -25,7 +25,7 @@ describe("useContextMenu", () => {
 		act(() => {
 			result.current.open(
 				{ clientX: 0, clientY: 0, preventDefault: p } as React.MouseEvent,
-				undefined as unknown as void,
+				undefined,
 			);
 		});
 		expect(p).toHaveBeenCalled();
@@ -36,7 +36,7 @@ describe("useContextMenu", () => {
 		act(() => {
 			result.current.open(
 				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as React.MouseEvent,
-				undefined as unknown as void,
+				undefined,
 			);
 		});
 		expect(result.current.menu).not.toBeNull();
@@ -51,7 +51,7 @@ describe("useContextMenu", () => {
 		act(() => {
 			result.current.open(
 				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as React.MouseEvent,
-				undefined as unknown as void,
+				undefined,
 			);
 		});
 		expect(result.current.menu).not.toBeNull();
