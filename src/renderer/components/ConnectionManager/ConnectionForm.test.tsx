@@ -129,6 +129,41 @@ describe("ConnectionForm", () => {
 		expect(onCancel).toHaveBeenCalledOnce();
 	});
 
+	it("renders back button in header", () => {
+		render(
+			<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+		);
+
+		expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
+	});
+
+	it("calls onCancel when back button is clicked", async () => {
+		const user = userEvent.setup();
+		const onCancel = vi.fn();
+		render(
+			<ConnectionForm initial={null} onSave={vi.fn()} onCancel={onCancel} />
+		);
+
+		await user.click(screen.getByRole("button", { name: "Back" }));
+		expect(onCancel).toHaveBeenCalledOnce();
+	});
+
+	it("shows 'New Connection' title for new connection", () => {
+		render(
+			<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+		);
+
+		expect(screen.getByText("New Connection")).toBeInTheDocument();
+	});
+
+	it("shows 'Edit Connection' title when editing", () => {
+		render(
+			<ConnectionForm initial={sampleConnection} onSave={vi.fn()} onCancel={vi.fn()} />
+		);
+
+		expect(screen.getByText("Edit Connection")).toBeInTheDocument();
+	});
+
 	it("calls onSave with form data on Save Connection button click", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { t } from "../../../i18n";
+import { t, type TranslationKey } from "../../../i18n";
 
 interface FormFieldProps {
 	label: string;
@@ -13,9 +13,9 @@ interface FormFieldProps {
 function errorMessage(err: unknown): string {
 	if (err !== null && typeof err === "object" && "message" in err) {
 		const msg = String(err.message);
-		if (msg.length > 0) return t(msg);
+		if (msg.length > 0) return t(msg as TranslationKey);
 	}
-	if (typeof err === "string" && err.length > 0) return t(err);
+	if (typeof err === "string" && err.length > 0) return t(err as TranslationKey);
 	return t("validation.default");
 }
 

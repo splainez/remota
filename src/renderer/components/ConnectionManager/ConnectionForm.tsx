@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { t } from "../../../i18n";
+import { t, type TranslationKey } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
 import {
 	connectionFormSchema,
@@ -12,6 +12,7 @@ import { SftpFields } from "./SftpFields";
 import { S3Fields } from "./S3Fields";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { FormFooter } from "./FormFooter";
+import { Icon } from "../icons/Icon";
 
 interface ConnectionFormProps {
 	initial: Connection | null;
@@ -90,6 +91,20 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 				void handleSubmit(false);
 			}}
 		>
+			<div className="flex items-center gap-3 mb-1">
+				<button
+					type="button"
+					aria-label={t("connection.back")}
+					className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-high transition-colors"
+					onClick={onCancel}
+				>
+					<Icon name="arrow-left" size={18} />
+				</button>
+				<h2 className="text-lg font-semibold text-foreground">
+					{initial ? t("connection.edit") : t("connection.new")}
+				</h2>
+			</div>
+
 			<div className="grid grid-cols-2 gap-4">
 				<form.Field name="name" validators={{ onBlur: nameSchema }}>
 					{(field) => (
@@ -108,7 +123,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 							/>
 							{field.state.meta.errors.map((err: unknown, i: number) => {
 								const msg = err !== null && typeof err === "object" && "message" in err ? String(err.message) : String(err);
-								return <span key={i} className="text-xs text-destructive mt-0.5">{t(msg)}</span>;
+								return <span key={i} className="text-xs text-destructive mt-0.5">{t(msg as TranslationKey)}</span>;
 							})}
 						</div>
 					)}
