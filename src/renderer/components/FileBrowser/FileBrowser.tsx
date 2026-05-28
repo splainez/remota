@@ -1,41 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
-import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
+import { getErrorI18nKey } from "../../../shared/sftp-error";
+import { useRemoteConnection } from "../../hooks/useRemoteConnection";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
 import { Breadcrumb } from "./Breadcrumb";
 import { FilePane } from "./FilePane";
+import { ToggleableError } from "./ToggleableError";
 
 interface FileBrowserProps {
 	connection: Connection;
 }
 
-type RemoteStatus = "connecting" | "connected" | "error";
-
 export function FileBrowser({ connection }: FileBrowserProps) {
 	const [localPath, setLocalPath] = useState<string>("");
-	const [remotePath, setRemotePath] = useState<string>("/");
 	const [ready, setReady] = useState(false);
-	const [remoteStatus, setRemoteStatus] = useState<RemoteStatus>("connecting");
-	const [remoteError, setRemoteError] = useState<SftpErrorInfo | null>(null);
-	const [showDetail, setShowDetail] = useState(false);
-	const reconnectKey = useRef(0);
 
-	const doConnect = useCallback(async () => {
-		setRemoteStatus("connecting");
-		setRemoteError(null);
-		try {
-			const remoteHome = await window.api.filesystem.remoteConnect(connection.id);
-			setRemotePath(remoteHome);
-			setRemoteStatus("connected");
-			reconnectKey.current++;
-		} catch (err) {
-			const info = classifyError(err);
-			setRemoteError(info);
-			setRemoteStatus("error");
-		}
-	}, [connection.id]);
+	const {
+		remoteStatus,
+		remoteError,
+		remotePath,
+		setRemotePath,
+		reconnectKey,
+		connect,
+	} = useRemoteConnection(connection.id);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -80,16 +69,16 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 			cancelled = true;
 			void window.api.filesystem.remoteDisconnect(connection.id);
 		};
-	}, [connection.id]);
+	}, [connection.id, setRemotePath]);
 
 	// Connect after ready so the connecting placeholder shows while connect is in progress
 	const startedConnect = useRef(false);
 	useEffect(() => {
 		if (ready && !startedConnect.current) {
 			startedConnect.current = true;
-			void doConnect();
+			void connect();
 		}
-	}, [ready, doConnect]);
+	}, [ready, connect]);
 
 	if (!ready) {
 		return <div className="flex flex-col h-full overflow-hidden" />;
@@ -136,40 +125,27 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 				/>
 				{remoteStatus === "connected" ? (
 					<FilePane
-						// eslint-disable-next-line react-hooks/refs
-						key={reconnectKey.current}
+						key={reconnectKey}
 						type="remote"
 						connectionId={connection.id}
 						initialPath={remotePath}
-						onReconnect={() => { void doConnect(); }}
+						onReconnect={() => { void connect(); }}
 						onPathChange={setRemotePath}
 					/>
-				) : remoteStatus === "connecting" ? (
-					<div className="flex-1 flex flex-col items-center justify-center bg-surface-container-lowest border-l border-outline-variant text-muted-foreground text-sm">
-						{t("remote.connecting")}
-					</div>
 				) : (
 					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-lowest border-l border-outline-variant">
-						<span className="text-sm font-semibold text-destructive text-center">
-							{errorMessage ?? t("remote.connectionError")}
-						</span>
-						<Button variant="default" size="sm" onClick={() => { void doConnect(); }}>
-							{t("remote.retry")}
-						</Button>
-						{remoteError && (
-							<div className="w-full max-w-md">
-								<button
-									className="text-xs text-primary hover:underline cursor-pointer"
-									onClick={() => { setShowDetail((v) => !v); }}
-								>
-									{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
-								</button>
-								{showDetail && (
-									<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
-										{remoteError.technicalDetail}
-									</pre>
-								)}
-							</div>
+						{remoteStatus === "connecting" ? (
+							<ToggleableError message={t("remote.connecting")} />
+						) : (
+							<>
+								<ToggleableError
+									message={errorMessage ?? t("remote.connectionError")}
+									detail={remoteError?.technicalDetail}
+								/>
+								<Button variant="default" size="sm" onClick={() => { void connect(); }}>
+									{t("remote.retry")}
+								</Button>
+							</>
 						)}
 					</div>
 				)}
