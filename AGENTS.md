@@ -24,6 +24,7 @@ pnpm run lint             # run linter
 pnpm run lint:fix         # run linter with autofix
 pnpm run test             # Run all vitest unit tests
 pnpm run test:e2e         # Playwright integration tests
+pnpm run fmt              # run formatter
 ```
 
 ## Architecture
@@ -77,6 +78,7 @@ pnpm run typecheck   # Verify all types are correct
 pnpm run lint        # Verify no linting errors
 pnpm run test:all    # Run all tests (unit + e2e + integration)
 pnpm run build       # Production build (electron-vite build)
+pnpm run fmt         # run formatter after each task
 pnpm run check       # run all checks to verify no errors
 ```
 
