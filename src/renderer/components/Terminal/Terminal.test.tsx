@@ -101,7 +101,7 @@ describe("Terminal", () => {
 		render(<Terminal sessionId="local-1" type="local" />);
 		expect(xtermConfig).toHaveProperty("fontSize", 13);
 		expect(xtermConfig).toMatchObject({
-			fontFamily: expect.stringContaining("JetBrains Mono") as unknown as string,
+			fontFamily: expect.stringContaining("JetBrains Mono"),
 		});
 	});
 

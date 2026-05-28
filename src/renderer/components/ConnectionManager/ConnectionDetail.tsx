@@ -4,6 +4,7 @@ import type { Connection, NewConnection } from "../../../shared/types";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
 import { ConnectionForm } from "./ConnectionForm";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 interface ConnectionDetailProps {
 	connection: Connection | null;
@@ -135,29 +136,13 @@ export function ConnectionDetail({
 						</div>
 					</div>
 
-					{/* Delete Confirmation Dialog */}
 					{showDeleteDialog && (
-						<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-							<div className="bg-card border border-outline-variant rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-								<h3 className="text-base font-semibold text-card-foreground mb-2">
-									{t("connection.confirmDelete")}
-								</h3>
-								<p className="text-sm text-muted-foreground mb-5">
-									{connection.name}
-								</p>
-								<div className="flex items-center justify-end gap-2">
-									<Button variant="outline" onClick={() => { setShowDeleteDialog(false); }}>
-										{t("connection.cancel")}
-									</Button>
-									<Button
-										variant="destructive"
-										onClick={() => { Promise.resolve(onDelete(connection.id)).catch(() => { /* noop */ }); setShowDeleteDialog(false); }}
-									>
-										{t("connection.delete")}
-									</Button>
-								</div>
-							</div>
-						</div>
+						<DeleteConfirmDialog
+							title={t("connection.confirmDelete")}
+							description={connection.name}
+							onConfirm={() => { void Promise.resolve(onDelete(connection.id)); setShowDeleteDialog(false); }}
+							onCancel={() => { setShowDeleteDialog(false); }}
+						/>
 					)}
 				</div>
 			</div>

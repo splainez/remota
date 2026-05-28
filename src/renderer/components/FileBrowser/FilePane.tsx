@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../i18n";
-import { usePlatformStore } from "../../store/platform";
-import { useNavigationStore } from "../../store/navigation";
-import { join, parentPath } from "../../shared/path-utils";
 import { useFileList } from "../../hooks/useFileList";
+import { useFileSelection } from "../../hooks/useFileSelection";
+import { usePaneNavigation } from "../../hooks/usePaneNavigation";
+import { useLocalDrives } from "../../hooks/useLocalDrives";
+import { useTerminalToggle } from "../../hooks/useTerminalToggle";
 import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
-import { Button } from "../ui/button";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
 import { Terminal } from "../Terminal/Terminal";
+import { ConnectionErrorView } from "./ConnectionErrorView";
 
 interface FilePaneProps {
 	type: "local" | "remote";
@@ -20,46 +21,15 @@ interface FilePaneProps {
 }
 
 export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect, onPathChange }: FilePaneProps) {
-	const [currentPath, setCurrentPath] = useState(initialPath);
-	const [selectedNames, setSelectedNames] = useState<string[]>([]);
-	const lastClickedNameRef = useRef<string | null>(null);
-	const [drives, setDrives] = useState<string[]>([]);
-  const prevConnectionRef = useRef(connectionId);
-  const pathInitialized = useRef(false);
-  const isWindows = usePlatformStore((s) => s.isWindows);
-  const [showTerminal, setShowTerminal] = useState(false);
-  const paneRef = useRef<HTMLDivElement>(null);
+	const paneRef = useRef<HTMLDivElement>(null);
 
-	const push = useNavigationStore((s) => s.push);
-	const goBack = useNavigationStore((s) => s.goBack);
-	const goForward = useNavigationStore((s) => s.goForward);
-	const clearHistory = useNavigationStore((s) => s.clear);
-	const canGoBack = useNavigationStore((s) => s.canGoBack(type));
-	const canGoForward = useNavigationStore((s) => s.canGoForward(type));
+	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
+	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath, clearSelection);
+	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
+	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown } = useTerminalToggle();
 
 	useEffect(() => {
-		const connectionChanged = prevConnectionRef.current !== connectionId;
-		prevConnectionRef.current = connectionId;
-
-		if (connectionChanged || !pathInitialized.current) {
-			clearHistory(type);
-		}
-
-		push(type, initialPath);
-		setCurrentPath(initialPath);
-		pathInitialized.current = true;
-	}, [type, connectionId, initialPath]);
-
-	useEffect(() => {
-		if (type === "local" && isWindows) {
-			void window.api.filesystem.listDrives().then(setDrives);
-		}
-	}, [type, isWindows]);
-
-	useEffect(() => {
-		if (pathInitialized.current) {
-			void window.api.filesystem.setLastPath(connectionId, type, currentPath);
-		}
+		void window.api.filesystem.setLastPath(connectionId, type, currentPath);
 	}, [currentPath, connectionId, type]);
 
 	useEffect(() => {
@@ -71,87 +41,35 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		connectionId: type === "remote" ? connectionId : undefined,
 	});
 
-	const navigateTo = useCallback(
+	const handleNavigateTo = useCallback(
 		(path: string) => {
-			push(type, path);
-			setCurrentPath(path);
+			clearSelection();
+			navigateTo(path);
 		},
-		[push, type],
+		[clearSelection, navigateTo],
 	);
 
 	const handleNavigateUp = useCallback(() => {
-		const newPath = parentPath(currentPath);
-		if (newPath !== null) {
-			setSelectedNames([]);
-			lastClickedNameRef.current = null;
-			navigateTo(newPath);
-		}
-	}, [currentPath, navigateTo]);
+		clearSelection();
+		paneNavigateUp();
+	}, [clearSelection, paneNavigateUp]);
 
-	const handleNavigateTo = useCallback(
-		(path: string) => {
-			setSelectedNames([]);
-			lastClickedNameRef.current = null;
-			navigateTo(path);
-		},
-		[navigateTo],
-	);
-
-	const handleEnterDirectory = useCallback(
+	const handleEnterDirectoryWrapped = useCallback(
 		(name: string) => {
-			navigateTo(join(currentPath, name));
+			handleEnterDirectory(name);
 		},
-		[currentPath, navigateTo],
+		[handleEnterDirectory],
 	);
 
-	const handleSelectEntry = useCallback(
-		(name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => {
-			if (shiftKey) {
-				const anchor = lastClickedNameRef.current ?? sortedNames[0];
-				const anchorIdx = sortedNames.indexOf(anchor);
-				const clickedIdx = sortedNames.indexOf(name);
-				if (anchorIdx === -1 || clickedIdx === -1) {
-					setSelectedNames([name]);
-					lastClickedNameRef.current = name;
-				} else {
-					const start = Math.min(anchorIdx, clickedIdx);
-					const end = Math.max(anchorIdx, clickedIdx);
-					setSelectedNames(sortedNames.slice(start, end + 1));
-				}
-			} else if (ctrlKey) {
-				setSelectedNames((prev) => {
-					const idx = prev.indexOf(name);
-					if (idx === -1) {
-						return [...prev, name];
-					}
-					return prev.filter((n) => n !== name);
-				});
-				lastClickedNameRef.current = name;
-			} else {
-				setSelectedNames([name]);
-				lastClickedNameRef.current = name;
-			}
-		},
-		[],
-	);
+	const handleGoBackWrapped = useCallback(() => {
+		clearSelection();
+		paneGoBack();
+	}, [clearSelection, paneGoBack]);
 
-	const handleGoBack = useCallback(() => {
-		const path = goBack(type);
-		if (path !== null) {
-			setSelectedNames([]);
-			lastClickedNameRef.current = null;
-			setCurrentPath(path);
-		}
-	}, [goBack, type]);
-
-	const handleGoForward = useCallback(() => {
-		const path = goForward(type);
-		if (path !== null) {
-			setSelectedNames([]);
-			lastClickedNameRef.current = null;
-			setCurrentPath(path);
-		}
-	}, [goForward, type]);
+	const handleGoForwardWrapped = useCallback(() => {
+		clearSelection();
+		paneGoForward();
+	}, [clearSelection, paneGoForward]);
 
 	const handleRefresh = useCallback(() => {
 		void refresh();
@@ -160,51 +78,24 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 	const listingError = error;
 	const deadError = connectionError ?? (listingError?.code === "NOT_CONNECTED" ? listingError : null);
 	const isConnectionDead = deadError != null;
-	const displayError = deadError ?? listingError ?? null;
+	const displayError = deadError ?? error ?? null;
 	const errorMessage = displayError ? t(getErrorI18nKey(displayError.code)) : null;
 
-	const handleMouseDown = useCallback(
-		(e: React.MouseEvent) => {
-			if (e.button === 3) {
-				e.preventDefault();
-				handleGoBack();
-			} else if (e.button === 4) {
-				e.preventDefault();
-				handleGoForward();
-			}
-		},
-		[handleGoBack, handleGoForward],
-	);
+	const showDriveSelector = isWindows && type === "local" && drives.length > 1;
 
-  const driveRoot = isWindows
-    ? drives.find((d) => d === currentPath) ?? null
-    : null;
-  const showDriveSelector = isWindows && type === "local" && drives.length > 1;
+	const sessionId = `${type}-${String(connectionId)}`;
 
-  const sessionId = `${type}-${String(connectionId)}`;
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.ctrlKey && e.key === "`") {
-      e.preventDefault();
-      setShowTerminal((prev) => !prev);
-    }
-  }, []);
-
-  const handleToggleTerminal = useCallback(() => {
-    setShowTerminal((prev) => !prev);
-  }, []);
-
-  return (
-    <div
-      ref={paneRef}
-      tabIndex={-1}
-      className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
-      onMouseDown={handleMouseDown}
-      onKeyDown={handleKeyDown}
-    >
-      <Toolbar
-				onGoBack={handleGoBack}
-				onGoForward={handleGoForward}
+	return (
+		<div
+			ref={paneRef}
+			tabIndex={-1}
+			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
+			onMouseDown={handleMouseDown}
+			onKeyDown={handleKeyDown}
+		>
+			<Toolbar
+				onGoBack={handleGoBackWrapped}
+				onGoForward={handleGoForwardWrapped}
 				canGoBack={canGoBack}
 				canGoForward={canGoForward}
 				onNavigateUp={handleNavigateUp}
@@ -217,33 +108,26 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				isAtDriveRoot={driveRoot !== null}
 			/>
 			{isConnectionDead ? (
-				<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
-					<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>
-					{onReconnect && (
-						<Button variant="default" size="sm" onClick={onReconnect}>
-							{t("remote.reconnect")}
-						</Button>
-					)}
-					<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
-						{deadError.technicalDetail}
-					</pre>
-				</div>
+				<ConnectionErrorView
+					technicalDetail={deadError.technicalDetail}
+					onReconnect={onReconnect}
+				/>
 			) : (
 				<FileList
 					entries={entries}
 					loading={loading}
 					error={errorMessage}
 					errorDetail={displayError?.technicalDetail}
-					onEnterDirectory={handleEnterDirectory}
+					onEnterDirectory={handleEnterDirectoryWrapped}
 					onSelectEntry={handleSelectEntry}
 					selectedNames={selectedNames}
 				/>
-      )}
-      {showTerminal && (
-        <div className="h-48 shrink-0 border-t border-outline-variant">
-          <Terminal sessionId={sessionId} type={type} connectionId={type === "remote" ? connectionId : undefined} />
-        </div>
-      )}
-    </div>
-  );
+			)}
+			{showTerminal && (
+				<div className="h-48 shrink-0 border-t border-outline-variant">
+					<Terminal sessionId={sessionId} type={type} connectionId={type === "remote" ? connectionId : undefined} />
+				</div>
+			)}
+		</div>
+	);
 }

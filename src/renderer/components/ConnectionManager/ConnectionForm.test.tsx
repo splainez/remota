@@ -60,7 +60,7 @@ describe("ConnectionForm", () => {
 		expect(select?.value).toBe("sftp");
 	});
 
-	it("updates port when protocol changes", async () => {
+	it("updates port when protocol changes to s3", async () => {
 		const user = userEvent.setup();
 		render(
 			<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
@@ -69,8 +69,8 @@ describe("ConnectionForm", () => {
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
 
-		const portInput = screen.getByLabelText<HTMLInputElement>("Port");
-		expect(portInput.value).toBe("443");
+		expect(screen.getByLabelText("Access Key")).toBeInTheDocument();
+		expect(screen.queryByLabelText("Port")).not.toBeInTheDocument();
 	});
 
 	it("shows S3 fields when protocol is s3", async () => {
@@ -99,9 +99,9 @@ describe("ConnectionForm", () => {
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
 
-		expect(screen.getByLabelText("Host")).toBeInTheDocument();
 		expect(screen.queryByLabelText("Username")).not.toBeInTheDocument();
 		expect(screen.queryByText("Authentication")).not.toBeInTheDocument();
+		expect(screen.getByLabelText("Access Key")).toBeInTheDocument();
 	});
 
 	it("shows SSH fields again when switching back from s3", async () => {
@@ -229,7 +229,6 @@ describe("ConnectionForm", () => {
 		await user.selectOptions(select, "s3");
 
 		await user.type(screen.getByLabelText("Name"), "My S3 Bucket");
-		await user.type(screen.getByLabelText("Host"), "s3.amazonaws.com");
 		await user.type(screen.getByLabelText("Access Key"), "AKIATEST");
 		await user.type(screen.getByLabelText("Secret Key"), "secret123");
 		const regionInput = screen.getByLabelText("Region");
@@ -244,7 +243,6 @@ describe("ConnectionForm", () => {
 			expect.objectContaining({
 				name: "My S3 Bucket",
 				protocol: "s3",
-				host: "s3.amazonaws.com",
 				accessKey: "AKIATEST",
 				secretKey: "secret123",
 				region: "eu-west-1",
@@ -294,7 +292,6 @@ describe("ConnectionForm", () => {
 		await user.selectOptions(select, "s3");
 
 		await user.type(screen.getByLabelText("Name"), "My S3");
-		await user.type(screen.getByLabelText("Host"), "s3.amazonaws.com");
 		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
 		expect(onSave).not.toHaveBeenCalled();
