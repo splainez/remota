@@ -5,8 +5,11 @@ import { useFileSelection } from "../../hooks/useFileSelection";
 import { usePaneNavigation } from "../../hooks/usePaneNavigation";
 import { useLocalDrives } from "../../hooks/useLocalDrives";
 import { useTerminalToggle } from "../../hooks/useTerminalToggle";
+import { useContextMenu } from "../../hooks/useContextMenu";
+import type { FileEntry } from "../../../shared/types";
 import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { FileList } from "./FileList";
+import { FileContextMenu } from "./FileContextMenu";
 import { Toolbar } from "./Toolbar";
 import { Terminal } from "../Terminal/Terminal";
 import { ConnectionErrorView } from "./ConnectionErrorView";
@@ -27,6 +30,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath, clearSelection);
 	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
 	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown } = useTerminalToggle();
+	const contextMenu = useContextMenu<FileEntry>();
 
 	useEffect(() => {
 		void window.api.filesystem.setLastPath(connectionId, type, currentPath);
@@ -112,7 +116,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					technicalDetail={deadError.technicalDetail}
 					onReconnect={onReconnect}
 				/>
-			) : (
+		) : (
 				<FileList
 					entries={entries}
 					loading={loading}
@@ -121,12 +125,22 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					onEnterDirectory={handleEnterDirectoryWrapped}
 					onSelectEntry={handleSelectEntry}
 					selectedNames={selectedNames}
+					onContextMenu={(e, entry) => { contextMenu.open(e, entry); }}
 				/>
 			)}
 			{showTerminal && (
 				<div className="h-48 shrink-0 border-t border-outline-variant">
 					<Terminal sessionId={sessionId} type={type} connectionId={type === "remote" ? connectionId : undefined} />
 				</div>
+			)}
+			{contextMenu.menu && (
+				<FileContextMenu
+					x={contextMenu.menu.x}
+					y={contextMenu.menu.y}
+					entry={contextMenu.menu.data}
+					panelType={type}
+					onClose={contextMenu.close}
+				/>
 			)}
 		</div>
 	);

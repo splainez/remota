@@ -8,9 +8,10 @@ interface FileRowProps {
 	isSelected: boolean;
 	onClick: (e: React.MouseEvent) => void;
 	onDoubleClick: () => void;
+	onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export function FileRow({ entry, isSelected, onClick, onDoubleClick }: FileRowProps) {
+export function FileRow({ entry, isSelected, onClick, onDoubleClick, onContextMenu }: FileRowProps) {
 	return (
 		<div
 			className={[
@@ -19,6 +20,7 @@ export function FileRow({ entry, isSelected, onClick, onDoubleClick }: FileRowPr
 			].join(" ")}
 			onClick={onClick}
 			onDoubleClick={onDoubleClick}
+			onContextMenu={onContextMenu}
 		>
 			<div className="w-7 flex items-center justify-center">
 				{entry.isDirectory

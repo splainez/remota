@@ -14,6 +14,7 @@ interface FileListProps {
 	onEnterDirectory: (name: string) => void;
 	onSelectEntry: (name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => void;
 	selectedNames: string[];
+	onContextMenu?: (e: React.MouseEvent, entry: FileEntry) => void;
 }
 
 function compareEntries(a: FileEntry, b: FileEntry, key: SortKey): number {
@@ -35,7 +36,7 @@ function partitionDirsFirst(entries: FileEntry[]): { head: FileEntry[]; tail: Fi
 	return { head: dirs, tail: files };
 }
 
-export function FileList({ entries, loading, error, errorDetail, onEnterDirectory, onSelectEntry, selectedNames }: FileListProps) {
+export function FileList({ entries, loading, error, errorDetail, onEnterDirectory, onSelectEntry, selectedNames, onContextMenu }: FileListProps) {
 	const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
 
 	const { sorted, config, handleSort } = useSort({
@@ -64,13 +65,14 @@ export function FileList({ entries, loading, error, errorDetail, onEnterDirector
 			<FileListHeader onSort={handleSort} sortKey={config.key} sortDir={config.direction} />
 			<div className="flex-1 overflow-y-auto">
 				{sorted.map((entry) => (
-					<FileRow
-						key={entry.name}
-						entry={entry}
-						isSelected={selectedSet.has(entry.name)}
-						onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sortedNames); }}
-						onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
-					/>
+				<FileRow
+					key={entry.name}
+					entry={entry}
+					isSelected={selectedSet.has(entry.name)}
+					onClick={(e) => { onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sortedNames); }}
+					onDoubleClick={() => { if (entry.isDirectory) onEnterDirectory(entry.name); }}
+					onContextMenu={onContextMenu ? (e) => { onContextMenu(e, entry); } : undefined}
+				/>
 				))}
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Toaster } from "sonner";
 import { t } from "../i18n";
 import type { Connection, NewConnection } from "../shared/types";
 import { useConnections } from "./hooks/useConnections";
@@ -157,6 +158,7 @@ export function App() {
 
 	return (
 		<div className="flex h-screen overflow-hidden bg-background">
+			<Toaster position="bottom-right" richColors />
 			<ServerSidebar
 				connections={connections}
 				selectedId={selected?.id ?? null}
