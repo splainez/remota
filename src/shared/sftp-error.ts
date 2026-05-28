@@ -1,3 +1,5 @@
+import type { TranslationKey } from "../i18n";
+
 export const SFTP_ERROR_CODES = [
 	"CONNECTION_REFUSED",
 	"CONNECTION_TIMEOUT",
@@ -16,7 +18,7 @@ export interface SftpErrorInfo {
 	technicalDetail: string;
 }
 
-const ERROR_MSG_KEYS: Record<SftpErrorCode, string> = {
+const ERROR_MSG_KEYS: Record<SftpErrorCode, TranslationKey> = {
 	CONNECTION_REFUSED: "remote.error.connectionRefused",
 	CONNECTION_TIMEOUT: "remote.error.connectionTimeout",
 	AUTH_FAILED: "remote.error.authFailed",
@@ -27,7 +29,7 @@ const ERROR_MSG_KEYS: Record<SftpErrorCode, string> = {
 	UNKNOWN: "remote.error.unknown",
 };
 
-export function getErrorI18nKey(code: SftpErrorCode): string {
+export function getErrorI18nKey(code: SftpErrorCode): TranslationKey {
 	return ERROR_MSG_KEYS[code];
 }
 

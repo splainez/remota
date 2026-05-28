@@ -52,12 +52,12 @@ describe("FormField", () => {
 
 	it("renders error messages from string array", () => {
 		render(
-			<FormField label="Hostname" htmlFor="host" errors={["Required field", "Invalid format"]}>
+			<FormField label="Hostname" htmlFor="host" errors={["validation.hostRequired", "validation.hostInvalid"]}>
 				<input id="host" />
 			</FormField>,
 		);
-		expect(screen.getByText("Required field")).toBeInTheDocument();
-		expect(screen.getByText("Invalid format")).toBeInTheDocument();
+		expect(screen.getByText("Host is required")).toBeInTheDocument();
+		expect(screen.getByText("Host must be a valid domain, IPv4, or IPv6 address")).toBeInTheDocument();
 	});
 
 	it("renders error messages from object with message property", () => {
@@ -65,12 +65,12 @@ describe("FormField", () => {
 			<FormField
 				label="Hostname"
 				htmlFor="host"
-				errors={[{ message: "Must not be empty" }]}
+				errors={[{ message: "validation.hostRequired" }]}
 			>
 				<input id="host" />
 			</FormField>,
 		);
-		expect(screen.getByText("Must not be empty")).toBeInTheDocument();
+		expect(screen.getByText("Host is required")).toBeInTheDocument();
 	});
 
 	it("renders default error for unknown error types", () => {

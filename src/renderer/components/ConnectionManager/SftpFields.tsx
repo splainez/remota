@@ -1,4 +1,4 @@
-import { t } from "../../../i18n";
+import { t, type TranslationKey } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { FormField } from "./FormField";
 import { hostSchema, portSchema, usernameSchema, passwordSchema, privateKeyPathSchema, DEFAULT_PORT } from "../../../shared/validation";
@@ -133,7 +133,7 @@ export function SftpFields({ form }: SftpFieldsProps) {
 					<FormField label={t("connection.authType")}>
 						<div className="flex gap-4">
 							{(["password", "key", "agent"] as const).map((at) => {
-								const labels: Record<string, string> = {
+								const labels: Record<string, TranslationKey> = {
 									password: "connection.authPassword",
 									key: "connection.authKey",
 									agent: "connection.authAgent",

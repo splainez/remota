@@ -1,30 +1,46 @@
 import en from "./en.json";
 import es from "./es.json";
 
-const translations: Record<string, Record<string, string>> = { en, es };
+export type TranslationKey = keyof typeof en;
+type Translations = Record<TranslationKey, string>;
 
-let currentLocale = "en";
+interface TranslationsAll {
+	en: Translations
+	es: Translations
+}
 
-function detectLocale(): string {
-  let lang = "en";
-  try {
-    lang = (navigator.language || Intl.DateTimeFormat().resolvedOptions().locale).slice(0, 2).toLowerCase();
-  } catch {
-    // fallback to en
-  }
-  return lang in translations ? lang : "en";
+const translations: TranslationsAll = { en, es };
+
+
+type LocaleAvailable = 'en' | 'es';
+
+let currentLocale: LocaleAvailable = "en";
+
+function detectLocale(): LocaleAvailable {
+	let lang = "en";
+	try {
+		lang = (navigator.language || Intl.DateTimeFormat().resolvedOptions().locale).slice(0, 2).toLowerCase();
+	} catch {
+		// fallback to en
+	}
+	return lang === "es" ? lang : "en";
 }
 
 export function initLocale() {
-  currentLocale = detectLocale();
+	currentLocale = detectLocale();
 }
 
-export function setLocale(locale: string) {
-  if (locale in translations) {
-    currentLocale = locale;
-  }
+export function setLocale(locale: LocaleAvailable) {
+	if (locale in translations) {
+		currentLocale = locale;
+	}
 }
 
-export function t(key: string): string {
-  return (translations[currentLocale] ?? translations.en)[key] ?? key;
+function getTranslations(): Translations {
+
+	return translations[currentLocale];
+}
+
+export function t(key: TranslationKey): string {
+	return getTranslations()[key];
 }
