@@ -13,6 +13,15 @@ export function canGoUp(path: string): boolean {
 	return true;
 }
 
+export function matchesWildcard(pattern: string, filename: string): boolean {
+	if (!pattern.trim()) return true;
+	const hasWildcard = pattern.includes("*");
+	const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+	const body = escaped.replace(/\*/g, ".*");
+	const regex = new RegExp(hasWildcard ? `^${body}$` : `.*${body}.*`, "i");
+	return regex.test(filename);
+}
+
 export function parsePath(input: string): BreadcrumbSegment[] {
 	const isWindows = /^[a-zA-Z]:\\/.test(input);
 	const sep = isWindows ? "\\" : "/";
