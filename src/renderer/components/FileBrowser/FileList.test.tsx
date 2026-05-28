@@ -157,4 +157,29 @@ describe("FileList", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
 		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
+
+	it("applies type-ahead highlight to matching entry", () => {
+		render(<FileList {...defaultProps} typeAheadName="readme.md" />);
+		const row = screen.getByText("readme.md").closest(".cursor-pointer");
+		expect(row?.className).toContain("outline");
+		expect(row?.className).toContain("outline-primary");
+	});
+
+	it("does not apply type-ahead highlight when typeAheadName is null", () => {
+		render(<FileList {...defaultProps} typeAheadName={null} />);
+		const row = screen.getByText("readme.md").closest(".cursor-pointer");
+		expect(row?.className).not.toContain("outline-primary");
+	});
+
+	it("does not apply type-ahead highlight when typeAheadName is undefined", () => {
+		render(<FileList {...defaultProps} />);
+		const row = screen.getByText("readme.md").closest(".cursor-pointer");
+		expect(row?.className).not.toContain("outline-primary");
+	});
+
+	it("renders data-file-name attribute on each row", () => {
+		render(<FileList {...defaultProps} />);
+		expect(screen.getByText("readme.md").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe("readme.md");
+		expect(screen.getByText("config.json").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe("config.json");
+	});
 });

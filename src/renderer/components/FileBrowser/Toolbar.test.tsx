@@ -32,6 +32,8 @@ describe("Toolbar", () => {
 		drives: [] as string[],
 		currentPath: "C:\\Users",
 		isAtDriveRoot: false,
+		filter: "",
+		onFilterChange: vi.fn(),
 	};
 
 	beforeEach(() => {
@@ -140,5 +142,34 @@ describe("Toolbar", () => {
 		);
 		const select = screen.getByTitle<HTMLSelectElement>("Select drive");
 		expect(select.value).toBe(cDriveRoot);
+	});
+
+	it("renders filter input with controlled value", () => {
+		render(<Toolbar {...defaultProps} filter="test" />);
+		expect(screen.getByPlaceholderText("Filter...")).toHaveValue("test");
+	});
+
+	it("calls onFilterChange when filter input changes", async () => {
+		const onFilterChange = vi.fn();
+		render(<Toolbar {...defaultProps} onFilterChange={onFilterChange} />);
+		await userEvent.type(screen.getByPlaceholderText("Filter..."), "a");
+		expect(onFilterChange).toHaveBeenCalledWith("a");
+	});
+
+	it("hides clear button when filter is empty", () => {
+		render(<Toolbar {...defaultProps} filter="" />);
+		expect(screen.queryByTitle("Clear filter")).not.toBeInTheDocument();
+	});
+
+	it("shows clear button when filter is non-empty", () => {
+		render(<Toolbar {...defaultProps} filter="test" />);
+		expect(screen.getByTitle("Clear filter")).toBeInTheDocument();
+	});
+
+	it("calls onFilterChange with empty string when clear button is clicked", async () => {
+		const onFilterChange = vi.fn();
+		render(<Toolbar {...defaultProps} filter="test" onFilterChange={onFilterChange} />);
+		await userEvent.click(screen.getByTitle("Clear filter"));
+		expect(onFilterChange).toHaveBeenCalledWith("");
 	});
 });

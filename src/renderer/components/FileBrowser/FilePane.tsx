@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "../../../i18n";
 import { useFileList } from "../../hooks/useFileList";
 import { useFileSelection } from "../../hooks/useFileSelection";
@@ -6,7 +6,9 @@ import { usePaneNavigation } from "../../hooks/usePaneNavigation";
 import { useLocalDrives } from "../../hooks/useLocalDrives";
 import { useTerminalToggle } from "../../hooks/useTerminalToggle";
 import { useContextMenu } from "../../hooks/useContextMenu";
+import { useTypeAhead } from "../../hooks/useTypeAhead";
 import type { FileEntry } from "../../../shared/types";
+import { matchesWildcard } from "../../lib/utils";
 import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
 import { FileList } from "./FileList";
 import { FileContextMenu } from "./FileContextMenu";
@@ -25,11 +27,14 @@ interface FilePaneProps {
 
 export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect, onPathChange }: FilePaneProps) {
 	const paneRef = useRef<HTMLDivElement>(null);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+	const [filter, setFilter] = useState("");
 
 	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
 	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath, clearSelection);
 	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
-	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown } = useTerminalToggle();
+	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown: terminalHandleKeyDown } = useTerminalToggle();
 	const contextMenu = useContextMenu<FileEntry>();
 
 	useEffect(() => {
@@ -44,6 +49,17 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		type,
 		connectionId: type === "remote" ? connectionId : undefined,
 	});
+
+	const filteredEntries = useMemo(() => {
+		if (!filter.trim()) return entries;
+		return entries.filter((entry) => matchesWildcard(filter, entry.name));
+	}, [entries, filter]);
+
+	const { typeAheadName, handleKeyDown: typeAheadKeyDown, clearTypeAhead } = useTypeAhead(filteredEntries, scrollContainerRef);
+
+	useEffect(() => {
+		clearTypeAhead();
+	}, [filter, currentPath, clearTypeAhead]);
 
 	const handleNavigateTo = useCallback(
 		(path: string) => {
@@ -79,6 +95,14 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		void refresh();
 	}, [refresh]);
 
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			typeAheadKeyDown(e);
+			terminalHandleKeyDown(e);
+		},
+		[typeAheadKeyDown, terminalHandleKeyDown],
+	);
+
 	const listingError = error;
 	const deadError = connectionError ?? (listingError?.code === "NOT_CONNECTED" ? listingError : null);
 	const isConnectionDead = deadError != null;
@@ -110,6 +134,8 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				drives={showDriveSelector ? drives : []}
 				currentPath={currentPath}
 				isAtDriveRoot={driveRoot !== null}
+				filter={filter}
+				onFilterChange={setFilter}
 			/>
 			{isConnectionDead ? (
 				<ConnectionErrorView
@@ -118,13 +144,15 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				/>
 		) : (
 				<FileList
-					entries={entries}
+					entries={filteredEntries}
 					loading={loading}
 					error={errorMessage}
 					errorDetail={displayError?.technicalDetail}
 					onEnterDirectory={handleEnterDirectoryWrapped}
 					onSelectEntry={handleSelectEntry}
 					selectedNames={selectedNames}
+					typeAheadName={typeAheadName}
+					scrollContainerRef={scrollContainerRef}
 					onContextMenu={(e, entry) => { contextMenu.open(e, entry); }}
 				/>
 			)}

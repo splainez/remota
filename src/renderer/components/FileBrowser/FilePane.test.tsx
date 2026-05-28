@@ -657,4 +657,193 @@ describe("FilePane", () => {
 		expect(screen.getByText("admin").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 		expect(screen.getByText("deploy").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
+
+	// --- search/filter ---
+
+	const filterEntries = [
+		{ name: "albacete", isDirectory: true, size: 0, modified: "" },
+		{ name: "jaen", isDirectory: true, size: 0, modified: "" },
+		{ name: "granada", isDirectory: false, size: 100, modified: "" },
+		{ name: "readme.md", isDirectory: false, size: 200, modified: "" },
+		{ name: "config.json", isDirectory: false, size: 300, modified: "" },
+	];
+
+	it("filter input shows all entries when empty", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		expect(screen.getByText("albacete")).toBeInTheDocument();
+		expect(screen.getByText("jaen")).toBeInTheDocument();
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.getByText("readme.md")).toBeInTheDocument();
+		expect(screen.getByText("config.json")).toBeInTheDocument();
+	});
+
+	it("plain text filter shows only entries containing the text", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "a");
+
+		expect(screen.getByText("albacete")).toBeInTheDocument();
+		expect(screen.getByText("jaen")).toBeInTheDocument();
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.getByText("readme.md")).toBeInTheDocument();
+		expect(screen.queryByText("config.json")).not.toBeInTheDocument();
+	});
+
+	it("plain text filter matches substring in middle of name", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "ana");
+
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.queryByText("albacete")).not.toBeInTheDocument();
+		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
+		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+		expect(screen.queryByText("config.json")).not.toBeInTheDocument();
+	});
+
+	it("trailing wildcard filters files starting with pattern", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "alb*");
+
+		expect(screen.getByText("albacete")).toBeInTheDocument();
+		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
+		expect(screen.queryByText("granada")).not.toBeInTheDocument();
+		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+	});
+
+	it("leading wildcard filters files ending with pattern", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "*en");
+
+		expect(screen.getByText("jaen")).toBeInTheDocument();
+		expect(screen.queryByText("albacete")).not.toBeInTheDocument();
+		expect(screen.queryByText("granada")).not.toBeInTheDocument();
+		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+	});
+
+	it("wildcards on both sides filters files containing pattern", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "*a*");
+
+		expect(screen.getByText("albacete")).toBeInTheDocument();
+		expect(screen.getByText("jaen")).toBeInTheDocument();
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.getByText("readme.md")).toBeInTheDocument();
+		expect(screen.queryByText("config.json")).not.toBeInTheDocument();
+	});
+
+	it("wildcard in middle filters files with prefix and suffix", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "g*a");
+
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.queryByText("albacete")).not.toBeInTheDocument();
+		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
+		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+	});
+
+	it("filter is case-insensitive", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "GRANADA");
+
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.queryByText("albacete")).not.toBeInTheDocument();
+		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
+	});
+
+	it("filter shows empty state when no entries match", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "zzz");
+
+		expect(screen.getByText("This folder is empty")).toBeInTheDocument();
+	});
+
+	it("clear filter button resets filter and shows all entries", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "zzz");
+		expect(screen.getByText("This folder is empty")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByTitle("Clear filter"));
+		expect(screen.getByText("albacete")).toBeInTheDocument();
+		expect(screen.getByText("jaen")).toBeInTheDocument();
+		expect(screen.getByText("granada")).toBeInTheDocument();
+		expect(screen.getByText("readme.md")).toBeInTheDocument();
+		expect(screen.getByText("config.json")).toBeInTheDocument();
+	});
+
+	it("filter entries are passed to FileList for selection", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "a");
+
+		await userEvent.click(screen.getByText("granada"));
+		expect(screen.getByText("granada").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+	});
+
+	it("filter with dot pattern filters by extension", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
+
+		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		await waitForEntries();
+
+		const filterInput = screen.getByPlaceholderText("Filter...");
+		await userEvent.type(filterInput, "*.json");
+
+		expect(screen.getByText("config.json")).toBeInTheDocument();
+		expect(screen.queryByText("albacete")).not.toBeInTheDocument();
+		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
+		expect(screen.queryByText("granada")).not.toBeInTheDocument();
+		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+	});
 });
