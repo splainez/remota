@@ -130,6 +130,31 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 - **File lists:** 32-40px row height, monospace font for metadata
 - **Transfer panel:** Bottom-anchored, 4px progress bar, collapsible
 
+## React Best Practices
+
+This project follows Vercel's React composition and performance guidelines. Load the corresponding skill before refactoring React components or implementing new UI patterns.
+
+### Composition Patterns
+
+Use **[`vercel-composition-patterns`](.agents/skills/composition-patterns/SKILL.md)** when refactoring components with many boolean props, building reusable component APIs, or designing compound components. Key principles:
+
+- **Avoid boolean prop proliferation** — use compound components with explicit variants instead of `isEditing`, `isThread`, etc.
+- **Decouple state from UI** via provider components exposing `{ state, actions, meta }` context interfaces; same UI works with different state implementations (useState, Zustand, server sync).
+- **Lift state into providers** so siblings outside the visual tree can access shared state and actions without prop drilling.
+- **Prefer children over render props** for composition; use render props only when the parent provides data.
+- **React 19**: `ref` is a regular prop (no `forwardRef`), use `use()` instead of `useContext()`.
+
+### Performance Optimization
+
+Use **[`vercel-react-best-practices`](.agents/skills/react-best-practices/SKILL.md)** when writing new React components, reviewing for performance, or optimizing bundle size. Key priorities by impact:
+
+- **CRITICAL — Eliminate waterfalls**: use `Promise.all()` for independent async operations, defer `await` into branches that need it, start promises early and await late.
+- **CRITICAL — Bundle size**: avoid barrel file imports (import directly), use `React.lazy` / dynamic imports for heavy components, defer non-critical third-party libs.
+- **HIGH — Server-side**: use `React.cache()` for per-request deduplication, minimize data passed through RSC boundaries, hoist static I/O to module level.
+- **MEDIUM — Re-renders**: derive state during render instead of syncing via effects, use functional `setState` for stable callbacks, extract expensive work into `memo`-ized components, use `useRef` for transient values, use `startTransition` for non-urgent updates.
+- **MEDIUM — Rendering**: `content-visibility: auto` for long lists, hoist static JSX outside components, use ternary (`? :`) instead of `&&` for conditional rendering.
+- **LOW-MEDIUM — JS perf**: use `Set`/`Map` for O(1) lookups, build index maps for repeated searches, combine multiple `filter`/`map` into one loop, use `flatMap` to map+filter in one pass.
+
 ## Gotchas
 
 - **Context isolation** is on — renderer code never imports Node/native modules. All OS/db access goes through `contextBridge` + `ipcRenderer.invoke`.
