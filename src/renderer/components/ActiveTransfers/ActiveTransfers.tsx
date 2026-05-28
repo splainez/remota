@@ -62,7 +62,7 @@ function TransferRow({ item }: TransferRowProps) {
 					<div className="text-xs font-semibold text-primary">{item.progress}%</div>
 					<div className="text-xs text-on-surface-variant">
 						{item.status === "uploading"
-							? `${item.size} @ ${item.speed}`
+							? `${item.size ?? ""} @ ${item.speed ?? ""}`
 							: t("transfer.queued")
 						}
 					</div>
@@ -71,7 +71,7 @@ function TransferRow({ item }: TransferRowProps) {
 			<div className="h-1 w-full bg-surface-container-high rounded-full overflow-hidden">
 				<div
 					className="h-full bg-primary rounded-full transition-all duration-300"
-					style={{ width: `${item.progress}%` }}
+					style={{ width: `${String(item.progress)}%` }}
 				/>
 			</div>
 		</div>
