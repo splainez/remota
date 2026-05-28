@@ -77,6 +77,7 @@ pnpm run typecheck   # Verify all types are correct
 pnpm run lint        # Verify no linting errors
 pnpm run test:all    # Run all tests (unit + e2e + integration)
 pnpm run build       # Production build (electron-vite build)
+pnpm run check       # run all checks to verify no errors
 ```
 
 If any of these commands fail, fix the issues before marking the task as done.
