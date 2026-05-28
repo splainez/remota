@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import { join } from "node:path";
-import { initDatabase } from "./database";
+import { migrateFromSqlite } from "./database/migrate";
+import { ConnectionStore } from "./connection-store";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
@@ -12,7 +13,6 @@ import { S3ConnectionManager } from "./s3/s3-client";
 
 let mainWindow: BrowserWindow | null = null;
 let lastPathStore: LastPathStore;
-let terminalManager: TerminalManager;
 
 export function getLastPathStore(): LastPathStore {
 	return lastPathStore;
@@ -47,26 +47,31 @@ function createWindow() {
 
 void app.whenReady().then(async () => {
 	const userDataPath = app.getPath("userData");
-	const db = await initDatabase(userDataPath);
+	const store = new ConnectionStore(userDataPath);
+	const migrated = await migrateFromSqlite(userDataPath, store.getFilePath());
+	if (migrated) {
+		store.load();
+	}
 	lastPathStore = new LastPathStore(userDataPath);
 	const sftp = new SftpConnectionManager();
 	const s3 = new S3ConnectionManager();
-	registerConnectionHandlers(db);
+	registerConnectionHandlers(store);
 	registerFilesystemHandlers(lastPathStore);
-	registerRemoteFilesystemHandlers(sftp, s3, db);
+	registerRemoteFilesystemHandlers(sftp, s3, store);
 	createWindow();
 
 	if (!mainWindow) {
 		throw new Error("Main window not created");
 	}
 
-	terminalManager = new TerminalManager(sftp, mainWindow.webContents);
+	const terminalManager = new TerminalManager(sftp, mainWindow.webContents);
 	registerTerminalHandlers(terminalManager);
 
 	app.on("will-quit", () => {
 		terminalManager.killAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
+		store.flush();
 	});
 
 	app.on("activate", () => {

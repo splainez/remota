@@ -1,27 +1,20 @@
 import { ipcMain } from "electron";
 import { IPC } from "../../shared/ipc-channels";
-import type { DatabaseInstance } from "../database";
-import { connections as connectionsTable } from "../database/schema";
-import { eq } from "drizzle-orm";
+import type { ConnectionStore } from "../connection-store";
 import type { SftpConnectionManager } from "../sftp/sftp-client";
 import type { S3ConnectionManager } from "../s3/s3-client";
 
 export function registerRemoteFilesystemHandlers(
 	sftp: SftpConnectionManager,
 	s3: S3ConnectionManager,
-	db: DatabaseInstance,
+	store: ConnectionStore,
 ) {
 	ipcMain.handle(IPC.REMOTE_CONNECT, async (_event, connectionId: number) => {
-		const rows = await db
-			.select()
-			.from(connectionsTable)
-			.where(eq(connectionsTable.id, connectionId));
+		const conn = store.get(connectionId);
 
-		if (rows.length === 0) {
+		if (!conn) {
 			throw new Error(`Connection with id ${String(connectionId)} not found`);
 		}
-
-		const conn = rows[0];
 
 		if (conn.protocol === "s3") {
 			return s3.connect(connectionId, {
@@ -32,14 +25,11 @@ export function registerRemoteFilesystemHandlers(
 				host: conn.host,
 				port: conn.port,
 				endpoint: conn.endpoint || undefined,
-				useHttps: conn.useHttps === 1,
+				useHttps: conn.useHttps,
 			});
 		}
 
-		const authType = conn.authType;
-		const validAuthType = (
-			authType === "password" || authType === "key" || authType === "agent"
-		) ? authType : "password";
+		const validAuthType = conn.authType;
 
 		return sftp.connect(connectionId, {
 			host: conn.host,
