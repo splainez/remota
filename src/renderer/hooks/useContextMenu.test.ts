@@ -12,7 +12,7 @@ describe("useContextMenu", () => {
 		const { result } = renderHook(() => useContextMenu<number>());
 		act(() => {
 			result.current.open(
-				{ clientX: 300, clientY: 400, preventDefault: vi.fn() } as React.MouseEvent,
+				{ clientX: 300, clientY: 400, preventDefault: vi.fn() } as unknown as React.MouseEvent,
 				42,
 			);
 		});
@@ -24,7 +24,7 @@ describe("useContextMenu", () => {
 		const p = vi.fn();
 		act(() => {
 			result.current.open(
-				{ clientX: 0, clientY: 0, preventDefault: p } as React.MouseEvent,
+				{ clientX: 0, clientY: 0, preventDefault: p } as unknown as React.MouseEvent,
 				undefined,
 			);
 		});
@@ -35,7 +35,7 @@ describe("useContextMenu", () => {
 		const { result } = renderHook(() => useContextMenu());
 		act(() => {
 			result.current.open(
-				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as React.MouseEvent,
+				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as unknown as React.MouseEvent,
 				undefined,
 			);
 		});
@@ -50,7 +50,7 @@ describe("useContextMenu", () => {
 		const { result } = renderHook(() => useContextMenu());
 		act(() => {
 			result.current.open(
-				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as React.MouseEvent,
+				{ clientX: 100, clientY: 200, preventDefault: vi.fn() } as unknown as React.MouseEvent,
 				undefined,
 			);
 		});

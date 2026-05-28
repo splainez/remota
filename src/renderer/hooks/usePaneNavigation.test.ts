@@ -8,8 +8,8 @@ vi.mock("../store/navigation", () => ({
 
 const makeStoreMock = () => {
 	const push = vi.fn();
-	const goBackFn = vi.fn(() => null);
-	const goForwardFn = vi.fn(() => null);
+	const goBackFn = vi.fn<() => string | null>(() => null);
+	const goForwardFn = vi.fn<() => string | null>(() => null);
 
 	return { push, goBack: goBackFn, goForward: goForwardFn };
 };
@@ -109,7 +109,7 @@ describe("usePaneNavigation", () => {
 		storeMock.goBack.mockReturnValue("/back");
 		const { result } = renderHook(() => usePaneNavigation("local", "/"));
 		act(() => {
-			result.current.handleMouseDown({ button: 3, preventDefault: () => {} } as React.MouseEvent);
+			result.current.handleMouseDown({ button: 3, preventDefault: vi.fn() } as unknown as React.MouseEvent);
 		});
 		expect(result.current.currentPath).toBe("/back");
 	});
@@ -118,7 +118,7 @@ describe("usePaneNavigation", () => {
 		storeMock.goForward.mockReturnValue("/forward");
 		const { result } = renderHook(() => usePaneNavigation("local", "/"));
 		act(() => {
-			result.current.handleMouseDown({ button: 4, preventDefault: () => {} } as React.MouseEvent);
+			result.current.handleMouseDown({ button: 4, preventDefault: vi.fn() } as unknown as React.MouseEvent);
 		});
 		expect(result.current.currentPath).toBe("/forward");
 	});
@@ -126,7 +126,7 @@ describe("usePaneNavigation", () => {
 	it("ignores other mouse buttons", () => {
 		const { result } = renderHook(() => usePaneNavigation("local", "/home"));
 		act(() => {
-			result.current.handleMouseDown({ button: 0, preventDefault: () => {} } as React.MouseEvent);
+			result.current.handleMouseDown({ button: 0, preventDefault: vi.fn() } as unknown as React.MouseEvent);
 		});
 		expect(result.current.currentPath).toBe("/home");
 	});

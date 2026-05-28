@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTerminalToggle } from "./useTerminalToggle";
 
@@ -26,8 +26,8 @@ describe("useTerminalToggle", () => {
 			result.current.handleKeyDown({
 				ctrlKey: true,
 				key: "`",
-				preventDefault: () => {},
-			} as React.KeyboardEvent);
+				preventDefault: vi.fn(),
+			} as unknown as React.KeyboardEvent);
 		});
 		expect(result.current.visible).toBe(true);
 
@@ -35,8 +35,8 @@ describe("useTerminalToggle", () => {
 			result.current.handleKeyDown({
 				ctrlKey: true,
 				key: "`",
-				preventDefault: () => {},
-			} as React.KeyboardEvent);
+				preventDefault: vi.fn(),
+			} as unknown as React.KeyboardEvent);
 		});
 		expect(result.current.visible).toBe(false);
 	});
@@ -47,8 +47,8 @@ describe("useTerminalToggle", () => {
 			result.current.handleKeyDown({
 				ctrlKey: false,
 				key: "`",
-				preventDefault: () => {},
-			} as React.KeyboardEvent);
+				preventDefault: vi.fn(),
+			} as unknown as React.KeyboardEvent);
 		});
 		expect(result.current.visible).toBe(false);
 	});
@@ -59,8 +59,8 @@ describe("useTerminalToggle", () => {
 			result.current.handleKeyDown({
 				ctrlKey: true,
 				key: "t",
-				preventDefault: () => {},
-			} as React.KeyboardEvent);
+				preventDefault: vi.fn(),
+			} as unknown as React.KeyboardEvent);
 		});
 		expect(result.current.visible).toBe(false);
 	});

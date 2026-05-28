@@ -11,8 +11,8 @@ describe("useLocalDrives", () => {
 		vi.clearAllMocks();
 		const { usePlatformStore } = await import("../store/platform");
 		vi.mocked(usePlatformStore).mockImplementation(
-			(selector?: (s: { isWindows: boolean }) => unknown) => {
-				const state = { isWindows: true };
+			(selector?: (s: { platform: string; isWindows: boolean; isLinux: boolean; isMacOS: boolean; pathSep: string }) => unknown) => {
+				const state = { platform: "win32", isWindows: true, isLinux: false, isMacOS: false, pathSep: "\\" };
 				if (selector) return selector(state);
 				return state;
 			},
@@ -62,8 +62,8 @@ describe("useLocalDrives", () => {
 	it("driveRoot is null when not on Windows", async () => {
 		const { usePlatformStore } = await import("../store/platform");
 		vi.mocked(usePlatformStore).mockImplementation(
-			(selector?: (s: { isWindows: boolean }) => unknown) => {
-				const state = { isWindows: false };
+			(selector?: (s: { platform: string; isWindows: boolean; isLinux: boolean; isMacOS: boolean; pathSep: string }) => unknown) => {
+				const state = { platform: "linux", isWindows: false, isLinux: true, isMacOS: false, pathSep: "/" };
 				if (selector) return selector(state);
 				return state;
 			},
