@@ -107,5 +107,15 @@
 	"validation.regionRequired": "Region is required",
 	"validation.bucketRequired": "Bucket is required",
   "validation.default": "Invalid value",
-	"terminal.toggle": "Toggle Terminal"
+	"terminal.toggle": "Toggle Terminal",
+	"file.contextMenu.open": "Open",
+	"file.contextMenu.edit": "Edit",
+	"file.contextMenu.upload": "Upload",
+	"file.contextMenu.download": "Download",
+	"file.contextMenu.rename": "Rename",
+	"file.contextMenu.delete": "Delete",
+	"file.contextMenu.copyPath": "Copy path to clipboard",
+	"file.contextMenu.copyName": "Copy filename",
+	"file.contextMenu.openInTerminal": "Open in terminal",
+	"file.contextMenu.notImplemented": "Functionality not yet implemented"
 }
