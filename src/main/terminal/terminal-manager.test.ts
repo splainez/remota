@@ -16,7 +16,7 @@ vi.mock("node-pty", () => ({
 }));
 
 vi.mock("node:fs", async (importOriginal) => {
-	const actual = await importOriginal<{ existsSync: typeof import("node:fs").existsSync }>();
+	const actual = await importOriginal<Record<string, unknown>>();
 	return {
 		...actual,
 		existsSync: vi.fn().mockReturnValue(false),
@@ -32,7 +32,7 @@ import { spawn } from "node-pty";
 
 describe("TerminalManager", () => {
 	let manager: TerminalManager;
-	let mockWebContents: { send: ReturnType<typeof vi.fn> };
+	let mockWebContents: { send: ReturnType<typeof vi.fn>; isDestroyed: ReturnType<typeof vi.fn> };
 	let mockSftp: {
 		openShell: ReturnType<typeof vi.fn>;
 		isConnected: ReturnType<typeof vi.fn>;
@@ -132,14 +132,14 @@ describe("TerminalManager", () => {
 
 	it("spawnRemote registers data and close handlers on stream", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		expect(mockStream.on).toHaveBeenCalledWith("data", expect.any(Function));
 		expect(mockStream.on).toHaveBeenCalledWith("close", expect.any(Function));
 	});
 
 	it("spawnRemote data handler sends data to webContents", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		const dataCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "data")?.[1] as (data: Buffer) => void;
 		dataCb(Buffer.from("remote output"));
 		expect(mockWebContents.send).toHaveBeenCalledWith("terminal:data:remote-1", "remote output");
@@ -147,7 +147,7 @@ describe("TerminalManager", () => {
 
 	it("spawnRemote close handler cleans up session", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		const closeCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "close")?.[1] as (code: number) => void;
 		closeCb(0);
 		expect(manager.has("remote-1")).toBe(false);
@@ -161,7 +161,7 @@ describe("TerminalManager", () => {
 
 	it("write sends data to remote stream", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		manager.write("remote-1", "ls\r");
 		expect(mockStream.write).toHaveBeenCalledWith("ls\r");
 	});
@@ -179,7 +179,7 @@ describe("TerminalManager", () => {
 
 	it("resize calls stream.setWindow on remote session", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		manager.resize("remote-1", 100, 30);
 		expect(mockStream.setWindow).toHaveBeenCalledWith(30, 100, 0, 0);
 	});
@@ -198,7 +198,7 @@ describe("TerminalManager", () => {
 
 	it("kill ends remote stream and removes session", async () => {
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		manager.kill("remote-1");
 		expect(mockStream.end).toHaveBeenCalled();
 		expect(manager.has("remote-1")).toBe(false);
@@ -247,7 +247,7 @@ describe("TerminalManager", () => {
 	it("spawnRemote data handler does not send when webContents is destroyed", async () => {
 		mockWebContents.isDestroyed.mockReturnValue(true);
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		const dataCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "data")?.[1] as (data: Buffer) => void;
 		dataCb(Buffer.from("remote output"));
 		expect(mockWebContents.send).not.toHaveBeenCalled();
@@ -256,7 +256,7 @@ describe("TerminalManager", () => {
 	it("spawnRemote close handler does not send when webContents is destroyed", async () => {
 		mockWebContents.isDestroyed.mockReturnValue(true);
 		await manager.spawnRemote("remote-1", 1);
-		const mockStream = await mockSftp.openShell.mock.results[0].value;
+		const mockStream = await mockSftp.openShell.mock.results[0].value as { on: ReturnType<typeof vi.fn>; write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>; setWindow: ReturnType<typeof vi.fn> };
 		const closeCb = mockStream.on.mock.calls.find((c: unknown[]) => c[0] === "close")?.[1] as (code: number) => void;
 		closeCb(0);
 		expect(mockWebContents.send).not.toHaveBeenCalled();

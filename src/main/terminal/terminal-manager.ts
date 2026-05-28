@@ -95,7 +95,7 @@ export class TerminalManager {
 			this.sessions.delete(sessionId);
 		});
 
-		stream.on("error", (_err: Error) => {
+		stream.on("error", () => {
 			if (!this.webContents.isDestroyed()) {
 				this.webContents.send(`terminal:exit:${sessionId}`, -1);
 			}
