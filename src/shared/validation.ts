@@ -44,6 +44,9 @@ export const secretKeySchema = z.string().trim().min(1, "validation.secretKeyReq
 export const regionSchema = z.string().trim().min(1, "validation.regionRequired");
 export const bucketSchema = z.string().trim().min(1, "validation.bucketRequired");
 
+// Flat schema for IPC partial updates (CONNECTION_UPDATE).
+// Update requests don't include the protocol, so this validates field
+// types only — protocol-specific requirements are enforced by connectionFormSchema.
 export const connectionBaseSchema = z.object({
 	name: nameSchema,
 	protocol: z.enum(protocols),
@@ -62,33 +65,60 @@ export const connectionBaseSchema = z.object({
 	groupName: z.string(),
 });
 
-export const connectionFormSchema = connectionBaseSchema.refine(
-	(data) => data.protocol === "s3" || data.authType !== "password" || data.password.trim().length > 0,
-	{ message: "validation.passwordRequired", path: ["password"] },
-).refine(
-	(data) => data.protocol === "s3" || data.authType !== "key" || data.privateKeyPath.trim().length > 0,
-	{ message: "validation.privateKeyRequired", path: ["privateKeyPath"] },
-).refine(
-	(data) => data.protocol === "s3" || data.username.trim().length > 0,
-	{ message: "validation.usernameRequired", path: ["username"] },
-).refine(
-	(data) => data.protocol === "s3" || data.host.trim().length > 0,
-	{ message: "validation.hostRequired", path: ["host"] },
-).refine(
-	(data) => data.protocol === "s3" || data.host.trim().length === 0 || isValidHostAddress(data.host.trim()),
-	{ message: "validation.hostInvalid", path: ["host"] },
-).refine(
-	(data) => data.protocol !== "s3" || data.accessKey.trim().length > 0,
-	{ message: "validation.accessKeyRequired", path: ["accessKey"] },
-).refine(
-	(data) => data.protocol !== "s3" || data.secretKey.trim().length > 0,
-	{ message: "validation.secretKeyRequired", path: ["secretKey"] },
-).refine(
-	(data) => data.protocol !== "s3" || data.region.trim().length > 0,
-	{ message: "validation.regionRequired", path: ["region"] },
-).refine(
-	(data) => data.protocol !== "s3" || data.bucket.trim().length > 0,
-	{ message: "validation.bucketRequired", path: ["bucket"] },
-);
+// SFTP/SCP branch: validates host, username, and auth-type-specific fields.
+// Cross-protocol fields (accessKey, secretKey, etc.) are included as loose
+// types to keep the form's flat defaultValues shape unified.
+export const sftpConnectionSchema = z.object({
+	name: nameSchema,
+	protocol: z.enum(["sftp", "scp"]),
+	host: hostSchema,
+	port: portSchema,
+	username: usernameSchema,
+	authType: z.enum(authTypes),
+	password: z.string(),
+	privateKeyPath: z.string(),
+	accessKey: z.string(),
+	secretKey: z.string(),
+	region: z.string(),
+	bucket: z.string(),
+	endpoint: z.string(),
+	useHttps: z.boolean(),
+	groupName: z.string(),
+}).superRefine((data, ctx) => {
+	if (data.authType === "password" && data.password.trim().length === 0) {
+		ctx.addIssue({ code: "custom", message: "validation.passwordRequired", path: ["password"] });
+	}
+	if (data.authType === "key" && data.privateKeyPath.trim().length === 0) {
+		ctx.addIssue({ code: "custom", message: "validation.privateKeyRequired", path: ["privateKeyPath"] });
+	}
+});
 
+// S3 branch: validates accessKey, secretKey, region, and bucket.
+// Cross-protocol fields (host, username, etc.) are included as loose
+// types to keep the form's flat defaultValues shape unified.
+export const s3ConnectionSchema = z.object({
+	name: nameSchema,
+	protocol: z.literal("s3"),
+	host: z.string(),
+	port: portSchema,
+	username: z.string(),
+	authType: z.enum(authTypes),
+	password: z.string(),
+	privateKeyPath: z.string(),
+	accessKey: accessKeySchema,
+	secretKey: secretKeySchema,
+	region: regionSchema,
+	bucket: bucketSchema,
+	endpoint: z.string(),
+	useHttps: z.boolean(),
+	groupName: z.string(),
+});
+
+export const connectionFormSchema = z.discriminatedUnion("protocol", [
+	sftpConnectionSchema,
+	s3ConnectionSchema,
+]);
+
+export type SftpConnectionData = z.infer<typeof sftpConnectionSchema>;
+export type S3ConnectionData = z.infer<typeof s3ConnectionSchema>;
 export type ConnectionFormData = z.infer<typeof connectionFormSchema>;

@@ -1,5 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { hostSchema, portSchema, usernameSchema, nameSchema, passwordSchema, privateKeyPathSchema, connectionFormSchema, DEFAULT_PORT } from "./validation";
+import {
+	hostSchema,
+	portSchema,
+	usernameSchema,
+	nameSchema,
+	passwordSchema,
+	privateKeyPathSchema,
+	sftpConnectionSchema,
+	s3ConnectionSchema,
+	connectionFormSchema,
+	DEFAULT_PORT,
+} from "./validation";
 
 describe("hostSchema", () => {
 	it("rejects empty string", () => {
@@ -191,8 +202,8 @@ describe("privateKeyPathSchema", () => {
 	});
 });
 
-describe("connectionFormSchema", () => {
-	const validBase = {
+describe("sftpConnectionSchema", () => {
+	const validSftp = {
 		name: "My Server",
 		protocol: "sftp" as const,
 		host: "example.com",
@@ -211,13 +222,18 @@ describe("connectionFormSchema", () => {
 	};
 
 	it("accepts valid password auth data", () => {
-		const result = connectionFormSchema.safeParse(validBase);
+		const result = sftpConnectionSchema.safeParse(validSftp);
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts valid scp protocol", () => {
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, protocol: "scp" as const });
 		expect(result.success).toBe(true);
 	});
 
 	it("accepts valid key auth data", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
 			authType: "key" as const,
 			password: "",
 			privateKeyPath: "/home/user/.ssh/id_rsa",
@@ -225,9 +241,19 @@ describe("connectionFormSchema", () => {
 		expect(result.success).toBe(true);
 	});
 
+	it("accepts valid agent auth data", () => {
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
+			authType: "agent" as const,
+			password: "",
+			privateKeyPath: "",
+		});
+		expect(result.success).toBe(true);
+	});
+
 	it("rejects password auth without password", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
 			password: "",
 		});
 		expect(result.success).toBe(false);
@@ -237,16 +263,16 @@ describe("connectionFormSchema", () => {
 	});
 
 	it("rejects password auth with whitespace-only password", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
 			password: "   ",
 		});
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects key auth without privateKeyPath", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
 			authType: "key" as const,
 			password: "",
 			privateKeyPath: "",
@@ -258,8 +284,8 @@ describe("connectionFormSchema", () => {
 	});
 
 	it("rejects key auth with whitespace-only key path", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
+		const result = sftpConnectionSchema.safeParse({
+			...validSftp,
 			authType: "key" as const,
 			password: "",
 			privateKeyPath: "   ",
@@ -267,77 +293,191 @@ describe("connectionFormSchema", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("does not require password when auth is key", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			authType: "key" as const,
-			password: "",
-			privateKeyPath: "/path/to/key",
-		});
-		expect(result.success).toBe(true);
-	});
-
-	it("does not require privateKeyPath when auth is password", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			privateKeyPath: "",
-		});
-		expect(result.success).toBe(true);
-	});
-
-	it("does not require password or key when auth is agent", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			authType: "agent" as const,
-			password: "",
-			privateKeyPath: "",
-		});
-		expect(result.success).toBe(true);
-	});
-
 	it("rejects missing host", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, host: "" });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, host: "" });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects invalid host format", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, host: "-invalid" });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, host: "-invalid" });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects missing username", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, username: "" });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, username: "" });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects invalid port", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, port: 0 });
-		expect(result.success).toBe(false);
-	});
-
-	it("rejects invalid protocol", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, protocol: "ftp" });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, port: 0 });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects empty name", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, name: "" });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, name: "" });
 		expect(result.success).toBe(false);
 	});
 
 	it("rejects whitespace-only name", () => {
-		const result = connectionFormSchema.safeParse({ ...validBase, name: "   " });
+		const result = sftpConnectionSchema.safeParse({ ...validSftp, name: "   " });
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("s3ConnectionSchema", () => {
+	const validS3 = {
+		name: "My S3 Bucket",
+		protocol: "s3" as const,
+		host: "",
+		port: 443,
+		username: "",
+		authType: "password" as const,
+		password: "",
+		privateKeyPath: "",
+		accessKey: "AKIATEST",
+		secretKey: "secret123",
+		region: "us-east-1",
+		bucket: "my-bucket",
+		endpoint: "",
+		useHttps: true,
+		groupName: "",
+	};
+
+	it("accepts valid S3 data", () => {
+		const result = s3ConnectionSchema.safeParse(validS3);
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects missing access key", () => {
+		const result = s3ConnectionSchema.safeParse({ ...validS3, accessKey: "" });
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("accessKey"))).toBe(true);
+		}
+	});
+
+	it("rejects missing secret key", () => {
+		const result = s3ConnectionSchema.safeParse({ ...validS3, secretKey: "" });
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("secretKey"))).toBe(true);
+		}
+	});
+
+	it("rejects missing region", () => {
+		const result = s3ConnectionSchema.safeParse({ ...validS3, region: "" });
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("region"))).toBe(true);
+		}
+	});
+
+	it("rejects missing bucket", () => {
+		const result = s3ConnectionSchema.safeParse({ ...validS3, bucket: "" });
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("bucket"))).toBe(true);
+		}
+	});
+
+	it("rejects empty name", () => {
+		const result = s3ConnectionSchema.safeParse({ ...validS3, name: "" });
 		expect(result.success).toBe(false);
 	});
 
-	it("rejects S3 protocol without access key", () => {
+	it("accepts S3 with custom endpoint", () => {
+		const result = s3ConnectionSchema.safeParse({
+			...validS3,
+			endpoint: "http://localhost:9000",
+			useHttps: false,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("does not validate SFTP-specific fields", () => {
+		const result = s3ConnectionSchema.safeParse({
+			...validS3,
+			host: "",
+			username: "",
+			password: "",
+			privateKeyPath: "",
+		});
+		expect(result.success).toBe(true);
+	});
+});
+
+describe("connectionFormSchema (discriminated union)", () => {
+	const validSftp = {
+		name: "My Server",
+		protocol: "sftp" as const,
+		host: "example.com",
+		port: 22,
+		username: "admin",
+		authType: "password" as const,
+		password: "secret",
+		privateKeyPath: "",
+		accessKey: "",
+		secretKey: "",
+		region: "us-east-1",
+		bucket: "",
+		endpoint: "",
+		useHttps: true,
+		groupName: "",
+	};
+
+	const validS3 = {
+		name: "My S3 Bucket",
+		protocol: "s3" as const,
+		host: "",
+		port: 443,
+		username: "",
+		authType: "password" as const,
+		password: "",
+		privateKeyPath: "",
+		accessKey: "AKIATEST",
+		secretKey: "secret123",
+		region: "us-east-1",
+		bucket: "my-bucket",
+		endpoint: "",
+		useHttps: true,
+		groupName: "",
+	};
+
+	it("accepts valid SFTP data", () => {
+		const result = connectionFormSchema.safeParse(validSftp);
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts valid SCP data", () => {
+		const result = connectionFormSchema.safeParse({ ...validSftp, protocol: "scp" as const });
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts valid S3 data", () => {
+		const result = connectionFormSchema.safeParse(validS3);
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects invalid protocol", () => {
+		const result = connectionFormSchema.safeParse({ ...validSftp, protocol: "ftp" });
+		expect(result.success).toBe(false);
+	});
+
+	it("routes to SFTP validation for sftp protocol", () => {
 		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
+			...validSftp,
+			host: "",
+		});
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues.some((i) => i.path.includes("host"))).toBe(true);
+		}
+	});
+
+	it("routes to S3 validation for s3 protocol", () => {
+		const result = connectionFormSchema.safeParse({
+			...validS3,
 			accessKey: "",
-			secretKey: "sk",
-			region: "us-east-1",
-			bucket: "my-bucket",
 		});
 		expect(result.success).toBe(false);
 		if (!result.success) {
@@ -345,75 +485,24 @@ describe("connectionFormSchema", () => {
 		}
 	});
 
-	it("rejects S3 protocol without secret key", () => {
+	it("does not require SFTP fields for S3", () => {
 		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
-			accessKey: "ak",
-			secretKey: "",
-			region: "us-east-1",
-			bucket: "my-bucket",
-		});
-		expect(result.success).toBe(false);
-		if (!result.success) {
-			expect(result.error.issues.some((i) => i.path.includes("secretKey"))).toBe(true);
-		}
-	});
-
-	it("rejects S3 protocol without region", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
-			accessKey: "ak",
-			secretKey: "sk",
-			region: "",
-			bucket: "my-bucket",
-		});
-		expect(result.success).toBe(false);
-		if (!result.success) {
-			expect(result.error.issues.some((i) => i.path.includes("region"))).toBe(true);
-		}
-	});
-
-	it("rejects S3 protocol without bucket", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
-			accessKey: "ak",
-			secretKey: "sk",
-			region: "us-east-1",
-			bucket: "",
-		});
-		expect(result.success).toBe(false);
-		if (!result.success) {
-			expect(result.error.issues.some((i) => i.path.includes("bucket"))).toBe(true);
-		}
-	});
-
-	it("accepts valid S3 data", () => {
-		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
-			accessKey: "AKIATEST",
-			secretKey: "secret123",
-			region: "eu-west-1",
-			bucket: "my-bucket",
-			endpoint: "",
-			useHttps: true,
+			...validS3,
+			host: "",
+			username: "",
+			password: "",
+			privateKeyPath: "",
 		});
 		expect(result.success).toBe(true);
 	});
 
-	it("accepts S3 with custom endpoint", () => {
+	it("does not require S3 fields for SFTP", () => {
 		const result = connectionFormSchema.safeParse({
-			...validBase,
-			protocol: "s3" as const,
-			accessKey: "AKIATEST",
-			secretKey: "secret123",
-			region: "us-east-1",
-			bucket: "my-bucket",
-			endpoint: "http://localhost:9000",
-			useHttps: false,
+			...validSftp,
+			accessKey: "",
+			secretKey: "",
+			region: "",
+			bucket: "",
 		});
 		expect(result.success).toBe(true);
 	});
