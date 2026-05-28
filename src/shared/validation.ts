@@ -47,7 +47,7 @@ export const bucketSchema = z.string().trim().min(1, "validation.bucketRequired"
 export const connectionBaseSchema = z.object({
 	name: nameSchema,
 	protocol: z.enum(protocols),
-	host: hostSchema,
+	host: z.string(),
 	port: portSchema,
 	username: z.string(),
 	authType: z.enum(authTypes),
@@ -71,6 +71,12 @@ export const connectionFormSchema = connectionBaseSchema.refine(
 ).refine(
 	(data) => data.protocol === "s3" || data.username.trim().length > 0,
 	{ message: "validation.usernameRequired", path: ["username"] },
+).refine(
+	(data) => data.protocol === "s3" || data.host.trim().length > 0,
+	{ message: "validation.hostRequired", path: ["host"] },
+).refine(
+	(data) => data.protocol === "s3" || data.host.trim().length === 0 || isValidHostAddress(data.host.trim()),
+	{ message: "validation.hostInvalid", path: ["host"] },
 ).refine(
 	(data) => data.protocol !== "s3" || data.accessKey.trim().length > 0,
 	{ message: "validation.accessKeyRequired", path: ["accessKey"] },
