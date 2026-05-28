@@ -6,6 +6,7 @@ import {
 	connectionFormSchema,
 	nameSchema,
 	DEFAULT_PORT,
+	type ConnectionFormData,
 } from "../../../shared/validation";
 import { SftpFields } from "./SftpFields";
 import { S3Fields } from "./S3Fields";
@@ -25,23 +26,23 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 	const [showAdvanced, setShowAdvanced] = useState(false);
 	const savedRef = useRef<{ connection?: Connection }>({});
 
-	function getFormData(values: Record<string, unknown>): NewConnection {
+	function getFormData(values: ConnectionFormData): NewConnection {
 		return {
-			name: String(values.name ?? "").trim(),
-			protocol: String(values.protocol ?? "sftp"),
-			host: String(values.host ?? "").trim(),
-			port: Number(values.port),
-			username: String(values.username ?? "").trim(),
-			authType: String(values.authType ?? "password"),
-			password: String(values.password ?? ""),
-			privateKeyPath: String(values.privateKeyPath ?? "").trim(),
-			accessKey: String(values.accessKey ?? "").trim(),
-			secretKey: String(values.secretKey ?? "").trim(),
-			region: String(values.region ?? "us-east-1").trim(),
-			bucket: String(values.bucket ?? "").trim(),
-			endpoint: String(values.endpoint ?? "").trim(),
-			useHttps: Boolean(values.useHttps),
-			groupName: String(values.groupName ?? "").trim(),
+			name: values.name.trim(),
+			protocol: values.protocol,
+			host: values.host.trim(),
+			port: values.port,
+			username: values.username.trim(),
+			authType: values.authType,
+			password: values.password,
+			privateKeyPath: values.privateKeyPath.trim(),
+			accessKey: values.accessKey.trim(),
+			secretKey: values.secretKey.trim(),
+			region: values.region.trim(),
+			bucket: values.bucket.trim(),
+			endpoint: values.endpoint.trim(),
+			useHttps: values.useHttps,
+			groupName: values.groupName.trim(),
 		};
 	}
 
@@ -64,7 +65,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			groupName: initial?.groupName ?? "",
 		},
 		onSubmit: async ({ value }) => {
-			savedRef.current.connection = await onSave(getFormData(value));
+			savedRef.current.connection = await onSave(getFormData(value as ConnectionFormData));
 		},
 		validators: {
 			onSubmit: connectionFormSchema,
@@ -100,14 +101,15 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 								id="conn-name"
 								className={inputClass}
 								type="text"
-								value={String(field.state.value)}
+								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => { field.handleChange(e.target.value); }}
 								placeholder={t("connection.namePlaceholder")}
 							/>
-							{field.state.meta.errors.map((err: any, i: number) => (
-								<span key={i} className="text-xs text-destructive mt-0.5">{t(String(err.message ?? err))}</span>
-							))}
+							{field.state.meta.errors.map((err: unknown, i: number) => {
+								const msg = err !== null && typeof err === "object" && "message" in err ? String(err.message) : String(err);
+								return <span key={i} className="text-xs text-destructive mt-0.5">{t(msg)}</span>;
+							})}
 						</div>
 					)}
 				</form.Field>
@@ -121,7 +123,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 							<select
 								id="conn-protocol"
 								className={inputClass}
-								value={String(field.state.value)}
+								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => {
 									const p = e.target.value;

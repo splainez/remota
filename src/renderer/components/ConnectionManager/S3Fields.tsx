@@ -1,25 +1,31 @@
 import { t } from "../../../i18n";
-import type { FormApi } from "@tanstack/react-form";
 import { FormField } from "./FormField";
 import { accessKeySchema, secretKeySchema, regionSchema, bucketSchema } from "../../../shared/validation";
+
+interface FieldProps<T = string> {
+	state: { value: T; meta: { errors: unknown[] } };
+	handleBlur: () => void;
+	handleChange: (v: T) => void;
+}
 
 const inputClass = "px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
 
 interface S3FieldsProps {
-	form: FormApi<Record<string, unknown>, undefined>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	form: any;
 }
 
 export function S3Fields({ form }: S3FieldsProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4">
 			<form.Field name="accessKey" validators={{ onBlur: accessKeySchema }}>
-				{(field) => (
+				{(field: FieldProps) => (
 					<FormField label={t("connection.accessKey")} required htmlFor="conn-accesskey" errors={field.state.meta.errors}>
 						<input
 							id="conn-accesskey"
 							className={inputClass}
 							type="text"
-							value={String(field.state.value)}
+							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.value); }}
 							placeholder="AKIAIOSFODNN7EXAMPLE"
@@ -29,13 +35,13 @@ export function S3Fields({ form }: S3FieldsProps) {
 			</form.Field>
 
 			<form.Field name="secretKey" validators={{ onBlur: secretKeySchema }}>
-				{(field) => (
+				{(field: FieldProps) => (
 					<FormField label={t("connection.secretKey")} required htmlFor="conn-secretkey" errors={field.state.meta.errors}>
 						<input
 							id="conn-secretkey"
 							className={inputClass}
 							type="password"
-							value={String(field.state.value)}
+							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.value); }}
 						/>
@@ -44,13 +50,13 @@ export function S3Fields({ form }: S3FieldsProps) {
 			</form.Field>
 
 			<form.Field name="region" validators={{ onBlur: regionSchema }}>
-				{(field) => (
+				{(field: FieldProps) => (
 					<FormField label={t("connection.region")} required htmlFor="conn-region" errors={field.state.meta.errors}>
 						<input
 							id="conn-region"
 							className={inputClass}
 							type="text"
-							value={String(field.state.value)}
+							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.value); }}
 							placeholder="us-east-1"
@@ -60,13 +66,13 @@ export function S3Fields({ form }: S3FieldsProps) {
 			</form.Field>
 
 			<form.Field name="bucket" validators={{ onBlur: bucketSchema }}>
-				{(field) => (
+				{(field: FieldProps) => (
 					<FormField label={t("connection.bucket")} required htmlFor="conn-bucket" errors={field.state.meta.errors}>
 						<input
 							id="conn-bucket"
 							className={inputClass}
 							type="text"
-							value={String(field.state.value)}
+							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.value); }}
 							placeholder="my-bucket"
@@ -76,13 +82,13 @@ export function S3Fields({ form }: S3FieldsProps) {
 			</form.Field>
 
 			<form.Field name="endpoint">
-				{(field) => (
+				{(field: FieldProps) => (
 					<FormField label={t("connection.endpoint")} htmlFor="conn-endpoint">
 						<input
 							id="conn-endpoint"
 							className={inputClass}
 							type="text"
-							value={String(field.state.value)}
+							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.value); }}
 							placeholder="s3.amazonaws.com"
@@ -92,13 +98,13 @@ export function S3Fields({ form }: S3FieldsProps) {
 			</form.Field>
 
 			<form.Field name="useHttps">
-				{(field) => (
+				{(field: FieldProps<boolean>) => (
 					<div className="flex items-center gap-2">
 						<input
 							id="conn-usehttps"
 							type="checkbox"
 							className="accent-primary"
-							checked={Boolean(field.state.value)}
+							checked={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => { field.handleChange(e.target.checked); }}
 						/>

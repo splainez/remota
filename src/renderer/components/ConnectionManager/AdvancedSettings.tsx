@@ -1,12 +1,18 @@
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
-import type { FormApi } from "@tanstack/react-form";
 import { FormField } from "./FormField";
+
+interface FieldProps<T = string> {
+	state: { value: T; meta: { errors: unknown[] } };
+	handleBlur: () => void;
+	handleChange: (v: T) => void;
+}
 
 const inputClass = "px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
 
 interface AdvancedSettingsProps {
-	form: FormApi<Record<string, unknown>, undefined>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	form: any;
 	visible: boolean;
 	onToggle: () => void;
 }
@@ -25,13 +31,13 @@ export function AdvancedSettings({ form, visible, onToggle }: AdvancedSettingsPr
 			{visible && (
 				<div className="mt-3 grid grid-cols-2 gap-4">
 					<form.Field name="groupName">
-						{(field) => (
+						{(field: FieldProps) => (
 							<FormField label={t("connection.group")} htmlFor="conn-group">
 								<input
 									id="conn-group"
 									className={inputClass}
 									type="text"
-									value={String(field.state.value)}
+									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => { field.handleChange(e.target.value); }}
 									placeholder={t("connection.groupPlaceholder")}
