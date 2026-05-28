@@ -24,7 +24,7 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 	const paneRef = useRef<HTMLDivElement>(null);
 
 	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
-	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath);
+	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath, clearSelection);
 	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
 	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown } = useTerminalToggle();
 

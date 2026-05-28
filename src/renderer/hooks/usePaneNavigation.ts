@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigationStore } from "../store/navigation";
 import { join, parentPath } from "../shared/path-utils";
 
-export function usePaneNavigation(type: "local" | "remote", initialPath: string) {
+export function usePaneNavigation(type: "local" | "remote", initialPath: string, onBeforeNavigate?: () => void) {
 	const [currentPath, setCurrentPath] = useState(initialPath);
 	const push = useNavigationStore((s) => s.push);
 	const goBack = useNavigationStore((s) => s.goBack);
@@ -33,18 +33,20 @@ export function usePaneNavigation(type: "local" | "remote", initialPath: string)
 	);
 
 	const handleGoBack = useCallback(() => {
+		onBeforeNavigate?.();
 		const path = goBack(type);
 		if (path !== null) {
 			setCurrentPath(path);
 		}
-	}, [goBack, type]);
+	}, [goBack, type, onBeforeNavigate]);
 
 	const handleGoForward = useCallback(() => {
+		onBeforeNavigate?.();
 		const path = goForward(type);
 		if (path !== null) {
 			setCurrentPath(path);
 		}
-	}, [goForward, type]);
+	}, [goForward, type, onBeforeNavigate]);
 
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
