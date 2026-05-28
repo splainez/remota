@@ -66,6 +66,7 @@
 	"file.empty": "This folder is empty",
 	"file.items": "item(s)",
 	"file.filter": "Filter...",
+	"file.clearFilter": "Clear filter",
 	"file.newFolder": "New Folder",
 	"file.selectDrive": "Select drive",
 	"file.syncFolders": "Sync Folders",

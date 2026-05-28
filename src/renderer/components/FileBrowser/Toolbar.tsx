@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { canGoUp } from "../../lib/utils";
@@ -16,6 +16,8 @@ interface ToolbarProps {
 	drives: string[];
 	currentPath: string;
 	isAtDriveRoot: boolean;
+	filter: string;
+	onFilterChange: (value: string) => void;
 }
 
 export function Toolbar({
@@ -27,8 +29,9 @@ export function Toolbar({
 	drives,
 	currentPath,
 	isAtDriveRoot,
+	filter,
+	onFilterChange,
 }: ToolbarProps) {
-	const [filter, setFilter] = useState("");
 	const upDisabled = isAtDriveRoot || !canGoUp(currentPath);
 
 	const handleDriveChange = useCallback(
@@ -100,12 +103,21 @@ export function Toolbar({
 			<div className="relative">
 				<Icon name="search" size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" />
 				<input
-					className="pl-7 pr-2 py-0.5 h-6 text-sm bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-40"
+					className="pl-7 pr-6 py-0.5 h-6 text-sm bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-40"
 					placeholder={t("file.filter")}
 					type="text"
 					value={filter}
-					onChange={(e) => { setFilter(e.target.value); }}
+					onChange={(e) => { onFilterChange(e.target.value); }}
 				/>
+				{filter && (
+					<button
+						className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors"
+						onClick={() => { onFilterChange(""); }}
+						title={t("file.clearFilter")}
+					>
+						<Icon name="close" size={12} />
+					</button>
+				)}
 			</div>
 		</div>
 	);

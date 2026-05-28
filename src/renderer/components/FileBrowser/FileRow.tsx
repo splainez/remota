@@ -6,17 +6,20 @@ import { formatSize, formatDate } from "../../lib/file-utils";
 interface FileRowProps {
 	entry: FileEntry;
 	isSelected: boolean;
+	isTypeAheadFocused?: boolean;
 	onClick: (e: React.MouseEvent) => void;
 	onDoubleClick: () => void;
 	onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export function FileRow({ entry, isSelected, onClick, onDoubleClick, onContextMenu }: FileRowProps) {
+export function FileRow({ entry, isSelected, isTypeAheadFocused, onClick, onDoubleClick, onContextMenu }: FileRowProps) {
 	return (
 		<div
+			data-file-name={entry.name}
 			className={[
 				"flex px-3 py-1.5 border-b border-outline-variant/20 cursor-pointer group items-center transition-colors",
 				isSelected ? "bg-primary-fixed-dim/20" : "hover:bg-surface-container-low",
+				isTypeAheadFocused ? "outline outline-1 outline-primary" : "",
 			].join(" ")}
 			onClick={onClick}
 			onDoubleClick={onDoubleClick}

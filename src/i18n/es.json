@@ -63,6 +63,7 @@
 	"file.empty": "Esta carpeta está vacía",
 	"file.items": "elemento(s)",
 	"file.filter": "Filtrar...",
+	"file.clearFilter": "Limpiar filtro",
 	"file.newFolder": "Nueva Carpeta",
 	"file.selectDrive": "Seleccionar unidad",
 	"file.syncFolders": "Sincronizar Carpetas",
