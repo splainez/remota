@@ -74,7 +74,7 @@ const extensionMap: Record<string, IconName> = {
 const specialFiles: Record<string, IconName> = {
 	"package.json": "package",
 	"tsconfig.json": "file-code",
-	"dockerfile": "file-code",
+	dockerfile: "file-code",
 	"docker-compose.yml": "file-code",
 	"docker-compose.yaml": "file-code",
 	license: "file",
@@ -117,7 +117,7 @@ const folderNameMap: Record<string, IconName> = {
 	styles: "folder",
 	tests: "folder",
 	test: "folder",
-	"__tests__": "folder",
+	__tests__: "folder",
 	docs: "folder",
 	migrations: "folder",
 	scripts: "folder",

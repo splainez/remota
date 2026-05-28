@@ -30,15 +30,13 @@ export function FormField({ label, required, htmlFor, children, errors, icon }: 
 				{label}
 			</label>
 			<div className={icon ? "relative" : undefined}>
-				{icon && (
-					<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-						{icon}
-					</span>
-				)}
+				{icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>}
 				{children}
 			</div>
 			{errors?.map((err, i) => (
-				<span key={i} className={errorClass}>{errorMessage(err)}</span>
+				<span key={i} className={errorClass}>
+					{errorMessage(err)}
+				</span>
 			))}
 		</div>
 	);

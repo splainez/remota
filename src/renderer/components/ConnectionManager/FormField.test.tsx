@@ -62,11 +62,7 @@ describe("FormField", () => {
 
 	it("renders error messages from object with message property", () => {
 		render(
-			<FormField
-				label="Hostname"
-				htmlFor="host"
-				errors={[{ message: "validation.hostRequired" }]}
-			>
+			<FormField label="Hostname" htmlFor="host" errors={[{ message: "validation.hostRequired" }]}>
 				<input id="host" />
 			</FormField>,
 		);

@@ -55,7 +55,9 @@ export function ConnectionListView({
 						type="text"
 						placeholder={t("file.filter")}
 						value={search}
-						onChange={(e) => { setSearch(e.target.value); }}
+						onChange={(e) => {
+							setSearch(e.target.value);
+						}}
 						className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-outline-variant text-sm text-on-surface placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
 					/>
 				</div>
@@ -76,7 +78,9 @@ export function ConnectionListView({
 							name={groupName}
 							count={conns.length}
 							collapsed={collapsedGroups.has(groupName)}
-							onToggle={() => { toggleGroup(groupName); }}
+							onToggle={() => {
+								toggleGroup(groupName);
+							}}
 						/>
 
 						{!collapsedGroups.has(groupName) && (
@@ -87,9 +91,15 @@ export function ConnectionListView({
 										connection={conn}
 										isSelected={conn.id === selectedId}
 										isActive={activeSet.has(conn.id)}
-										onClick={() => { onSelect(conn.id); }}
-										onDoubleClick={() => { onDoubleClick(conn.id); }}
-										onContextMenu={(e) => { open(e, conn.id); }}
+										onClick={() => {
+											onSelect(conn.id);
+										}}
+										onDoubleClick={() => {
+											onDoubleClick(conn.id);
+										}}
+										onContextMenu={(e) => {
+											open(e, conn.id);
+										}}
 									/>
 								))}
 							</div>

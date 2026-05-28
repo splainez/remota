@@ -42,18 +42,11 @@ export function ConnectionDetail({
 								<h2 className="text-lg font-semibold text-card-foreground">
 									{isNew ? t("connection.new") : t("connection.edit")}
 								</h2>
-								<p className="text-sm text-muted-foreground mt-0.5">
-									{t("connection.configureDescription")}
-								</p>
+								<p className="text-sm text-muted-foreground mt-0.5">{t("connection.configureDescription")}</p>
 							</div>
 						</div>
 						<div className="p-6">
-							<ConnectionForm
-								initial={connection}
-								onSave={onSave}
-								onCancel={onCancel}
-								onConnect={onConnect}
-							/>
+							<ConnectionForm initial={connection} onSave={onSave} onCancel={onCancel} onConnect={onConnect} />
 						</div>
 					</div>
 				</div>
@@ -72,12 +65,8 @@ export function ConnectionDetail({
 								<Icon name="globe" size={24} />
 							</div>
 							<div className="flex-1 min-w-0">
-								<h2 className="text-lg font-semibold text-card-foreground truncate">
-									{connection.name}
-								</h2>
-								<p className="text-sm text-muted-foreground mt-0.5 uppercase tracking-wide">
-									{connection.protocol}
-								</p>
+								<h2 className="text-lg font-semibold text-card-foreground truncate">{connection.name}</h2>
+								<p className="text-sm text-muted-foreground mt-0.5 uppercase tracking-wide">{connection.protocol}</p>
 							</div>
 						</div>
 
@@ -124,7 +113,9 @@ export function ConnectionDetail({
 							<Button
 								variant="outline"
 								className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-								onClick={() => { setShowDeleteDialog(true); }}
+								onClick={() => {
+									setShowDeleteDialog(true);
+								}}
 							>
 								<Icon name="trash" size={14} className="mr-1.5" />
 								{t("connection.delete")}
@@ -140,8 +131,13 @@ export function ConnectionDetail({
 						<DeleteConfirmDialog
 							title={t("connection.confirmDelete")}
 							description={connection.name}
-							onConfirm={() => { void Promise.resolve(onDelete(connection.id)); setShowDeleteDialog(false); }}
-							onCancel={() => { setShowDeleteDialog(false); }}
+							onConfirm={() => {
+								void Promise.resolve(onDelete(connection.id));
+								setShowDeleteDialog(false);
+							}}
+							onCancel={() => {
+								setShowDeleteDialog(false);
+							}}
 						/>
 					)}
 				</div>

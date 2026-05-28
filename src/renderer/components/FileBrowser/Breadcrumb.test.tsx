@@ -6,9 +6,15 @@ import { parsePath } from "../../lib/utils";
 
 beforeAll(() => {
 	class ResizeObserverMock {
-		observe() { /* noop */ }
-		unobserve() { /* noop */ }
-		disconnect() { /* noop */ }
+		observe() {
+			/* noop */
+		}
+		unobserve() {
+			/* noop */
+		}
+		disconnect() {
+			/* noop */
+		}
 	}
 	globalThis.ResizeObserver = ResizeObserverMock;
 });
@@ -42,9 +48,7 @@ describe("Breadcrumb", () => {
 
 	it("renders segments in correct order for a Unix path", () => {
 		render(<Breadcrumb {...defaultProps} />);
-		const visibleButtons = screen.getAllByRole("button").filter(
-			(btn) => !btn.closest('[aria-hidden="true"]'),
-		);
+		const visibleButtons = screen.getAllByRole("button").filter((btn) => !btn.closest('[aria-hidden="true"]'));
 		expect(visibleButtons).toHaveLength(3);
 		expect(visibleButtons[0]).toHaveTextContent("/");
 		expect(visibleButtons[1]).toHaveTextContent("home");

@@ -50,7 +50,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByText("Production Server")).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByText("No active connection")).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByText("Production Server"));
@@ -113,7 +113,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -134,7 +134,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		expect(screen.getByText("Production Server")).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Change theme" }));
@@ -183,7 +183,7 @@ describe("ServerSidebar", () => {
 					onViewAll={onViewAll}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByTitle("OpenSCP"));
@@ -205,7 +205,7 @@ describe("ServerSidebar", () => {
 					onViewAll={onViewAll}
 					onDisconnect={vi.fn()}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByText("OpenSCP"));
@@ -227,7 +227,7 @@ describe("ServerSidebar", () => {
 					onViewAll={vi.fn()}
 					onDisconnect={onDisconnect}
 				/>
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 
 		await user.click(screen.getByTitle("Disconnect"));

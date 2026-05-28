@@ -13,17 +13,10 @@ import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "./components/icons/Icon";
 
 export function App() {
-	const {
-		connections,
-		selected,
-		loading,
-		select,
-		create,
-		update,
-		remove,
-	} = useConnections();
+	const { connections, selected, loading, select, create, update, remove } = useConnections();
 
-	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser } = useAppNavigation();
+	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser } =
+		useAppNavigation();
 	const [showTransfers, setShowTransfers] = useState(true);
 
 	const handleSelect = (id: number) => {
@@ -94,19 +87,20 @@ export function App() {
 						onSelect={handleSelect}
 						onAdd={handleAdd}
 						onDoubleClick={handleDoubleClick}
-						onDelete={(id) => { void handleDelete(id); }}
+						onDelete={(id) => {
+							void handleDelete(id);
+						}}
 					/>
 				);
 
 			case "fileBrowser":
-				return (
-					<FileBrowser connection={currentView.connection} />
-				);
+				return <FileBrowser connection={currentView.connection} />;
 
 			case "connectionForm": {
-				const editingConnection = currentView.mode === "edit" && currentView.id != null
-					? connections.find((c) => c.id === currentView.id) ?? null
-					: null;
+				const editingConnection =
+					currentView.mode === "edit" && currentView.id != null
+						? (connections.find((c) => c.id === currentView.id) ?? null)
+						: null;
 				return (
 					<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 						<div className="w-full max-w-2xl p-6 md:p-10">
@@ -130,7 +124,9 @@ export function App() {
 								connection={detailConnection}
 								isNew={false}
 								isEditing={false}
-								onEdit={() => { openConnectionForm("edit", currentView.id); }}
+								onEdit={() => {
+									openConnectionForm("edit", currentView.id);
+								}}
 								onCancel={handleCancel}
 								onConnect={() => {
 									if (detailConnection) openFileBrowser(detailConnection);
@@ -173,7 +169,12 @@ export function App() {
 			<div className="flex-1 flex flex-col min-w-0">
 				{renderMainContent()}
 
-				<ActiveTransfers visible={showTransfers} onToggle={() => { setShowTransfers((v) => !v); }} />
+				<ActiveTransfers
+					visible={showTransfers}
+					onToggle={() => {
+						setShowTransfers((v) => !v);
+					}}
+				/>
 
 				<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
 					<div className="flex items-center gap-2">
@@ -184,7 +185,9 @@ export function App() {
 						{!showTransfers && (
 							<button
 								className="flex items-center gap-1 hover:text-foreground transition-colors"
-								onClick={() => { setShowTransfers(true); }}
+								onClick={() => {
+									setShowTransfers(true);
+								}}
 							>
 								<Icon name="sync" size={14} />
 								<span>{t("transfer.active")}</span>

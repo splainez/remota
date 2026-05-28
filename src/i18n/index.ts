@@ -5,14 +5,13 @@ export type TranslationKey = keyof typeof en;
 type Translations = Record<TranslationKey, string>;
 
 interface TranslationsAll {
-	en: Translations
-	es: Translations
+	en: Translations;
+	es: Translations;
 }
 
 const translations: TranslationsAll = { en, es };
 
-
-type LocaleAvailable = 'en' | 'es';
+type LocaleAvailable = "en" | "es";
 
 let currentLocale: LocaleAvailable = "en";
 
@@ -37,7 +36,6 @@ export function setLocale(locale: LocaleAvailable) {
 }
 
 function getTranslations(): Translations {
-
 	return translations[currentLocale];
 }
 

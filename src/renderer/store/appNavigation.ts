@@ -21,15 +21,27 @@ interface AppNavigationStore {
 export const useAppNavigation = create<AppNavigationStore>((set) => ({
 	currentView: { view: "connectionList" },
 
-	setView: (view) => { set({ currentView: view }); },
+	setView: (view) => {
+		set({ currentView: view });
+	},
 
-	openConnectionList: () => { set({ currentView: { view: "connectionList" } }); },
+	openConnectionList: () => {
+		set({ currentView: { view: "connectionList" } });
+	},
 
-	openConnectionDetail: (id) => { set({ currentView: { view: "connectionDetail", id } }); },
+	openConnectionDetail: (id) => {
+		set({ currentView: { view: "connectionDetail", id } });
+	},
 
-	openConnectionForm: (mode, id) => { set({ currentView: { view: "connectionForm", mode, id } }); },
+	openConnectionForm: (mode, id) => {
+		set({ currentView: { view: "connectionForm", mode, id } });
+	},
 
-	openFileBrowser: (connection) => { set({ currentView: { view: "fileBrowser", connection } }); },
+	openFileBrowser: (connection) => {
+		set({ currentView: { view: "fileBrowser", connection } });
+	},
 
-	goBack: () => { set({ currentView: { view: "connectionList" } }); },
+	goBack: () => {
+		set({ currentView: { view: "connectionList" } });
+	},
 }));

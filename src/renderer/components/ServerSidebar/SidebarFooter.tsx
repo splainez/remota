@@ -9,7 +9,9 @@ interface SidebarFooterProps {
 
 export function SidebarFooter({ collapsed, onToggleCollapse }: SidebarFooterProps) {
 	return (
-		<div className={`flex flex-col gap-2 w-full mt-auto pt-3 border-t border-outline-variant ${collapsed ? "items-center" : ""}`}>
+		<div
+			className={`flex flex-col gap-2 w-full mt-auto pt-3 border-t border-outline-variant ${collapsed ? "items-center" : ""}`}
+		>
 			<button
 				className={`w-10 h-10 rounded-full hover:bg-surface-container hover:rounded-xl transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary ${collapsed ? "" : "self-start"}`}
 				title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}

@@ -15,23 +15,13 @@ describe("ToggleableError", () => {
 	});
 
 	it("shows details button when detail is provided", () => {
-		render(
-			<ToggleableError
-				message="Connection failed"
-				detail="ECONNREFUSED 127.0.0.1:22"
-			/>,
-		);
+		render(<ToggleableError message="Connection failed" detail="ECONNREFUSED 127.0.0.1:22" />);
 		expect(screen.getByText("Show details")).toBeInTheDocument();
 	});
 
 	it("toggles detail visibility on click", async () => {
 		const user = userEvent.setup();
-		render(
-			<ToggleableError
-				message="Connection failed"
-				detail="ECONNREFUSED 127.0.0.1:22"
-			/>,
-		);
+		render(<ToggleableError message="Connection failed" detail="ECONNREFUSED 127.0.0.1:22" />);
 
 		await user.click(screen.getByText("Show details"));
 		expect(screen.getByText("ECONNREFUSED 127.0.0.1:22")).toBeInTheDocument();

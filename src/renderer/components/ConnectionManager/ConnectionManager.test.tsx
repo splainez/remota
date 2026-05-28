@@ -6,115 +6,128 @@ import { createMockApi } from "../../test/setup";
 import type { Connection } from "../../../shared/types";
 
 function mockConnections(overrides: Partial<Connection>[] = []) {
-  return overrides.map((o, i) => ({
-    id: i + 1,
-    name: "Server",
-    protocol: "sftp" as const,
-    host: "example.com",
-    port: 22,
-    username: "user",
-    authType: "password" as const,
-    password: "",
-    privateKeyPath: "",
-    accessKey: "",
-    secretKey: "",
-    region: "us-east-1",
-    bucket: "",
-    endpoint: "",
-    useHttps: true,
-    createdAt: "",
-    updatedAt: "",
-    ...o,
-  }));
+	return overrides.map((o, i) => ({
+		id: i + 1,
+		name: "Server",
+		protocol: "sftp" as const,
+		host: "example.com",
+		port: 22,
+		username: "user",
+		authType: "password" as const,
+		password: "",
+		privateKeyPath: "",
+		accessKey: "",
+		secretKey: "",
+		region: "us-east-1",
+		bucket: "",
+		endpoint: "",
+		useHttps: true,
+		createdAt: "",
+		updatedAt: "",
+		...o,
+	}));
 }
 
 describe("ConnectionManager", () => {
-  beforeEach(() => {
-    const mockApi = createMockApi();
-    vi.stubGlobal("api", mockApi);
-  });
+	beforeEach(() => {
+		const mockApi = createMockApi();
+		vi.stubGlobal("api", mockApi);
+	});
 
-  it("shows empty sidebar when no connections", async () => {
-    render(<ConnectionManager onConnect={vi.fn()} />);
-    await waitFor(() => {
-      expect(screen.getAllByText("Select a connection or create a new one.")).toHaveLength(2);
-    });
-  });
+	it("shows empty sidebar when no connections", async () => {
+		render(<ConnectionManager onConnect={vi.fn()} />);
+		await waitFor(() => {
+			expect(screen.getAllByText("Select a connection or create a new one.")).toHaveLength(2);
+		});
+	});
 
-  it("loads and displays connections", async () => {
-    const connections = mockConnections([
-      { id: 1, name: "Alpha", host: "alpha.com" },
-      { id: 2, name: "Beta", host: "beta.com" },
-    ]);
-    const mockApi = createMockApi({
-      connections: {
-        list: vi.fn().mockResolvedValue(connections),
-        get: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-    });
-    vi.stubGlobal("api", mockApi);
+	it("loads and displays connections", async () => {
+		const connections = mockConnections([
+			{ id: 1, name: "Alpha", host: "alpha.com" },
+			{ id: 2, name: "Beta", host: "beta.com" },
+		]);
+		const mockApi = createMockApi({
+			connections: {
+				list: vi.fn().mockResolvedValue(connections),
+				get: vi.fn(),
+				create: vi.fn(),
+				update: vi.fn(),
+				delete: vi.fn(),
+			},
+		});
+		vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager onConnect={vi.fn()} />);
+		render(<ConnectionManager onConnect={vi.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Alpha")).toBeInTheDocument();
-      expect(screen.getByText("Beta")).toBeInTheDocument();
-    });
-  });
+		await waitFor(() => {
+			expect(screen.getByText("Alpha")).toBeInTheDocument();
+			expect(screen.getByText("Beta")).toBeInTheDocument();
+		});
+	});
 
-  it("selects a connection on click", async () => {
-    const user = userEvent.setup();
-    const connections = mockConnections([
-      { id: 1, name: "Alpha", host: "alpha.com" },
-      { id: 2, name: "Beta", host: "beta.com" },
-    ]);
-    const mockApi = createMockApi({
-      connections: {
-        list: vi.fn().mockResolvedValue(connections),
-        get: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-    });
-    vi.stubGlobal("api", mockApi);
+	it("selects a connection on click", async () => {
+		const user = userEvent.setup();
+		const connections = mockConnections([
+			{ id: 1, name: "Alpha", host: "alpha.com" },
+			{ id: 2, name: "Beta", host: "beta.com" },
+		]);
+		const mockApi = createMockApi({
+			connections: {
+				list: vi.fn().mockResolvedValue(connections),
+				get: vi.fn(),
+				create: vi.fn(),
+				update: vi.fn(),
+				delete: vi.fn(),
+			},
+		});
+		vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager onConnect={vi.fn()} />);
+		render(<ConnectionManager onConnect={vi.fn()} />);
 
-    await waitFor(() => screen.getByText("Beta"));
-    await user.click(screen.getByText("Beta"));
+		await waitFor(() => screen.getByText("Beta"));
+		await user.click(screen.getByText("Beta"));
 
-    expect(screen.getAllByText("Beta")).toHaveLength(2);
-  });
+		expect(screen.getAllByText("Beta")).toHaveLength(2);
+	});
 
-  it("opens new connection form on add", async () => {
-    const user = userEvent.setup();
-    const connections = mockConnections([{ id: 1, name: "Existing", host: "x.com" }]);
-    const mockApi = createMockApi({
-      connections: {
-        list: vi.fn().mockResolvedValue(connections),
-        get: vi.fn(),
-        create: vi.fn().mockResolvedValue({
-          id: 2, name: "New One", protocol: "sftp", host: "new.com", port: 22,
-          username: "", authType: "password", password: "", privateKeyPath: "",
-          accessKey: "", secretKey: "", region: "us-east-1", bucket: "", endpoint: "", useHttps: true,
-          createdAt: "", updatedAt: "",
-        }),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-    });
-    vi.stubGlobal("api", mockApi);
+	it("opens new connection form on add", async () => {
+		const user = userEvent.setup();
+		const connections = mockConnections([{ id: 1, name: "Existing", host: "x.com" }]);
+		const mockApi = createMockApi({
+			connections: {
+				list: vi.fn().mockResolvedValue(connections),
+				get: vi.fn(),
+				create: vi.fn().mockResolvedValue({
+					id: 2,
+					name: "New One",
+					protocol: "sftp",
+					host: "new.com",
+					port: 22,
+					username: "",
+					authType: "password",
+					password: "",
+					privateKeyPath: "",
+					accessKey: "",
+					secretKey: "",
+					region: "us-east-1",
+					bucket: "",
+					endpoint: "",
+					useHttps: true,
+					createdAt: "",
+					updatedAt: "",
+				}),
+				update: vi.fn(),
+				delete: vi.fn(),
+			},
+		});
+		vi.stubGlobal("api", mockApi);
 
-    render(<ConnectionManager onConnect={vi.fn()} />);
+		render(<ConnectionManager onConnect={vi.fn()} />);
 
-    await waitFor(() => screen.getByText("Existing"));
-    await user.click(screen.getByRole("button", { name: "+ Add Connection" }));
+		await waitFor(() => screen.getByText("Existing"));
+		await user.click(screen.getByRole("button", { name: "+ Add Connection" }));
 
-    expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
-    expect(screen.getByLabelText("Host")).toBeInTheDocument();
-  });
+		expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
+		expect(screen.getByLabelText("Host")).toBeInTheDocument();
+	});
 });

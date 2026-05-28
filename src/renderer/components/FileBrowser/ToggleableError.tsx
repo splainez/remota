@@ -16,7 +16,9 @@ export function ToggleableError({ message, detail }: ToggleableErrorProps) {
 				<>
 					<button
 						className="text-xs text-primary hover:underline cursor-pointer mt-1"
-						onClick={() => { setShowDetail((v) => !v); }}
+						onClick={() => {
+							setShowDetail((v) => !v);
+						}}
 					>
 						{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
 					</button>

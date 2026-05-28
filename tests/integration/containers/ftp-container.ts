@@ -7,9 +7,7 @@ export interface StartedFtpContainer {
 	connection: ConnectionInfo;
 }
 
-export async function startFtpContainer(
-	config?: Partial<ConnectionInfo>,
-): Promise<StartedFtpContainer> {
+export async function startFtpContainer(config?: Partial<ConnectionInfo>): Promise<StartedFtpContainer> {
 	const username = config?.username ?? process.env.TEST_FTP_USER ?? "testuser";
 	const password = config?.password ?? process.env.TEST_FTP_PASS ?? "testpass";
 

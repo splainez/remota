@@ -37,7 +37,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		expect(screen.getByText("Select a connection or create a new one.")).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		expect(screen.getByText("My Server")).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
@@ -93,7 +93,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		expect(screen.getAllByText("Edit Connection").length).toBeGreaterThan(0);
@@ -113,7 +113,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Edit Connection" }));
@@ -133,7 +133,7 @@ describe("ConnectionDetail", () => {
 				onConnect={vi.fn()}
 				onSave={vi.fn()}
 				onDelete={onDelete}
-			/>
+			/>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Delete" }));
@@ -160,7 +160,7 @@ describe("ConnectionDetail", () => {
 				onConnect={onConnect}
 				onSave={vi.fn()}
 				onDelete={vi.fn()}
-			/>
+			/>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Connect" }));

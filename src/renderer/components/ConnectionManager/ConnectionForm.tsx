@@ -2,12 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
 import { t, type TranslationKey } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
-import {
-	connectionFormSchema,
-	nameSchema,
-	DEFAULT_PORT,
-	type ConnectionFormData,
-} from "../../../shared/validation";
+import { connectionFormSchema, nameSchema, DEFAULT_PORT, type ConnectionFormData } from "../../../shared/validation";
 import { SftpFields } from "./SftpFields";
 import { S3Fields } from "./S3Fields";
 import { AdvancedSettings } from "./AdvancedSettings";
@@ -21,7 +16,8 @@ interface ConnectionFormProps {
 	onConnect?: (connection: Connection) => void;
 }
 
-const inputClass = "px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
+const inputClass =
+	"px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
 
 export function ConnectionForm({ initial, onSave, onCancel, onConnect }: ConnectionFormProps) {
 	const [showAdvanced, setShowAdvanced] = useState(false);
@@ -109,7 +105,10 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 				<form.Field name="name" validators={{ onBlur: nameSchema }}>
 					{(field) => (
 						<div className="flex flex-col gap-1">
-							<label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground after:content-['_*'] after:text-destructive after:ml-0.5" htmlFor="conn-name">
+							<label
+								className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground after:content-['_*'] after:text-destructive after:ml-0.5"
+								htmlFor="conn-name"
+							>
 								{t("connection.name")}
 							</label>
 							<input
@@ -118,12 +117,19 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 								type="text"
 								value={field.state.value}
 								onBlur={field.handleBlur}
-								onChange={(e) => { field.handleChange(e.target.value); }}
+								onChange={(e) => {
+									field.handleChange(e.target.value);
+								}}
 								placeholder={t("connection.namePlaceholder")}
 							/>
 							{field.state.meta.errors.map((err: unknown, i: number) => {
-								const msg = err !== null && typeof err === "object" && "message" in err ? String(err.message) : String(err);
-								return <span key={i} className="text-xs text-destructive mt-0.5">{t(msg as TranslationKey)}</span>;
+								const msg =
+									err !== null && typeof err === "object" && "message" in err ? String(err.message) : String(err);
+								return (
+									<span key={i} className="text-xs text-destructive mt-0.5">
+										{t(msg as TranslationKey)}
+									</span>
+								);
 							})}
 						</div>
 					)}
@@ -132,7 +138,10 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 				<form.Field name="protocol">
 					{(field) => (
 						<div className="flex flex-col gap-1">
-							<label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="conn-protocol">
+							<label
+								className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+								htmlFor="conn-protocol"
+							>
 								{t("connection.protocol")}
 							</label>
 							<select
@@ -147,7 +156,9 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 								}}
 							>
 								{(["sftp", "scp", "s3"] as const).map((p) => (
-									<option key={p} value={p}>{p.toUpperCase()}</option>
+									<option key={p} value={p}>
+										{p.toUpperCase()}
+									</option>
 								))}
 							</select>
 						</div>
@@ -158,22 +169,28 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			<form.Subscribe selector={(s) => s.values.protocol}>
 				{(protocol) => (
 					<>
-						{protocol !== "s3" && (
-							<SftpFields form={form} />
-						)}
-						{protocol === "s3" && (
-							<S3Fields form={form} />
-						)}
+						{protocol !== "s3" && <SftpFields form={form} />}
+						{protocol === "s3" && <S3Fields form={form} />}
 					</>
 				)}
 			</form.Subscribe>
 
-			<AdvancedSettings form={form} visible={showAdvanced} onToggle={() => { setShowAdvanced((v) => !v); }} />
+			<AdvancedSettings
+				form={form}
+				visible={showAdvanced}
+				onToggle={() => {
+					setShowAdvanced((v) => !v);
+				}}
+			/>
 
 			<FormFooter
 				onCancel={onCancel}
-				onSave={() => { void handleSubmit(false); }}
-				onConnect={() => { void handleSubmit(true); }}
+				onSave={() => {
+					void handleSubmit(false);
+				}}
+				onConnect={() => {
+					void handleSubmit(true);
+				}}
 			/>
 		</form>
 	);

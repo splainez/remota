@@ -9,14 +9,17 @@ export function useTypeAhead(entries: FileEntry[], scrollRef: React.RefObject<HT
 	const lastTimeRef = useRef<number>(0);
 	const matchIndexRef = useRef<number>(0);
 
-	const scrollIntoView = useCallback((name: string) => {
-		const container = scrollRef.current;
-		if (!container) return;
-		const row = container.querySelector(`[data-file-name="${CSS.escape(name)}"]`);
-		if (row) {
-			row.scrollIntoView({ block: "nearest" });
-		}
-	}, [scrollRef]);
+	const scrollIntoView = useCallback(
+		(name: string) => {
+			const container = scrollRef.current;
+			if (!container) return;
+			const row = container.querySelector(`[data-file-name="${CSS.escape(name)}"]`);
+			if (row) {
+				row.scrollIntoView({ block: "nearest" });
+			}
+		},
+		[scrollRef],
+	);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
@@ -29,7 +32,8 @@ export function useTypeAhead(entries: FileEntry[], scrollRef: React.RefObject<HT
 			if (/[\s]/.test(key)) return;
 
 			const now = Date.now();
-			const isRepeat = key.toLowerCase() === lastKeyRef.current.toLowerCase() && now - lastTimeRef.current < CYCLE_THRESHOLD_MS;
+			const isRepeat =
+				key.toLowerCase() === lastKeyRef.current.toLowerCase() && now - lastTimeRef.current < CYCLE_THRESHOLD_MS;
 			lastKeyRef.current = key.toLowerCase();
 			lastTimeRef.current = now;
 

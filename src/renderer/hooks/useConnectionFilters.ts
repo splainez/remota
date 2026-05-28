@@ -22,9 +22,7 @@ export function useConnectionFilters(connections: Connection[]) {
 		const q = search.toLowerCase();
 		return connections.filter(
 			(c) =>
-				c.name.toLowerCase().includes(q) ||
-				c.host.toLowerCase().includes(q) ||
-				c.username.toLowerCase().includes(q),
+				c.name.toLowerCase().includes(q) || c.host.toLowerCase().includes(q) || c.username.toLowerCase().includes(q),
 		);
 	}, [connections, search]);
 

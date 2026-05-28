@@ -9,11 +9,7 @@ export interface TestFile {
 	mode?: string;
 }
 
-export const TEST_DIRS: TestDir[] = [
-	{ path: "readable" },
-	{ path: "writable", mode: "755" },
-	{ path: "nested/sub" },
-];
+export const TEST_DIRS: TestDir[] = [{ path: "readable" }, { path: "writable", mode: "755" }, { path: "nested/sub" }];
 
 export const TEST_FILES: TestFile[] = [
 	{ path: "readable/hello.txt", content: "Hello World" },

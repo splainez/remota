@@ -25,16 +25,37 @@ interface FilePaneProps {
 	onPathChange?: (path: string) => void;
 }
 
-export function FilePane({ type, connectionId, initialPath, connectionError, onReconnect, onPathChange }: FilePaneProps) {
+export function FilePane({
+	type,
+	connectionId,
+	initialPath,
+	connectionError,
+	onReconnect,
+	onPathChange,
+}: FilePaneProps) {
 	const paneRef = useRef<HTMLDivElement>(null);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const [filter, setFilter] = useState("");
 
 	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
-	const { currentPath, navigateTo, handleNavigateUp: paneNavigateUp, handleEnterDirectory, handleGoBack: paneGoBack, handleGoForward: paneGoForward, handleMouseDown, canGoBack, canGoForward } = usePaneNavigation(type, initialPath, clearSelection);
+	const {
+		currentPath,
+		navigateTo,
+		handleNavigateUp: paneNavigateUp,
+		handleEnterDirectory,
+		handleGoBack: paneGoBack,
+		handleGoForward: paneGoForward,
+		handleMouseDown,
+		canGoBack,
+		canGoForward,
+	} = usePaneNavigation(type, initialPath, clearSelection);
 	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
-	const { visible: showTerminal, toggle: handleToggleTerminal, handleKeyDown: terminalHandleKeyDown } = useTerminalToggle();
+	const {
+		visible: showTerminal,
+		toggle: handleToggleTerminal,
+		handleKeyDown: terminalHandleKeyDown,
+	} = useTerminalToggle();
 	const contextMenu = useContextMenu<FileEntry>();
 
 	useEffect(() => {
@@ -55,7 +76,11 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 		return entries.filter((entry) => matchesWildcard(filter, entry.name));
 	}, [entries, filter]);
 
-	const { typeAheadName, handleKeyDown: typeAheadKeyDown, clearTypeAhead } = useTypeAhead(filteredEntries, scrollContainerRef);
+	const {
+		typeAheadName,
+		handleKeyDown: typeAheadKeyDown,
+		clearTypeAhead,
+	} = useTypeAhead(filteredEntries, scrollContainerRef);
 
 	useEffect(() => {
 		clearTypeAhead();
@@ -138,11 +163,8 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 				onFilterChange={setFilter}
 			/>
 			{isConnectionDead ? (
-				<ConnectionErrorView
-					technicalDetail={deadError.technicalDetail}
-					onReconnect={onReconnect}
-				/>
-		) : (
+				<ConnectionErrorView technicalDetail={deadError.technicalDetail} onReconnect={onReconnect} />
+			) : (
 				<FileList
 					entries={filteredEntries}
 					loading={loading}
@@ -153,7 +175,9 @@ export function FilePane({ type, connectionId, initialPath, connectionError, onR
 					selectedNames={selectedNames}
 					typeAheadName={typeAheadName}
 					scrollContainerRef={scrollContainerRef}
-					onContextMenu={(e, entry) => { contextMenu.open(e, entry); }}
+					onContextMenu={(e, entry) => {
+						contextMenu.open(e, entry);
+					}}
 				/>
 			)}
 			{showTerminal && (

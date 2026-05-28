@@ -14,5 +14,5 @@ createRoot(rootEl).render(
 		<ThemeProvider>
 			<App />
 		</ThemeProvider>
-	</StrictMode>
+	</StrictMode>,
 );

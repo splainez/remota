@@ -34,9 +34,15 @@ vi.mock("@xterm/addon-fit", () => {
 
 beforeAll(() => {
 	class ResizeObserverMock {
-		observe() { /* noop */ }
-		unobserve() { /* noop */ }
-		disconnect() { /* noop */ }
+		observe() {
+			/* noop */
+		}
+		unobserve() {
+			/* noop */
+		}
+		disconnect() {
+			/* noop */
+		}
 	}
 	globalThis.ResizeObserver = ResizeObserverMock;
 });
@@ -75,9 +81,7 @@ describe("Terminal", () => {
 	});
 
 	it("renders terminal container", () => {
-		const { container } = render(
-			<Terminal sessionId="local-1" type="local" />,
-		);
+		const { container } = render(<Terminal sessionId="local-1" type="local" />);
 		expect(container.querySelector("div")).toBeInTheDocument();
 	});
 
@@ -142,7 +146,9 @@ describe("Terminal", () => {
 
 	it("terminal.onData callback writes to xterm", () => {
 		render(<Terminal sessionId="local-1" type="local" />);
-		const onDataCb = (window.api.terminal.onData as ReturnType<typeof vi.fn>).mock.calls[0][1] as (data: string) => void;
+		const onDataCb = (window.api.terminal.onData as ReturnType<typeof vi.fn>).mock.calls[0][1] as (
+			data: string,
+		) => void;
 		onDataCb("$ prompt> ");
 		expect(mockTerminal.write).toHaveBeenCalledWith("$ prompt> ");
 	});
@@ -161,7 +167,9 @@ describe("Terminal", () => {
 		expect(window.api.terminal.write).toHaveBeenCalledWith("local-1", "\r");
 
 		// PTY echoes back: calls onData callback → xterm.write
-		const ipcOnData = (window.api.terminal.onData as ReturnType<typeof vi.fn>).mock.calls[0][1] as (data: string) => void;
+		const ipcOnData = (window.api.terminal.onData as ReturnType<typeof vi.fn>).mock.calls[0][1] as (
+			data: string,
+		) => void;
 		ipcOnData("l");
 		ipcOnData("s");
 		ipcOnData("\r\n");

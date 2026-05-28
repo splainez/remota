@@ -58,10 +58,7 @@ describe("useRemoteConnection", () => {
 	it("resets error state on reconnect attempt", async () => {
 		(window as unknown as { api: { filesystem: { remoteConnect: () => Promise<string> } } }).api = {
 			filesystem: {
-				remoteConnect: vi
-					.fn()
-					.mockRejectedValueOnce(new Error("Timeout"))
-					.mockResolvedValueOnce("/home/admin"),
+				remoteConnect: vi.fn().mockRejectedValueOnce(new Error("Timeout")).mockResolvedValueOnce("/home/admin"),
 			},
 		};
 

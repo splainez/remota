@@ -1,8 +1,11 @@
 {
 	"name": "openscp",
 	"version": "0.1.0",
-	"type": "module",
 	"description": "A modular WinSCP replacement with dual-pane file manager",
+	"keywords": [],
+	"license": "MIT",
+	"author": "",
+	"type": "module",
 	"main": "./out/main/index.js",
 	"scripts": {
 		"fmt": "oxfmt",
@@ -23,9 +26,6 @@
 		"test:integration:watch": "vitest --config vitest.integration.config.ts",
 		"check": "pnpm run fmt && pnpm run lint --quiet && pnpm run typecheck && pnpm run test --run 2>&1 | tail -10 && pnpm run build "
 	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1053.0",
 		"@base-ui/react": "^1.5.0",

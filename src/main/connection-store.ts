@@ -26,10 +26,7 @@ export class ConnectionStore {
 			if (existsSync(this.filePath)) {
 				const raw = readFileSync(this.filePath, "utf-8");
 				const parsed = JSON.parse(raw) as StoreData;
-				if (
-					typeof parsed.nextId === "number" &&
-					Array.isArray(parsed.connections)
-				) {
+				if (typeof parsed.nextId === "number" && Array.isArray(parsed.connections)) {
 					this.data = parsed;
 				}
 			}

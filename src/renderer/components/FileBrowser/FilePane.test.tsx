@@ -8,9 +8,15 @@ import { createMockApi } from "../../test/setup";
 
 beforeAll(() => {
 	class ResizeObserverMock {
-		observe() { /* noop */ }
-		unobserve() { /* noop */ }
-		disconnect() { /* noop */ }
+		observe() {
+			/* noop */
+		}
+		unobserve() {
+			/* noop */
+		}
+		disconnect() {
+			/* noop */
+		}
 	}
 	globalThis.ResizeObserver = ResizeObserverMock;
 });
@@ -62,54 +68,40 @@ describe("FilePane", () => {
 	});
 
 	it("renders toolbar with up, refresh and new folder buttons (local)", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/user" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("renders toolbar with up, refresh and new folder buttons (remote)", () => {
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/" />);
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("initializes navigation history with initialPath", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/user" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
 		const store = useNavigationStore.getState();
 		expect(store.panes.local.entries).toEqual(["/home/user"]);
 		expect(store.panes.local.index).toBe(0);
 	});
 
 	it("clears and re-initializes history on connection change", () => {
-		const { rerender } = render(
-			<FilePane type="local" connectionId={1} initialPath="/home/user" />
-		);
+		const { rerender } = render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
 		flushStore();
-		rerender(
-			<FilePane type="local" connectionId={2} initialPath="/var/log" />
-		);
+		rerender(<FilePane type="local" connectionId={2} initialPath="/var/log" />);
 		const store = useNavigationStore.getState();
 		expect(store.panes.local.entries).toEqual(["/var/log"]);
 		expect(store.panes.local.index).toBe(0);
 	});
 
 	it("navigates back after entering a directory", async () => {
-		const dirEntries = [
-			{ name: "admin", isDirectory: true, size: 0, modified: "" },
-		];
+		const dirEntries = [{ name: "admin", isDirectory: true, size: 0, modified: "" }];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(dirEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		const adminDir = await screen.findByText("admin");
 		await userEvent.dblClick(adminDir);
@@ -127,14 +119,10 @@ describe("FilePane", () => {
 	});
 
 	it("navigates forward after going back", async () => {
-		const dirEntries = [
-			{ name: "admin", isDirectory: true, size: 0, modified: "" },
-		];
+		const dirEntries = [{ name: "admin", isDirectory: true, size: 0, modified: "" }];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(dirEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		const adminDir = await screen.findByText("admin");
 		await userEvent.dblClick(adminDir);
@@ -151,17 +139,13 @@ describe("FilePane", () => {
 	});
 
 	it("back and forward are not available as buttons", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/user" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
 		expect(screen.queryByTitle("Back")).not.toBeInTheDocument();
 		expect(screen.queryByTitle("Forward")).not.toBeInTheDocument();
 	});
 
 	it("calls goBack on mouse button 3 (back)", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		useNavigationStore.getState().push("local", "/home/user");
 		useNavigationStore.getState().push("local", "/home/user/docs");
@@ -175,9 +159,7 @@ describe("FilePane", () => {
 	});
 
 	it("calls goForward on mouse button 4 (forward)", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		useNavigationStore.getState().push("local", "/home/user");
 		useNavigationStore.getState().push("local", "/home/user/docs");
@@ -192,9 +174,7 @@ describe("FilePane", () => {
 	});
 
 	it("does not navigate on regular mouse click (button 0)", () => {
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		useNavigationStore.getState().push("local", "/home/user");
 
@@ -213,43 +193,28 @@ describe("FilePane", () => {
 		];
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(remoteEntries);
 
-		render(
-			<FilePane type="remote" connectionId={5} initialPath="/" />
-		);
+		render(<FilePane type="remote" connectionId={5} initialPath="/" />);
 
 		await screen.findByText("var");
 		expect(window.api.filesystem.remoteList).toHaveBeenCalledWith(5, "/");
 	});
 
 	it("uses local IPC for local pane even when remoteList is available", async () => {
-		const localEntries = [
-			{ name: "docs", isDirectory: true, size: 0, modified: "" },
-		];
+		const localEntries = [{ name: "docs", isDirectory: true, size: 0, modified: "" }];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(localEntries);
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue([]);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
 
 		await screen.findByText("docs");
 		expect(window.api.filesystem.list).toHaveBeenCalledWith("/home");
 	});
 
 	it("shows reconnect prompt when not connected error occurs", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Not connected to remote server"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Not connected to remote server"));
 		const onReconnect = vi.fn();
 
-		render(
-			<FilePane
-				type="remote"
-				connectionId={1}
-				initialPath="/"
-				onReconnect={onReconnect}
-			/>
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/" onReconnect={onReconnect} />);
 
 		await screen.findByText("Reconnect");
 		expect(screen.getByText("Reconnect")).toBeInTheDocument();
@@ -272,20 +237,16 @@ describe("FilePane", () => {
 				initialPath="/"
 				connectionError={connectionError}
 				onReconnect={vi.fn()}
-			/>
+			/>,
 		);
 
 		expect(screen.getByText("Reconnect")).toBeInTheDocument();
 	});
 
 	it("shows inline error with detail toggle when listing fails with permission denied", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Permission denied"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/root" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
 
 		await screen.findByText("Show details");
 		expect(screen.getByText("Permission denied")).toBeInTheDocument();
@@ -297,13 +258,9 @@ describe("FilePane", () => {
 	});
 
 	it("keeps toolbar functional when listing error occurs", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Permission denied"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/root" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
 
 		await screen.findByText("Permission denied");
 
@@ -312,13 +269,9 @@ describe("FilePane", () => {
 	});
 
 	it("toggles error detail visibility", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Permission denied"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/root" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
 
 		await screen.findByText("Show details");
 
@@ -334,9 +287,7 @@ describe("FilePane", () => {
 	it("selects an entry on single click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
@@ -347,9 +298,7 @@ describe("FilePane", () => {
 	it("clears previous selection on plain click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -369,9 +318,7 @@ describe("FilePane", () => {
 	it("toggles entries with Ctrl+click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -394,9 +341,7 @@ describe("FilePane", () => {
 	it("selects a range with Shift+click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -414,9 +359,7 @@ describe("FilePane", () => {
 	it("uses first entry as anchor when Shift+click with no prior selection", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -427,15 +370,15 @@ describe("FilePane", () => {
 		expect(screen.getByText("backups").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 		expect(screen.getByText("projects").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
-		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("notes.txt").closest(".cursor-pointer")?.className).not.toContain(
+			"bg-primary-fixed-dim/20",
+		);
 	});
 
 	it("clears selection on navigate back", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntriesWithWebapp);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
@@ -447,20 +390,20 @@ describe("FilePane", () => {
 		pane.dispatchEvent(new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true }));
 
 		await waitFor(() => {
-			expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+			expect(screen.getByText("projects").closest(".cursor-pointer")?.className).not.toContain(
+				"bg-primary-fixed-dim/20",
+			);
 		});
 	});
 
 	it("clears selection on navigate forward", async () => {
-		window.api.filesystem.list = vi.fn().mockResolvedValueOnce(selectionEntriesWithWebapp)
-			.mockResolvedValueOnce([
-				{ name: "webapp", isDirectory: false, size: 300, modified: "" },
-			])
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValueOnce(selectionEntriesWithWebapp)
+			.mockResolvedValueOnce([{ name: "webapp", isDirectory: false, size: 300, modified: "" }])
 			.mockResolvedValue(selectionEntriesWithWebapp);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -507,9 +450,7 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/home" />);
 
 		await screen.findByText("var");
 		expect(mockApiWin.filesystem.remoteList).toHaveBeenCalledWith(1, "/home");
@@ -528,13 +469,10 @@ describe("FilePane", () => {
 	});
 
 	it("uses forward slashes for nested remote paths on Windows platform", async () => {
-		const remoteListWin = vi.fn()
-			.mockResolvedValueOnce([
-				{ name: "subdir", isDirectory: true, size: 0, modified: "" },
-			])
-			.mockResolvedValueOnce([
-				{ name: "deep", isDirectory: true, size: 0, modified: "" },
-			]);
+		const remoteListWin = vi
+			.fn()
+			.mockResolvedValueOnce([{ name: "subdir", isDirectory: true, size: 0, modified: "" }])
+			.mockResolvedValueOnce([{ name: "deep", isDirectory: true, size: 0, modified: "" }]);
 		const mockApiWin2 = createMockApi({
 			platform: "win32",
 			filesystem: {
@@ -560,9 +498,7 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/home/user" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/home/user" />);
 
 		await screen.findByText("subdir");
 		await userEvent.dblClick(screen.getByText("subdir"));
@@ -579,16 +515,11 @@ describe("FilePane", () => {
 	});
 
 	it("navigates back with forward slashes for remote paths on Windows", async () => {
-		const remoteListWin = vi.fn()
-			.mockResolvedValueOnce([
-				{ name: "docs", isDirectory: true, size: 0, modified: "" },
-			])
-			.mockResolvedValueOnce([
-				{ name: "file.txt", isDirectory: false, size: 100, modified: "" },
-			])
-			.mockResolvedValueOnce([
-				{ name: "docs", isDirectory: true, size: 0, modified: "" },
-			]);
+		const remoteListWin = vi
+			.fn()
+			.mockResolvedValueOnce([{ name: "docs", isDirectory: true, size: 0, modified: "" }])
+			.mockResolvedValueOnce([{ name: "file.txt", isDirectory: false, size: 100, modified: "" }])
+			.mockResolvedValueOnce([{ name: "docs", isDirectory: true, size: 0, modified: "" }]);
 		const mockApiWin3 = createMockApi({
 			platform: "win32",
 			filesystem: {
@@ -614,9 +545,7 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(
-			<FilePane type="remote" connectionId={1} initialPath="/home" />
-		);
+		render(<FilePane type="remote" connectionId={1} initialPath="/home" />);
 
 		await screen.findByText("docs");
 		await userEvent.dblClick(screen.getByText("docs"));
@@ -637,16 +566,15 @@ describe("FilePane", () => {
 	});
 
 	it("clears selection on navigate up", async () => {
-		window.api.filesystem.list = vi.fn()
+		window.api.filesystem.list = vi
+			.fn()
 			.mockResolvedValueOnce(selectionEntries)
 			.mockResolvedValueOnce([
 				{ name: "admin", isDirectory: true, size: 0, modified: "" },
 				{ name: "deploy", isDirectory: false, size: 100, modified: "" },
 			]);
 
-		render(
-			<FilePane type="local" connectionId={1} initialPath="/home/admin" />
-		);
+		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));

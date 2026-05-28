@@ -8,7 +8,13 @@ function makeEntry(name: string): FileEntry {
 }
 
 function makeKeydownEvent(key: string): React.KeyboardEvent {
-	return { key, ctrlKey: false, altKey: false, metaKey: false, preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
+	return {
+		key,
+		ctrlKey: false,
+		altKey: false,
+		metaKey: false,
+		preventDefault: vi.fn(),
+	} as unknown as React.KeyboardEvent;
 }
 
 function createScrollRef(): React.RefObject<HTMLDivElement | null> {
@@ -31,91 +37,141 @@ describe("useTypeAhead", () => {
 	it("jumps to first matching entry on keypress", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 	});
 
 	it("jumps to matching entry case-insensitively", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("B")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("B"));
+		});
 		expect(result.current.typeAheadName).toBe("banana.txt");
 	});
 
 	it("cycles to next match on repeated keypress within threshold", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 
-		act(() => { vi.advanceTimersByTime(100); });
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apricot.txt");
 	});
 
 	it("cycles back to first after last match", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 
-		act(() => { vi.advanceTimersByTime(100); });
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apricot.txt");
 
-		act(() => { vi.advanceTimersByTime(100); });
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 	});
 
 	it("does nothing when no entries match", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("z")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("z"));
+		});
 		expect(result.current.typeAheadName).toBeNull();
 	});
 
 	it("ignores modifier keys", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		const ctrlEvent = { key: "a", ctrlKey: true, altKey: false, metaKey: false, preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
-		act(() => { result.current.handleKeyDown(ctrlEvent); });
+		const ctrlEvent = {
+			key: "a",
+			ctrlKey: true,
+			altKey: false,
+			metaKey: false,
+			preventDefault: vi.fn(),
+		} as unknown as React.KeyboardEvent;
+		act(() => {
+			result.current.handleKeyDown(ctrlEvent);
+		});
 		expect(result.current.typeAheadName).toBeNull();
 	});
 
 	it("ignores multi-character keys like Shift", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		const shiftEvent = { key: "Shift", ctrlKey: false, altKey: false, metaKey: false, preventDefault: vi.fn() } as unknown as React.KeyboardEvent;
-		act(() => { result.current.handleKeyDown(shiftEvent); });
+		const shiftEvent = {
+			key: "Shift",
+			ctrlKey: false,
+			altKey: false,
+			metaKey: false,
+			preventDefault: vi.fn(),
+		} as unknown as React.KeyboardEvent;
+		act(() => {
+			result.current.handleKeyDown(shiftEvent);
+		});
 		expect(result.current.typeAheadName).toBeNull();
 	});
 
 	it("resets cycle after threshold expires", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 
-		act(() => { vi.advanceTimersByTime(600); });
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			vi.advanceTimersByTime(600);
+		});
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 	});
 
 	it("clearTypeAhead resets state", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead(entries, ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBe("apple.txt");
 
-		act(() => { result.current.clearTypeAhead(); });
+		act(() => {
+			result.current.clearTypeAhead();
+		});
 		expect(result.current.typeAheadName).toBeNull();
 	});
 
 	it("works with empty entries list", () => {
 		const ref = createScrollRef();
 		const { result } = renderHook(() => useTypeAhead([], ref));
-		act(() => { result.current.handleKeyDown(makeKeydownEvent("a")); });
+		act(() => {
+			result.current.handleKeyDown(makeKeydownEvent("a"));
+		});
 		expect(result.current.typeAheadName).toBeNull();
 	});
 });

@@ -27,11 +27,7 @@ export type * from "./types";
 export * from "./fixtures";
 
 export async function startAllContainers(): Promise<StartedContainerSet> {
-	const [sftp, ftp, s3] = await Promise.all([
-		startSftpContainer(),
-		startFtpContainer(),
-		startS3Container(),
-	]);
+	const [sftp, ftp, s3] = await Promise.all([startSftpContainer(), startFtpContainer(), startS3Container()]);
 
 	activeContainers = {
 		sftp: sftp.container,
@@ -50,11 +46,7 @@ export async function startAllContainers(): Promise<StartedContainerSet> {
 }
 
 export async function stopAllContainers(): Promise<void> {
-	await Promise.allSettled([
-		activeContainers.sftp?.stop(),
-		activeContainers.ftp?.stop(),
-		activeContainers.s3?.stop(),
-	]);
+	await Promise.allSettled([activeContainers.sftp?.stop(), activeContainers.ftp?.stop(), activeContainers.s3?.stop()]);
 	activeContainers = {};
 }
 

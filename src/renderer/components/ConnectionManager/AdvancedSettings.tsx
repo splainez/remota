@@ -8,7 +8,8 @@ interface FieldProps<T = string> {
 	handleChange: (v: T) => void;
 }
 
-const inputClass = "px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
+const inputClass =
+	"px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
 
 interface AdvancedSettingsProps {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +40,9 @@ export function AdvancedSettings({ form, visible, onToggle }: AdvancedSettingsPr
 									type="text"
 									value={field.state.value}
 									onBlur={field.handleBlur}
-									onChange={(e) => { field.handleChange(e.target.value); }}
+									onChange={(e) => {
+										field.handleChange(e.target.value);
+									}}
 									placeholder={t("connection.groupPlaceholder")}
 								/>
 							</FormField>

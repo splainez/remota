@@ -17,14 +17,9 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
 
-	const {
-		remoteStatus,
-		remoteError,
-		remotePath,
-		setRemotePath,
-		reconnectKey,
-		connect,
-	} = useRemoteConnection(connection.id);
+	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
+		connection.id,
+	);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -39,9 +34,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 
 				if (cancelled) return;
 
-				const resolvedLocal = savedLocal
-					? await resolvePath(savedLocal)
-					: homeDir;
+				const resolvedLocal = savedLocal ? await resolvePath(savedLocal) : homeDir;
 
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cancelled may change during await
 				if (cancelled) return;
@@ -101,7 +94,9 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 					<Button
 						variant="default"
 						className="bg-primary text-on-primary text-xs font-semibold px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-surface-tint transition-colors shadow-sm h-8"
-						onClick={() => { /* Sync folders - no-op for now */ }}
+						onClick={() => {
+							/* Sync folders - no-op for now */
+						}}
 					>
 						<Icon name="sync" size={14} />
 						{t("file.syncFolders")}
@@ -117,19 +112,16 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 
 			{/* Dual Pane Explorer */}
 			<main className="flex-1 flex min-h-0 relative">
-				<FilePane
-					type="local"
-					connectionId={connection.id}
-					initialPath={localPath}
-					onPathChange={setLocalPath}
-				/>
+				<FilePane type="local" connectionId={connection.id} initialPath={localPath} onPathChange={setLocalPath} />
 				{remoteStatus === "connected" ? (
 					<FilePane
 						key={reconnectKey}
 						type="remote"
 						connectionId={connection.id}
 						initialPath={remotePath}
-						onReconnect={() => { void connect(); }}
+						onReconnect={() => {
+							void connect();
+						}}
 						onPathChange={setRemotePath}
 					/>
 				) : (
@@ -142,7 +134,13 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 									message={errorMessage ?? t("remote.connectionError")}
 									detail={remoteError?.technicalDetail}
 								/>
-								<Button variant="default" size="sm" onClick={() => { void connect(); }}>
+								<Button
+									variant="default"
+									size="sm"
+									onClick={() => {
+										void connect();
+									}}
+								>
 									{t("remote.retry")}
 								</Button>
 							</>

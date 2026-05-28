@@ -101,9 +101,7 @@ describe("connection IPC handlers", () => {
 		});
 
 		it("throws on invalid data", () => {
-			expect(() => callHandler(IPC.CONNECTION_CREATE, { name: "" })).toThrow(
-				"Invalid connection data",
-			);
+			expect(() => callHandler(IPC.CONNECTION_CREATE, { name: "" })).toThrow("Invalid connection data");
 		});
 	});
 

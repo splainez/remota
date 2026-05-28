@@ -11,10 +11,7 @@ describe("useContextMenu", () => {
 	it("opens menu at mouse coordinates with data", () => {
 		const { result } = renderHook(() => useContextMenu<number>());
 		act(() => {
-			result.current.open(
-				{ clientX: 300, clientY: 400, preventDefault: vi.fn() } as unknown as React.MouseEvent,
-				42,
-			);
+			result.current.open({ clientX: 300, clientY: 400, preventDefault: vi.fn() } as unknown as React.MouseEvent, 42);
 		});
 		expect(result.current.menu).toEqual({ x: 300, y: 400, data: 42 });
 	});
@@ -23,10 +20,7 @@ describe("useContextMenu", () => {
 		const { result } = renderHook(() => useContextMenu());
 		const p = vi.fn();
 		act(() => {
-			result.current.open(
-				{ clientX: 0, clientY: 0, preventDefault: p } as unknown as React.MouseEvent,
-				undefined,
-			);
+			result.current.open({ clientX: 0, clientY: 0, preventDefault: p } as unknown as React.MouseEvent, undefined);
 		});
 		expect(p).toHaveBeenCalled();
 	});

@@ -39,10 +39,7 @@ export function classifyError(err: unknown): SftpErrorInfo {
 	if (msg.includes("Not connected")) {
 		return { code: "NOT_CONNECTED", technicalDetail: msg };
 	}
-	if (
-		msg.includes("Private key path is required") ||
-		msg.includes("Connection with id")
-	) {
+	if (msg.includes("Private key path is required") || msg.includes("Connection with id")) {
 		return {
 			code: "UNKNOWN",
 			technicalDetail: msg,
@@ -59,34 +56,19 @@ export function classifyError(err: unknown): SftpErrorInfo {
 	) {
 		return { code: "CONNECTION_REFUSED", technicalDetail: msg };
 	}
-	if (
-		lower.includes("timed out") ||
-		lower.includes("timeout") ||
-		lower.includes("etimedout")
-	) {
+	if (lower.includes("timed out") || lower.includes("timeout") || lower.includes("etimedout")) {
 		return { code: "CONNECTION_TIMEOUT", technicalDetail: msg };
 	}
-	if (
-		lower.includes("authentication") &&
-		(lower.includes("failed") || lower.includes("fail"))
-	) {
+	if (lower.includes("authentication") && (lower.includes("failed") || lower.includes("fail"))) {
 		return { code: "AUTH_FAILED", technicalDetail: msg };
 	}
 	if (lower.includes("host key") || lower.includes("fingerprint")) {
 		return { code: "HOST_KEY_REJECTED", technicalDetail: msg };
 	}
-	if (
-		lower.includes("enotfound") ||
-		lower.includes("unreachable") ||
-		lower.includes("resolve")
-	) {
+	if (lower.includes("enotfound") || lower.includes("unreachable") || lower.includes("resolve")) {
 		return { code: "HOST_UNREACHABLE", technicalDetail: msg };
 	}
-	if (
-		lower.includes("permission") ||
-		lower.includes("access denied") ||
-		lower.includes("access is denied")
-	) {
+	if (lower.includes("permission") || lower.includes("access denied") || lower.includes("access is denied")) {
 		return { code: "PERMISSION_DENIED", technicalDetail: msg };
 	}
 

@@ -7,8 +7,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-sans: 'Inter Variable', sans-serif;
-	--font-mono: 'JetBrains Mono', monospace;
+	--font-sans: "Inter Variable", sans-serif;
+	--font-mono: "JetBrains Mono", monospace;
 	--font-heading: var(--font-sans);
 
 	--color-background: var(--background);
@@ -221,7 +221,9 @@
 	}
 }
 
-html, body, #root {
+html,
+body,
+#root {
 	height: 100%;
 }
 

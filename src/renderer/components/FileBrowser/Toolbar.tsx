@@ -51,19 +51,10 @@ export function Toolbar({
 	return (
 		<div className="h-9 border-b border-outline-variant bg-surface flex items-center px-3 justify-between shrink-0">
 			<div className="flex items-center gap-1">
-				<button
-					className={btnClass}
-					onClick={onNavigateUp}
-					disabled={upDisabled}
-					title={t("file.navigateUp")}
-				>
+				<button className={btnClass} onClick={onNavigateUp} disabled={upDisabled} title={t("file.navigateUp")}>
 					<Icon name="arrow-up" size={16} />
 				</button>
-				<button
-					className={btnClass}
-					onClick={onRefresh}
-					title={t("file.refresh")}
-				>
+				<button className={btnClass} onClick={onRefresh} title={t("file.refresh")}>
 					<Icon name="refresh" size={16} />
 				</button>
 				{onToggleTerminal && (
@@ -77,7 +68,9 @@ export function Toolbar({
 				)}
 				<button
 					className={btnClass}
-					onClick={() => { /* New folder - no-op for now */ }}
+					onClick={() => {
+						/* New folder - no-op for now */
+					}}
 					title={t("file.newFolder")}
 				>
 					<Icon name="new-folder" size={16} />
@@ -107,12 +100,16 @@ export function Toolbar({
 					placeholder={t("file.filter")}
 					type="text"
 					value={filter}
-					onChange={(e) => { onFilterChange(e.target.value); }}
+					onChange={(e) => {
+						onFilterChange(e.target.value);
+					}}
 				/>
 				{filter && (
 					<button
 						className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors"
-						onClick={() => { onFilterChange(""); }}
+						onClick={() => {
+							onFilterChange("");
+						}}
 						title={t("file.clearFilter")}
 					>
 						<Icon name="close" size={12} />

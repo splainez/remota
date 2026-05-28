@@ -6,9 +6,15 @@ import { createMockApi } from "../../test/setup";
 
 beforeAll(() => {
 	class ResizeObserverMock {
-		observe() { /* noop */ }
-		unobserve() { /* noop */ }
-		disconnect() { /* noop */ }
+		observe() {
+			/* noop */
+		}
+		unobserve() {
+			/* noop */
+		}
+		disconnect() {
+			/* noop */
+		}
 	}
 	globalThis.ResizeObserver = ResizeObserverMock;
 });
@@ -71,9 +77,7 @@ describe("FileBrowser", () => {
 	});
 
 	it("shows error overlay when remoteConnect fails", async () => {
-		mockApi.filesystem.remoteConnect = vi
-			.fn()
-			.mockRejectedValue(new Error("Connection refused"));
+		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("Connection refused"));
 
 		vi.stubGlobal("api", mockApi);
 
@@ -87,9 +91,7 @@ describe("FileBrowser", () => {
 	});
 
 	it("shows error detail toggle on connection failure", async () => {
-		mockApi.filesystem.remoteConnect = vi
-			.fn()
-			.mockRejectedValue(new Error("connect ECONNREFUSED 192.168.1.1:22"));
+		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 192.168.1.1:22"));
 
 		vi.stubGlobal("api", mockApi);
 
@@ -169,9 +171,7 @@ describe("FileBrowser", () => {
 	});
 
 	it("classifies timeout errors", async () => {
-		mockApi.filesystem.remoteConnect = vi
-			.fn()
-			.mockRejectedValue(new Error("Timed out while waiting for handshake"));
+		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("Timed out while waiting for handshake"));
 
 		vi.stubGlobal("api", mockApi);
 
@@ -183,9 +183,7 @@ describe("FileBrowser", () => {
 	});
 
 	it("classifies host unreachable errors", async () => {
-		mockApi.filesystem.remoteConnect = vi
-			.fn()
-			.mockRejectedValue(new Error("getaddrinfo ENOTFOUND nonexistenthost"));
+		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("getaddrinfo ENOTFOUND nonexistenthost"));
 
 		vi.stubGlobal("api", mockApi);
 
@@ -197,9 +195,7 @@ describe("FileBrowser", () => {
 	});
 
 	it("classifies host key rejected errors", async () => {
-		mockApi.filesystem.remoteConnect = vi
-			.fn()
-			.mockRejectedValue(new Error("Host key verification failed"));
+		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("Host key verification failed"));
 
 		vi.stubGlobal("api", mockApi);
 

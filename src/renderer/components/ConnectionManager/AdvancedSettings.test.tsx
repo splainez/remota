@@ -6,16 +6,25 @@ import { AdvancedSettings } from "./AdvancedSettings";
 
 function makeForm() {
 	return {
-		Field: vi.fn(({ children }: { children: (field: { state: { value: unknown; meta: { errors: unknown[] } }; handleBlur: () => void; handleChange: (v: unknown) => void }) => React.ReactNode }) =>
-			children({
-				state: { value: "", meta: { errors: [] } },
-				handleBlur: vi.fn(),
-				handleChange: vi.fn(),
-			}),
+		Field: vi.fn(
+			({
+				children,
+			}: {
+				children: (field: {
+					state: { value: unknown; meta: { errors: unknown[] } };
+					handleBlur: () => void;
+					handleChange: (v: unknown) => void;
+				}) => React.ReactNode;
+			}) =>
+				children({
+					state: { value: "", meta: { errors: [] } },
+					handleBlur: vi.fn(),
+					handleChange: vi.fn(),
+				}),
 		),
 		state: { values: { groupName: "" } },
 		handleSubmit: vi.fn(),
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} as any;
 }
 

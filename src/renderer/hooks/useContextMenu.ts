@@ -19,9 +19,13 @@ export function useContextMenu<T = void>() {
 
 	useEffect(() => {
 		if (!menu) return;
-		const handler = () => { close(); };
+		const handler = () => {
+			close();
+		};
 		document.addEventListener("click", handler);
-		return () => { document.removeEventListener("click", handler); };
+		return () => {
+			document.removeEventListener("click", handler);
+		};
 	}, [menu, close]);
 
 	return { menu, open, close };

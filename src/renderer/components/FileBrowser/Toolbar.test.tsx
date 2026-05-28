@@ -61,24 +61,12 @@ describe("Toolbar", () => {
 	});
 
 	it("disables Up button at Windows drive root via isAtDriveRoot", () => {
-		render(
-			<Toolbar
-				{...defaultProps}
-				currentPath={cDriveRoot}
-				isAtDriveRoot={true}
-			/>
-		);
+		render(<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={true} />);
 		expect(screen.getByTitle("Parent Directory")).toBeDisabled();
 	});
 
 	it("disables Up button at Windows drive root via canGoUp", () => {
-		render(
-			<Toolbar
-				{...defaultProps}
-				currentPath={cDriveRoot}
-				isAtDriveRoot={false}
-			/>
-		);
+		render(<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={false} />);
 		expect(screen.getByTitle("Parent Directory")).toBeDisabled();
 	});
 
@@ -117,14 +105,7 @@ describe("Toolbar", () => {
 
 	it("calls onNavigateTo when a new drive is selected", async () => {
 		const onNavigateTo = vi.fn();
-		render(
-			<Toolbar
-				{...defaultProps}
-				drives={[dDriveRoot]}
-				onNavigateTo={onNavigateTo}
-				currentPath="C:\\Users"
-			/>
-		);
+		render(<Toolbar {...defaultProps} drives={[dDriveRoot]} onNavigateTo={onNavigateTo} currentPath="C:\\Users" />);
 		const select = screen.getByTitle("Select drive");
 		await userEvent.selectOptions(select, dDriveRoot);
 		expect(onNavigateTo).toHaveBeenCalledWith(dDriveRoot);
@@ -132,14 +113,7 @@ describe("Toolbar", () => {
 
 	it("shows current drive as selected when at drive root", () => {
 		const drives = [cDriveRoot, dDriveRoot];
-		render(
-			<Toolbar
-				{...defaultProps}
-				drives={drives}
-				currentPath={cDriveRoot}
-				isAtDriveRoot={true}
-			/>
-		);
+		render(<Toolbar {...defaultProps} drives={drives} currentPath={cDriveRoot} isAtDriveRoot={true} />);
 		const select = screen.getByTitle<HTMLSelectElement>("Select drive");
 		expect(select.value).toBe(cDriveRoot);
 	});

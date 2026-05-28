@@ -27,11 +27,8 @@ interface SqliteRow {
 }
 
 function rowToConnection(row: SqliteRow): Connection {
-	const authType: Connection["authType"] = (
-		row.auth_type === "password" ||
-		row.auth_type === "key" ||
-		row.auth_type === "agent"
-	) ? row.auth_type : "password";
+	const authType: Connection["authType"] =
+		row.auth_type === "password" || row.auth_type === "key" || row.auth_type === "agent" ? row.auth_type : "password";
 
 	return {
 		id: row.id,
@@ -55,10 +52,7 @@ function rowToConnection(row: SqliteRow): Connection {
 	};
 }
 
-export async function migrateFromSqlite(
-	userDataPath: string,
-	connectionsJsonPath: string,
-): Promise<boolean> {
+export async function migrateFromSqlite(userDataPath: string, connectionsJsonPath: string): Promise<boolean> {
 	if (existsSync(connectionsJsonPath)) {
 		log.info("connections.json already exists, skipping migration");
 		return false;

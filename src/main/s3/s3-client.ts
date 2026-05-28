@@ -1,8 +1,4 @@
-import {
-	S3Client,
-	ListObjectsV2Command,
-	HeadBucketCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
 import type { FileEntry } from "../../shared/types";
 
 interface S3Session {
@@ -124,13 +120,13 @@ export class S3ConnectionManager {
 						if (cp.Prefix) {
 							const name = cp.Prefix.slice((prefix || "").length).replace(/\/$/, "");
 							if (name.length > 0) {
-							entries.push({
-								name,
-								fullPath: "/" + cp.Prefix.replace(/\/$/, ""),
-								isDirectory: true,
-								size: 0,
-								modified: new Date().toISOString(),
-							});
+								entries.push({
+									name,
+									fullPath: "/" + cp.Prefix.replace(/\/$/, ""),
+									isDirectory: true,
+									size: 0,
+									modified: new Date().toISOString(),
+								});
 							}
 						}
 					}
@@ -146,16 +142,12 @@ export class S3ConnectionManager {
 							fullPath: "/" + obj.Key,
 							isDirectory: false,
 							size: obj.Size ?? 0,
-							modified: obj.LastModified
-								? obj.LastModified.toISOString()
-								: new Date().toISOString(),
+							modified: obj.LastModified ? obj.LastModified.toISOString() : new Date().toISOString(),
 						});
 					}
 				}
 
-				continuationToken = response.IsTruncated
-					? response.NextContinuationToken
-					: undefined;
+				continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
 			} while (continuationToken);
 
 			return entries;

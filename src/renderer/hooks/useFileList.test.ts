@@ -12,9 +12,7 @@ describe("useFileList", () => {
 	});
 
 	it("returns loading state initially (remote)", () => {
-		const { result } = renderHook(() =>
-			useFileList("/home", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/home", { type: "remote", connectionId: 1 }));
 		expect(result.current.loading).toBe(true);
 		expect(result.current.entries).toEqual([]);
 		expect(result.current.error).toBeNull();
@@ -43,9 +41,7 @@ describe("useFileList", () => {
 		];
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(mockEntries);
 
-		const { result } = renderHook(() =>
-			useFileList("/home", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/home", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -71,13 +67,9 @@ describe("useFileList", () => {
 	});
 
 	it("handles remote IPC errors with structured error info", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Not connected to remote server"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Not connected to remote server"));
 
-		const { result } = renderHook(() =>
-			useFileList("/etc", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/etc", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -89,13 +81,9 @@ describe("useFileList", () => {
 	});
 
 	it("classifies connection refused errors", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("connect ECONNREFUSED 192.168.1.1:22"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 192.168.1.1:22"));
 
-		const { result } = renderHook(() =>
-			useFileList("/var", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/var", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -109,9 +97,7 @@ describe("useFileList", () => {
 			.fn()
 			.mockRejectedValue(new Error("All configured authentication methods failed"));
 
-		const { result } = renderHook(() =>
-			useFileList("/var", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/var", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -121,13 +107,9 @@ describe("useFileList", () => {
 	});
 
 	it("classifies timeout errors", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("Timed out while waiting for handshake"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Timed out while waiting for handshake"));
 
-		const { result } = renderHook(() =>
-			useFileList("/var", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/var", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -137,13 +119,9 @@ describe("useFileList", () => {
 	});
 
 	it("classifies host unreachable errors", async () => {
-		window.api.filesystem.remoteList = vi
-			.fn()
-			.mockRejectedValue(new Error("getaddrinfo ENOTFOUND nonexistenthost"));
+		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("getaddrinfo ENOTFOUND nonexistenthost"));
 
-		const { result } = renderHook(() =>
-			useFileList("/var", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/var", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -173,10 +151,7 @@ describe("useFileList", () => {
 			{ name: "a.txt", fullPath: "/tmp/a.txt", isDirectory: false, size: 10, modified: "" },
 			{ name: "b.txt", fullPath: "/tmp/b.txt", isDirectory: false, size: 20, modified: "" },
 		];
-		const listMock = vi
-			.fn()
-			.mockResolvedValueOnce(firstEntries)
-			.mockResolvedValueOnce(refreshedEntries);
+		const listMock = vi.fn().mockResolvedValueOnce(firstEntries).mockResolvedValueOnce(refreshedEntries);
 		window.api.filesystem.list = listMock;
 
 		const { result } = renderHook(() => useFileList("/tmp"));
@@ -205,15 +180,10 @@ describe("useFileList", () => {
 			{ name: "x.txt", fullPath: "/tmp/x.txt", isDirectory: false, size: 100, modified: "" },
 			{ name: "y.txt", fullPath: "/tmp/y.txt", isDirectory: false, size: 200, modified: "" },
 		];
-		const remoteMock = vi
-			.fn()
-			.mockResolvedValueOnce(firstEntries)
-			.mockResolvedValueOnce(refreshedEntries);
+		const remoteMock = vi.fn().mockResolvedValueOnce(firstEntries).mockResolvedValueOnce(refreshedEntries);
 		window.api.filesystem.remoteList = remoteMock;
 
-		const { result } = renderHook(() =>
-			useFileList("/tmp", { type: "remote", connectionId: 2 }),
-		);
+		const { result } = renderHook(() => useFileList("/tmp", { type: "remote", connectionId: 2 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -242,10 +212,9 @@ describe("useFileList", () => {
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(remoteEntries);
 
 		type Opts = NonNullable<Parameters<typeof useFileList>[1]>;
-		const { result, rerender } = renderHook(
-			({ opts }: { opts: Opts }) => useFileList("/data", opts),
-			{ initialProps: { opts: {} } },
-		);
+		const { result, rerender } = renderHook(({ opts }: { opts: Opts }) => useFileList("/data", opts), {
+			initialProps: { opts: {} },
+		});
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
@@ -272,33 +241,28 @@ describe("useFileList", () => {
 			{ name: "syslog", fullPath: "/var/log/syslog", isDirectory: false, size: 1024, modified: "2025-01-01T00:00:00Z" },
 		];
 
-		const remoteMock = vi.fn()
+		const remoteMock = vi
+			.fn()
 			.mockResolvedValueOnce(homeEntries)
 			.mockResolvedValueOnce(varEntries)
 			.mockResolvedValueOnce(logEntries);
 		window.api.filesystem.remoteList = remoteMock;
 
-		const { result: result1 } = renderHook(() =>
-			useFileList("/", { type: "remote", connectionId: 1 }),
-		);
+		const { result: result1 } = renderHook(() => useFileList("/", { type: "remote", connectionId: 1 }));
 		await waitFor(() => {
 			expect(result1.current.loading).toBe(false);
 		});
 		expect(result1.current.entries).toEqual(homeEntries);
 		expect(remoteMock).toHaveBeenCalledWith(1, "/");
 
-		const { result: result2 } = renderHook(() =>
-			useFileList("/var", { type: "remote", connectionId: 1 }),
-		);
+		const { result: result2 } = renderHook(() => useFileList("/var", { type: "remote", connectionId: 1 }));
 		await waitFor(() => {
 			expect(result2.current.loading).toBe(false);
 		});
 		expect(result2.current.entries).toEqual(varEntries);
 		expect(remoteMock).toHaveBeenCalledWith(1, "/var");
 
-		const { result: result3 } = renderHook(() =>
-			useFileList("/var/log", { type: "remote", connectionId: 1 }),
-		);
+		const { result: result3 } = renderHook(() => useFileList("/var/log", { type: "remote", connectionId: 1 }));
 		await waitFor(() => {
 			expect(result3.current.loading).toBe(false);
 		});
@@ -311,13 +275,17 @@ describe("useFileList", () => {
 	it("handles remote directory entries with forward-slashed fullPaths", async () => {
 		const nestedEntries: FileEntry[] = [
 			{ name: "config", fullPath: "/home/user/config", isDirectory: true, size: 0, modified: "2025-01-01T00:00:00Z" },
-			{ name: ".profile", fullPath: "/home/user/.profile", isDirectory: false, size: 256, modified: "2025-01-01T00:00:00Z" },
+			{
+				name: ".profile",
+				fullPath: "/home/user/.profile",
+				isDirectory: false,
+				size: 256,
+				modified: "2025-01-01T00:00:00Z",
+			},
 		];
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(nestedEntries);
 
-		const { result } = renderHook(() =>
-			useFileList("/home/user", { type: "remote", connectionId: 1 }),
-		);
+		const { result } = renderHook(() => useFileList("/home/user", { type: "remote", connectionId: 1 }));
 
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);

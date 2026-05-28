@@ -13,7 +13,9 @@ export function BrandButton({ collapsed, onViewAll }: BrandButtonProps) {
 			onClick={onViewAll}
 			role="button"
 			tabIndex={0}
-			onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onViewAll(); }}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") onViewAll();
+			}}
 		>
 			<button
 				className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:rounded-lg transition-all duration-300 ease-in-out shadow-sm shrink-0"

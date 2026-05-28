@@ -77,6 +77,8 @@ export function usePaneNavigation(type: "local" | "remote", initialPath: string,
 		handleMouseDown,
 		canGoBack,
 		canGoForward,
-		clearHistory: () => { clearHistory(type); },
+		clearHistory: () => {
+			clearHistory(type);
+		},
 	};
 }

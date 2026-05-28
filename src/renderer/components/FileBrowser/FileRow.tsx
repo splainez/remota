@@ -12,7 +12,14 @@ interface FileRowProps {
 	onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export function FileRow({ entry, isSelected, isTypeAheadFocused, onClick, onDoubleClick, onContextMenu }: FileRowProps) {
+export function FileRow({
+	entry,
+	isSelected,
+	isTypeAheadFocused,
+	onClick,
+	onDoubleClick,
+	onContextMenu,
+}: FileRowProps) {
 	return (
 		<div
 			data-file-name={entry.name}
@@ -26,10 +33,11 @@ export function FileRow({ entry, isSelected, isTypeAheadFocused, onClick, onDoub
 			onContextMenu={onContextMenu}
 		>
 			<div className="w-7 flex items-center justify-center">
-				{entry.isDirectory
-					? <FolderIcon path={entry.name} size={16} className="shrink-0 text-primary" />
-					: <FileIcon path={entry.name} filePath={entry.fullPath} size={16} className="shrink-0 text-secondary" />
-				}
+				{entry.isDirectory ? (
+					<FolderIcon path={entry.name} size={16} className="shrink-0 text-primary" />
+				) : (
+					<FileIcon path={entry.name} filePath={entry.fullPath} size={16} className="shrink-0 text-secondary" />
+				)}
 			</div>
 			<div className="flex-1 text-sm text-on-surface truncate pr-3">{entry.name}</div>
 			<div className="w-20 text-right text-xs text-on-surface-variant">

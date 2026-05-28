@@ -1,11 +1,10 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import type { BreadcrumbSegment } from "../components/FileBrowser/BreadcrumbTypes";
 
 export function cn(...inputs: ClassValue[]): string {
-	return twMerge(clsx(inputs))
+	return twMerge(clsx(inputs));
 }
-
 
 export function canGoUp(path: string): boolean {
 	if (path === "/") return false;

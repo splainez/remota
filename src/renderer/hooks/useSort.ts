@@ -17,13 +17,7 @@ interface UseSortOptions<T> {
 	partition?: (items: T[]) => { head: T[]; tail: T[] };
 }
 
-export function useSort<T>({
-	items,
-	initialKey,
-	initialDir = "asc",
-	compare,
-	partition,
-}: UseSortOptions<T>) {
+export function useSort<T>({ items, initialKey, initialDir = "asc", compare, partition }: UseSortOptions<T>) {
 	const [key, setKey] = useState<SortKey>(initialKey);
 	const [dir, setDir] = useState<SortDir>(initialDir);
 

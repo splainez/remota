@@ -106,7 +106,10 @@ import {
 	VscWarning,
 } from "react-icons/vsc";
 
-const iconMap: Record<IconName, React.ComponentType<{ size?: number | string; className?: string; [key: string]: unknown }>> = {
+const iconMap: Record<
+	IconName,
+	React.ComponentType<{ size?: number | string; className?: string; [key: string]: unknown }>
+> = {
 	account: VscAccount,
 	add: VscAdd,
 	"arrow-down": VscArrowDown,

@@ -105,7 +105,7 @@
 	"validation.secretKeyRequired": "La clave secreta es obligatoria",
 	"validation.regionRequired": "La región es obligatoria",
 	"validation.bucketRequired": "El bucket es obligatorio",
-  "validation.default": "Valor inválido",
+	"validation.default": "Valor inválido",
 	"terminal.toggle": "Alternar Terminal",
 	"file.contextMenu.open": "Abrir",
 	"file.contextMenu.edit": "Editar",

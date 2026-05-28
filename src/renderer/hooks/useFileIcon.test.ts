@@ -46,10 +46,7 @@ describe("useFileIcon", () => {
 		const getIcon = vi.fn().mockResolvedValue(dataUrl);
 		window.api.filesystem.getIcon = getIcon;
 
-		const { result, rerender } = renderHook(
-			({ path }) => useIcon(path),
-			{ initialProps: { path: "/tmp/d.txt" } },
-		);
+		const { result, rerender } = renderHook(({ path }) => useIcon(path), { initialProps: { path: "/tmp/d.txt" } });
 
 		await waitFor(() => {
 			expect(result.current.icon).toBe(dataUrl);
@@ -63,15 +60,10 @@ describe("useFileIcon", () => {
 
 	it("refetches when filePath changes", async () => {
 		const { useFileIcon: useIcon } = await import("./useFileIcon");
-		const getIcon = vi.fn().mockImplementation((path: string) =>
-			Promise.resolve(`icon:${path}`),
-		);
+		const getIcon = vi.fn().mockImplementation((path: string) => Promise.resolve(`icon:${path}`));
 		window.api.filesystem.getIcon = getIcon;
 
-		const { result, rerender } = renderHook(
-			({ path }) => useIcon(path),
-			{ initialProps: { path: "/tmp/e.txt" } },
-		);
+		const { result, rerender } = renderHook(({ path }) => useIcon(path), { initialProps: { path: "/tmp/e.txt" } });
 
 		await waitFor(() => {
 			expect(result.current.icon).toBe("icon:/tmp/e.txt");

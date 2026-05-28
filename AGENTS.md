@@ -9,6 +9,7 @@ Package manager: **pnpm** (pnpm-lock.yaml present).
 ## Reference
 
 WinSCP source code and translations are at `https://github.com/winscp/winscp/tree/master`:
+
 - Source code: `/sources`
 - Translations: `/translations`
 
@@ -103,6 +104,7 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 ### Style Guidelines Summary
 
 #### Colors
+
 - **Primary:** `#5865f2` (Blurple) - used for brand recognition, primary actions, and active states
 - **Light Mode Surfaces:** `#ffffff` (content), `#f8f9fa` (background), `#f3f4f5` (containers)
 - **Dark Mode Surfaces:** `#0d141b` (background), `#151c23` (container low), `#192027` (container)
@@ -110,6 +112,7 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 - **Borders & Dividers:** `#e1e3e4` (light) / `#454655` (dark) for subtle separation
 
 #### Typography (Inter font exclusively)
+
 - **headline-lg:** 32px / 700 weight (24px on dark, 600 weight)
 - **headline-md:** 24px / 600 weight (18px on dark)
 - **body-lg:** 16px / 400 weight (15px on dark)
@@ -118,6 +121,7 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 - **mono-sm:** JetBrains Mono, 12px (dark mode only, for logs/terminals)
 
 #### Spacing & Layout
+
 - **Base unit:** 8px grid rhythm
 - **Gutter:** 16px
 - **Margin (desktop):** 24px / 16px (mobile)
@@ -125,6 +129,7 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 - **Header height:** 48px
 
 #### Border Radius
+
 - **sm:** 0.25rem (4px)
 - **DEFAULT:** 0.5rem (8px)
 - **md:** 0.75rem (12px)
@@ -132,11 +137,13 @@ The application uses a comprehensive design system with **Light** and **Dark** m
 - **xl:** 1.5rem (24px)
 
 #### Elevation & Depth
+
 - **Light mode:** Tonal layers with 1px subtle borders; minimal shadows
 - **Dark mode:** Tonal layering through charcoal shifts; subtle outlines; glassmorphism overlays with `backdrop-filter: blur(12px)`
 - **Hover states:** Light tint overlay (10% opacity) on light mode; subtle background highlight on dark mode
 
 #### Components Standards
+
 - **Buttons:** Primary (Blurple bg + white text), Secondary (light gray bg + dark text), 8px radius
 - **Inputs:** White/dark bg, 1px border, focus state with 2px primary glow, 8px radius
 - **Cards:** White/dark bg, 1px border, no shadow for static cards

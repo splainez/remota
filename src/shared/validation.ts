@@ -34,7 +34,11 @@ export const hostSchema = z.string().superRefine((val, ctx) => {
 	}
 });
 
-export const portSchema = z.number().int("validation.portInteger").min(1, "validation.portMin").max(65535, "validation.portMax");
+export const portSchema = z
+	.number()
+	.int("validation.portInteger")
+	.min(1, "validation.portMin")
+	.max(65535, "validation.portMax");
 export const usernameSchema = z.string().trim().min(1, "validation.usernameRequired");
 export const passwordSchema = z.string().min(1, "validation.passwordRequired");
 export const privateKeyPathSchema = z.string().min(1, "validation.privateKeyRequired");
@@ -68,30 +72,32 @@ export const connectionBaseSchema = z.object({
 // SFTP/SCP branch: validates host, username, and auth-type-specific fields.
 // Cross-protocol fields (accessKey, secretKey, etc.) are included as loose
 // types to keep the form's flat defaultValues shape unified.
-export const sftpConnectionSchema = z.object({
-	name: nameSchema,
-	protocol: z.enum(["sftp", "scp"]),
-	host: hostSchema,
-	port: portSchema,
-	username: usernameSchema,
-	authType: z.enum(authTypes),
-	password: z.string(),
-	privateKeyPath: z.string(),
-	accessKey: z.string(),
-	secretKey: z.string(),
-	region: z.string(),
-	bucket: z.string(),
-	endpoint: z.string(),
-	useHttps: z.boolean(),
-	groupName: z.string(),
-}).superRefine((data, ctx) => {
-	if (data.authType === "password" && data.password.trim().length === 0) {
-		ctx.addIssue({ code: "custom", message: "validation.passwordRequired", path: ["password"] });
-	}
-	if (data.authType === "key" && data.privateKeyPath.trim().length === 0) {
-		ctx.addIssue({ code: "custom", message: "validation.privateKeyRequired", path: ["privateKeyPath"] });
-	}
-});
+export const sftpConnectionSchema = z
+	.object({
+		name: nameSchema,
+		protocol: z.enum(["sftp", "scp"]),
+		host: hostSchema,
+		port: portSchema,
+		username: usernameSchema,
+		authType: z.enum(authTypes),
+		password: z.string(),
+		privateKeyPath: z.string(),
+		accessKey: z.string(),
+		secretKey: z.string(),
+		region: z.string(),
+		bucket: z.string(),
+		endpoint: z.string(),
+		useHttps: z.boolean(),
+		groupName: z.string(),
+	})
+	.superRefine((data, ctx) => {
+		if (data.authType === "password" && data.password.trim().length === 0) {
+			ctx.addIssue({ code: "custom", message: "validation.passwordRequired", path: ["password"] });
+		}
+		if (data.authType === "key" && data.privateKeyPath.trim().length === 0) {
+			ctx.addIssue({ code: "custom", message: "validation.privateKeyRequired", path: ["privateKeyPath"] });
+		}
+	});
 
 // S3 branch: validates accessKey, secretKey, region, and bucket.
 // Cross-protocol fields (host, username, etc.) are included as loose
@@ -114,10 +120,7 @@ export const s3ConnectionSchema = z.object({
 	groupName: z.string(),
 });
 
-export const connectionFormSchema = z.discriminatedUnion("protocol", [
-	sftpConnectionSchema,
-	s3ConnectionSchema,
-]);
+export const connectionFormSchema = z.discriminatedUnion("protocol", [sftpConnectionSchema, s3ConnectionSchema]);
 
 export type SftpConnectionData = z.infer<typeof sftpConnectionSchema>;
 export type S3ConnectionData = z.infer<typeof s3ConnectionSchema>;

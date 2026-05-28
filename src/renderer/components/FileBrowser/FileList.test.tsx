@@ -4,12 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { FileList } from "./FileList";
 import type { FileEntry } from "../../../shared/types";
 
-function makeEntry(
-	name: string,
-	isDirectory: boolean,
-	size: number,
-	modified: string,
-): FileEntry {
+function makeEntry(name: string, isDirectory: boolean, size: number, modified: string): FileEntry {
 	return { name, fullPath: `/${name}`, isDirectory, size, modified };
 }
 
@@ -123,7 +118,12 @@ describe("FileList", () => {
 		const onEnterDirectory = vi.fn();
 		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} onEnterDirectory={onEnterDirectory} />);
 		await userEvent.click(screen.getByText("projects"));
-		expect(onSelectEntry).toHaveBeenCalledWith("projects", false, false, ["documents", "projects", "config.json", "readme.md"]);
+		expect(onSelectEntry).toHaveBeenCalledWith("projects", false, false, [
+			"documents",
+			"projects",
+			"config.json",
+			"readme.md",
+		]);
 		expect(onEnterDirectory).not.toHaveBeenCalled();
 	});
 
@@ -134,7 +134,12 @@ describe("FileList", () => {
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("projects"));
 		await user.keyboard("{/Control}");
-		expect(onSelectEntry).toHaveBeenCalledWith("projects", true, false, ["documents", "projects", "config.json", "readme.md"]);
+		expect(onSelectEntry).toHaveBeenCalledWith("projects", true, false, [
+			"documents",
+			"projects",
+			"config.json",
+			"readme.md",
+		]);
 	});
 
 	it("calls onSelectEntry with shiftKey true on Shift+click", async () => {
@@ -144,7 +149,12 @@ describe("FileList", () => {
 		await user.keyboard("{Shift>}");
 		await user.click(screen.getByText("config.json"));
 		await user.keyboard("{/Shift}");
-		expect(onSelectEntry).toHaveBeenCalledWith("config.json", false, true, ["documents", "projects", "config.json", "readme.md"]);
+		expect(onSelectEntry).toHaveBeenCalledWith("config.json", false, true, [
+			"documents",
+			"projects",
+			"config.json",
+			"readme.md",
+		]);
 	});
 
 	it("applies selection styling to entries in selectedNames", () => {
@@ -155,7 +165,9 @@ describe("FileList", () => {
 
 	it("does not apply selection styling to entries not in selectedNames", () => {
 		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
-		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain("bg-primary-fixed-dim/20");
+		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain(
+			"bg-primary-fixed-dim/20",
+		);
 	});
 
 	it("applies type-ahead highlight to matching entry", () => {
@@ -180,6 +192,8 @@ describe("FileList", () => {
 	it("renders data-file-name attribute on each row", () => {
 		render(<FileList {...defaultProps} />);
 		expect(screen.getByText("readme.md").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe("readme.md");
-		expect(screen.getByText("config.json").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe("config.json");
+		expect(screen.getByText("config.json").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe(
+			"config.json",
+		);
 	});
 });

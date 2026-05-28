@@ -67,4 +67,3 @@ describe("listDrives", () => {
 		expect(listDrives()).toEqual(["/"]);
 	});
 });
-

@@ -36,15 +36,15 @@ const connections: Connection[] = [
 	makeConn({ id: 4, name: "Misc Server", host: "misc.example.com" }),
 ];
 
-	const defaultProps = {
-		connections,
-		selectedId: null as number | null,
-		activeConnectionId: null as number | null,
-		onSelect: vi.fn(),
-		onAdd: vi.fn(),
-		onDoubleClick: vi.fn(),
-		onDelete: vi.fn(),
-	};
+const defaultProps = {
+	connections,
+	selectedId: null as number | null,
+	activeConnectionId: null as number | null,
+	onSelect: vi.fn(),
+	onAdd: vi.fn(),
+	onDoubleClick: vi.fn(),
+	onDelete: vi.fn(),
+};
 
 function renderList(props = defaultProps) {
 	return render(
@@ -116,9 +116,9 @@ describe("ConnectionListView", () => {
 
 	it("shows active connection indicator", () => {
 		renderList({ ...defaultProps, activeConnectionId: 1 });
-		const activeIndicators = screen.getAllByText("").filter(
-			(el) => el.classList.contains("bg-primary") && el.classList.contains("w-2"),
-		);
+		const activeIndicators = screen
+			.getAllByText("")
+			.filter((el) => el.classList.contains("bg-primary") && el.classList.contains("w-2"));
 		expect(activeIndicators.length).toBeGreaterThanOrEqual(1);
 	});
 

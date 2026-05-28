@@ -7,13 +7,13 @@ export interface StartedSshContainer {
 	connection: ConnectionInfo;
 }
 
-export async function startSshContainer(
-	config?: Partial<ConnectionInfo>,
-): Promise<StartedSshContainer> {
+export async function startSshContainer(config?: Partial<ConnectionInfo>): Promise<StartedSshContainer> {
 	const username = config?.username ?? process.env.TEST_Ssh_USER ?? "testuser";
 	const password = config?.password ?? process.env.TEST_Ssh_PASS ?? "testpass";
 
-	const container = await (await GenericContainer.fromDockerfile(".", "Dockerfile.ssh").build())
+	const container = await (
+		await GenericContainer.fromDockerfile(".", "Dockerfile.ssh").build()
+	)
 		.withExposedPorts(22)
 		.withWaitStrategy(Wait.forLogMessage(/Server listening on/, 1))
 		.start();

@@ -41,9 +41,7 @@ interface TransferRowProps {
 
 function TransferRow({ item }: TransferRowProps) {
 	return (
-		<div
-			className="bg-surface-container-lowest rounded-lg border border-outline-variant p-3 hover:border-outline transition-colors relative overflow-hidden"
-		>
+		<div className="bg-surface-container-lowest rounded-lg border border-outline-variant p-3 hover:border-outline transition-colors relative overflow-hidden">
 			<div className="flex justify-between items-start mb-1.5">
 				<div className="flex items-center gap-2">
 					<Icon
@@ -61,10 +59,7 @@ function TransferRow({ item }: TransferRowProps) {
 				<div className="text-right">
 					<div className="text-xs font-semibold text-primary">{item.progress}%</div>
 					<div className="text-xs text-on-surface-variant">
-						{item.status === "uploading"
-							? `${item.size ?? ""} @ ${item.speed ?? ""}`
-							: t("transfer.queued")
-						}
+						{item.status === "uploading" ? `${item.size ?? ""} @ ${item.speed ?? ""}` : t("transfer.queued")}
 					</div>
 				</div>
 			</div>
@@ -94,7 +89,10 @@ function TransferHeader({ pendingCount, onClose }: TransferHeaderProps) {
 				</span>
 			</div>
 			<div className="flex gap-1">
-				<button className="p-1 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors" title={t("transfer.pauseAll")}>
+				<button
+					className="p-1 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors"
+					title={t("transfer.pauseAll")}
+				>
 					<Icon name="sync" size={16} />
 				</button>
 				<button

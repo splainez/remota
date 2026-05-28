@@ -36,9 +36,7 @@ describe("FileRow", () => {
 
 	it("applies selection styling when selected", () => {
 		const entry = makeEntry();
-		const { container } = render(
-			<FileRow entry={entry} isSelected={true} onClick={vi.fn()} onDoubleClick={vi.fn()} />,
-		);
+		const { container } = render(<FileRow entry={entry} isSelected={true} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
 		expect(container.firstElementChild?.className).toContain("bg-primary-fixed-dim/20");
 	});
 

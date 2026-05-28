@@ -51,4 +51,3 @@ export function useFileList(path: string, opts: UseFileListOptions = {}): UseFil
 
 	return { entries, loading, error, refresh: load };
 }
-

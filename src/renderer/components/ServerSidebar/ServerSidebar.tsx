@@ -24,10 +24,7 @@ function getInitials(name: string): string {
 	return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
-function getVisibleConnections(
-	connections: Connection[],
-	activeConnectionId: number | null,
-): Connection[] {
+function getVisibleConnections(connections: Connection[], activeConnectionId: number | null): Connection[] {
 	if (activeConnectionId == null) return [];
 	return connections.filter((c) => c.id === activeConnectionId);
 }
@@ -77,9 +74,7 @@ export function ServerSidebar({
 							key={conn.id}
 							className={[
 								"relative flex items-center gap-2 transition-all duration-300 text-xs font-semibold",
-								collapsed
-									? "w-10 h-10 rounded-xl justify-center mx-auto"
-									: "w-full px-3 py-2 rounded-lg justify-start",
+								collapsed ? "w-10 h-10 rounded-xl justify-center mx-auto" : "w-full px-3 py-2 rounded-lg justify-start",
 								isSelected
 									? collapsed
 										? "bg-surface-container-highest"
@@ -90,8 +85,12 @@ export function ServerSidebar({
 								isConnActive && collapsed ? "ring-2 ring-primary" : "",
 							].join(" ")}
 							title={conn.name}
-							onClick={() => { onSelect(conn.id); }}
-							onDoubleClick={() => { onDoubleClick(conn.id); }}
+							onClick={() => {
+								onSelect(conn.id);
+							}}
+							onDoubleClick={() => {
+								onDoubleClick(conn.id);
+							}}
 						>
 							{isSelected && collapsed && (
 								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
@@ -99,18 +98,21 @@ export function ServerSidebar({
 							{isSelected && !collapsed && (
 								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
 							)}
-						<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
-							{collapsed ? getInitials(conn.name) : conn.name}
-						</span>
-						{!collapsed && isConnActive && (
-							<button
-								className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-								title={t("connection.disconnect")}
-								onClick={(e) => { e.stopPropagation(); onDisconnect(); }}
-							>
-								<Icon name="close" size={12} />
-							</button>
-						)}
+							<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
+								{collapsed ? getInitials(conn.name) : conn.name}
+							</span>
+							{!collapsed && isConnActive && (
+								<button
+									className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+									title={t("connection.disconnect")}
+									onClick={(e) => {
+										e.stopPropagation();
+										onDisconnect();
+									}}
+								>
+									<Icon name="close" size={12} />
+								</button>
+							)}
 						</button>
 					);
 				})}
@@ -137,7 +139,12 @@ export function ServerSidebar({
 				)}
 			</div>
 
-			<SidebarFooter collapsed={collapsed} onToggleCollapse={() => { setCollapsed((v) => !v); }} />
+			<SidebarFooter
+				collapsed={collapsed}
+				onToggleCollapse={() => {
+					setCollapsed((v) => !v);
+				}}
+			/>
 		</nav>
 	);
 }

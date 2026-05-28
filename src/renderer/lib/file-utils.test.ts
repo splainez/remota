@@ -37,12 +37,12 @@ describe("formatDate", () => {
 		expect(formatDate(d.toISOString())).toBe("Just now");
 	});
 
-	it('formats minutes ago', () => {
+	it("formats minutes ago", () => {
 		const d = new Date(Date.now() - 5 * 60 * 1000);
 		expect(formatDate(d.toISOString())).toBe("5 min ago");
 	});
 
-	it('formats hours as HH:MM', () => {
+	it("formats hours as HH:MM", () => {
 		const d = new Date(Date.now() - 3 * 60 * 60 * 1000);
 		const result = formatDate(d.toISOString());
 		expect(result).toMatch(/^\d{2}:\d{2}$/);

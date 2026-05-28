@@ -29,38 +29,22 @@ describe("useSort", () => {
 	];
 
 	it("starts sorted by initialKey ascending", () => {
-		const { result } = renderHook(() =>
-			useSort({ items, initialKey: "name", compare }),
-		);
-		expect(result.current.sorted.map((i) => i.name)).toEqual([
-			"dir_docs",
-			"dir_projects",
-			"file_a.txt",
-			"file_z.txt",
-		]);
+		const { result } = renderHook(() => useSort({ items, initialKey: "name", compare }));
+		expect(result.current.sorted.map((i) => i.name)).toEqual(["dir_docs", "dir_projects", "file_a.txt", "file_z.txt"]);
 		expect(result.current.config.direction).toBe("asc");
 	});
 
 	it("toggles to descending on first handleSort of same key", () => {
-		const { result } = renderHook(() =>
-			useSort({ items, initialKey: "name", compare }),
-		);
+		const { result } = renderHook(() => useSort({ items, initialKey: "name", compare }));
 		act(() => {
 			result.current.handleSort("name");
 		});
 		expect(result.current.config.direction).toBe("desc");
-		expect(result.current.sorted.map((i) => i.name)).toEqual([
-			"file_z.txt",
-			"file_a.txt",
-			"dir_projects",
-			"dir_docs",
-		]);
+		expect(result.current.sorted.map((i) => i.name)).toEqual(["file_z.txt", "file_a.txt", "dir_projects", "dir_docs"]);
 	});
 
 	it("toggles back to ascending on second handleSort of same key", () => {
-		const { result } = renderHook(() =>
-			useSort({ items, initialKey: "name", compare }),
-		);
+		const { result } = renderHook(() => useSort({ items, initialKey: "name", compare }));
 		act(() => {
 			result.current.handleSort("name");
 		});
@@ -71,9 +55,7 @@ describe("useSort", () => {
 	});
 
 	it("resets direction to asc when switching keys", () => {
-		const { result } = renderHook(() =>
-			useSort({ items, initialKey: "name", compare, initialDir: "desc" }),
-		);
+		const { result } = renderHook(() => useSort({ items, initialKey: "name", compare, initialDir: "desc" }));
 		act(() => {
 			result.current.handleSort("size");
 		});
@@ -85,12 +67,7 @@ describe("useSort", () => {
 		const { result } = renderHook(() =>
 			useSort({ items, initialKey: "name", compare, partition: dirsFirst, initialDir: "asc" }),
 		);
-		expect(result.current.sorted.map((i) => i.name)).toEqual([
-			"dir_docs",
-			"dir_projects",
-			"file_a.txt",
-			"file_z.txt",
-		]);
+		expect(result.current.sorted.map((i) => i.name)).toEqual(["dir_docs", "dir_projects", "file_a.txt", "file_z.txt"]);
 	});
 
 	it("partition keeps dirs first even with size sort", () => {
@@ -120,9 +97,7 @@ describe("useSort", () => {
 	});
 
 	it("exposes setKey and setDir", () => {
-		const { result } = renderHook(() =>
-			useSort({ items, initialKey: "name", compare }),
-		);
+		const { result } = renderHook(() => useSort({ items, initialKey: "name", compare }));
 		act(() => {
 			result.current.setKey("size");
 			result.current.setDir("desc");

@@ -1,3 +1,1 @@
-export {
-	DirectionProvider,
-} from "@base-ui/react/direction-provider"
+export { DirectionProvider } from "@base-ui/react/direction-provider";

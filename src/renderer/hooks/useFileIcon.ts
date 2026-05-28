@@ -12,9 +12,7 @@ function setCache(key: string, value: string) {
 }
 
 export function useFileIcon(filePath?: string): { icon: string | null } {
-	const [icon, setIcon] = useState<string | null>(
-		filePath ? (iconCache.get(filePath) ?? null) : null,
-	);
+	const [icon, setIcon] = useState<string | null>(filePath ? (iconCache.get(filePath) ?? null) : null);
 
 	useEffect(() => {
 		if (!filePath || iconCache.has(filePath)) return;

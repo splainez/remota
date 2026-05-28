@@ -113,7 +113,9 @@ export function FileContextMenu({ x, y, entry, panelType, onClose }: FileContext
 			}
 		};
 		document.addEventListener("keydown", handleKeyDown);
-		return () => { document.removeEventListener("keydown", handleKeyDown); };
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+		};
 	}, [onClose, visibleItems.length]);
 
 	const position = clampToViewport(x, y, 200, visibleItems.length * 36 + 8);
@@ -126,14 +128,18 @@ export function FileContextMenu({ x, y, entry, panelType, onClose }: FileContext
 		<div
 			className="fixed z-50 bg-popover border border-outline-variant rounded-lg shadow-lg overflow-hidden py-1 min-w-[180px]"
 			style={{ left: position.left, top: position.top }}
-			onClick={(e) => { e.stopPropagation(); }}
+			onClick={(e) => {
+				e.stopPropagation();
+			}}
 			role="menu"
 		>
 			{visibleItems.map((item, index) => (
 				<React.Fragment key={item.id}>
 					{item.separator && <div className="h-px bg-outline-variant my-1" />}
 					<button
-						ref={(el) => { if (el) itemsRef.current[index] = el; }}
+						ref={(el) => {
+							if (el) itemsRef.current[index] = el;
+						}}
 						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
 							item.variant === "destructive"
 								? "hover:bg-destructive/10 text-destructive"

@@ -11,9 +11,11 @@ interface FileListHeaderProps {
 export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps) {
 	const sortIndicator = (key: SortKey) => {
 		if (sortKey !== key) return null;
-		return sortDir === "asc"
-			? <Icon name="triangle-up" size={8} className="ml-0.5" data-testid="sort-asc" />
-			: <Icon name="triangle-down" size={8} className="ml-0.5" data-testid="sort-desc" />;
+		return sortDir === "asc" ? (
+			<Icon name="triangle-up" size={8} className="ml-0.5" data-testid="sort-asc" />
+		) : (
+			<Icon name="triangle-down" size={8} className="ml-0.5" data-testid="sort-desc" />
+		);
 	};
 
 	return (
@@ -21,21 +23,30 @@ export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps
 			<div className="w-7" />
 			<button
 				className="flex-1 cursor-pointer hover:text-on-surface flex items-center gap-0.5 text-left font-semibold"
-				onClick={() => { onSort("name"); }}
+				onClick={() => {
+					onSort("name");
+				}}
 			>
-				{t("file.name")}{sortIndicator("name")}
+				{t("file.name")}
+				{sortIndicator("name")}
 			</button>
 			<button
 				className="w-20 text-right cursor-pointer hover:text-on-surface font-semibold"
-				onClick={() => { onSort("size"); }}
+				onClick={() => {
+					onSort("size");
+				}}
 			>
-				{t("file.size")}{sortIndicator("size")}
+				{t("file.size")}
+				{sortIndicator("size")}
 			</button>
 			<button
 				className="w-28 text-right cursor-pointer hover:text-on-surface hidden xl:block font-semibold"
-				onClick={() => { onSort("modified"); }}
+				onClick={() => {
+					onSort("modified");
+				}}
 			>
-				{t("file.modified")}{sortIndicator("modified")}
+				{t("file.modified")}
+				{sortIndicator("modified")}
 			</button>
 		</div>
 	);

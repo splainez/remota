@@ -1,9 +1,9 @@
 // @ts-check
-import js from '@eslint/js';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import { defineConfig } from 'eslint/config';
-import tseslint from 'typescript-eslint';
+import js from "@eslint/js";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import { defineConfig } from "eslint/config";
+import tseslint from "typescript-eslint";
 
 export default defineConfig(
 	{
@@ -18,7 +18,7 @@ export default defineConfig(
 		languageOptions: {
 			parserOptions: {
 				projectService: {
-					allowDefaultProject: ['eslint.config.js', 'vitest.config.js'],
+					allowDefaultProject: ["eslint.config.js", "vitest.config.js"],
 				},
 				tsconfigRootDir: import.meta.dirname,
 			},
@@ -26,7 +26,7 @@ export default defineConfig(
 		rules: {
 			"react-hooks/set-state-in-effect": "warn",
 			"@typescript-eslint/consistent-type-exports": "error",
-			"@typescript-eslint/consistent-type-imports": "error"
-		}
+			"@typescript-eslint/consistent-type-imports": "error",
+		},
 	},
 );

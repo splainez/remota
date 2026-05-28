@@ -65,20 +65,20 @@ export function useBreadcrumbMeasure(allSegments: BreadcrumbSegment[]) {
 		const container = containerRef.current;
 		if (!container) return;
 
-		const observer = new ResizeObserver(() => { measure(); });
+		const observer = new ResizeObserver(() => {
+			measure();
+		});
 		observer.observe(container);
-		return () => { observer.disconnect(); };
+		return () => {
+			observer.disconnect();
+		};
 	}, [measure]);
 
 	const showEllipsis = hiddenEnd > 0 && hiddenStart < hiddenEnd;
 
-	const headSegments = showEllipsis
-		? allSegments.filter((_, i) => i <= hiddenStart)
-		: allSegments;
+	const headSegments = showEllipsis ? allSegments.filter((_, i) => i <= hiddenStart) : allSegments;
 
-	const tailSegments = showEllipsis
-		? allSegments.filter((_, i) => i > hiddenEnd)
-		: [];
+	const tailSegments = showEllipsis ? allSegments.filter((_, i) => i > hiddenEnd) : [];
 
 	return { containerRef, segmentRefs, showEllipsis, headSegments, tailSegments };
 }

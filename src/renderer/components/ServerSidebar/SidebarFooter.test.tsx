@@ -18,9 +18,8 @@ describe("SidebarFooter", () => {
 	it("renders collapse button with arrow-left when expanded", () => {
 		render(<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
-		const collapseBtn = buttons.find((b) =>
-			b.className.includes("rounded-full") && b.className.includes("self-start"),
-		) ?? buttons[0];
+		const collapseBtn =
+			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
 		expect(collapseBtn).toBeInTheDocument();
 	});
 
@@ -35,9 +34,8 @@ describe("SidebarFooter", () => {
 		const onToggleCollapse = vi.fn();
 		render(<SidebarFooter collapsed={false} onToggleCollapse={onToggleCollapse} />);
 		const buttons = screen.getAllByRole("button");
-		const collapseBtn = buttons.find((b) =>
-			b.className.includes("rounded-full") && b.className.includes("self-start"),
-		) ?? buttons[0];
+		const collapseBtn =
+			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
 		await user.click(collapseBtn);
 		expect(onToggleCollapse).toHaveBeenCalledOnce();
 	});
