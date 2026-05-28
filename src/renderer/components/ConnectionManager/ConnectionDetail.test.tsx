@@ -78,7 +78,7 @@ describe("ConnectionDetail", () => {
 			/>
 		);
 
-		expect(screen.getByText("New Connection")).toBeInTheDocument();
+		expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
 		expect(screen.getByLabelText("Host")).toBeInTheDocument();
 	});
 
@@ -96,7 +96,7 @@ describe("ConnectionDetail", () => {
 			/>
 		);
 
-		expect(screen.getByText("Edit Connection")).toBeInTheDocument();
+		expect(screen.getAllByText("Edit Connection").length).toBeGreaterThan(0);
 		expect(screen.getByDisplayValue("My Server")).toBeInTheDocument();
 	});
 

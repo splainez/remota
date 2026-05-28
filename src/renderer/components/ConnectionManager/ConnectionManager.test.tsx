@@ -114,7 +114,7 @@ describe("ConnectionManager", () => {
     await waitFor(() => screen.getByText("Existing"));
     await user.click(screen.getByRole("button", { name: "+ Add Connection" }));
 
-    expect(screen.getByText("New Connection")).toBeInTheDocument();
+    expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Host")).toBeInTheDocument();
   });
 });

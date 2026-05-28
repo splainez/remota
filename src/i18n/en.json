@@ -34,6 +34,7 @@
 	"connection.save": "Save",
 	"connection.saveConnection": "Save Connection",
 	"connection.cancel": "Cancel",
+	"connection.back": "Back",
 	"connection.delete": "Delete",
 	"connection.noSelection": "Select a connection or create a new one.",
 	"connection.noActive": "No active connection",
