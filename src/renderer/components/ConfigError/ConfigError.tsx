@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
-
 interface ConfigErrorData {
 	message: string;
 	filePath: string;
@@ -14,9 +13,14 @@ export function ConfigError() {
 	const [resolved, setResolved] = useState(false);
 
 	useEffect(() => {
-		window.api.app.getConfigError().then((err) => {
-			if (err) setError(err);
-		});
+		window.api.app
+			.getConfigError()
+			.then((err) => {
+				if (err) setError(err);
+			})
+			.catch(() => {
+				// config error already set via onConfigError or initial check
+			});
 	}, []);
 
 	useEffect(() => {

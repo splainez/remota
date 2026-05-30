@@ -38,7 +38,7 @@ export async function migrateLegacyFiles(userDataPath: string): Promise<void> {
 	if (hasConnections) {
 		try {
 			const raw = readFileSync(connectionsPath, "utf-8");
-			const parsed: Record<string, unknown> = JSON.parse(raw);
+			const parsed = JSON.parse(raw) as { connections?: unknown };
 			if (Array.isArray(parsed.connections)) {
 				connections = parsed.connections as Connection[];
 			}
@@ -60,9 +60,7 @@ export async function migrateLegacyFiles(userDataPath: string): Promise<void> {
 		try {
 			const raw = readFileSync(lastPathsPath, "utf-8");
 			const parsed = JSON.parse(raw) as AppConfig["lastPaths"];
-			if (typeof parsed === "object" && parsed !== null) {
-				Object.assign(lastPaths, parsed);
-			}
+			Object.assign(lastPaths, parsed);
 		} catch {
 			log.warn("Failed to read legacy last-paths.json during migration");
 		}
@@ -108,11 +106,11 @@ async function migrateFromSqlite(dbPath: string): Promise<Connection[]> {
 
 	const columnNames = results[0].columns;
 	const rows = results[0].values.map((row) => {
-		const obj: Record<string, unknown> = {};
+		const obj: Record<string, string | number | null> = {};
 		columnNames.forEach((col, i) => {
-			obj[col] = row[i];
+			obj[col] = row[i] as string | number | null;
 		});
-		return obj as Record<string, unknown>;
+		return obj;
 	});
 
 	const connections: Connection[] = rows.map((row) => {
@@ -281,11 +279,15 @@ export class AppStore {
 	// ── Last Paths ───────────────────────────────────────
 
 	getLocalPath(connectionId: number): string | undefined {
-		return this.data.lastPaths[String(connectionId)]?.local;
+		const key = String(connectionId);
+		if (!(key in this.data.lastPaths)) return undefined;
+		return this.data.lastPaths[key].local;
 	}
 
 	getRemotePath(connectionId: number): string | undefined {
-		return this.data.lastPaths[String(connectionId)]?.remote;
+		const key = String(connectionId);
+		if (!(key in this.data.lastPaths)) return undefined;
+		return this.data.lastPaths[key].remote;
 	}
 
 	setLocalPath(connectionId: number, path: string) {

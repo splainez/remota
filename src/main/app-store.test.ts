@@ -147,7 +147,7 @@ describe("AppStore", () => {
 			store.create(makeNewConnection());
 			store.flush();
 			const raw = readFileSync(join(tmpDir, "app-config.json"), "utf-8");
-			const parsed = JSON.parse(raw);
+			const parsed = JSON.parse(raw) as { connections: unknown[] };
 			expect(parsed.connections).toHaveLength(1);
 		});
 	});

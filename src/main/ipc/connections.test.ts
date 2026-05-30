@@ -31,8 +31,10 @@ const testConnection: NewConnection = {
 	groupName: "",
 };
 
+// eslint-disable-next-line @typescript-eslint/unbound-method -- ipcMain.handle is mocked via vi.fn()
+const mockHandle = ipcMain.handle as unknown as ReturnType<typeof vi.fn>;
+
 function getHandler(channel: string): (...args: unknown[]) => unknown {
-	const mockHandle = ipcMain.handle as ReturnType<typeof vi.fn>;
 	for (const call of mockHandle.mock.calls as [string, (...a: unknown[]) => unknown][]) {
 		if (call[0] === channel) return call[1];
 	}
