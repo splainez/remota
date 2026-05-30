@@ -1,0 +1,20 @@
+# Normalize text files to LF (matches .editorconfig: end_of_line = lf)
+* text=auto eol=lf
+
+# Markdown
+*.md text diff=markdown
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff2 binary
+*.woff binary
+*.eot binary
+*.ttf binary
+*.otf binary
+*.wasm binary
+*.zip binary
