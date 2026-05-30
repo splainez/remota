@@ -116,5 +116,12 @@
 	"file.contextMenu.copyPath": "Copiar ruta al clipboard",
 	"file.contextMenu.copyName": "Copiar nombre del fichero",
 	"file.contextMenu.openInTerminal": "Abrir en terminal",
-	"file.contextMenu.notImplemented": "Funcionalidad no implementada aún"
+	"file.contextMenu.notImplemented": "Funcionalidad no implementada aún",
+	"config.error.title": "Error de configuración",
+	"config.error.message": "No se ha podido leer el fichero de configuración",
+	"config.error.resolution": "Si el problema persiste, puedes eliminar el fichero y reiniciar la aplicación.",
+	"config.error.filePath": "Ruta del fichero:",
+	"config.error.details": "Detalles:",
+	"config.error.retry": "Reintentar",
+	"config.error.ignore": "Continuar sin configuración"
 }

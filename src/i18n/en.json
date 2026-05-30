@@ -119,5 +119,12 @@
 	"file.contextMenu.copyPath": "Copy path to clipboard",
 	"file.contextMenu.copyName": "Copy filename",
 	"file.contextMenu.openInTerminal": "Open in terminal",
-	"file.contextMenu.notImplemented": "Functionality not yet implemented"
+	"file.contextMenu.notImplemented": "Functionality not yet implemented",
+	"config.error.title": "Configuration error",
+	"config.error.message": "Could not read configuration file",
+	"config.error.resolution": "If the problem persists, you can delete the file and restart the application.",
+	"config.error.filePath": "File path:",
+	"config.error.details": "Details:",
+	"config.error.retry": "Retry",
+	"config.error.ignore": "Continue without configuration"
 }
