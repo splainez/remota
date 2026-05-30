@@ -4,6 +4,7 @@ import { LoggerFactory } from "../shared/lib/logger";
 import { AppConfigSchema } from "../shared/app-config-schema";
 import type { AppConfig } from "../shared/app-config-schema";
 import type { Connection, NewConnection, ConnectionUpdate } from "../shared/types";
+import type { Settings, SettingsUpdate } from "../shared/app-config-schema";
 
 const log = LoggerFactory.init({ name: "app-store" });
 
@@ -20,7 +21,7 @@ export class ConfigValidationError extends Error {
 
 export class AppStore {
 	private filePath: string;
-	private data: AppConfig = { connections: [], lastPaths: {}, settings: {} };
+	private data: AppConfig = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
 	private nextId = 1;
 	private saveTimer: ReturnType<typeof setTimeout> | null = null;
 	private loadError: ConfigValidationError | null = null;
@@ -35,7 +36,7 @@ export class AppStore {
 		this.loadError = null;
 
 		if (!existsSync(this.filePath)) {
-			this.data = { connections: [], lastPaths: {}, settings: {} };
+			this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
 			this.save();
 			return;
 		}
@@ -48,7 +49,7 @@ export class AppStore {
 			if (!result.success) {
 				const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
 				this.loadError = new ConfigValidationError("Invalid configuration file", this.filePath, issues);
-				this.data = { connections: [], lastPaths: {}, settings: {} };
+				this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
 				return;
 			}
 
@@ -58,7 +59,7 @@ export class AppStore {
 			this.loadError = new ConfigValidationError("Failed to read configuration file", this.filePath, [
 				(err as Error).message,
 			]);
-			this.data = { connections: [], lastPaths: {}, settings: {} };
+			this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
 		}
 	}
 
@@ -172,6 +173,18 @@ export class AppStore {
 			this.data.lastPaths[key].remote = path;
 		}
 		this.save();
+	}
+
+	// ── Settings ───────────────────────────────────────
+
+	getSettings(): Settings {
+		return this.data.settings;
+	}
+
+	setSettings(update: SettingsUpdate): Settings {
+		this.data.settings = { ...this.data.settings, ...update };
+		this.save();
+		return this.data.settings;
 	}
 
 	// ── Persistence ──────────────────────────────────────

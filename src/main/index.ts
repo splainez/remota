@@ -6,6 +6,7 @@ import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerTerminalHandlers } from "./ipc/terminal";
+import { registerSettingsHandlers } from "./ipc/settings";
 import { TerminalManager } from "./terminal/terminal-manager";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { S3ConnectionManager } from "./s3/s3-client";
@@ -76,6 +77,7 @@ void app.whenReady().then(() => {
 	registerConnectionHandlers(appStore);
 	registerFilesystemHandlers(appStore);
 	registerRemoteFilesystemHandlers(sftp, s3, appStore);
+	registerSettingsHandlers(appStore);
 	createWindow();
 
 	if (!mainWindow) {

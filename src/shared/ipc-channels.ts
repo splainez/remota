@@ -21,4 +21,6 @@ export const IPC = {
 	TERMINAL_KILL: "terminal:kill",
 	APP_GET_CONFIG_PATH: "app:getConfigPath",
 	APP_GET_CONFIG_ERROR: "app:getConfigError",
+	SETTINGS_GET_ALL: "settings:getAll",
+	SETTINGS_SET: "settings:set",
 } as const;

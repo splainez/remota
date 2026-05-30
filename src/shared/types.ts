@@ -31,6 +31,13 @@ export interface FileEntry {
 	modified: string;
 }
 
+export interface Settings {
+	theme: "dark" | "light" | "system";
+	locale: "en" | "es";
+}
+
+export type SettingsUpdate = Partial<Settings>;
+
 export interface ElectronAPI {
 	connections: {
 		list: () => Promise<Connection[]>;
@@ -59,6 +66,10 @@ export interface ElectronAPI {
 		kill: (sessionId: string) => Promise<void>;
 		onData: (sessionId: string, callback: (data: string) => void) => () => void;
 		onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
+	};
+	settings: {
+		getAll: () => Promise<Settings>;
+		set: (partial: SettingsUpdate) => Promise<Settings>;
 	};
 	app: {
 		getConfigPath: () => Promise<string>;

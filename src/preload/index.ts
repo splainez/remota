@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { IPC } from "../shared/ipc-channels";
-import type { Connection, NewConnection, ConnectionUpdate, FileEntry } from "../shared/types";
+import type { Connection, ConnectionUpdate, FileEntry, NewConnection, Settings, SettingsUpdate } from "../shared/types";
 
 const api = {
 	connections: {
@@ -56,6 +56,10 @@ const api = {
 				ipcRenderer.removeListener(channel, handler);
 			};
 		},
+	},
+	settings: {
+		getAll: (): Promise<Settings> => ipcRenderer.invoke(IPC.SETTINGS_GET_ALL),
+		set: (partial: SettingsUpdate): Promise<Settings> => ipcRenderer.invoke(IPC.SETTINGS_SET, partial),
 	},
 	app: {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),

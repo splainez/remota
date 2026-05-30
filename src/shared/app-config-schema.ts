@@ -31,11 +31,21 @@ const lastPathEntry = z.object({
 
 export const LastPathsSchema = z.record(z.string(), lastPathEntry);
 
+export const SettingsSchema = z.object({
+	theme: z.enum(["dark", "light", "system"]),
+	locale: z.enum(["en", "es"]),
+});
+
+export type Settings = z.infer<typeof SettingsSchema>;
+export type SettingsUpdate = Partial<Settings>;
+
+const defaultSettings: Settings = { theme: "system", locale: "en" };
+
 export const AppConfigSchema = z
 	.object({
 		connections: z.array(ConnectionSchema).default([]),
 		lastPaths: LastPathsSchema.default({}),
-		settings: z.record(z.string(), z.unknown()).default({}),
+		settings: SettingsSchema.default(defaultSettings),
 	})
 	.strict();
 
