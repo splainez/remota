@@ -1,22 +1,17 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "node:path";
-import { migrateFromSqlite } from "./database/migrate";
-import { ConnectionStore } from "./connection-store";
+import { AppStore, migrateLegacyFiles } from "./app-store";
+import { IPC } from "../shared/ipc-channels";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerTerminalHandlers } from "./ipc/terminal";
 import { TerminalManager } from "./terminal/terminal-manager";
-import { LastPathStore } from "./last-path-store";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { S3ConnectionManager } from "./s3/s3-client";
 
 let mainWindow: BrowserWindow | null = null;
-let lastPathStore: LastPathStore;
-
-export function getLastPathStore(): LastPathStore {
-	return lastPathStore;
-}
+let appStore: AppStore;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -40,6 +35,17 @@ function createWindow() {
 		void mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
 	}
 
+	const initialError = appStore.getLoadError();
+	if (initialError) {
+		mainWindow.webContents.on("did-finish-load", () => {
+			mainWindow?.webContents.send("config-error", {
+				message: initialError.message,
+				filePath: initialError.filePath,
+				issues: initialError.issues,
+			});
+		});
+	}
+
 	mainWindow.on("closed", () => {
 		mainWindow = null;
 	});
@@ -47,17 +53,30 @@ function createWindow() {
 
 void app.whenReady().then(async () => {
 	const userDataPath = app.getPath("userData");
-	const store = new ConnectionStore(userDataPath);
-	const migrated = await migrateFromSqlite(userDataPath, store.getFilePath());
-	if (migrated) {
-		store.load();
-	}
-	lastPathStore = new LastPathStore(userDataPath);
+
+	await migrateLegacyFiles(userDataPath);
+	appStore = new AppStore(userDataPath);
+
+	ipcMain.handle(IPC.APP_GET_CONFIG_PATH, () => {
+		return appStore.getFilePath();
+	});
+
+	ipcMain.handle(IPC.APP_GET_CONFIG_ERROR, () => {
+		appStore.reload();
+		const err = appStore.getLoadError();
+		if (!err) return null;
+		return {
+			message: err.message,
+			filePath: err.filePath,
+			issues: err.issues,
+		};
+	});
+
 	const sftp = new SftpConnectionManager();
 	const s3 = new S3ConnectionManager();
-	registerConnectionHandlers(store);
-	registerFilesystemHandlers(lastPathStore);
-	registerRemoteFilesystemHandlers(sftp, s3, store);
+	registerConnectionHandlers(appStore);
+	registerFilesystemHandlers(appStore);
+	registerRemoteFilesystemHandlers(sftp, s3, appStore);
 	createWindow();
 
 	if (!mainWindow) {
@@ -71,7 +90,7 @@ void app.whenReady().then(async () => {
 		terminalManager.killAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
-		store.flush();
+		appStore.flush();
 	});
 
 	app.on("activate", () => {

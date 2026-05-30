@@ -1,13 +1,13 @@
 import { ipcMain } from "electron";
 import { IPC } from "../../shared/ipc-channels";
-import type { ConnectionStore } from "../connection-store";
+import type { AppStore } from "../app-store";
 import type { SftpConnectionManager } from "../sftp/sftp-client";
 import type { S3ConnectionManager } from "../s3/s3-client";
 
 export function registerRemoteFilesystemHandlers(
 	sftp: SftpConnectionManager,
 	s3: S3ConnectionManager,
-	store: ConnectionStore,
+	store: AppStore,
 ) {
 	ipcMain.handle(IPC.REMOTE_CONNECT, async (_event, connectionId: number) => {
 		const conn = store.get(connectionId);

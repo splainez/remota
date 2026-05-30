@@ -4,7 +4,7 @@ import { join, sep } from "node:path";
 import { homedir } from "node:os";
 import { IPC } from "../../shared/ipc-channels";
 import type { FileEntry } from "../../shared/types";
-import type { LastPathStore } from "../last-path-store";
+import type { AppStore } from "../app-store";
 
 export function listDirectory(dirPath: string): FileEntry[] {
 	let entryNames: string[];
@@ -60,7 +60,7 @@ export function listDrives(): string[] {
 	return drives;
 }
 
-export function registerFilesystemHandlers(lastPathStore: LastPathStore) {
+export function registerFilesystemHandlers(store: AppStore) {
 	ipcMain.handle(IPC.FILE_LIST, (_event, dirPath: string) => {
 		const normalized = normalizePath(dirPath);
 		return listDirectory(normalized);
@@ -89,16 +89,16 @@ export function registerFilesystemHandlers(lastPathStore: LastPathStore) {
 
 	ipcMain.handle(IPC.FILE_GET_LAST_PATH, (_event, connectionId: number, pane: "local" | "remote") => {
 		if (pane === "local") {
-			return lastPathStore.getLocalPath(connectionId) ?? null;
+			return store.getLocalPath(connectionId) ?? null;
 		}
-		return lastPathStore.getRemotePath(connectionId) ?? null;
+		return store.getRemotePath(connectionId) ?? null;
 	});
 
 	ipcMain.handle(IPC.FILE_SET_LAST_PATH, (_event, connectionId: number, pane: "local" | "remote", path: string) => {
 		if (pane === "local") {
-			lastPathStore.setLocalPath(connectionId, path);
+			store.setLocalPath(connectionId, path);
 		} else {
-			lastPathStore.setRemotePath(connectionId, path);
+			store.setRemotePath(connectionId, path);
 		}
 	});
 }

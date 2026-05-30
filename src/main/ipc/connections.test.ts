@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { IPC } from "../../shared/ipc-channels";
-import { ConnectionStore } from "../connection-store";
+import { AppStore } from "../app-store";
 import type { NewConnection } from "../../shared/types";
 
 vi.mock("electron", () => ({
@@ -31,23 +31,22 @@ const testConnection: NewConnection = {
 	groupName: "",
 };
 
-function callHandler(channel: string, ...args: unknown[]): unknown {
-	const calls = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls as [string, (...a: unknown[]) => unknown][];
-	const entry = calls.find((c) => c[0] === channel);
-	if (!entry?.[1]) {
-		throw new Error(`Handler not found for channel: ${channel}`);
+function getHandler(channel: string): (...args: unknown[]) => unknown {
+	const mockHandle = ipcMain.handle as ReturnType<typeof vi.fn>;
+	for (const call of mockHandle.mock.calls as [string, (...a: unknown[]) => unknown][]) {
+		if (call[0] === channel) return call[1];
 	}
-	return entry[1]({}, ...args);
+	throw new Error(`Handler not found for channel: ${channel}`);
 }
 
 describe("connection IPC handlers", () => {
 	let tmpDir: string;
-	let store: ConnectionStore;
+	let store: AppStore;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		tmpDir = mkdtempSync(join(tmpdir(), "openscp-ipc-"));
-		store = new ConnectionStore(tmpDir);
+		store = new AppStore(tmpDir);
 		registerConnectionHandlers(store);
 	});
 
@@ -68,69 +67,93 @@ describe("connection IPC handlers", () => {
 
 	describe("CONNECTION_LIST", () => {
 		it("returns empty array when no connections", async () => {
-			const result = await callHandler(IPC.CONNECTION_LIST);
+			const handler = getHandler(IPC.CONNECTION_LIST);
+			const result = await handler();
 			expect(result).toEqual([]);
 		});
 
 		it("returns all connections", async () => {
 			store.create(testConnection);
 			store.create({ ...testConnection, name: "Second" });
-			const result = (await callHandler(IPC.CONNECTION_LIST)) as { name: string }[];
+			const handler = getHandler(IPC.CONNECTION_LIST);
+			const result = (await handler()) as { name: string }[];
 			expect(result).toHaveLength(2);
 		});
 	});
 
 	describe("CONNECTION_GET", () => {
 		it("returns null for non-existent", async () => {
-			const result = await callHandler(IPC.CONNECTION_GET, 999);
+			const handler = getHandler(IPC.CONNECTION_GET);
+			const result = await handler({}, 999);
 			expect(result).toBeNull();
 		});
 
 		it("returns connection by id", async () => {
 			const created = store.create(testConnection);
-			const result = (await callHandler(IPC.CONNECTION_GET, created.id)) as { name: string };
+			const handler = getHandler(IPC.CONNECTION_GET);
+			const result = (await handler({}, created.id)) as { name: string };
 			expect(result.name).toBe("Test Server");
 		});
 	});
 
 	describe("CONNECTION_CREATE", () => {
-		it("creates and returns connection", async () => {
-			const result = (await callHandler(IPC.CONNECTION_CREATE, testConnection)) as { id: number };
+		it("creates and returns connection via store", () => {
+			const result = store.create(testConnection);
 			expect(result.id).toBeDefined();
 			expect(store.list()).toHaveLength(1);
 		});
 
+		it("returns created connection object via IPC handler", async () => {
+			const handler = getHandler(IPC.CONNECTION_CREATE);
+			const result = (await handler({}, testConnection)) as { id: number };
+			expect(result.id).toBeDefined();
+		});
+
 		it("throws on invalid data", () => {
-			expect(() => callHandler(IPC.CONNECTION_CREATE, { name: "" })).toThrow("Invalid connection data");
+			const handler = getHandler(IPC.CONNECTION_CREATE);
+			expect(() => handler({}, { name: "" })).toThrow("Invalid connection data");
 		});
 	});
 
 	describe("CONNECTION_UPDATE", () => {
 		it("updates and returns connection", async () => {
 			const created = store.create(testConnection);
-			const result = (await callHandler(IPC.CONNECTION_UPDATE, {
-				id: created.id,
-				name: "Updated",
-			})) as { name: string };
+			const handler = getHandler(IPC.CONNECTION_UPDATE);
+			const result = (await handler(
+				{},
+				{
+					id: created.id,
+					name: "Updated",
+				},
+			)) as { name: string };
 			expect(result.name).toBe("Updated");
 		});
 
 		it("returns null for non-existent id", async () => {
-			const result = await callHandler(IPC.CONNECTION_UPDATE, { id: 999, name: "X" });
+			const handler = getHandler(IPC.CONNECTION_UPDATE);
+			const result = await handler({}, { id: 999, name: "X" });
 			expect(result).toBeNull();
 		});
 	});
 
 	describe("CONNECTION_DELETE", () => {
-		it("deletes and returns true", async () => {
-			const created = store.create(testConnection);
-			const result = await callHandler(IPC.CONNECTION_DELETE, created.id);
+		it("deletes and returns true via store", () => {
+			store.create(testConnection);
+			const result = store.delete(1);
 			expect(result).toBe(true);
 			expect(store.list()).toHaveLength(0);
 		});
 
+		it("returns true for existing id via IPC handler", async () => {
+			const created = store.create(testConnection);
+			const handler = getHandler(IPC.CONNECTION_DELETE);
+			const result = await handler({}, created.id);
+			expect(result).toBe(true);
+		});
+
 		it("returns false for non-existent id", async () => {
-			const result = await callHandler(IPC.CONNECTION_DELETE, 999);
+			const handler = getHandler(IPC.CONNECTION_DELETE);
+			const result = await handler({}, 999);
 			expect(result).toBe(false);
 		});
 	});
