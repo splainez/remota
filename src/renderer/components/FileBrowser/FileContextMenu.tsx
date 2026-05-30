@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useCallback } from "react";
-import { toast } from "sonner";
 import { t } from "../../../i18n";
 import type { FileEntry } from "../../../shared/types";
 import { Icon, type IconName } from "../icons/Icon";
@@ -19,6 +18,7 @@ interface FileContextMenuProps {
 	entry: FileEntry;
 	panelType: "local" | "remote";
 	onClose: () => void;
+	onAction?: (actionId: string, entry: FileEntry) => void;
 }
 
 function clampToViewport(x: number, y: number, menuWidth: number, menuHeight: number): { left: number; top: number } {
@@ -30,14 +30,17 @@ function clampToViewport(x: number, y: number, menuWidth: number, menuHeight: nu
 	};
 }
 
-export function FileContextMenu({ x, y, entry, panelType, onClose }: FileContextMenuProps) {
+export function FileContextMenu({ x, y, entry, panelType, onClose, onAction }: FileContextMenuProps) {
 	const itemsRef = useRef<HTMLButtonElement[]>([]);
 	const focusIndex = useRef(0);
 
-	const handleAction = useCallback(() => {
-		toast(t("file.contextMenu.notImplemented"));
-		onClose();
-	}, [onClose]);
+	const handleAction = useCallback(
+		(actionId: string) => {
+			onAction?.(actionId, entry);
+			onClose();
+		},
+		[onAction, entry, onClose],
+	);
 
 	const menuItems: MenuItem[] = [
 		{
@@ -146,7 +149,9 @@ export function FileContextMenu({ x, y, entry, panelType, onClose }: FileContext
 								: "hover:bg-surface-container-high text-popover-foreground"
 						}`}
 						role="menuitem"
-						onClick={handleAction}
+						onClick={() => {
+							handleAction(item.id);
+						}}
 					>
 						<Icon name={item.icon} size={14} />
 						{item.label}

@@ -121,4 +121,54 @@ describe("FileContextMenu", () => {
 		fireEvent.keyDown(document, { key: "ArrowUp" });
 		expect(items[1]).toHaveFocus();
 	});
+
+	it("calls onAction with 'open' and entry when Open is clicked", async () => {
+		const user = userEvent.setup();
+		const onAction = vi.fn();
+		const entry = makeEntry();
+		render(<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />);
+		await user.click(screen.getByText("Open"));
+		expect(onAction).toHaveBeenCalledOnce();
+		expect(onAction).toHaveBeenCalledWith("open", entry);
+	});
+
+	it("calls onClose after onAction", async () => {
+		const user = userEvent.setup();
+		const onClose = vi.fn();
+		render(<FileContextMenu {...defaultProps} onClose={onClose} onAction={vi.fn()} />);
+		await user.click(screen.getByText("Open"));
+		expect(onClose).toHaveBeenCalledOnce();
+	});
+
+	it("calls onAction with correct id for each menu item", async () => {
+		const user = userEvent.setup();
+		const onAction = vi.fn();
+		const entry = makeEntry({ name: "readme.md", fullPath: "/home/readme.md" });
+		render(<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />);
+
+		await user.click(screen.getByText("Open"));
+		expect(onAction).toHaveBeenCalledWith("open", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Edit"));
+		expect(onAction).toHaveBeenCalledWith("edit", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Rename"));
+		expect(onAction).toHaveBeenCalledWith("rename", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Delete"));
+		expect(onAction).toHaveBeenCalledWith("delete", entry);
+	});
+
+	it("does not call onAction when not provided", async () => {
+		const user = userEvent.setup();
+		render(<FileContextMenu {...defaultProps} />);
+		await user.click(screen.getByText("Open"));
+		expect(screen.getByRole("menu")).toBeInTheDocument();
+	});
 });
