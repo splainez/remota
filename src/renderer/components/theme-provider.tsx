@@ -6,20 +6,11 @@ type ResolvedTheme = "dark" | "light";
 interface ThemeProviderProps {
 	children: React.ReactNode;
 	defaultTheme?: Theme;
-	storageKey?: string;
 	disableTransitionOnChange?: boolean;
+	onThemeChange?: (theme: Theme) => void;
 }
 
 const COLOR_SCHEME_QUERY = "(prefers-color-scheme: dark)";
-const THEME_VALUES: Theme[] = ["dark", "light", "system"];
-
-function isTheme(value: string | null): value is Theme {
-	if (value === null) {
-		return false;
-	}
-
-	return THEME_VALUES.includes(value as Theme);
-}
 
 function getSystemTheme(): ResolvedTheme {
 	if (window.matchMedia(COLOR_SCHEME_QUERY).matches) {
@@ -66,25 +57,18 @@ function isEditableTarget(target: EventTarget | null) {
 export function ThemeProvider({
 	children,
 	defaultTheme = "dark",
-	storageKey = "theme",
 	disableTransitionOnChange = true,
+	onThemeChange,
 	...props
 }: ThemeProviderProps) {
-	const [theme, setThemeState] = React.useState<Theme>(() => {
-		const storedTheme = localStorage.getItem(storageKey);
-		if (isTheme(storedTheme)) {
-			return storedTheme;
-		}
-
-		return defaultTheme;
-	});
+	const [theme, setThemeState] = React.useState<Theme>(defaultTheme);
 
 	const setTheme = React.useCallback(
 		(nextTheme: Theme) => {
-			localStorage.setItem(storageKey, nextTheme);
 			setThemeState(nextTheme);
+			onThemeChange?.(nextTheme);
 		},
-		[storageKey],
+		[onThemeChange],
 	);
 
 	const applyTheme = React.useCallback(
@@ -150,7 +134,7 @@ export function ThemeProvider({
 								? "light"
 								: "dark";
 
-				localStorage.setItem(storageKey, nextTheme);
+				onThemeChange?.(nextTheme);
 				return nextTheme;
 			});
 		};
@@ -160,32 +144,7 @@ export function ThemeProvider({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [storageKey]);
-
-	React.useEffect(() => {
-		const handleStorageChange = (event: StorageEvent) => {
-			if (event.storageArea !== localStorage) {
-				return;
-			}
-
-			if (event.key !== storageKey) {
-				return;
-			}
-
-			if (isTheme(event.newValue)) {
-				setThemeState(event.newValue);
-				return;
-			}
-
-			setThemeState(defaultTheme);
-		};
-
-		window.addEventListener("storage", handleStorageChange);
-
-		return () => {
-			window.removeEventListener("storage", handleStorageChange);
-		};
-	}, [defaultTheme, storageKey]);
+	}, [onThemeChange]);
 
 	const value = React.useMemo(
 		() => ({
