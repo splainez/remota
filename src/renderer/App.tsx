@@ -11,6 +11,7 @@ import { ConnectionForm } from "./components/ConnectionManager/ConnectionForm";
 import { FileBrowser } from "./components/FileBrowser/FileBrowser";
 import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "./components/icons/Icon";
+import { ConfigError } from "./components/ConfigError/ConfigError";
 
 export function App() {
 	const { connections, selected, loading, select, create, update, remove } = useConnections();
@@ -153,50 +154,53 @@ export function App() {
 	};
 
 	return (
-		<div className="flex h-screen overflow-hidden bg-background">
-			<Toaster position="bottom-right" richColors />
-			<ServerSidebar
-				connections={connections}
-				selectedId={selected?.id ?? null}
-				activeConnectionId={currentView.view === "fileBrowser" ? currentView.connection.id : null}
-				onSelect={handleSelect}
-				onAdd={handleAdd}
-				onDoubleClick={handleDoubleClick}
-				onViewAll={openConnectionList}
-				onDisconnect={openConnectionList}
-			/>
-
-			<div className="flex-1 flex flex-col min-w-0">
-				{renderMainContent()}
-
-				<ActiveTransfers
-					visible={showTransfers}
-					onToggle={() => {
-						setShowTransfers((v) => !v);
-					}}
+		<>
+			<ConfigError />
+			<div className="flex h-screen overflow-hidden bg-background">
+				<Toaster position="bottom-right" richColors />
+				<ServerSidebar
+					connections={connections}
+					selectedId={selected?.id ?? null}
+					activeConnectionId={currentView.view === "fileBrowser" ? currentView.connection.id : null}
+					onSelect={handleSelect}
+					onAdd={handleAdd}
+					onDoubleClick={handleDoubleClick}
+					onViewAll={openConnectionList}
+					onDisconnect={openConnectionList}
 				/>
 
-				<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
-					<div className="flex items-center gap-2">
-						<span className="w-2 h-2 rounded-full bg-primary" />
-						<span>{t("app.ready")}</span>
-					</div>
-					<div className="flex items-center gap-3">
-						{!showTransfers && (
-							<button
-								className="flex items-center gap-1 hover:text-foreground transition-colors"
-								onClick={() => {
-									setShowTransfers(true);
-								}}
-							>
-								<Icon name="sync" size={14} />
-								<span>{t("transfer.active")}</span>
-							</button>
-						)}
-						<span>{t("app.version")}</span>
-					</div>
-				</footer>
+				<div className="flex-1 flex flex-col min-w-0">
+					{renderMainContent()}
+
+					<ActiveTransfers
+						visible={showTransfers}
+						onToggle={() => {
+							setShowTransfers((v) => !v);
+						}}
+					/>
+
+					<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
+						<div className="flex items-center gap-2">
+							<span className="w-2 h-2 rounded-full bg-primary" />
+							<span>{t("app.ready")}</span>
+						</div>
+						<div className="flex items-center gap-3">
+							{!showTransfers && (
+								<button
+									className="flex items-center gap-1 hover:text-foreground transition-colors"
+									onClick={() => {
+										setShowTransfers(true);
+									}}
+								>
+									<Icon name="sync" size={14} />
+									<span>{t("transfer.active")}</span>
+								</button>
+							)}
+							<span>{t("app.version")}</span>
+						</div>
+					</footer>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }

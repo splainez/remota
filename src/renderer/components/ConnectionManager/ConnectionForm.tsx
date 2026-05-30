@@ -150,9 +150,11 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => {
-									const p = e.target.value;
-									field.handleChange(p);
-									form.setFieldValue("port", DEFAULT_PORT[p] ?? 22);
+									const val = e.target.value;
+									if (val === "sftp" || val === "scp" || val === "s3") {
+										field.handleChange(val);
+										form.setFieldValue("port", DEFAULT_PORT[val]);
+									}
 								}}
 							>
 								{(["sftp", "scp", "s3"] as const).map((p) => (

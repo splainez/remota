@@ -41,7 +41,7 @@ function createConnectedMockApi() {
 const testConnection = {
 	id: 1,
 	name: "Test SFTP",
-	protocol: "sftp",
+	protocol: "sftp" as const,
 	host: "example.com",
 	port: 22,
 	username: "testuser",

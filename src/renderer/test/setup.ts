@@ -63,6 +63,12 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			onExit: vi.fn().mockReturnValue(vi.fn()),
 			...overrides?.terminal,
 		},
+		app: {
+			getConfigPath: vi.fn<() => Promise<string>>().mockResolvedValue("/tmp/app-config.json"),
+			getConfigError: vi.fn<() => Promise<null>>().mockResolvedValue(null),
+			onConfigError: vi.fn().mockReturnValue(vi.fn()),
+			...overrides?.app,
+		},
 		platform: overrides?.platform ?? "linux",
 	};
 }
