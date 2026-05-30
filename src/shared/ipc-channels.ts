@@ -19,4 +19,6 @@ export const IPC = {
 	TERMINAL_WRITE: "terminal:write",
 	TERMINAL_RESIZE: "terminal:resize",
 	TERMINAL_KILL: "terminal:kill",
+	APP_GET_CONFIG_PATH: "app:getConfigPath",
+	APP_GET_CONFIG_ERROR: "app:getConfigError",
 } as const;
