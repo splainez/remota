@@ -62,7 +62,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			groupName: initial?.groupName ?? "",
 		},
 		onSubmit: async ({ value }) => {
-			savedRef.current.connection = await onSave(getFormData(value as ConnectionFormData));
+			savedRef.current.connection = await onSave(getFormData(value));
 		},
 		validators: {
 			onSubmit: connectionFormSchema,

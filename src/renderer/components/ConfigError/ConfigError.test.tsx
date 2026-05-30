@@ -20,7 +20,7 @@ describe("ConfigError", () => {
 		vi.clearAllMocks();
 	});
 
-	it("returns null when no error", async () => {
+	it("returns null when no error", () => {
 		const api = createMockApi();
 		vi.stubGlobal("api", api);
 
