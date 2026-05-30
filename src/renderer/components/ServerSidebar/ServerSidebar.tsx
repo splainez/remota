@@ -14,6 +14,7 @@ interface ServerSidebarProps {
 	onDoubleClick: (id: number) => void;
 	onViewAll: () => void;
 	onDisconnect: () => void;
+	onSettings: () => void;
 }
 
 function getInitials(name: string): string {
@@ -38,6 +39,7 @@ export function ServerSidebar({
 	onDoubleClick,
 	onViewAll,
 	onDisconnect,
+	onSettings,
 }: ServerSidebarProps) {
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -144,6 +146,7 @@ export function ServerSidebar({
 				onToggleCollapse={() => {
 					setCollapsed((v) => !v);
 				}}
+				onSettings={onSettings}
 			/>
 		</nav>
 	);

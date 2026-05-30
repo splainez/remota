@@ -5,9 +5,10 @@ import { ThemeSelect } from "./ThemeSelect";
 interface SidebarFooterProps {
 	collapsed: boolean;
 	onToggleCollapse: () => void;
+	onSettings: () => void;
 }
 
-export function SidebarFooter({ collapsed, onToggleCollapse }: SidebarFooterProps) {
+export function SidebarFooter({ collapsed, onToggleCollapse, onSettings }: SidebarFooterProps) {
 	return (
 		<div
 			className={`flex flex-col gap-2 w-full mt-auto pt-3 border-t border-outline-variant ${collapsed ? "items-center" : ""}`}
@@ -22,7 +23,11 @@ export function SidebarFooter({ collapsed, onToggleCollapse }: SidebarFooterProp
 			<div className={`flex items-center gap-2 ${collapsed ? "flex-col" : "flex-row"}`}>
 				<ThemeSelect />
 				{!collapsed && (
-					<button className="w-10 h-10 rounded-full hover:bg-surface-container hover:rounded-xl transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary">
+					<button
+						className="w-10 h-10 rounded-full hover:bg-surface-container hover:rounded-xl transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary"
+						title={t("navigation.settings")}
+						onClick={onSettings}
+					>
 						<Icon name="settings" size={16} />
 					</button>
 				)}
