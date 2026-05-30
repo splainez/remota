@@ -123,5 +123,13 @@
 	"config.error.filePath": "Ruta del fichero:",
 	"config.error.details": "Detalles:",
 	"config.error.retry": "Reintentar",
-	"config.error.ignore": "Continuar sin configuración"
+	"config.error.ignore": "Continuar sin configuraci\u00f3n",
+	"settings.title": "Ajustes",
+	"settings.appearance": "Apariencia",
+	"settings.language": "Idioma",
+	"settings.theme": "Tema",
+	"settings.themeDescription": "Elige tu esquema de color preferido",
+	"settings.languageDescription": "Selecciona el idioma de la interfaz",
+	"settings.languageEnglish": "English",
+	"settings.languageSpanish": "Espa\u00f1ol"
 }

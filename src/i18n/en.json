@@ -126,5 +126,13 @@
 	"config.error.filePath": "File path:",
 	"config.error.details": "Details:",
 	"config.error.retry": "Retry",
-	"config.error.ignore": "Continue without configuration"
+	"config.error.ignore": "Continue without configuration",
+	"settings.title": "Settings",
+	"settings.appearance": "Appearance",
+	"settings.language": "Language",
+	"settings.theme": "Theme",
+	"settings.themeDescription": "Choose your preferred color scheme",
+	"settings.languageDescription": "Select the display language",
+	"settings.languageEnglish": "English",
+	"settings.languageSpanish": "Espa\u00f1ol"
 }
