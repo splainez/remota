@@ -1,0 +1,103 @@
+import { describe, it, expect } from "vitest";
+import { AppConfigSchema, ConnectionSchema, LastPathsSchema } from "./app-config-schema";
+
+describe("ConnectionSchema", () => {
+	it("accepts a valid connection", () => {
+		const result = ConnectionSchema.safeParse({
+			id: 1,
+			name: "Server",
+			protocol: "sftp",
+			host: "example.com",
+			port: 22,
+			username: "user",
+			authType: "password",
+			password: "pass",
+			privateKeyPath: "",
+			accessKey: "",
+			secretKey: "",
+			region: "",
+			bucket: "",
+			endpoint: "",
+			useHttps: true,
+			groupName: "",
+			createdAt: "2024-01-01T00:00:00Z",
+			updatedAt: "2024-01-01T00:00:00Z",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects missing id", () => {
+		const result = ConnectionSchema.safeParse({ name: "Server" });
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("LastPathsSchema", () => {
+	it("accepts empty object", () => {
+		const result = LastPathsSchema.safeParse({});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts entries with local and remote", () => {
+		const result = LastPathsSchema.safeParse({ "1": { local: "/home", remote: "/remote" } });
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts partial entries", () => {
+		const result = LastPathsSchema.safeParse({ "1": { local: "/home" } });
+		expect(result.success).toBe(true);
+	});
+});
+
+describe("AppConfigSchema", () => {
+	it("accepts empty config", () => {
+		const result = AppConfigSchema.safeParse({});
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.connections).toEqual([]);
+			expect(result.data.lastPaths).toEqual({});
+			expect(result.data.settings).toEqual({});
+		}
+	});
+
+	it("accepts full config", () => {
+		const data = {
+			connections: [
+				{
+					id: 1,
+					name: "Server",
+					protocol: "sftp",
+					host: "example.com",
+					port: 22,
+					username: "user",
+					authType: "password",
+					password: "pass",
+					privateKeyPath: "",
+					accessKey: "",
+					secretKey: "",
+					region: "",
+					bucket: "",
+					endpoint: "",
+					useHttps: true,
+					groupName: "",
+					createdAt: "2024-01-01T00:00:00Z",
+					updatedAt: "2024-01-01T00:00:00Z",
+				},
+			],
+			lastPaths: { "1": { local: "/home" } },
+			settings: { theme: "dark" },
+		};
+		const result = AppConfigSchema.safeParse(data);
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects extra properties", () => {
+		const result = AppConfigSchema.safeParse({ unknownField: true });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects invalid connection inside connections", () => {
+		const result = AppConfigSchema.safeParse({ connections: [{ id: "not-a-number" }] });
+		expect(result.success).toBe(false);
+	});
+});
