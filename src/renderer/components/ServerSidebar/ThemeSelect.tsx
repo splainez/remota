@@ -2,11 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { useTheme } from "../../hooks/useTheme";
-import { useSettingsStore } from "../../store/settings";
 
 export function ThemeSelect() {
 	const { theme, setTheme } = useTheme();
-	const { setTheme: persistTheme } = useSettingsStore();
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -47,7 +45,6 @@ export function ThemeSelect() {
 							className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-surface-container-high transition-colors ${theme === opt.value ? "text-primary bg-primary/10" : "text-popover-foreground"}`}
 							onClick={() => {
 								setTheme(opt.value);
-								persistTheme(opt.value);
 								setOpen(false);
 							}}
 						>

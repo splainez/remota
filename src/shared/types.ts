@@ -1,3 +1,7 @@
+import type { Settings, SettingsUpdate } from "./app-config-schema";
+
+export type { Settings, SettingsUpdate };
+
 export interface Connection {
 	id: number;
 	name: string;
@@ -30,13 +34,6 @@ export interface FileEntry {
 	size: number;
 	modified: string;
 }
-
-export interface Settings {
-	theme: "dark" | "light" | "system";
-	locale: "en" | "es";
-}
-
-export type SettingsUpdate = Partial<Settings>;
 
 export interface ElectronAPI {
 	connections: {

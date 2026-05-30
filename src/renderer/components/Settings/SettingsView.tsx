@@ -1,4 +1,4 @@
-import { t } from "../../../i18n";
+import { t, type TranslationKey } from "../../../i18n";
 import { useTheme } from "../../hooks/useTheme";
 import { useSettingsStore } from "../../store/settings";
 import { Icon } from "../icons/Icon";
@@ -7,13 +7,13 @@ interface SettingsViewProps {
 	onBack: () => void;
 }
 
-const themeOptions: { value: "dark" | "light" | "system"; label: string; icon: "lock" | "eye" | "layout" }[] = [
+const themeOptions: { value: "dark" | "light" | "system"; label: TranslationKey; icon: "lock" | "eye" | "layout" }[] = [
 	{ value: "dark", label: "theme.dark", icon: "lock" },
 	{ value: "light", label: "theme.light", icon: "eye" },
 	{ value: "system", label: "theme.system", icon: "layout" },
 ];
 
-const languageOptions: { value: "en" | "es"; label: string }[] = [
+const languageOptions: { value: "en" | "es"; label: TranslationKey }[] = [
 	{ value: "en", label: "settings.languageEnglish" },
 	{ value: "es", label: "settings.languageSpanish" },
 ];
@@ -62,7 +62,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 										}}
 									>
 										<Icon name={opt.icon} size={20} />
-										<span className="text-xs font-medium">{t(opt.label as never)}</span>
+										<span className="text-xs font-medium">{t(opt.label)}</span>
 									</button>
 								))}
 							</div>
@@ -76,7 +76,6 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 						</h3>
 						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
 							<div className="flex flex-col gap-1 mb-3">
-								<span className="text-sm font-medium text-foreground">{t("settings.language")}</span>
 								<span className="text-xs text-muted-foreground">{t("settings.languageDescription")}</span>
 							</div>
 							<div className="flex flex-col gap-2">
@@ -99,7 +98,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 										>
 											{locale === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</span>
-										<span className="text-sm font-medium">{t(opt.label as never)}</span>
+										<span className="text-sm font-medium">{t(opt.label)}</span>
 									</button>
 								))}
 							</div>
