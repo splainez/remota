@@ -11,7 +11,7 @@ interface TranslationsAll {
 
 const translations: TranslationsAll = { en, es };
 
-type LocaleAvailable = "en" | "es";
+export type LocaleAvailable = "en" | "es";
 
 let currentLocale: LocaleAvailable = "en";
 
@@ -25,14 +25,18 @@ function detectLocale(): LocaleAvailable {
 	return lang === "es" ? lang : "en";
 }
 
-export function initLocale() {
-	currentLocale = detectLocale();
+export function initLocale(locale?: LocaleAvailable) {
+	currentLocale = locale ?? detectLocale();
 }
 
 export function setLocale(locale: LocaleAvailable) {
 	if (locale in translations) {
 		currentLocale = locale;
 	}
+}
+
+export function getLocale(): LocaleAvailable {
+	return currentLocale;
 }
 
 function getTranslations(): Translations {
