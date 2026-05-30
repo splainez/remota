@@ -197,15 +197,15 @@ console.log(user.email); // could be undefined without warning
 import { z } from "zod";
 
 const UserSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
+	name: z.string(),
+	email: z.string().email(),
 });
 
 const parsed = UserSchema.safeParse(data);
 
 if (!parsed.success) {
-  console.error("Validation error:", parsed.error.flatten());
-  return;
+	console.error("Validation error:", parsed.error.flatten());
+	return;
 }
 
 // parsed.data is safely typed as { name: string; email: string }
@@ -228,22 +228,22 @@ import { z } from "zod";
 
 // Schema that replicates the known type's structure
 const ConnectionConfigSchema: z.ZodType<ConnectionConfig> = z.object({
-  host: z.string(),
-  port: z.number(),
-  username: z.string(),
-  protocol: z.enum(["sftp", "scp", "ftp"]),
+	host: z.string(),
+	port: z.number(),
+	username: z.string(),
+	protocol: z.enum(["sftp", "scp", "ftp"]),
 });
 
 function processConfig(raw: unknown) {
-  const parsed = ConnectionConfigSchema.safeParse(raw);
+	const parsed = ConnectionConfigSchema.safeParse(raw);
 
-  if (!parsed.success) {
-    throw new Error(`Invalid config: ${parsed.error.flatten()}`);
-  }
+	if (!parsed.success) {
+		throw new Error(`Invalid config: ${parsed.error.flatten()}`);
+	}
 
-  // parsed.data is safely typed as ConnectionConfig
-  const config: ConnectionConfig = parsed.data;
-  return config;
+	// parsed.data is safely typed as ConnectionConfig
+	const config: ConnectionConfig = parsed.data;
+	return config;
 }
 ```
 
