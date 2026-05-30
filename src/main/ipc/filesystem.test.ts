@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 
+const mockOpenPath = vi.fn<(...args: unknown[]) => Promise<string>>().mockResolvedValue("");
+
+vi.mock("electron", () => ({
+	app: {},
+	ipcMain: { handle: vi.fn() },
+	shell: { openPath: (...args: unknown[]) => mockOpenPath(...args) },
+}));
+
 describe("normalizePath", () => {
 	let normalizePath: (input: string) => string;
 
@@ -65,5 +73,24 @@ describe("listDrives", () => {
 		vi.spyOn(process, "platform", "get").mockReturnValue("linux");
 		({ listDrives } = await import("./filesystem"));
 		expect(listDrives()).toEqual(["/"]);
+	});
+});
+
+describe("openPath", () => {
+	afterEach(() => {
+		vi.clearAllMocks();
+		mockOpenPath.mockResolvedValue("");
+	});
+
+	it("calls shell.openPath and resolves on success", async () => {
+		const { openPath } = await import("./filesystem");
+		await openPath("/path/to/file.txt");
+		expect(mockOpenPath).toHaveBeenCalledWith("/path/to/file.txt");
+	});
+
+	it("throws error when shell.openPath returns an error message", async () => {
+		mockOpenPath.mockResolvedValue("No application found");
+		const { openPath } = await import("./filesystem");
+		await expect(openPath("/path/to/file.txt")).rejects.toThrow("No application found");
 	});
 });

@@ -48,6 +48,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			getLastPath: vi.fn().mockResolvedValue(null),
 			setLastPath: vi.fn().mockResolvedValue(undefined),
 			getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
+			openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 			remoteConnect: vi.fn().mockResolvedValue("/"),
 			remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 			remoteList: vi.fn().mockResolvedValue([]),
