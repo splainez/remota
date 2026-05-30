@@ -120,6 +120,7 @@
 	"file.contextMenu.copyName": "Copy filename",
 	"file.contextMenu.openInTerminal": "Open in terminal",
 	"file.contextMenu.notImplemented": "Functionality not yet implemented",
+	"file.contextMenu.openError": "Could not open file",
 	"config.error.title": "Configuration error",
 	"config.error.message": "Could not read configuration file",
 	"config.error.resolution": "If the problem persists, you can delete the file and restart the application.",

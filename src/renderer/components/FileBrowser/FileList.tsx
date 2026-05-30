@@ -12,6 +12,7 @@ interface FileListProps {
 	error: string | null;
 	errorDetail?: string;
 	onEnterDirectory: (name: string) => void;
+	onOpenFile?: (entry: FileEntry) => void;
 	onSelectEntry: (name: string, ctrlKey: boolean, shiftKey: boolean, sortedNames: string[]) => void;
 	selectedNames: string[];
 	typeAheadName?: string | null;
@@ -44,6 +45,7 @@ export function FileList({
 	error,
 	errorDetail,
 	onEnterDirectory,
+	onOpenFile,
 	onSelectEntry,
 	selectedNames,
 	typeAheadName,
@@ -91,7 +93,11 @@ export function FileList({
 							onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sortedNames);
 						}}
 						onDoubleClick={() => {
-							if (entry.isDirectory) onEnterDirectory(entry.name);
+							if (entry.isDirectory) {
+								onEnterDirectory(entry.name);
+							} else {
+								onOpenFile?.(entry);
+							}
 						}}
 						onContextMenu={
 							onContextMenu
