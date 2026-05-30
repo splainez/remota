@@ -12,11 +12,12 @@ import { FileBrowser } from "./components/FileBrowser/FileBrowser";
 import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "./components/icons/Icon";
 import { ConfigError } from "./components/ConfigError/ConfigError";
+import { SettingsView } from "./components/Settings/SettingsView";
 
 export function App() {
 	const { connections, selected, loading, select, create, update, remove } = useConnections();
 
-	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser } =
+	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser, openSettings } =
 		useAppNavigation();
 	const [showTransfers, setShowTransfers] = useState(true);
 
@@ -150,6 +151,9 @@ export function App() {
 						</div>
 					</div>
 				);
+
+			case "settings":
+				return <SettingsView onBack={openConnectionList} />;
 		}
 	};
 
@@ -167,6 +171,7 @@ export function App() {
 					onDoubleClick={handleDoubleClick}
 					onViewAll={openConnectionList}
 					onDisconnect={openConnectionList}
+					onSettings={openSettings}
 				/>
 
 				<div className="flex-1 flex flex-col min-w-0">

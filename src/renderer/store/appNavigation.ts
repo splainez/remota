@@ -6,7 +6,8 @@ export type AppView =
 	| { view: "connectionList" }
 	| { view: "connectionDetail"; id: number }
 	| { view: "connectionForm"; mode: "new" | "edit"; id?: number }
-	| { view: "fileBrowser"; connection: Connection };
+	| { view: "fileBrowser"; connection: Connection }
+	| { view: "settings" };
 
 interface AppNavigationStore {
 	currentView: AppView;
@@ -15,6 +16,7 @@ interface AppNavigationStore {
 	openConnectionDetail: (id: number) => void;
 	openConnectionForm: (mode: "new" | "edit", id?: number) => void;
 	openFileBrowser: (connection: Connection) => void;
+	openSettings: () => void;
 	goBack: () => void;
 }
 
@@ -39,6 +41,10 @@ export const useAppNavigation = create<AppNavigationStore>((set) => ({
 
 	openFileBrowser: (connection) => {
 		set({ currentView: { view: "fileBrowser", connection } });
+	},
+
+	openSettings: () => {
+		set({ currentView: { view: "settings" } });
 	},
 
 	goBack: () => {
