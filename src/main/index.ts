@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "node:path";
-import { AppStore, migrateLegacyFiles } from "./app-store";
+import { AppStore } from "./app-store";
 import { IPC } from "../shared/ipc-channels";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
@@ -51,10 +51,9 @@ function createWindow() {
 	});
 }
 
-void app.whenReady().then(async () => {
+void app.whenReady().then(() => {
 	const userDataPath = app.getPath("userData");
 
-	await migrateLegacyFiles(userDataPath);
 	appStore = new AppStore(userDataPath);
 
 	ipcMain.handle(IPC.APP_GET_CONFIG_PATH, () => {

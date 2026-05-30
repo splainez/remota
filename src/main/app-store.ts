@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { LoggerFactory } from "../shared/lib/logger";
 import { AppConfigSchema } from "../shared/app-config-schema";
@@ -16,132 +16,6 @@ export class ConfigValidationError extends Error {
 		super(message);
 		this.name = "ConfigValidationError";
 	}
-}
-
-export async function migrateLegacyFiles(userDataPath: string): Promise<void> {
-	const newConfigPath = join(userDataPath, "app-config.json");
-	if (existsSync(newConfigPath)) return;
-
-	const connectionsPath = join(userDataPath, "connections.json");
-	const lastPathsPath = join(userDataPath, "last-paths.json");
-	const dbPath = join(userDataPath, "openscp.db");
-
-	const hasConnections = existsSync(connectionsPath);
-	const hasLastPaths = existsSync(lastPathsPath);
-	const hasDb = !hasConnections && existsSync(dbPath);
-
-	if (!hasConnections && !hasLastPaths && !hasDb) return;
-
-	let connections: Connection[] = [];
-	const lastPaths: AppConfig["lastPaths"] = {};
-
-	if (hasConnections) {
-		try {
-			const raw = readFileSync(connectionsPath, "utf-8");
-			const parsed = JSON.parse(raw) as { connections?: unknown };
-			if (Array.isArray(parsed.connections)) {
-				connections = parsed.connections as Connection[];
-			}
-		} catch {
-			log.warn("Failed to read legacy connections.json during migration");
-		}
-	}
-
-	if (hasDb) {
-		try {
-			const connectionsFromDb = await migrateFromSqlite(dbPath);
-			connections = connectionsFromDb;
-		} catch {
-			log.warn("Failed to migrate from SQLite database");
-		}
-	}
-
-	if (hasLastPaths) {
-		try {
-			const raw = readFileSync(lastPathsPath, "utf-8");
-			const parsed = JSON.parse(raw) as AppConfig["lastPaths"];
-			Object.assign(lastPaths, parsed);
-		} catch {
-			log.warn("Failed to read legacy last-paths.json during migration");
-		}
-	}
-
-	const config: AppConfig = {
-		connections,
-		lastPaths,
-		settings: {},
-	};
-
-	try {
-		writeFileSync(newConfigPath, JSON.stringify(config, null, 2), "utf-8");
-		log.info("Migrated legacy files to app-config.json");
-
-		if (hasConnections) {
-			renameSync(connectionsPath, `${connectionsPath}.bak`);
-		}
-		if (hasDb) {
-			renameSync(dbPath, `${dbPath}.bak`);
-		}
-		if (hasLastPaths) {
-			renameSync(lastPathsPath, `${lastPathsPath}.bak`);
-		}
-	} catch (err) {
-		log.error({ err }, "Failed to write app-config.json during migration");
-	}
-}
-
-async function migrateFromSqlite(dbPath: string): Promise<Connection[]> {
-	const initSqlJs = (await import("sql.js")).default;
-	const SQL = await initSqlJs();
-
-	const buffer = readFileSync(dbPath);
-	const sqlDb = new SQL.Database(buffer);
-
-	const results = sqlDb.exec("SELECT * FROM connections");
-
-	if (results.length === 0 || results[0].values.length === 0) {
-		sqlDb.close();
-		return [];
-	}
-
-	const columnNames = results[0].columns;
-	const rows = results[0].values.map((row) => {
-		const obj: Record<string, string | number | null> = {};
-		columnNames.forEach((col, i) => {
-			obj[col] = row[i] as string | number | null;
-		});
-		return obj;
-	});
-
-	const connections: Connection[] = rows.map((row) => {
-		const authTypeRaw = String(row.auth_type ?? "password");
-		const authType: Connection["authType"] =
-			authTypeRaw === "key" || authTypeRaw === "agent" ? authTypeRaw : "password";
-
-		return {
-			id: Number(row.id),
-			name: String(row.name ?? ""),
-			protocol: String(row.protocol ?? "sftp") as Connection["protocol"],
-			host: String(row.host ?? ""),
-			port: Number(row.port),
-			username: String(row.username ?? ""),
-			authType,
-			password: String(row.password ?? ""),
-			privateKeyPath: String(row.private_key_path ?? ""),
-			accessKey: String(row.access_key ?? ""),
-			secretKey: String(row.secret_key ?? ""),
-			region: String(row.region ?? ""),
-			bucket: String(row.bucket ?? ""),
-			endpoint: String(row.endpoint ?? ""),
-			useHttps: Number(row.use_https) === 1,
-			groupName: String(row.group_name ?? ""),
-			createdAt: String(row.created_at ?? new Date().toISOString()),
-			updatedAt: String(row.updated_at ?? new Date().toISOString()),
-		};
-	});
-
-	sqlDb.close();
-	return connections;
 }
 
 export class AppStore {
@@ -266,16 +140,6 @@ export class AppStore {
 		return true;
 	}
 
-	/** Bulk-import connections (for migration). No auto-save — caller calls flush(). */
-	importConnections(connections: Connection[], nextId?: number) {
-		this.data.connections = connections;
-		if (nextId !== undefined) {
-			this.nextId = nextId;
-		} else {
-			this.computeNextId();
-		}
-	}
-
 	// ── Last Paths ───────────────────────────────────────
 
 	getLocalPath(connectionId: number): string | undefined {
@@ -312,7 +176,7 @@ export class AppStore {
 
 	// ── Persistence ──────────────────────────────────────
 
-	/** Force immediate write. Use after importConnections() to persist. */
+	/** Force immediate write. */
 	flush() {
 		try {
 			writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), "utf-8");
