@@ -175,6 +175,78 @@ Use **[`vercel-react-best-practices`](.agents/skills/react-best-practices/SKILL.
 - **MEDIUM — Rendering**: `content-visibility: auto` for long lists, hoist static JSX outside components, use ternary (`? :`) instead of `&&` for conditional rendering.
 - **LOW-MEDIUM — JS perf**: use `Set`/`Map` for O(1) lookups, build index maps for repeated searches, combine multiple `filter`/`map` into one loop, use `flatMap` to map+filter in one pass.
 
+## Good Practices (Mandatory)
+
+### 1. Casting with `as` → Use Zod for runtime validation
+
+Never use `as` to force a type (type casting). When converting an unknown or generic type to a concrete one, create a Zod schema that validates the structure at runtime and use `parse` / `safeParse`. This way, if the source type changes, the schema will throw an error instead of failing silently in production.
+
+#### ❌ DON'T — Casting with `as`
+
+```typescript
+const data: unknown = JSON.parse(rawJson);
+
+// Danger: if data doesn't match expected shape, it fails silently at runtime
+const user = data as { name: string; email: string };
+console.log(user.email); // could be undefined without warning
+```
+
+#### ✅ DO — Zod schema + parse
+
+```typescript
+import { z } from "zod";
+
+const UserSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+});
+
+const parsed = UserSchema.safeParse(data);
+
+if (!parsed.success) {
+  console.error("Validation error:", parsed.error.flatten());
+  return;
+}
+
+// parsed.data is safely typed as { name: string; email: string }
+console.log(parsed.data.email);
+```
+
+If the schema and TypeScript type must stay in sync, also export the type with `z.infer`:
+
+```typescript
+export type User = z.infer<typeof UserSchema>;
+```
+
+#### ✅ DO — Known type from a library, create equivalent schema
+
+When the type already exists (imported from a library or from `shared/`), don't use `as` to convert. Create a Zod schema that mirrors the type's structure and validate at runtime:
+
+```typescript
+import type { ConnectionConfig } from "../shared/types";
+import { z } from "zod";
+
+// Schema that replicates the known type's structure
+const ConnectionConfigSchema: z.ZodType<ConnectionConfig> = z.object({
+  host: z.string(),
+  port: z.number(),
+  username: z.string(),
+  protocol: z.enum(["sftp", "scp", "ftp"]),
+});
+
+function processConfig(raw: unknown) {
+  const parsed = ConnectionConfigSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    throw new Error(`Invalid config: ${parsed.error.flatten()}`);
+  }
+
+  // parsed.data is safely typed as ConnectionConfig
+  const config: ConnectionConfig = parsed.data;
+  return config;
+}
+```
+
 ## Gotchas
 
 - **Context isolation** is on — renderer code never imports Node/native modules. All OS/db access goes through `contextBridge` + `ipcRenderer.invoke`.
