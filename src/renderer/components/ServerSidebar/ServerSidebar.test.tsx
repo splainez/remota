@@ -49,6 +49,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -69,6 +70,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -90,6 +92,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -112,6 +115,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -133,6 +137,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -158,6 +163,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -182,6 +188,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={onViewAll}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -204,6 +211,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={onViewAll}
 					onDisconnect={vi.fn()}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);
@@ -226,6 +234,7 @@ describe("ServerSidebar", () => {
 					onDoubleClick={vi.fn()}
 					onViewAll={vi.fn()}
 					onDisconnect={onDisconnect}
+					onSettings={vi.fn()}
 				/>
 			</ThemeProvider>,
 		);

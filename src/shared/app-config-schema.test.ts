@@ -56,7 +56,7 @@ describe("AppConfigSchema", () => {
 		if (result.success) {
 			expect(result.data.connections).toEqual([]);
 			expect(result.data.lastPaths).toEqual({});
-			expect(result.data.settings).toEqual({});
+			expect(result.data.settings).toEqual({ theme: "system", locale: "en" });
 		}
 	});
 
@@ -85,7 +85,7 @@ describe("AppConfigSchema", () => {
 				},
 			],
 			lastPaths: { "1": { local: "/home" } },
-			settings: { theme: "dark" },
+			settings: { theme: "dark", locale: "es" },
 		};
 		const result = AppConfigSchema.safeParse(data);
 		expect(result.success).toBe(true);

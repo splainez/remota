@@ -16,7 +16,7 @@ describe("SidebarFooter", () => {
 	});
 
 	it("renders collapse button with arrow-left when expanded", () => {
-		render(<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} />);
+		render(<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
 		const collapseBtn =
 			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
@@ -24,7 +24,7 @@ describe("SidebarFooter", () => {
 	});
 
 	it("renders collapse button with arrow-right when collapsed", () => {
-		render(<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} />);
+		render(<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
 		expect(buttons.length).toBeGreaterThanOrEqual(1);
 	});
@@ -32,7 +32,7 @@ describe("SidebarFooter", () => {
 	it("calls onToggleCollapse on click", async () => {
 		const user = userEvent.setup();
 		const onToggleCollapse = vi.fn();
-		render(<SidebarFooter collapsed={false} onToggleCollapse={onToggleCollapse} />);
+		render(<SidebarFooter collapsed={false} onToggleCollapse={onToggleCollapse} onSettings={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
 		const collapseBtn =
 			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
@@ -41,13 +41,13 @@ describe("SidebarFooter", () => {
 	});
 
 	it("shows settings button and avatar when expanded", () => {
-		render(<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} />);
+		render(<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
 		expect(buttons.length).toBe(3); // collapse + theme + settings
 	});
 
 	it("hides settings and avatar when collapsed", () => {
-		render(<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} />);
+		render(<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />);
 		const buttons = screen.getAllByRole("button");
 		expect(buttons.length).toBe(2); // collapse + theme only
 	});
