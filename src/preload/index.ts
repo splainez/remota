@@ -20,6 +20,7 @@ const api = {
 		setLastPath: (connectionId: number, pane: "local" | "remote", path: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.FILE_SET_LAST_PATH, connectionId, pane, path),
 		getIcon: (path: string): Promise<string | null> => ipcRenderer.invoke(IPC.FILE_GET_ICON, path),
+		openPath: (path: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_OPEN_PATH, path),
 		remoteConnect: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_CONNECT, connectionId),
 		remoteDisconnect: (connectionId: number): Promise<void> => ipcRenderer.invoke(IPC.REMOTE_DISCONNECT, connectionId),
 		remoteList: (connectionId: number, path: string): Promise<FileEntry[]> =>
