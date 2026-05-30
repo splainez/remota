@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { t } from "../../../i18n";
 import { useFileList } from "../../hooks/useFileList";
 import { useFileSelection } from "../../hooks/useFileSelection";
@@ -120,6 +121,25 @@ export function FilePane({
 		void refresh();
 	}, [refresh]);
 
+	const handleOpenFile = useCallback((entry: FileEntry) => {
+		void window.api.filesystem.openPath(entry.fullPath).catch(() => {
+			toast.error(t("file.contextMenu.openError"));
+		});
+	}, []);
+
+	const handleContextMenuAction = useCallback(
+		(actionId: string, entry: FileEntry) => {
+			if (actionId === "open") {
+				if (entry.isDirectory) {
+					handleEnterDirectory(entry.name);
+				} else {
+					handleOpenFile(entry);
+				}
+			}
+		},
+		[handleEnterDirectory, handleOpenFile],
+	);
+
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
 			typeAheadKeyDown(e);
@@ -171,6 +191,7 @@ export function FilePane({
 					error={errorMessage}
 					errorDetail={displayError?.technicalDetail}
 					onEnterDirectory={handleEnterDirectoryWrapped}
+					onOpenFile={handleOpenFile}
 					onSelectEntry={handleSelectEntry}
 					selectedNames={selectedNames}
 					typeAheadName={typeAheadName}
@@ -192,6 +213,7 @@ export function FilePane({
 					entry={contextMenu.menu.data}
 					panelType={type}
 					onClose={contextMenu.close}
+					onAction={handleContextMenuAction}
 				/>
 			)}
 		</div>

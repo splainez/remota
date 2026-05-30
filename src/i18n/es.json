@@ -117,6 +117,7 @@
 	"file.contextMenu.copyName": "Copiar nombre del fichero",
 	"file.contextMenu.openInTerminal": "Abrir en terminal",
 	"file.contextMenu.notImplemented": "Funcionalidad no implementada aún",
+	"file.contextMenu.openError": "No se pudo abrir el archivo",
 	"config.error.title": "Error de configuración",
 	"config.error.message": "No se ha podido leer el fichero de configuración",
 	"config.error.resolution": "Si el problema persiste, puedes eliminar el fichero y reiniciar la aplicación.",

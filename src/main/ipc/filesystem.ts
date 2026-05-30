@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { app, ipcMain, shell } from "electron";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join, sep } from "node:path";
 import { homedir } from "node:os";
@@ -101,4 +101,15 @@ export function registerFilesystemHandlers(store: AppStore) {
 			store.setRemotePath(connectionId, path);
 		}
 	});
+
+	ipcMain.handle(IPC.FILE_OPEN_PATH, (_event, filePath: string) => {
+		return openPath(filePath);
+	});
+}
+
+export async function openPath(filePath: string): Promise<void> {
+	const result = await shell.openPath(filePath);
+	if (result) {
+		throw new Error(result);
+	}
 }

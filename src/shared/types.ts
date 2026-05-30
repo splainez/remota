@@ -51,6 +51,7 @@ export interface ElectronAPI {
 		getLastPath: (connectionId: number, pane: "local" | "remote") => Promise<string | null>;
 		setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
 		getIcon: (path: string) => Promise<string | null>;
+		openPath: (path: string) => Promise<void>;
 		remoteConnect: (connectionId: number) => Promise<string>;
 		remoteDisconnect: (connectionId: number) => Promise<void>;
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
