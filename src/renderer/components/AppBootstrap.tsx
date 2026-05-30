@@ -30,7 +30,7 @@ export function AppBootstrap() {
 
 	return (
 		<ThemeProvider defaultTheme={theme} onThemeChange={setTheme}>
-			<App />
+			<App key={locale} />
 		</ThemeProvider>
 	);
 }

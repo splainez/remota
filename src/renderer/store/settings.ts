@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { setLocale as setI18nLocale } from "../../i18n";
 import type { Settings } from "../../shared/types";
 
 interface SettingsStore {
@@ -35,6 +36,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 
 	setLocale: (locale) => {
 		set({ locale });
+		setI18nLocale(locale);
 		void window.api.settings.set({ locale });
 	},
 }));
