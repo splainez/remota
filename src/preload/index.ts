@@ -57,6 +57,23 @@ const api = {
 			};
 		},
 	},
+	app: {
+		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),
+		getConfigError: (): Promise<{ message: string; filePath: string; issues: string[] } | null> =>
+			ipcRenderer.invoke(IPC.APP_GET_CONFIG_ERROR),
+		onConfigError: (callback: (data: { message: string; filePath: string; issues: string[] }) => void) => {
+			const handler = (
+				_event: Electron.IpcRendererEvent,
+				data: { message: string; filePath: string; issues: string[] },
+			) => {
+				callback(data);
+			};
+			ipcRenderer.on("config-error", handler);
+			return () => {
+				ipcRenderer.removeListener("config-error", handler);
+			};
+		},
+	},
 	platform: process.platform,
 };
 

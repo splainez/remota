@@ -31,6 +31,13 @@ declare global {
 				onData: (sessionId: string, callback: (data: string) => void) => () => void;
 				onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
 			};
+			app: {
+				getConfigPath: () => Promise<string>;
+				getConfigError: () => Promise<{ message: string; filePath: string; issues: string[] } | null>;
+				onConfigError: (
+					callback: (data: { message: string; filePath: string; issues: string[] }) => void,
+				) => () => void;
+			};
 			platform: string;
 		};
 	}
