@@ -3,6 +3,7 @@ import { Icon } from "@renderer/components/icons/Icon";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
 import { useSettingsStore } from "@renderer/store/settings";
+import type { TerminalAppId } from "@shared/app-config-schema";
 
 interface SettingsViewProps {
 	onBack: () => void;
@@ -19,10 +20,26 @@ const languageOptions: { value: "en" | "es"; label: TranslationKey }[] = [
 	{ value: "es", label: "settings.languageSpanish" },
 ];
 
+type TerminalOptionValue = "none" | TerminalAppId;
+
+const terminalOptions: { value: TerminalOptionValue; label: TranslationKey }[] = [
+	{ value: "none", label: "settings.terminalNone" },
+	{ value: "windows-terminal", label: "settings.terminalWindowsTerminal" },
+	{ value: "kitty", label: "settings.terminalKitty" },
+	{ value: "ghostty", label: "settings.terminalGhostty" },
+	{ value: "alacritty", label: "settings.terminalAlacritty" },
+	{ value: "iterm2", label: "settings.terminalIterm2" },
+	{ value: "terminal-app", label: "settings.terminalTerminalApp" },
+	{ value: "gnome-terminal", label: "settings.terminalGnomeTerminal" },
+	{ value: "konsole", label: "settings.terminalKonsole" },
+];
+
 export function SettingsView({ onBack }: SettingsViewProps) {
 	const { t } = useI18n();
 	const { theme, setTheme } = useTheme();
-	const { locale, setLocale } = useSettingsStore();
+	const { locale, setLocale, externalTerminal, setExternalTerminal } = useSettingsStore();
+
+	const currentTerminal: TerminalOptionValue = externalTerminal ?? "none";
 
 	return (
 		<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
@@ -99,6 +116,43 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 											}`}
 										>
 											{locale === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+										</span>
+										<span className="text-sm font-medium">{t(opt.label)}</span>
+									</button>
+								))}
+							</div>
+						</div>
+					</section>
+
+					{/* Terminal Section */}
+					<section className="flex flex-col gap-3">
+						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("settings.terminal")}
+						</h3>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.externalTerminal")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.externalTerminalDescription")}</span>
+							</div>
+							<div className="flex flex-col gap-2">
+								{terminalOptions.map((opt) => (
+									<button
+										key={opt.value}
+										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+											currentTerminal === opt.value
+												? "border-primary bg-primary/10 text-primary"
+												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
+										}`}
+										onClick={() => {
+											setExternalTerminal(opt.value === "none" ? undefined : opt.value);
+										}}
+									>
+										<span
+											className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
+												currentTerminal === opt.value ? "border-primary" : "border-outline-variant"
+											}`}
+										>
+											{currentTerminal === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</span>
 										<span className="text-sm font-medium">{t(opt.label)}</span>
 									</button>

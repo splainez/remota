@@ -66,6 +66,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			write: vi.fn().mockResolvedValue(undefined),
 			resize: vi.fn().mockResolvedValue(undefined),
 			kill: vi.fn().mockResolvedValue(undefined),
+			openExternal: vi.fn().mockResolvedValue(undefined),
 			onData: vi.fn().mockReturnValue(vi.fn()),
 			onExit: vi.fn().mockReturnValue(vi.fn()),
 			...overrides?.terminal,

@@ -1,8 +1,9 @@
 import { useNavigationStore } from "@renderer/store/navigation";
 import { usePlatformStore } from "@renderer/store/platform";
+import { useSettingsStore } from "@renderer/store/settings";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { createMockApi } from "@renderer/test/setup";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 
@@ -74,6 +75,12 @@ describe("FilePane", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		flushStore();
+		useSettingsStore.setState({
+			theme: "system",
+			locale: "en",
+			externalTerminal: undefined,
+			loaded: true,
+		});
 	});
 
 	it("renders toolbar with up, refresh and new folder buttons (local)", () => {
@@ -965,5 +972,189 @@ describe("FilePane", () => {
 		expect(screen.queryByText("jaen")).not.toBeInTheDocument();
 		expect(screen.queryByText("granada")).not.toBeInTheDocument();
 		expect(screen.queryByText("readme.md")).not.toBeInTheDocument();
+	});
+
+	// --- "Open in terminal" context-menu action ---
+
+	async function rightClickDirectory(directoryName: string) {
+		const dir = await screen.findByText(directoryName);
+		fireEvent.contextMenu(dir);
+	}
+
+	it("toggles the integrated terminal when 'Open in terminal' is clicked and no external is configured", async () => {
+		useSettingsStore.setState({ externalTerminal: undefined });
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([{ name: "docs", isDirectory: true, fullPath: "/home/docs", size: 0, modified: "" }]);
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickDirectory("docs");
+		await userEvent.click(screen.getByText("Open in terminal"));
+
+		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
+	});
+
+	it("calls openExternal with current local path when external terminal is configured", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([{ name: "docs", isDirectory: true, fullPath: "/home/docs", size: 0, modified: "" }]);
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickDirectory("docs");
+		await userEvent.click(screen.getByText("Open in terminal"));
+
+		expect(window.api.terminal.openExternal).toHaveBeenCalledWith(1, "/home", "local");
+	});
+
+	it("calls openExternal with the right-clicked entry's full path on remote", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.filesystem.remoteList = vi
+			.fn()
+			.mockResolvedValue([{ name: "var", isDirectory: true, fullPath: "/var", size: 0, modified: "" }]);
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={5} initialPath="/" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickDirectory("var");
+		await userEvent.click(screen.getByText("Open in terminal"));
+
+		expect(window.api.terminal.openExternal).toHaveBeenCalledWith(5, "/var", "remote");
+	});
+
+	it("falls back to integrated terminal and shows error toast when openExternal throws", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([{ name: "docs", isDirectory: true, fullPath: "/home/docs", size: 0, modified: "" }]);
+		window.api.terminal.openExternal = vi.fn().mockRejectedValue(new Error("spawn failed"));
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickDirectory("docs");
+		await userEvent.click(screen.getByText("Open in terminal"));
+
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("hides 'Open in terminal' for remote S3 connections", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.filesystem.remoteList = vi
+			.fn()
+			.mockResolvedValue([{ name: "data", isDirectory: true, fullPath: "/data", size: 0, modified: "" }]);
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={5} initialPath="/" protocol="s3" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickDirectory("data");
+		expect(screen.queryByText("Open in terminal")).not.toBeInTheDocument();
+		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
+	});
+
+	// --- toolbar toggle terminal button ---
+
+	it("toggles the integrated terminal when toolbar toggle is clicked and no external is configured", async () => {
+		useSettingsStore.setState({ externalTerminal: undefined });
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		expect(screen.getByTitle("Toggle Terminal")).toBeInTheDocument();
+		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
+
+		await userEvent.click(screen.getByTitle("Toggle Terminal"));
+		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
+	});
+
+	it("opens external terminal at current local path when toolbar toggle is clicked with external configured", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByTitle("Toggle Terminal"));
+		expect(window.api.terminal.openExternal).toHaveBeenCalledWith(1, "/home/user", "local");
+	});
+
+	it("opens external terminal at current remote path when toolbar toggle is clicked with external configured", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.filesystem.remoteList = vi.fn().mockResolvedValue([]);
+		window.api.terminal.openExternal = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={5} initialPath="/var/www" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByTitle("Toggle Terminal"));
+		expect(window.api.terminal.openExternal).toHaveBeenCalledWith(5, "/var/www", "remote");
+	});
+
+	it("shows error toast when toolbar toggle external launch fails and no toggle occurs", async () => {
+		useSettingsStore.setState({ externalTerminal: "kitty" });
+		window.api.terminal.openExternal = vi.fn().mockRejectedValue(new Error("ENOENT"));
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByTitle("Toggle Terminal"));
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+
+		toastErrorSpy.mockRestore();
 	});
 });
