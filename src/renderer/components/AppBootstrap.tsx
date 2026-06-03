@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { initLocale } from "../../i18n";
-import { useSettingsStore } from "../store/settings";
-import { I18nProvider } from "../providers/I18nProvider";
-import { ThemeProvider } from "./theme-provider";
 import { App } from "../App";
+import { I18nProvider } from "../providers/I18nProvider";
+import { useSettingsStore } from "../store/settings";
+import { ThemeProvider } from "./theme-provider";
 
 export function AppBootstrap() {
-	const { theme, locale, loaded, load, setTheme } = useSettingsStore();
+	const { theme, load, setTheme } = useSettingsStore();
 	const [ready, setReady] = useState(false);
 
 	useEffect(() => {
@@ -14,12 +13,6 @@ export function AppBootstrap() {
 			setReady(true);
 		});
 	}, [load]);
-
-	useEffect(() => {
-		if (loaded) {
-			initLocale(locale);
-		}
-	}, [loaded, locale]);
 
 	if (!ready) {
 		return (

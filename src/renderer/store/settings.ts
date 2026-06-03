@@ -1,6 +1,8 @@
 import { create } from "zustand";
-import { setLocale as setI18nLocale } from "../../i18n";
+import { LoggerFactory } from "../../shared/lib/logger";
 import type { Settings } from "../../shared/types";
+
+const logger = LoggerFactory.init({ name: 'renderer.store.settings' });
 
 interface SettingsStore {
 	theme: Settings["theme"];
@@ -31,12 +33,17 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 
 	setTheme: (theme) => {
 		set({ theme });
-		void window.api.settings.set({ theme });
+		window.api.settings.set({ theme })
+			.catch((error: unknown) => {
+				logger.error("setTheme error", { error });
+			});
 	},
 
 	setLocale: (locale) => {
 		set({ locale });
-		setI18nLocale(locale);
-		void window.api.settings.set({ locale });
+		window.api.settings.set({ locale })
+			.catch((error: unknown) => {
+				logger.error("setLocale error", { error });
+			});
 	},
 }));
