@@ -95,6 +95,8 @@
 	"transfer.queued": "Queued",
 	"transfer.pauseAll": "Pause all transfers",
 	"transfer.close": "Close transfers panel",
+	"transfer.empty": "No active transfers",
+	"transfer.emptyHint": "Transfers will appear here when you upload or download files.",
 	"validation.hostRequired": "Host is required",
 	"validation.hostInvalid": "Host must be a valid domain, IPv4, or IPv6 address",
 	"validation.portInteger": "Port must be an integer",

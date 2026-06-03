@@ -92,6 +92,8 @@
 	"transfer.queued": "En cola",
 	"transfer.pauseAll": "Pausar todas las transferencias",
 	"transfer.close": "Cerrar panel de transferencias",
+	"transfer.empty": "Sin transferencias activas",
+	"transfer.emptyHint": "Las transferencias aparecerán aquí cuando subas o descargues archivos.",
 	"validation.hostRequired": "El servidor es obligatorio",
 	"validation.hostInvalid": "El servidor debe ser un dominio, IPv4 o IPv6 válido",
 	"validation.portInteger": "El puerto debe ser un número entero",
