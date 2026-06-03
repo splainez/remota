@@ -122,11 +122,14 @@ export function FilePane({
 		void refresh();
 	}, [refresh]);
 
-	const handleOpenFile = useCallback((entry: FileEntry) => {
-		void window.api.filesystem.openPath(entry.fullPath).catch(() => {
-			toast.error(t("file.contextMenu.openError"));
-		});
-	}, []);
+	const handleOpenFile = useCallback(
+		(entry: FileEntry) => {
+			void window.api.filesystem.openPath(entry.fullPath).catch(() => {
+				toast.error(t("file.contextMenu.openError"));
+			});
+		},
+		[t],
+	);
 
 	const handleContextMenuAction = useCallback(
 		(actionId: string, entry: FileEntry) => {

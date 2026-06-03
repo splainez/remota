@@ -14,6 +14,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
 		(key: TranslationKey): string => {
 			return getTranslations()[key];
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- locale forces t to be recreated on language change
 		[locale],
 	);
 
