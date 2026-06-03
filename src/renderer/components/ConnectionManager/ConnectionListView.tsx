@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import { useConnectionFilters } from "../../hooks/useConnectionFilters";
@@ -27,6 +27,7 @@ export function ConnectionListView({
 	onDoubleClick,
 	onDelete,
 }: ConnectionListViewProps) {
+	const { t } = useI18n();
 	const { search, setSearch, collapsedGroups, groups, toggleGroup, filtered } = useConnectionFilters(connections);
 	const { menu, open, close } = useContextMenu<number>();
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { t, type TranslationKey } from "../../../i18n";
+import { type TranslationKey } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 
 interface FormFieldProps {
 	label: string;
@@ -10,7 +11,7 @@ interface FormFieldProps {
 	icon?: ReactNode;
 }
 
-function errorMessage(err: unknown): string {
+function errorMessage(err: unknown, t: (key: TranslationKey) => string): string {
 	if (err !== null && typeof err === "object" && "message" in err) {
 		const msg = String(err.message);
 		if (msg.length > 0) return t(msg as TranslationKey);
@@ -24,6 +25,7 @@ const requiredLabelClass = `${labelClass} after:content-['_*'] after:text-destru
 const errorClass = "text-xs text-destructive mt-0.5";
 
 export function FormField({ label, required, htmlFor, children, errors, icon }: FormFieldProps) {
+	const { t } = useI18n();
 	return (
 		<div className="flex flex-col gap-1">
 			<label className={required ? requiredLabelClass : labelClass} htmlFor={htmlFor}>
@@ -35,7 +37,7 @@ export function FormField({ label, required, htmlFor, children, errors, icon }: 
 			</div>
 			{errors?.map((err, i) => (
 				<span key={i} className={errorClass}>
-					{errorMessage(err)}
+					{errorMessage(err, t)}
 				</span>
 			))}
 		</div>

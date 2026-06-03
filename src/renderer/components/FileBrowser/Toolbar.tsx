@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 import { canGoUp } from "../../lib/utils";
 
@@ -32,6 +32,7 @@ export function Toolbar({
 	filter,
 	onFilterChange,
 }: ToolbarProps) {
+	const { t } = useI18n();
 	const upDisabled = isAtDriveRoot || !canGoUp(currentPath);
 
 	const handleDriveChange = useCallback(

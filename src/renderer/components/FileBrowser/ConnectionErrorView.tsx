@@ -1,5 +1,5 @@
-import { t } from "../../../i18n";
 import { Button } from "../ui/button";
+import { useI18n } from "../../hooks/useI18n";
 
 interface ConnectionErrorViewProps {
 	technicalDetail: string;
@@ -7,6 +7,7 @@ interface ConnectionErrorViewProps {
 }
 
 export function ConnectionErrorView({ technicalDetail, onReconnect }: ConnectionErrorViewProps) {
+	const { t } = useI18n();
 	return (
 		<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
 			<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>

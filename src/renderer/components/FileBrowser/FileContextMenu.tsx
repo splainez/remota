@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
-import { t } from "../../../i18n";
 import type { FileEntry } from "../../../shared/types";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon, type IconName } from "../icons/Icon";
 
 interface MenuItem {
@@ -31,6 +31,7 @@ function clampToViewport(x: number, y: number, menuWidth: number, menuHeight: nu
 }
 
 export function FileContextMenu({ x, y, entry, panelType, onClose, onAction }: FileContextMenuProps) {
+	const { t } = useI18n();
 	const itemsRef = useRef<HTMLButtonElement[]>([]);
 	const focusIndex = useRef(0);
 

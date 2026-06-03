@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 import { useTheme } from "../../hooks/useTheme";
 
 export function ThemeSelect() {
+	const { t } = useI18n();
 	const { theme, setTheme } = useTheme();
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);

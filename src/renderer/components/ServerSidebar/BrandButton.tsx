@@ -1,4 +1,4 @@
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 
 interface BrandButtonProps {
@@ -7,6 +7,7 @@ interface BrandButtonProps {
 }
 
 export function BrandButton({ collapsed, onViewAll }: BrandButtonProps) {
+	const { t } = useI18n();
 	return (
 		<div
 			className={`flex items-center gap-2 cursor-pointer hover:bg-surface-container rounded-lg transition-colors ${collapsed ? "justify-center" : "px-1 py-1"}`}

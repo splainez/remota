@@ -1,7 +1,8 @@
-import { t, type TranslationKey } from "../../../i18n";
+import { type TranslationKey } from "../../../i18n";
 import { useTheme } from "../../hooks/useTheme";
 import { useSettingsStore } from "../../store/settings";
 import { Icon } from "../icons/Icon";
+import { useI18n } from "../../hooks/useI18n";
 
 interface SettingsViewProps {
 	onBack: () => void;
@@ -19,6 +20,7 @@ const languageOptions: { value: "en" | "es"; label: TranslationKey }[] = [
 ];
 
 export function SettingsView({ onBack }: SettingsViewProps) {
+	const { t } = useI18n();
 	const { theme, setTheme } = useTheme();
 	const { locale, setLocale } = useSettingsStore();
 

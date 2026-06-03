@@ -1,6 +1,6 @@
-import { t } from "../../../i18n";
 import { FormField } from "./FormField";
 import { accessKeySchema, secretKeySchema, regionSchema, bucketSchema } from "../../../shared/validation";
+import { useI18n } from "../../hooks/useI18n";
 
 interface FieldProps<T = string> {
 	state: { value: T; meta: { errors: unknown[] } };
@@ -17,6 +17,7 @@ interface S3FieldsProps {
 }
 
 export function S3Fields({ form }: S3FieldsProps) {
+	const { t } = useI18n();
 	return (
 		<div className="grid grid-cols-2 gap-4">
 			<form.Field name="accessKey" validators={{ onBlur: accessKeySchema }}>

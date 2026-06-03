@@ -1,6 +1,6 @@
-import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { FormField } from "./FormField";
+import { useI18n } from "../../hooks/useI18n";
 
 interface FieldProps<T = string> {
 	state: { value: T; meta: { errors: unknown[] } };
@@ -19,6 +19,7 @@ interface AdvancedSettingsProps {
 }
 
 export function AdvancedSettings({ form, visible, onToggle }: AdvancedSettingsProps) {
+	const { t } = useI18n();
 	return (
 		<div className="border-t border-outline-variant pt-4">
 			<button

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
-import { t } from "../i18n";
 import type { Connection, NewConnection } from "../shared/types";
 import { useConnections } from "./hooks/useConnections";
 import { useAppNavigation } from "./store/appNavigation";
@@ -13,8 +12,10 @@ import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "./components/icons/Icon";
 import { ConfigError } from "./components/ConfigError/ConfigError";
 import { SettingsView } from "./components/Settings/SettingsView";
+import { useI18n } from "./hooks/useI18n";
 
 export function App() {
+	const { t } = useI18n();
 	const { connections, selected, loading, select, create, update, remove } = useConnections();
 
 	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser, openSettings } =

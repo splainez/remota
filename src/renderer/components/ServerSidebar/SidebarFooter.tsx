@@ -1,4 +1,4 @@
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 import { ThemeSelect } from "./ThemeSelect";
 
@@ -9,6 +9,7 @@ interface SidebarFooterProps {
 }
 
 export function SidebarFooter({ collapsed, onToggleCollapse, onSettings }: SidebarFooterProps) {
+	const { t } = useI18n();
 	return (
 		<div
 			className={`flex flex-col gap-2 w-full mt-auto pt-3 border-t border-outline-variant ${collapsed ? "items-center" : ""}`}

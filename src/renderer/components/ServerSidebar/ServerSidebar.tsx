@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import type { Connection } from "../../../shared/types";
 import { Icon } from "../icons/Icon";
 import { BrandButton } from "./BrandButton";
@@ -41,6 +41,7 @@ export function ServerSidebar({
 	onDisconnect,
 	onSettings,
 }: ServerSidebarProps) {
+	const { t } = useI18n();
 	const [collapsed, setCollapsed] = useState(false);
 
 	const visibleConnections = useMemo(

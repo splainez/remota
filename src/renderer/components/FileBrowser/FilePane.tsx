@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { useFileList } from "../../hooks/useFileList";
 import { useFileSelection } from "../../hooks/useFileSelection";
 import { usePaneNavigation } from "../../hooks/usePaneNavigation";
@@ -34,6 +34,7 @@ export function FilePane({
 	onReconnect,
 	onPathChange,
 }: FilePaneProps) {
+	const { t } = useI18n();
 	const paneRef = useRef<HTMLDivElement>(null);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 

@@ -1,5 +1,5 @@
-import { t } from "../../../i18n";
 import { Button } from "../ui/button";
+import { useI18n } from "../../hooks/useI18n";
 
 interface DeleteConfirmDialogProps {
 	title: string;
@@ -9,6 +9,7 @@ interface DeleteConfirmDialogProps {
 }
 
 export function DeleteConfirmDialog({ title, description, onConfirm, onCancel }: DeleteConfirmDialogProps) {
+	const { t } = useI18n();
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 			<div className="bg-card border border-outline-variant rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">

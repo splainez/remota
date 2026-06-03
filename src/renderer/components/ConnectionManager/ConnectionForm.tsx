@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { t, type TranslationKey } from "../../../i18n";
+import { type TranslationKey } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
 import { connectionFormSchema, nameSchema, DEFAULT_PORT, type ConnectionFormData } from "../../../shared/validation";
 import { SftpFields } from "./SftpFields";
@@ -8,6 +8,7 @@ import { S3Fields } from "./S3Fields";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { FormFooter } from "./FormFooter";
 import { Icon } from "../icons/Icon";
+import { useI18n } from "../../hooks/useI18n";
 
 interface ConnectionFormProps {
 	initial: Connection | null;
@@ -20,6 +21,7 @@ const inputClass =
 	"px-3 py-[7px] border border-input rounded-lg bg-background text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30 w-full";
 
 export function ConnectionForm({ initial, onSave, onCancel, onConnect }: ConnectionFormProps) {
+	const { t } = useI18n();
 	const [showAdvanced, setShowAdvanced] = useState(false);
 	const savedRef = useRef<{ connection?: Connection }>({});
 

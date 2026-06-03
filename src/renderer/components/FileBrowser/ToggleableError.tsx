@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 
 interface ToggleableErrorProps {
 	message: string;
@@ -7,6 +7,7 @@ interface ToggleableErrorProps {
 }
 
 export function ToggleableError({ message, detail }: ToggleableErrorProps) {
+	const { t } = useI18n();
 	const [showDetail, setShowDetail] = useState(false);
 
 	return (

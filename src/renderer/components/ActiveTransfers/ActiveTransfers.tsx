@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
+import { useI18n } from "../../hooks/useI18n";
 
 interface TransferItem {
 	id: string;
@@ -40,6 +40,7 @@ interface TransferRowProps {
 }
 
 function TransferRow({ item }: TransferRowProps) {
+	const { t } = useI18n();
 	return (
 		<div className="bg-surface-container-lowest rounded-lg border border-outline-variant p-3 hover:border-outline transition-colors relative overflow-hidden">
 			<div className="flex justify-between items-start mb-1.5">
@@ -79,6 +80,7 @@ interface TransferHeaderProps {
 }
 
 function TransferHeader({ pendingCount, onClose }: TransferHeaderProps) {
+	const { t } = useI18n();
 	return (
 		<div className="h-10 px-4 flex justify-between items-center border-b border-outline-variant bg-surface-container-highest">
 			<div className="flex items-center gap-2">

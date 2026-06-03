@@ -1,5 +1,5 @@
-import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
+import { useI18n } from "../../hooks/useI18n";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
 import type { IconName } from "../icons/Icon";
@@ -26,6 +26,7 @@ function protocolIcon(protocol: string): IconName {
 }
 
 export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClick }: SidebarProps) {
+	const { t } = useI18n();
 	return (
 		<div className="w-60 min-w-[200px] bg-surface-container-low border-r border-outline-variant flex flex-col overflow-hidden">
 			<div className="px-4 py-3 text-base font-semibold text-on-surface border-b border-outline-variant shrink-0">

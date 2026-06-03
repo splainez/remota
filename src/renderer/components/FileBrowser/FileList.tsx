@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import type { FileEntry } from "../../../shared/types";
 import { useSort, type SortKey } from "../../hooks/useSort";
 import { FileListHeader } from "./FileListHeader";
@@ -52,6 +52,7 @@ export function FileList({
 	scrollContainerRef,
 	onContextMenu,
 }: FileListProps) {
+	const { t } = useI18n();
 	const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
 
 	const { sorted, config, handleSort } = useSort({

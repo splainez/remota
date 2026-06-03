@@ -1,4 +1,4 @@
-import { t } from "../../../i18n";
+import { useI18n } from "../../hooks/useI18n";
 import { Icon } from "../icons/Icon";
 import type { SortKey, SortDir } from "../../hooks/useSort";
 
@@ -9,6 +9,7 @@ interface FileListHeaderProps {
 }
 
 export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps) {
+	const { t } = useI18n();
 	const sortIndicator = (key: SortKey) => {
 		if (sortKey !== key) return null;
 		return sortDir === "asc" ? (

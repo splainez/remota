@@ -1,6 +1,7 @@
-import { t, type TranslationKey } from "../../../i18n";
+import { type TranslationKey } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { FormField } from "./FormField";
+import { useI18n } from "../../hooks/useI18n";
 import {
 	hostSchema,
 	portSchema,
@@ -25,6 +26,7 @@ interface SftpFieldsProps {
 }
 
 export function SftpFields({ form }: SftpFieldsProps) {
+	const { t } = useI18n();
 	return (
 		<>
 			<div className="grid grid-cols-[1fr_auto] gap-4">

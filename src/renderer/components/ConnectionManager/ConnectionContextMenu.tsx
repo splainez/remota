@@ -1,6 +1,6 @@
-import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
 import { useAppNavigation } from "../../store/appNavigation";
+import { useI18n } from "../../hooks/useI18n";
 
 interface ConnectionContextMenuProps {
 	x: number;
@@ -19,6 +19,7 @@ export function ConnectionContextMenu({
 	onConnect,
 	onDelete,
 }: ConnectionContextMenuProps) {
+	const { t } = useI18n();
 	const { openConnectionForm } = useAppNavigation();
 
 	return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { t } from "../../../i18n";
 import type { Connection, NewConnection } from "../../../shared/types";
+import { useI18n } from "../../hooks/useI18n";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
 import { ConnectionForm } from "./ConnectionForm";
@@ -27,6 +27,7 @@ export function ConnectionDetail({
 	onSave,
 	onDelete,
 }: ConnectionDetailProps) {
+	const { t } = useI18n();
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
 	if (isNew || (connection && isEditing)) {

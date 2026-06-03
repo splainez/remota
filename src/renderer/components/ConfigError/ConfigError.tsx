@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { t } from "../../../i18n";
 import { Icon } from "../icons/Icon";
+import { useI18n } from "../../hooks/useI18n";
 interface ConfigErrorData {
 	message: string;
 	filePath: string;
@@ -8,6 +8,7 @@ interface ConfigErrorData {
 }
 
 export function ConfigError() {
+	const { t } = useI18n();
 	const [error, setError] = useState<ConfigErrorData | null>(null);
 	const [ignore, setIgnore] = useState(false);
 	const [resolved, setResolved] = useState(false);

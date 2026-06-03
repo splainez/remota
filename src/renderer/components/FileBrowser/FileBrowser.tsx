@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { t } from "../../../i18n";
 import type { Connection } from "../../../shared/types";
 import { getErrorI18nKey } from "../../../shared/sftp-error";
 import { useRemoteConnection } from "../../hooks/useRemoteConnection";
+import { useI18n } from "../../hooks/useI18n";
 import { Button } from "../ui/button";
 import { Icon } from "../icons/Icon";
 import { Breadcrumb } from "./Breadcrumb";
@@ -14,6 +14,7 @@ interface FileBrowserProps {
 }
 
 export function FileBrowser({ connection }: FileBrowserProps) {
+	const { t } = useI18n();
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
 
