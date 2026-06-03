@@ -1,6 +1,6 @@
 import { Icon } from "@renderer/components/icons/Icon";
-import { useAppNavigation } from "@renderer/store/appNavigation";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { useAppNavigation } from "@renderer/store/appNavigation";
 
 interface ConnectionContextMenuProps {
 	x: number;

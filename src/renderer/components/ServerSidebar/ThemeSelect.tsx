@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { useI18n } from "@renderer/hooks/useI18n";
 import { Icon } from "@renderer/components/icons/Icon";
+import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
+import { useState, useRef, useEffect } from "react";
 
 export function ThemeSelect() {
 	const { t } = useI18n();

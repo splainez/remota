@@ -1,8 +1,9 @@
-import { spawn, type IPty } from "node-pty";
 import { existsSync } from "node:fs";
-import type { WebContents } from "electron";
-import type { ClientChannel } from "ssh2";
+
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
+import type { WebContents } from "electron";
+import { spawn, type IPty } from "node-pty";
+import type { ClientChannel } from "ssh2";
 
 type TerminalSession = IPtySession | RemoteShellSession;
 

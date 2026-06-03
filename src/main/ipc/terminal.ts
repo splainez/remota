@@ -1,6 +1,6 @@
-import { ipcMain } from "electron";
-import { IPC } from "@shared/ipc-channels";
 import type { TerminalManager } from "@main/terminal/terminal-manager";
+import { IPC } from "@shared/ipc-channels";
+import { ipcMain } from "electron";
 
 export function registerTerminalHandlers(terminalManager: TerminalManager): void {
 	ipcMain.handle(IPC.TERMINAL_SPAWN, (_event, sessionId: string, type: "local" | "remote", connectionId?: number) => {

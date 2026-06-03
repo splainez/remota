@@ -1,6 +1,7 @@
 import { Icon } from "@renderer/components/icons/Icon";
-import { FormField } from "./FormField";
 import { useI18n } from "@renderer/hooks/useI18n";
+
+import { FormField } from "./FormField";
 
 interface FieldProps<T = string> {
 	state: { value: T; meta: { errors: unknown[] } };

@@ -1,13 +1,6 @@
 import "@testing-library/jest-dom/vitest";
+import type { Connection, NewConnection, ConnectionUpdate, Settings, SettingsUpdate, ElectronAPI } from "@shared/types";
 import { vi } from "vitest";
-import type {
-	Connection,
-	NewConnection,
-	ConnectionUpdate,
-	Settings,
-	SettingsUpdate,
-	ElectronAPI,
-} from "@shared/types";
 
 function makeConnection(overrides: Partial<Connection> = {}): Connection {
 	return {

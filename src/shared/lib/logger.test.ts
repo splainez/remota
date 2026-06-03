@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { LoggerFactory } from "./logger";
 
 describe("LoggerFactory", () => {
@@ -52,7 +53,7 @@ describe("LoggerFactory", () => {
 				log.info("test message", { key: "value" });
 			}).not.toThrow();
 			expect(() => {
-				log.error('test', { error: new Error("test") });
+				log.error("test", { error: new Error("test") });
 			}).not.toThrow();
 		});
 	});

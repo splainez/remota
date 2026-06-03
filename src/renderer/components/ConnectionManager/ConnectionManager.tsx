@@ -1,8 +1,9 @@
-import { useState } from "react";
-import type { Connection } from "@shared/types";
 import { useConnections } from "@renderer/hooks/useConnections";
-import { Sidebar } from "./Sidebar";
+import type { Connection } from "@shared/types";
+import { useState } from "react";
+
 import { ConnectionDetail } from "./ConnectionDetail";
+import { Sidebar } from "./Sidebar";
 
 interface ConnectionManagerProps {
 	onConnect: (connection: Connection) => void;

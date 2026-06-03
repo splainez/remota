@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+
 import { Terminal } from "./Terminal";
 
 const mockTerminal = {

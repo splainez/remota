@@ -1,8 +1,9 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { ConnectionContextMenu } from "./ConnectionContextMenu";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 vi.mock("../../store/appNavigation", () => ({
 	useAppNavigation: vi.fn(() => ({

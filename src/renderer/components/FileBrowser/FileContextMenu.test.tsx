@@ -1,9 +1,10 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import type { FileEntry } from "@shared/types";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { FileContextMenu } from "./FileContextMenu";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
-import type { FileEntry } from "@shared/types";
 
 vi.mock("sonner", () => ({
 	toast: vi.fn(),

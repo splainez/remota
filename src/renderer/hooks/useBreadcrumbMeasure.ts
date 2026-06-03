@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState, useCallback } from "react";
 import type { BreadcrumbSegment } from "@renderer/components/FileBrowser/BreadcrumbTypes";
+import { useLayoutEffect, useRef, useState, useCallback } from "react";
 
 export function useBreadcrumbMeasure(allSegments: BreadcrumbSegment[]) {
 	const containerRef = useRef<HTMLDivElement>(null);

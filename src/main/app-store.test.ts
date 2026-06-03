@@ -1,9 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { AppStore } from "./app-store";
+
 import type { NewConnection } from "@shared/types";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+
+import { AppStore } from "./app-store";
 
 function makeNewConnection(overrides: Partial<NewConnection> = {}): NewConnection {
 	return {

@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from "react";
 import { getTranslations, type TranslationKey } from "@i18n/i18n";
 import { I18nContext } from "@renderer/contexts/i18n-context";
 import { useSettingsStore } from "@renderer/store/settings";
+import { useCallback, useMemo } from "react";
 
 interface I18nProviderProps {
 	children: React.ReactNode;

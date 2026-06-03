@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { AppConfigSchema, ConnectionSchema, LastPathsSchema } from "./app-config-schema";
 
 describe("ConnectionSchema", () => {

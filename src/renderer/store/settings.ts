@@ -1,8 +1,8 @@
-import { create } from "zustand";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Settings } from "@shared/types";
+import { create } from "zustand";
 
-const logger = LoggerFactory.init({ name: 'renderer.store.settings' });
+const logger = LoggerFactory.init({ name: "renderer.store.settings" });
 
 interface SettingsStore {
 	theme: Settings["theme"];
@@ -33,17 +33,15 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 
 	setTheme: (theme) => {
 		set({ theme });
-		window.api.settings.set({ theme })
-			.catch((error: unknown) => {
-				logger.error("setTheme error", { error });
-			});
+		window.api.settings.set({ theme }).catch((error: unknown) => {
+			logger.error("setTheme error", { error });
+		});
 	},
 
 	setLocale: (locale) => {
 		set({ locale });
-		window.api.settings.set({ locale })
-			.catch((error: unknown) => {
-				logger.error("setLocale error", { error });
-			});
+		window.api.settings.set({ locale }).catch((error: unknown) => {
+			logger.error("setLocale error", { error });
+		});
 	},
 }));

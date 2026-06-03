@@ -1,9 +1,10 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
+
 import { AdvancedSettings } from "./AdvancedSettings";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 function makeForm() {
 	return {

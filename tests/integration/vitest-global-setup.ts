@@ -1,5 +1,6 @@
 import { writeFileSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
+
 import { startAllContainers, stopAllContainers } from "./containers/index";
 
 const STATE_FILE = resolve("tests/integration/.containers-state.json");

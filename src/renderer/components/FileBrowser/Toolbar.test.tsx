@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { canGoUp } from "@renderer/lib/utils";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { Toolbar } from "./Toolbar";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
-import { canGoUp } from "@renderer/lib/utils";
 
 describe("canGoUp", () => {
 	it("returns false for /", () => {

@@ -1,8 +1,9 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
+
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 describe("DeleteConfirmDialog", () => {
 	it("renders title and description", () => {

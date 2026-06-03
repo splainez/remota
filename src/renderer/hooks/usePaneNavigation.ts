@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
-import { useNavigationStore } from "@renderer/store/navigation";
 import { join, parentPath } from "@renderer/shared/path-utils";
+import { useNavigationStore } from "@renderer/store/navigation";
+import { useState, useCallback, useEffect } from "react";
 
 export function usePaneNavigation(type: "local" | "remote", initialPath: string, onBeforeNavigate?: () => void) {
 	const [currentPath, setCurrentPath] = useState(initialPath);

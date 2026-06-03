@@ -1,8 +1,8 @@
-import { ipcMain } from "electron";
-import { IPC } from "@shared/ipc-channels";
 import type { AppStore } from "@main/app-store";
-import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import type { S3ConnectionManager } from "@main/s3/s3-client";
+import type { SftpConnectionManager } from "@main/sftp/sftp-client";
+import { IPC } from "@shared/ipc-channels";
+import { ipcMain } from "electron";
 
 export function registerRemoteFilesystemHandlers(
 	sftp: SftpConnectionManager,

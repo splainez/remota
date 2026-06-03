@@ -1,6 +1,7 @@
 import { GenericContainer, Wait, type StartedTestContainer } from "testcontainers";
-import type { ConnectionInfo } from "./types";
+
 import { buildFileTreeCommands } from "./fixtures";
+import type { ConnectionInfo } from "./types";
 
 export interface StartedSftpContainer {
 	container: StartedTestContainer;

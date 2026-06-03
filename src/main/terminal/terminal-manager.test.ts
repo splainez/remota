@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const { mockPty } = vi.hoisted(() => ({
 	mockPty: {
@@ -27,8 +27,9 @@ vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },
 }));
 
-import { TerminalManager } from "./terminal-manager";
 import { spawn } from "node-pty";
+
+import { TerminalManager } from "./terminal-manager";
 
 describe("TerminalManager", () => {
 	let manager: TerminalManager;

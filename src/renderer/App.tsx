@@ -1,18 +1,19 @@
+import type { Connection, NewConnection } from "@shared/types";
 import { useState } from "react";
 import { Toaster } from "sonner";
-import type { Connection, NewConnection } from "@shared/types";
-import { useConnections } from "./hooks/useConnections";
-import { useAppNavigation } from "./store/appNavigation";
-import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
-import { ConnectionListView } from "./components/ConnectionManager/ConnectionListView";
+
+import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
+import { ConfigError } from "./components/ConfigError/ConfigError";
 import { ConnectionDetail } from "./components/ConnectionManager/ConnectionDetail";
 import { ConnectionForm } from "./components/ConnectionManager/ConnectionForm";
+import { ConnectionListView } from "./components/ConnectionManager/ConnectionListView";
 import { FileBrowser } from "./components/FileBrowser/FileBrowser";
-import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "./components/icons/Icon";
-import { ConfigError } from "./components/ConfigError/ConfigError";
+import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
 import { SettingsView } from "./components/Settings/SettingsView";
+import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
+import { useAppNavigation } from "./store/appNavigation";
 
 export function App() {
 	const { t } = useI18n();

@@ -1,8 +1,9 @@
+import type { FileEntry } from "@shared/types";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
+
 import { FileRow } from "./FileRow";
-import type { FileEntry } from "@shared/types";
 
 function makeEntry(overrides: Partial<FileEntry> = {}): FileEntry {
 	return {

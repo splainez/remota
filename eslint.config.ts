@@ -1,10 +1,10 @@
+import importAlias from "@dword-design/eslint-plugin-import-alias";
 // @ts-check
 import js from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
-import importAlias from '@dword-design/eslint-plugin-import-alias';
 
 export default defineConfig(
 	{

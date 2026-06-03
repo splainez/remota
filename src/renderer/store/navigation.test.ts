@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+
 import { useNavigationStore } from "./navigation";
 
 function getStore() {

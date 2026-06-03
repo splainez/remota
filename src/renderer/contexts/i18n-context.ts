@@ -1,5 +1,5 @@
-import { createContext } from "react";
 import type { LocaleAvailable, TranslationKey } from "@i18n/i18n";
+import { createContext } from "react";
 
 export interface I18nContextValue {
 	locale: LocaleAvailable;

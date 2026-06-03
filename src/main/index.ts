@@ -1,15 +1,17 @@
-import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "node:path";
-import { AppStore } from "./app-store";
+
 import { IPC } from "@shared/ipc-channels";
+import { app, BrowserWindow, ipcMain } from "electron";
+
+import { AppStore } from "./app-store";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
-import { registerTerminalHandlers } from "./ipc/terminal";
 import { registerSettingsHandlers } from "./ipc/settings";
-import { TerminalManager } from "./terminal/terminal-manager";
-import { SftpConnectionManager } from "./sftp/sftp-client";
+import { registerTerminalHandlers } from "./ipc/terminal";
 import { S3ConnectionManager } from "./s3/s3-client";
+import { SftpConnectionManager } from "./sftp/sftp-client";
+import { TerminalManager } from "./terminal/terminal-manager";
 
 let mainWindow: BrowserWindow | null = null;
 let appStore: AppStore;

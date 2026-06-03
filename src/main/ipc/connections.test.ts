@@ -1,17 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { IPC } from "@shared/ipc-channels";
+
 import { AppStore } from "@main/app-store";
+import { IPC } from "@shared/ipc-channels";
 import type { NewConnection } from "@shared/types";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },
 }));
 
-import { registerConnectionHandlers } from "./connections";
 import { ipcMain } from "electron";
+
+import { registerConnectionHandlers } from "./connections";
 
 const testConnection: NewConnection = {
 	name: "Test Server",

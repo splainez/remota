@@ -1,10 +1,12 @@
-import type { ConnectionInfo, S3ConnectionInfo, StartedContainerSet } from "./types";
-import { startSftpContainer } from "./sftp-container";
-import { startFtpContainer } from "./ftp-container";
-import { startS3Container } from "./s3-container";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+
 import type { StartedTestContainer } from "testcontainers";
+
+import { startFtpContainer } from "./ftp-container";
+import { startS3Container } from "./s3-container";
+import { startSftpContainer } from "./sftp-container";
+import type { ConnectionInfo, S3ConnectionInfo, StartedContainerSet } from "./types";
 
 const STATE_FILE = resolve("tests/integration/.containers-state.json");
 

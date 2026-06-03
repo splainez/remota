@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@renderer/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import React from "react";
+
 import { Button } from "./button";
 import { Input } from "./input";
 import { Textarea } from "./textarea";

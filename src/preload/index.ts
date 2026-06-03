@@ -1,6 +1,6 @@
-import { contextBridge, ipcRenderer } from "electron";
 import { IPC } from "@shared/ipc-channels";
 import type { Connection, ConnectionUpdate, FileEntry, NewConnection, Settings, SettingsUpdate } from "@shared/types";
+import { contextBridge, ipcRenderer } from "electron";
 
 const api = {
 	connections: {

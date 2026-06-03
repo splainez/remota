@@ -1,7 +1,8 @@
 import { resolve } from "node:path";
-import { defineConfig } from "electron-vite";
-import react from "@vitejs/plugin-react";
+
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "electron-vite";
 
 export default defineConfig({
 	main: {
@@ -10,10 +11,10 @@ export default defineConfig({
 		},
 		resolve: {
 			alias: {
-				'@main': resolve('src/main'),
-				'@shared': resolve('src/shared'),
-				'@i18n': resolve('src/i18n')
-			}
+				"@main": resolve("src/main"),
+				"@shared": resolve("src/shared"),
+				"@i18n": resolve("src/i18n"),
+			},
 		},
 	},
 	preload: {
@@ -22,9 +23,9 @@ export default defineConfig({
 		},
 		resolve: {
 			alias: {
-				'@shared': resolve('src/shared'),
-				'@i18n': resolve('src/i18n')
-			}
+				"@shared": resolve("src/shared"),
+				"@i18n": resolve("src/i18n"),
+			},
 		},
 	},
 	renderer: {
@@ -37,10 +38,10 @@ export default defineConfig({
 		},
 		resolve: {
 			alias: {
-				'@renderer': resolve('src/renderer'),
-				'@shared': resolve('src/shared'),
-				'@i18n': resolve('src/i18n')
-			}
+				"@renderer": resolve("src/renderer"),
+				"@shared": resolve("src/shared"),
+				"@i18n": resolve("src/i18n"),
+			},
 		},
 	},
 });

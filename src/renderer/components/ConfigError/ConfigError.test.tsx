@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { ConfigError } from "./ConfigError";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { createMockApi } from "@renderer/test/setup";
 import type { ElectronAPI } from "@shared/types";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { ConfigError } from "./ConfigError";
 
 function createMockApiWithError(overrides?: Partial<ElectronAPI>): ElectronAPI {
 	return createMockApi({

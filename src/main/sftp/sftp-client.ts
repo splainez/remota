@@ -1,6 +1,7 @@
-import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
 import { readFileSync } from "node:fs";
+
 import type { FileEntry } from "@shared/types";
+import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
 
 interface SftpSession {
 	client: Client;

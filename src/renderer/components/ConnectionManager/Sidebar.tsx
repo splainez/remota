@@ -1,8 +1,8 @@
-import type { Connection } from "@shared/types";
-import { useI18n } from "@renderer/hooks/useI18n";
-import { Button } from "@renderer/components/ui/button";
 import { Icon } from "@renderer/components/icons/Icon";
 import type { IconName } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
+import { useI18n } from "@renderer/hooks/useI18n";
+import type { Connection } from "@shared/types";
 
 interface SidebarProps {
 	connections: Connection[];

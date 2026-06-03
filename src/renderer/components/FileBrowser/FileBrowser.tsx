@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import type { Connection } from "@shared/types";
-import { getErrorI18nKey } from "@shared/sftp-error";
-import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
-import { useI18n } from "@renderer/hooks/useI18n";
-import { Button } from "@renderer/components/ui/button";
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
+import { getErrorI18nKey } from "@shared/sftp-error";
+import type { Connection } from "@shared/types";
+import { useEffect, useRef, useState } from "react";
+
 import { Breadcrumb } from "./Breadcrumb";
 import { FilePane } from "./FilePane";
 import { ToggleableError } from "./ToggleableError";

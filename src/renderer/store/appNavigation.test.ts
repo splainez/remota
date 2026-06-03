@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { useAppNavigation, type AppView } from "./appNavigation";
 import type { Connection } from "@shared/types";
+import { describe, it, expect, beforeEach } from "vitest";
+
+import { useAppNavigation, type AppView } from "./appNavigation";
 
 function makeConnection(overrides: Partial<Connection> = {}): Connection {
 	return {

@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useCallback } from "react";
-import type { FileEntry } from "@shared/types";
-import { useI18n } from "@renderer/hooks/useI18n";
 import { Icon, type IconName } from "@renderer/components/icons/Icon";
+import { useI18n } from "@renderer/hooks/useI18n";
+import type { FileEntry } from "@shared/types";
+import React, { useEffect, useRef, useCallback } from "react";
 
 interface MenuItem {
 	id: string;

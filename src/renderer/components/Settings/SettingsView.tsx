@@ -1,8 +1,8 @@
 import { type TranslationKey } from "@i18n/i18n";
-import { useTheme } from "@renderer/hooks/useTheme";
-import { useSettingsStore } from "@renderer/store/settings";
 import { Icon } from "@renderer/components/icons/Icon";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { useTheme } from "@renderer/hooks/useTheme";
+import { useSettingsStore } from "@renderer/store/settings";
 
 interface SettingsViewProps {
 	onBack: () => void;
@@ -54,10 +54,11 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								{themeOptions.map((opt) => (
 									<button
 										key={opt.value}
-										className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all duration-200 ${theme === opt.value
+										className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all duration-200 ${
+											theme === opt.value
 												? "border-primary bg-primary/10 text-primary"
 												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
-											}`}
+										}`}
 										onClick={() => {
 											setTheme(opt.value);
 										}}
@@ -83,17 +84,19 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								{languageOptions.map((opt) => (
 									<button
 										key={opt.value}
-										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${locale === opt.value
+										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+											locale === opt.value
 												? "border-primary bg-primary/10 text-primary"
 												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
-											}`}
+										}`}
 										onClick={() => {
 											setLocale(opt.value);
 										}}
 									>
 										<span
-											className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${locale === opt.value ? "border-primary" : "border-outline-variant"
-												}`}
+											className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
+												locale === opt.value ? "border-primary" : "border-outline-variant"
+											}`}
 										>
 											{locale === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</span>

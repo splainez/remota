@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { SftpConnectionManager } from "@main/sftp/sftp-client";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import { getSftpConnection } from "./containers/index";
 import type { ConnectionInfo } from "./containers/types";
 

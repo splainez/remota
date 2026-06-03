@@ -1,8 +1,8 @@
-import { ipcMain } from "electron";
-import { IPC } from "@shared/ipc-channels";
-import { connectionFormSchema, connectionBaseSchema } from "@shared/validation";
 import type { AppStore } from "@main/app-store";
+import { IPC } from "@shared/ipc-channels";
 import type { NewConnection, ConnectionUpdate } from "@shared/types";
+import { connectionFormSchema, connectionBaseSchema } from "@shared/validation";
+import { ipcMain } from "electron";
 
 export function registerConnectionHandlers(store: AppStore) {
 	ipcMain.handle(IPC.CONNECTION_LIST, () => {

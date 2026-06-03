@@ -1,7 +1,8 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
+
 import { FormField } from "./FormField";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 describe("FormField", () => {
 	it("renders label text", () => {

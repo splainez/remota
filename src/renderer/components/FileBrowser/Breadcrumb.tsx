@@ -1,6 +1,7 @@
-import type { BreadcrumbProps, BreadcrumbSegment } from "./BreadcrumbTypes";
-import { cn, parsePath } from "@renderer/lib/utils";
 import { useBreadcrumbMeasure } from "@renderer/hooks/useBreadcrumbMeasure";
+import { cn, parsePath } from "@renderer/lib/utils";
+
+import type { BreadcrumbProps, BreadcrumbSegment } from "./BreadcrumbTypes";
 
 export function Breadcrumb({ path, onNavigate, className }: BreadcrumbProps) {
 	const allSegments = parsePath(path);

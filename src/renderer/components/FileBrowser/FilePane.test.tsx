@@ -1,11 +1,12 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { FilePane } from "./FilePane";
 import { useNavigationStore } from "@renderer/store/navigation";
 import { usePlatformStore } from "@renderer/store/platform";
-import { createMockApi } from "@renderer/test/setup";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import { createMockApi } from "@renderer/test/setup";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+
+import { FilePane } from "./FilePane";
 
 beforeAll(() => {
 	class ResizeObserverMock {

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { join, parentPath } from "./path-utils";
 
 vi.mock("../store/platform", () => ({

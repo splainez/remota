@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
 import { App } from "@renderer/App";
 import { I18nProvider } from "@renderer/providers/I18nProvider";
 import { useSettingsStore } from "@renderer/store/settings";
+import { useEffect, useState } from "react";
+
 import { ThemeProvider } from "./theme-provider";
 
 export function AppBootstrap() {

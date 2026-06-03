@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
 import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
+import { useCallback, useEffect, useState } from "react";
 
 export function useConnections() {
 	const [connections, setConnections] = useState<Connection[]>([]);

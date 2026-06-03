@@ -1,12 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { IPC } from "@shared/ipc-channels";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },
 }));
 
-import { registerTerminalHandlers } from "./terminal";
 import { ipcMain } from "electron";
+
+import { registerTerminalHandlers } from "./terminal";
 
 describe("registerTerminalHandlers", () => {
 	const mockManager = {

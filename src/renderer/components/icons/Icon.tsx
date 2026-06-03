@@ -1,5 +1,4 @@
 import type { SVGAttributes } from "react";
-import type { IconName } from "./icon-names";
 import {
 	VscAccount,
 	VscAdd,
@@ -105,6 +104,8 @@ import {
 	VscUnlock,
 	VscWarning,
 } from "react-icons/vsc";
+
+import type { IconName } from "./icon-names";
 
 const iconMap: Record<
 	IconName,

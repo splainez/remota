@@ -1,10 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
-import { ConnectionListView } from "./ConnectionListView";
 import { ThemeProvider } from "@renderer/components/theme-provider";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import type { Connection } from "@shared/types";
+import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi } from "vitest";
+
+import { ConnectionListView } from "./ConnectionListView";
 
 function makeConn(overrides: Partial<Connection> = {}): Connection {
 	return {

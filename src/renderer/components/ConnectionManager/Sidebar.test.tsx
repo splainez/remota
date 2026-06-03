@@ -1,9 +1,10 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import type { Connection } from "@shared/types";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { Sidebar } from "./Sidebar";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
-import type { Connection } from "@shared/types";
 
 const emptyS3Fields = {
 	accessKey: "",

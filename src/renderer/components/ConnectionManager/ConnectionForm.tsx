@@ -1,14 +1,15 @@
-import { useForm } from "@tanstack/react-form";
-import { useRef, useState } from "react";
 import { type TranslationKey } from "@i18n/i18n";
-import type { Connection, NewConnection } from "@shared/types";
-import { connectionFormSchema, nameSchema, DEFAULT_PORT, type ConnectionFormData } from "@shared/validation";
-import { SftpFields } from "./SftpFields";
-import { S3Fields } from "./S3Fields";
-import { AdvancedSettings } from "./AdvancedSettings";
-import { FormFooter } from "./FormFooter";
 import { Icon } from "@renderer/components/icons/Icon";
 import { useI18n } from "@renderer/hooks/useI18n";
+import type { Connection, NewConnection } from "@shared/types";
+import { connectionFormSchema, nameSchema, DEFAULT_PORT, type ConnectionFormData } from "@shared/validation";
+import { useForm } from "@tanstack/react-form";
+import { useRef, useState } from "react";
+
+import { AdvancedSettings } from "./AdvancedSettings";
+import { FormFooter } from "./FormFooter";
+import { S3Fields } from "./S3Fields";
+import { SftpFields } from "./SftpFields";
 
 interface ConnectionFormProps {
 	initial: Connection | null;

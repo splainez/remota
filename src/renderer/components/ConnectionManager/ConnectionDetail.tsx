@@ -1,8 +1,9 @@
-import { useState } from "react";
-import type { Connection, NewConnection } from "@shared/types";
-import { useI18n } from "@renderer/hooks/useI18n";
-import { Button } from "@renderer/components/ui/button";
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
+import { useI18n } from "@renderer/hooks/useI18n";
+import type { Connection, NewConnection } from "@shared/types";
+import { useState } from "react";
+
 import { ConnectionForm } from "./ConnectionForm";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 

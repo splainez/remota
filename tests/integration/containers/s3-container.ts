@@ -1,6 +1,7 @@
 import { GenericContainer, Wait, type StartedTestContainer } from "testcontainers";
-import type { S3ConnectionInfo } from "./types";
+
 import { buildS3FixtureCommands } from "./fixtures";
+import type { S3ConnectionInfo } from "./types";
 
 export interface StartedS3Container {
 	container: StartedTestContainer;

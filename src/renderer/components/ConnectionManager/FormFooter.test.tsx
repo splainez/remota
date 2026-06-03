@@ -1,8 +1,9 @@
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
+
 import { FormFooter } from "./FormFooter";
-import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 describe("FormFooter", () => {
 	it("renders cancel, save, and connect buttons", () => {

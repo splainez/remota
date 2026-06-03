@@ -1,6 +1,7 @@
-import type { ImgHTMLAttributes, SVGAttributes } from "react";
-import { getFileIcon } from "@renderer/shared/icon-utils";
 import { useFileIcon } from "@renderer/hooks/useFileIcon";
+import { getFileIcon } from "@renderer/shared/icon-utils";
+import type { ImgHTMLAttributes, SVGAttributes } from "react";
+
 import { Icon } from "./Icon";
 
 export interface FileIconProps extends SVGAttributes<SVGSVGElement> {

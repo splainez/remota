@@ -1,8 +1,8 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
+import { cn } from "@renderer/lib/utils";
 import { type VariantProps } from "class-variance-authority";
 
-import { cn } from "@renderer/lib/utils";
 import { Separator } from "./separator";
 import { buttonGroupVariants } from "./variants";
 

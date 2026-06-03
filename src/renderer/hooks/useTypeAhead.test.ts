@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useTypeAhead } from "./useTypeAhead";
 import type { FileEntry } from "@shared/types";
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { useTypeAhead } from "./useTypeAhead";
 
 function makeEntry(name: string): FileEntry {
 	return { name, fullPath: `/${name}`, isDirectory: false, size: 100, modified: "2025-01-01T00:00:00Z" };

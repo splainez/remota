@@ -1,21 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import { useI18n } from "@renderer/hooks/useI18n";
+import { Terminal } from "@renderer/components/Terminal/Terminal";
+import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useFileList } from "@renderer/hooks/useFileList";
 import { useFileSelection } from "@renderer/hooks/useFileSelection";
-import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
+import { useI18n } from "@renderer/hooks/useI18n";
 import { useLocalDrives } from "@renderer/hooks/useLocalDrives";
+import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
 import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
-import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
-import type { FileEntry } from "@shared/types";
 import { matchesWildcard } from "@renderer/lib/utils";
 import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
-import { FileList } from "./FileList";
-import { FileContextMenu } from "./FileContextMenu";
-import { Toolbar } from "./Toolbar";
-import { Terminal } from "@renderer/components/Terminal/Terminal";
+import type { FileEntry } from "@shared/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+
 import { ConnectionErrorView } from "./ConnectionErrorView";
+import { FileContextMenu } from "./FileContextMenu";
+import { FileList } from "./FileList";
+import { Toolbar } from "./Toolbar";
 
 interface FilePaneProps {
 	type: "local" | "remote";
