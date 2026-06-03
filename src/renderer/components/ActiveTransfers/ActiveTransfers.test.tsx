@@ -1,77 +1,89 @@
+import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { act } from "react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import { ActiveTransfers } from "./ActiveTransfers";
 
 describe("ActiveTransfers", () => {
-	it("returns null when not visible", () => {
-		const { container } = render(
-			<I18nWrapper>
-				<ActiveTransfers visible={false} onToggle={vi.fn()} />
-			</I18nWrapper>,
-		);
-		expect(container.innerHTML).toBe("");
+	beforeEach(() => {
+		useTransferPanelStore.setState({ visibility: {}, loaded: false });
 	});
 
-	it("renders transfer header and items when visible", () => {
+	it("renders the active transfers header", () => {
 		render(
 			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={vi.fn()} />
+				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("main.8f4b2c.js")).toBeInTheDocument();
-		expect(screen.getByText("styles.css")).toBeInTheDocument();
+		expect(screen.getByText("Active Transfers")).toBeInTheDocument();
 	});
 
-	it("displays pending count", () => {
+	it("shows empty state by default (no mock data)", () => {
 		render(
 			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={vi.fn()} />
+				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("1 Pending")).toBeInTheDocument();
+		expect(screen.getByText(/no active transfers/i)).toBeInTheDocument();
+		expect(screen.queryByText("main.8f4b2c.js")).not.toBeInTheDocument();
+		expect(screen.queryByText("styles.css")).not.toBeInTheDocument();
+		expect(screen.queryByText("45%")).not.toBeInTheDocument();
 	});
 
-	it("calls onToggle when close button is clicked", async () => {
+	it("renders 0 pending counter", () => {
+		render(
+			<I18nWrapper>
+				<ActiveTransfers connectionId={1} />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("0 Pending")).toBeInTheDocument();
+	});
+
+	it("calls setVisible(false) when close button is clicked", async () => {
 		const user = userEvent.setup();
-		const onToggle = vi.fn();
+		useTransferPanelStore.setState({ visibility: { 1: true } });
+
 		render(
 			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={onToggle} />
+				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
 		const closeBtn = screen.getByTitle("Close transfers panel");
 		await user.click(closeBtn);
-		expect(onToggle).toHaveBeenCalledOnce();
+
+		expect(useTransferPanelStore.getState().isVisible(1)).toBe(false);
 	});
 
-	it("renders progress bar for uploading item", () => {
+	it("persists visibility change via IPC", async () => {
+		const setSpy = vi.fn().mockResolvedValue(undefined);
+		window.api.transferPanel.set = setSpy;
+
+		const user = userEvent.setup();
+		useTransferPanelStore.setState({ visibility: { 5: true } });
+
 		render(
 			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={vi.fn()} />
+				<ActiveTransfers connectionId={5} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("45%")).toBeInTheDocument();
+		const closeBtn = screen.getByTitle("Close transfers panel");
+		await user.click(closeBtn);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+		expect(setSpy).toHaveBeenCalledWith(5, { visible: false });
 	});
 
-	it("renders queued status for non-uploading items", () => {
+	it("renders pause-all button with title attribute", () => {
 		render(
 			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={vi.fn()} />
+				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("Queued")).toBeInTheDocument();
-	});
-
-	it("shows source to destination path", () => {
-		render(
-			<I18nWrapper>
-				<ActiveTransfers visible={true} onToggle={vi.fn()} />
-			</I18nWrapper>,
-		);
-		expect(screen.getByText("src/build", { exact: false })).toBeInTheDocument();
-		expect(screen.getByText("/var/www/html/assets", { exact: false })).toBeInTheDocument();
+		expect(screen.getByTitle("Pause all transfers")).toBeInTheDocument();
 	});
 });
