@@ -24,4 +24,11 @@ export function registerTerminalHandlers(terminalManager: TerminalManager): void
 	ipcMain.handle(IPC.TERMINAL_KILL, (_event, sessionId: string) => {
 		terminalManager.kill(sessionId);
 	});
+
+	ipcMain.handle(
+		IPC.TERMINAL_OPEN_EXTERNAL,
+		(_event, connectionId: number, path: string | undefined, type: "local" | "remote") => {
+			return terminalManager.openExternalTerminal(connectionId, path, type);
+		},
+	);
 }

@@ -49,6 +49,8 @@ const api = {
 		kill: (sessionId: string) => {
 			return ipcRenderer.invoke(IPC.TERMINAL_KILL, sessionId);
 		},
+		openExternal: (connectionId: number, path: string | undefined, type: "local" | "remote"): Promise<void> =>
+			ipcRenderer.invoke(IPC.TERMINAL_OPEN_EXTERNAL, connectionId, path, type),
 		onData: (sessionId: string, callback: (data: string) => void) => {
 			const channel = `terminal:data:${sessionId}`;
 			const handler = (_event: Electron.IpcRendererEvent, data: string) => {
