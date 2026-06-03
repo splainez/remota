@@ -38,6 +38,12 @@ const mockApi = createMockApi({
 		remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 		remoteList: vi.fn().mockResolvedValue([]),
 		remoteHomeDir: vi.fn().mockResolvedValue("/"),
+		tempGetPath: vi.fn().mockResolvedValue(undefined),
+		tempWrite: vi.fn().mockResolvedValue(undefined),
+		tempRead: vi.fn().mockResolvedValue([]),
+		tempMkdir: vi.fn().mockResolvedValue(undefined),
+		tempDelete: vi.fn().mockResolvedValue(undefined),
+		tempExists: vi.fn().mockResolvedValue(false),
 	},
 });
 
@@ -541,6 +547,12 @@ describe("FilePane", () => {
 					{ name: "etc", isDirectory: true, size: 0, modified: "" },
 				]),
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				tempGetPath: vi.fn().mockResolvedValue(undefined),
+				tempWrite: vi.fn().mockResolvedValue(undefined),
+				tempRead: vi.fn().mockResolvedValue([]),
+				tempMkdir: vi.fn().mockResolvedValue(undefined),
+				tempDelete: vi.fn().mockResolvedValue(undefined),
+				tempExists: vi.fn().mockResolvedValue(false),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin);
@@ -594,6 +606,12 @@ describe("FilePane", () => {
 				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 				remoteList: remoteListWin,
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				tempGetPath: vi.fn().mockResolvedValue(undefined),
+				tempWrite: vi.fn().mockResolvedValue(undefined),
+				tempRead: vi.fn().mockResolvedValue([]),
+				tempMkdir: vi.fn().mockResolvedValue(undefined),
+				tempDelete: vi.fn().mockResolvedValue(undefined),
+				tempExists: vi.fn().mockResolvedValue(false),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin2);
@@ -646,6 +664,12 @@ describe("FilePane", () => {
 				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 				remoteList: remoteListWin,
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				tempGetPath: vi.fn().mockResolvedValue(undefined),
+				tempWrite: vi.fn().mockResolvedValue(undefined),
+				tempRead: vi.fn().mockResolvedValue([]),
+				tempMkdir: vi.fn().mockResolvedValue(undefined),
+				tempDelete: vi.fn().mockResolvedValue(undefined),
+				tempExists: vi.fn().mockResolvedValue(false),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin3);

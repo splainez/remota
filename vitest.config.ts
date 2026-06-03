@@ -8,6 +8,7 @@ export default defineConfig({
 	plugins: [react(), tailwindcss()],
 	resolve: {
 		alias: {
+			"@main": resolve("src/main"),
 			"@renderer": resolve("src/renderer"),
 			"@shared": resolve("src/shared"),
 			"@i18n": resolve("src/i18n"),
