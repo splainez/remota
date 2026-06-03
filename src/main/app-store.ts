@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { AppConfigSchema } from "@shared/app-config-schema";
 import type { AppConfig } from "@shared/app-config-schema";
-import type { Settings, SettingsUpdate } from "@shared/app-config-schema";
+import type { Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
 
@@ -22,7 +22,12 @@ export class ConfigValidationError extends Error {
 
 export class AppStore {
 	private filePath: string;
-	private data: AppConfig = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
+	private data: AppConfig = {
+		connections: [],
+		lastPaths: {},
+		transferPanels: {},
+		settings: { theme: "system", locale: "en" },
+	};
 	private nextId = 1;
 	private saveTimer: ReturnType<typeof setTimeout> | null = null;
 	private loadError: ConfigValidationError | null = null;
@@ -37,7 +42,12 @@ export class AppStore {
 		this.loadError = null;
 
 		if (!existsSync(this.filePath)) {
-			this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
+			this.data = {
+				connections: [],
+				lastPaths: {},
+				transferPanels: {},
+				settings: { theme: "system", locale: "en" },
+			};
 			this.save();
 			return;
 		}
@@ -50,7 +60,12 @@ export class AppStore {
 			if (!result.success) {
 				const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
 				this.loadError = new ConfigValidationError("Invalid configuration file", this.filePath, issues);
-				this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
+				this.data = {
+					connections: [],
+					lastPaths: {},
+					transferPanels: {},
+					settings: { theme: "system", locale: "en" },
+				};
 				return;
 			}
 
@@ -60,7 +75,12 @@ export class AppStore {
 			this.loadError = new ConfigValidationError("Failed to read configuration file", this.filePath, [
 				(err as Error).message,
 			]);
-			this.data = { connections: [], lastPaths: {}, settings: { theme: "system", locale: "en" } };
+			this.data = {
+				connections: [],
+				lastPaths: {},
+				transferPanels: {},
+				settings: { theme: "system", locale: "en" },
+			};
 		}
 	}
 
@@ -173,6 +193,31 @@ export class AppStore {
 		} else {
 			this.data.lastPaths[key].remote = path;
 		}
+		this.save();
+	}
+
+	// ── Transfer Panels ─────────────────────────────────
+
+	getTransferPanel(connectionId: number): { visible: boolean } | undefined {
+		const key = String(connectionId);
+		return this.data.transferPanels[key];
+	}
+
+	getAllTransferPanels(): Record<number, { visible: boolean }> {
+		const result: Record<number, { visible: boolean }> = {};
+		for (const [key, value] of Object.entries(this.data.transferPanels)) {
+			const id = Number(key);
+			if (Number.isFinite(id)) {
+				result[id] = value;
+			}
+		}
+		return result;
+	}
+
+	setTransferPanel(connectionId: number, update: TransferPanelUpdate) {
+		const key = String(connectionId);
+		const current = this.data.transferPanels[key] ?? { visible: false };
+		this.data.transferPanels[key] = { ...current, ...update };
 		this.save();
 	}
 

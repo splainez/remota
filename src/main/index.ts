@@ -9,6 +9,7 @@ import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerSettingsHandlers } from "./ipc/settings";
 import { registerTerminalHandlers } from "./ipc/terminal";
+import { registerTransferPanelHandlers } from "./ipc/transfer-panel";
 import { S3ConnectionManager } from "./s3/s3-client";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { tempManager } from "./temp/temp-manager";
@@ -81,6 +82,7 @@ void app.whenReady().then(() => {
 	registerFilesystemHandlers(appStore);
 	registerRemoteFilesystemHandlers(sftp, s3, appStore);
 	registerSettingsHandlers(appStore);
+	registerTransferPanelHandlers(appStore);
 	createWindow();
 
 	if (!mainWindow) {
