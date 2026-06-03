@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { FileContextMenu } from "./FileContextMenu";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { FileEntry } from "../../../shared/types";
 
 vi.mock("sonner", () => ({
@@ -33,7 +34,11 @@ describe("FileContextMenu", () => {
 	});
 
 	it("renders all menu items for a local file", () => {
-		render(<FileContextMenu {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Open")).toBeInTheDocument();
 		expect(screen.getByText("Edit")).toBeInTheDocument();
 		expect(screen.getByText("Rename")).toBeInTheDocument();
@@ -46,49 +51,81 @@ describe("FileContextMenu", () => {
 
 	it("hides Edit for directories", () => {
 		const entry = makeEntry({ isDirectory: true });
-		render(<FileContextMenu {...defaultProps} entry={entry} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByText("Edit")).not.toBeInTheDocument();
 	});
 
 	it("hides Upload for files in local panel", () => {
-		render(<FileContextMenu {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByText("Upload")).not.toBeInTheDocument();
 	});
 
 	it("shows Download for folders in remote panel", () => {
 		const entry = makeEntry({ isDirectory: true });
-		render(<FileContextMenu {...defaultProps} entry={entry} panelType="remote" />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="remote" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Download")).toBeInTheDocument();
 		expect(screen.queryByText("Upload")).not.toBeInTheDocument();
 	});
 
 	it("shows Upload for folders in local panel", () => {
 		const entry = makeEntry({ isDirectory: true });
-		render(<FileContextMenu {...defaultProps} entry={entry} panelType="local" />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="local" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Upload")).toBeInTheDocument();
 		expect(screen.queryByText("Download")).not.toBeInTheDocument();
 	});
 
 	it("hides Open in terminal for files", () => {
-		render(<FileContextMenu {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByText("Open in terminal")).not.toBeInTheDocument();
 	});
 
 	it("shows Open in terminal for directories", () => {
 		const entry = makeEntry({ isDirectory: true });
-		render(<FileContextMenu {...defaultProps} entry={entry} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Open in terminal")).toBeInTheDocument();
 	});
 
 	it("calls onClose on Escape key", () => {
 		const onClose = vi.fn();
-		render(<FileContextMenu {...defaultProps} onClose={onClose} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} onClose={onClose} />
+			</I18nWrapper>,
+		);
 		fireEvent.keyDown(document, { key: "Escape" });
 		expect(onClose).toHaveBeenCalledOnce();
 	});
 
 	it("positions menu at given coordinates", () => {
-		const { container } = render(<FileContextMenu {...defaultProps} x={150} y={250} />);
+		const { container } = render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} x={150} y={250} />
+			</I18nWrapper>,
+		);
 		const menu = container.firstElementChild as HTMLElement;
 		expect(menu.style.left).toBe("150px");
 		expect(menu.style.top).toBe("250px");
@@ -98,16 +135,22 @@ describe("FileContextMenu", () => {
 		const user = userEvent.setup();
 		const outerClick = vi.fn();
 		render(
-			<div onClick={outerClick}>
-				<FileContextMenu {...defaultProps} />
-			</div>,
+			<I18nWrapper>
+				<div onClick={outerClick}>
+					<FileContextMenu {...defaultProps} />
+				</div>
+			</I18nWrapper>,
 		);
 		await user.click(screen.getByText("Open"));
 		expect(outerClick).not.toHaveBeenCalled();
 	});
 
 	it("navigates items with arrow keys", () => {
-		render(<FileContextMenu {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const menu = screen.getByRole("menu");
 		const items = menu.querySelectorAll("[role='menuitem']");
 		expect(items.length).toBeGreaterThan(1);
@@ -126,7 +169,11 @@ describe("FileContextMenu", () => {
 		const user = userEvent.setup();
 		const onAction = vi.fn();
 		const entry = makeEntry();
-		render(<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByText("Open"));
 		expect(onAction).toHaveBeenCalledOnce();
 		expect(onAction).toHaveBeenCalledWith("open", entry);
@@ -135,7 +182,11 @@ describe("FileContextMenu", () => {
 	it("calls onClose after onAction", async () => {
 		const user = userEvent.setup();
 		const onClose = vi.fn();
-		render(<FileContextMenu {...defaultProps} onClose={onClose} onAction={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} onClose={onClose} onAction={vi.fn()} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByText("Open"));
 		expect(onClose).toHaveBeenCalledOnce();
 	});
@@ -144,7 +195,11 @@ describe("FileContextMenu", () => {
 		const user = userEvent.setup();
 		const onAction = vi.fn();
 		const entry = makeEntry({ name: "readme.md", fullPath: "/home/readme.md" });
-		render(<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} onAction={onAction} />
+			</I18nWrapper>,
+		);
 
 		await user.click(screen.getByText("Open"));
 		expect(onAction).toHaveBeenCalledWith("open", entry);
@@ -167,7 +222,11 @@ describe("FileContextMenu", () => {
 
 	it("does not call onAction when not provided", async () => {
 		const user = userEvent.setup();
-		render(<FileContextMenu {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByText("Open"));
 		expect(screen.getByRole("menu")).toBeInTheDocument();
 	});

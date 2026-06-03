@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Sidebar } from "./Sidebar";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { Connection } from "../../../shared/types";
 
 const emptyS3Fields = {
@@ -69,44 +70,72 @@ describe("Sidebar", () => {
 	});
 
 	it("renders the header", () => {
-		render(<Sidebar connections={[]} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={[]} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Connections")).toBeInTheDocument();
 	});
 
 	it("shows empty state when no connections", () => {
-		render(<Sidebar connections={[]} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={[]} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Select a connection or create a new one.")).toBeInTheDocument();
 	});
 
 	it("renders all connections", () => {
-		render(<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Server A")).toBeInTheDocument();
 		expect(screen.getByText("Server B")).toBeInTheDocument();
 		expect(screen.getByText("Server C")).toBeInTheDocument();
 	});
 
 	it("highlights the selected connection", () => {
-		render(<Sidebar connections={connections} selectedId={2} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={connections} selectedId={2} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		const allItems = screen.getAllByText(/Server [ABC]/);
 		expect(allItems).toHaveLength(3);
 	});
 
 	it("calls onSelect when clicking a connection", async () => {
 		const user = userEvent.setup();
-		render(<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByText("Server A"));
 		expect(onSelect).toHaveBeenCalledWith(1);
 	});
 
 	it("calls onAdd when clicking the add button", async () => {
 		const user = userEvent.setup();
-		render(<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByRole("button", { name: "+ Add Connection" }));
 		expect(onAdd).toHaveBeenCalledOnce();
 	});
 
 	it("does not show empty state when connections exist", () => {
-		render(<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />);
+		render(
+			<I18nWrapper>
+				<Sidebar connections={connections} selectedId={null} onSelect={onSelect} onAdd={onAdd} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByText("Select a connection or create a new one.")).not.toBeInTheDocument();
 	});
 });

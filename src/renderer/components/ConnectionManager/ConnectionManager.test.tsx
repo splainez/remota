@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ConnectionManager } from "./ConnectionManager";
 import { createMockApi } from "../../test/setup";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { Connection } from "../../../shared/types";
 
 function mockConnections(overrides: Partial<Connection>[] = []) {
@@ -35,7 +36,11 @@ describe("ConnectionManager", () => {
 	});
 
 	it("shows empty sidebar when no connections", async () => {
-		render(<ConnectionManager onConnect={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionManager onConnect={vi.fn()} />
+			</I18nWrapper>,
+		);
 		await waitFor(() => {
 			expect(screen.getAllByText("Select a connection or create a new one.")).toHaveLength(2);
 		});
@@ -57,7 +62,11 @@ describe("ConnectionManager", () => {
 		});
 		vi.stubGlobal("api", mockApi);
 
-		render(<ConnectionManager onConnect={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionManager onConnect={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Alpha")).toBeInTheDocument();
@@ -82,7 +91,11 @@ describe("ConnectionManager", () => {
 		});
 		vi.stubGlobal("api", mockApi);
 
-		render(<ConnectionManager onConnect={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionManager onConnect={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => screen.getByText("Beta"));
 		await user.click(screen.getByText("Beta"));
@@ -122,7 +135,11 @@ describe("ConnectionManager", () => {
 		});
 		vi.stubGlobal("api", mockApi);
 
-		render(<ConnectionManager onConnect={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionManager onConnect={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => screen.getByText("Existing"));
 		await user.click(screen.getByRole("button", { name: "+ Add Connection" }));

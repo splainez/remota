@@ -2,6 +2,10 @@ import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useConnectionFilters, groupConnections } from "./useConnectionFilters";
 import type { Connection } from "../../shared/types";
+import type { TranslationKey } from "../../i18n";
+import { I18nWrapper } from "../test/i18n-wrapper";
+
+const mockT = (key: TranslationKey): string => key;
 
 function makeConnection(id: number, name: string, groupName: string, host: string, username: string): Connection {
 	return {
@@ -33,25 +37,25 @@ describe("groupConnections", () => {
 			makeConnection(2, "B", "Work", "b.com", "user2"),
 			makeConnection(3, "C", "Personal", "c.com", "user3"),
 		];
-		const groups = groupConnections(connections);
+		const groups = groupConnections(connections, mockT);
 		expect(groups.get("Work")?.length).toBe(2);
 		expect(groups.get("Personal")?.length).toBe(1);
 	});
 
 	it("uses 'Uncategorized' for empty group name", () => {
 		const connections = [makeConnection(1, "A", "", "a.com", "user1")];
-		const groups = groupConnections(connections);
-		expect(groups.has("Uncategorized")).toBe(true);
+		const groups = groupConnections(connections, mockT);
+		expect(groups.has("connection.uncategorized")).toBe(true);
 	});
 
 	it("uses 'Uncategorized' for whitespace-only group name", () => {
 		const connections = [makeConnection(1, "A", "   ", "a.com", "user1")];
-		const groups = groupConnections(connections);
-		expect(groups.has("Uncategorized")).toBe(true);
+		const groups = groupConnections(connections, mockT);
+		expect(groups.has("connection.uncategorized")).toBe(true);
 	});
 
 	it("returns empty map for no connections", () => {
-		const groups = groupConnections([]);
+		const groups = groupConnections([], mockT);
 		expect(groups.size).toBe(0);
 	});
 });
@@ -65,12 +69,12 @@ describe("useConnectionFilters", () => {
 	];
 
 	it("returns all connections when search is empty", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		expect(result.current.filtered).toHaveLength(4);
 	});
 
 	it("filters connections by name", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		act(() => {
 			result.current.setSearch("Alpha");
 		});
@@ -79,7 +83,7 @@ describe("useConnectionFilters", () => {
 	});
 
 	it("filters connections by host", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		act(() => {
 			result.current.setSearch("pi.local");
 		});
@@ -88,7 +92,7 @@ describe("useConnectionFilters", () => {
 	});
 
 	it("filters connections by username", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		act(() => {
 			result.current.setSearch("admin");
 		});
@@ -97,7 +101,7 @@ describe("useConnectionFilters", () => {
 	});
 
 	it("search is case insensitive", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		act(() => {
 			result.current.setSearch("alpha");
 		});
@@ -105,14 +109,14 @@ describe("useConnectionFilters", () => {
 	});
 
 	it("groups filtered connections", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		expect(result.current.groups).toHaveLength(2);
 		const groupNames = result.current.groups.map(([name]) => name).sort();
 		expect(groupNames).toEqual(["Personal", "Work"]);
 	});
 
 	it("toggles group collapse", () => {
-		const { result } = renderHook(() => useConnectionFilters(connections));
+		const { result } = renderHook(() => useConnectionFilters(connections), { wrapper: I18nWrapper });
 		act(() => {
 			result.current.toggleGroup("Work");
 		});
@@ -125,7 +129,7 @@ describe("useConnectionFilters", () => {
 	});
 
 	it("returns no groups when no connections at all", () => {
-		const { result } = renderHook(() => useConnectionFilters([]));
+		const { result } = renderHook(() => useConnectionFilters([]), { wrapper: I18nWrapper });
 		expect(result.current.groups).toHaveLength(0);
 		expect(result.current.filtered).toHaveLength(0);
 	});

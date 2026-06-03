@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ConnectionDetail } from "./ConnectionDetail";
 import type { Connection } from "../../../shared/types";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 const sampleConnection: Connection = {
 	id: 1,
@@ -28,16 +29,18 @@ const sampleConnection: Connection = {
 describe("ConnectionDetail", () => {
 	it("shows empty state when no connection is selected", () => {
 		render(
-			<ConnectionDetail
-				connection={null}
-				isNew={false}
-				isEditing={false}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={null}
+					isNew={false}
+					isEditing={false}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("Select a connection or create a new one.")).toBeInTheDocument();
@@ -45,16 +48,18 @@ describe("ConnectionDetail", () => {
 
 	it("renders connection details in view mode", () => {
 		render(
-			<ConnectionDetail
-				connection={sampleConnection}
-				isNew={false}
-				isEditing={false}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={false}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("My Server")).toBeInTheDocument();
@@ -66,16 +71,18 @@ describe("ConnectionDetail", () => {
 
 	it("renders form when isNew is true", () => {
 		render(
-			<ConnectionDetail
-				connection={null}
-				isNew={true}
-				isEditing={true}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={null}
+					isNew={true}
+					isEditing={true}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getAllByText("New Connection").length).toBeGreaterThan(0);
@@ -84,16 +91,18 @@ describe("ConnectionDetail", () => {
 
 	it("renders form in edit mode", () => {
 		render(
-			<ConnectionDetail
-				connection={sampleConnection}
-				isNew={false}
-				isEditing={true}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={true}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getAllByText("Edit Connection").length).toBeGreaterThan(0);
@@ -104,16 +113,18 @@ describe("ConnectionDetail", () => {
 		const user = userEvent.setup();
 		const onEdit = vi.fn();
 		render(
-			<ConnectionDetail
-				connection={sampleConnection}
-				isNew={false}
-				isEditing={false}
-				onEdit={onEdit}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={false}
+					onEdit={onEdit}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Edit Connection" }));
@@ -124,16 +135,18 @@ describe("ConnectionDetail", () => {
 		const user = userEvent.setup();
 		const onDelete = vi.fn();
 		render(
-			<ConnectionDetail
-				connection={sampleConnection}
-				isNew={false}
-				isEditing={false}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={vi.fn()}
-				onSave={vi.fn()}
-				onDelete={onDelete}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={false}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={onDelete}
+				/>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Delete" }));
@@ -151,16 +164,18 @@ describe("ConnectionDetail", () => {
 		const user = userEvent.setup();
 		const onConnect = vi.fn();
 		render(
-			<ConnectionDetail
-				connection={sampleConnection}
-				isNew={false}
-				isEditing={false}
-				onEdit={vi.fn()}
-				onCancel={vi.fn()}
-				onConnect={onConnect}
-				onSave={vi.fn()}
-				onDelete={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={false}
+					onEdit={vi.fn()}
+					onCancel={vi.fn()}
+					onConnect={onConnect}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Connect" }));

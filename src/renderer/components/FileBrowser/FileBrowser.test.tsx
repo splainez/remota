@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FileBrowser } from "./FileBrowser";
 import { createMockApi } from "../../test/setup";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 beforeAll(() => {
 	class ResizeObserverMock {
@@ -70,7 +71,11 @@ describe("FileBrowser", () => {
 	});
 
 	it("calls remoteConnect on mount", async () => {
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(window.api.filesystem.remoteConnect).toHaveBeenCalledWith(1);
@@ -82,7 +87,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connection refused")).toBeInTheDocument();
@@ -96,7 +105,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Show details")).toBeInTheDocument();
@@ -116,7 +129,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connecting...")).toBeInTheDocument();
@@ -134,7 +151,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Retry")).toBeInTheDocument();
@@ -148,7 +169,11 @@ describe("FileBrowser", () => {
 	});
 
 	it("calls homeDir and getLastPath on mount", async () => {
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(window.api.filesystem.homeDir).toHaveBeenCalled();
@@ -164,7 +189,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Authentication failed")).toBeInTheDocument();
@@ -176,7 +205,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Connection timed out")).toBeInTheDocument();
@@ -188,7 +221,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Host unreachable")).toBeInTheDocument();
@@ -200,7 +237,11 @@ describe("FileBrowser", () => {
 
 		vi.stubGlobal("api", mockApi);
 
-		render(<FileBrowser connection={testConnection} />);
+		render(
+			<I18nWrapper>
+				<FileBrowser connection={testConnection} />
+			</I18nWrapper>,
+		);
 
 		await waitFor(() => {
 			expect(screen.getByText("Host key verification failed")).toBeInTheDocument();

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FileList } from "./FileList";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { FileEntry } from "../../../shared/types";
 
 function makeEntry(name: string, isDirectory: boolean, size: number, modified: string): FileEntry {
@@ -30,22 +31,38 @@ describe("FileList", () => {
 	});
 
 	it("renders loading state", () => {
-		render(<FileList {...defaultProps} entries={[]} loading={true} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} entries={[]} loading={true} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Loading...")).toBeInTheDocument();
 	});
 
 	it("renders error state", () => {
-		render(<FileList {...defaultProps} entries={[]} error="Permission denied" />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} entries={[]} error="Permission denied" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Permission denied")).toBeInTheDocument();
 	});
 
 	it("renders empty state", () => {
-		render(<FileList {...defaultProps} entries={[]} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} entries={[]} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("This folder is empty")).toBeInTheDocument();
 	});
 
 	it("renders all entries with folders first", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const rows = document.querySelectorAll("div.cursor-pointer");
 		expect(rows.length).toBe(4);
 		expect(rows[0].textContent).toContain("documents");
@@ -54,20 +71,32 @@ describe("FileList", () => {
 
 	it("calls onEnterDirectory when a directory is double-clicked", async () => {
 		const onEnterDirectory = vi.fn();
-		render(<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />
+			</I18nWrapper>,
+		);
 		await userEvent.dblClick(screen.getByText("projects"));
 		expect(onEnterDirectory).toHaveBeenCalledWith("projects");
 	});
 
 	it("does not call onEnterDirectory when a file is double-clicked", async () => {
 		const onEnterDirectory = vi.fn();
-		render(<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} onEnterDirectory={onEnterDirectory} />
+			</I18nWrapper>,
+		);
 		await userEvent.dblClick(screen.getByText("readme.md"));
 		expect(onEnterDirectory).not.toHaveBeenCalled();
 	});
 
 	it("sorts by name descending on first click (dirs always first)", async () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const nameHeader = screen.getByRole("button", { name: /name/i });
 		await userEvent.click(nameHeader);
 		const rows = document.querySelectorAll("div.cursor-pointer");
@@ -78,7 +107,11 @@ describe("FileList", () => {
 	});
 
 	it("default sort is by name ascending (folders first)", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const rows = document.querySelectorAll("div.cursor-pointer");
 		expect(rows[0].textContent).toContain("documents");
 		expect(rows[1].textContent).toContain("projects");
@@ -87,7 +120,11 @@ describe("FileList", () => {
 	});
 
 	it("shows sort indicator with correct direction on active column", async () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const nameHeader = screen.getByRole("button", { name: /name/i });
 		expect(nameHeader.querySelector("svg")).not.toBeNull();
 		expect(screen.getByTestId("sort-asc")).toBeInTheDocument();
@@ -99,13 +136,21 @@ describe("FileList", () => {
 	});
 
 	it("displays file sizes with correct formatting", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("1.0 KB")).toBeInTheDocument();
 		expect(screen.getByText("2.0 KB")).toBeInTheDocument();
 	});
 
 	it("does not show size for directories", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const rows = document.querySelectorAll("div.cursor-pointer");
 		// First two rows are directories
 		for (let i = 0; i < 2; i++) {
@@ -116,7 +161,11 @@ describe("FileList", () => {
 	it("calls onSelectEntry on single click with modifier info", async () => {
 		const onSelectEntry = vi.fn();
 		const onEnterDirectory = vi.fn();
-		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} onEnterDirectory={onEnterDirectory} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} onSelectEntry={onSelectEntry} onEnterDirectory={onEnterDirectory} />
+			</I18nWrapper>,
+		);
 		await userEvent.click(screen.getByText("projects"));
 		expect(onSelectEntry).toHaveBeenCalledWith("projects", false, false, [
 			"documents",
@@ -129,7 +178,11 @@ describe("FileList", () => {
 
 	it("calls onSelectEntry with ctrlKey true on Ctrl+click", async () => {
 		const onSelectEntry = vi.fn();
-		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} onSelectEntry={onSelectEntry} />
+			</I18nWrapper>,
+		);
 		const user = userEvent.setup();
 		await user.keyboard("{Control>}");
 		await user.click(screen.getByText("projects"));
@@ -144,7 +197,11 @@ describe("FileList", () => {
 
 	it("calls onSelectEntry with shiftKey true on Shift+click", async () => {
 		const onSelectEntry = vi.fn();
-		render(<FileList {...defaultProps} onSelectEntry={onSelectEntry} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} onSelectEntry={onSelectEntry} />
+			</I18nWrapper>,
+		);
 		const user = userEvent.setup();
 		await user.keyboard("{Shift>}");
 		await user.click(screen.getByText("config.json"));
@@ -158,39 +215,63 @@ describe("FileList", () => {
 	});
 
 	it("applies selection styling to entries in selectedNames", () => {
-		render(<FileList {...defaultProps} selectedNames={["readme.md", "config.json"]} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} selectedNames={["readme.md", "config.json"]} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 		expect(screen.getByText("config.json").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("does not apply selection styling to entries not in selectedNames", () => {
-		render(<FileList {...defaultProps} selectedNames={["readme.md"]} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} selectedNames={["readme.md"]} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("documents").closest(".cursor-pointer")?.className).not.toContain(
 			"bg-primary-fixed-dim/20",
 		);
 	});
 
 	it("applies type-ahead highlight to matching entry", () => {
-		render(<FileList {...defaultProps} typeAheadName="readme.md" />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} typeAheadName="readme.md" />
+			</I18nWrapper>,
+		);
 		const row = screen.getByText("readme.md").closest(".cursor-pointer");
 		expect(row?.className).toContain("outline");
 		expect(row?.className).toContain("outline-primary");
 	});
 
 	it("does not apply type-ahead highlight when typeAheadName is null", () => {
-		render(<FileList {...defaultProps} typeAheadName={null} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} typeAheadName={null} />
+			</I18nWrapper>,
+		);
 		const row = screen.getByText("readme.md").closest(".cursor-pointer");
 		expect(row?.className).not.toContain("outline-primary");
 	});
 
 	it("does not apply type-ahead highlight when typeAheadName is undefined", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		const row = screen.getByText("readme.md").closest(".cursor-pointer");
 		expect(row?.className).not.toContain("outline-primary");
 	});
 
 	it("renders data-file-name attribute on each row", () => {
-		render(<FileList {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("readme.md").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe("readme.md");
 		expect(screen.getByText("config.json").closest("[data-file-name]")?.getAttribute("data-file-name")).toBe(
 			"config.json",

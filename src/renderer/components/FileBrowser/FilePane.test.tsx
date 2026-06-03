@@ -5,6 +5,7 @@ import { FilePane } from "./FilePane";
 import { useNavigationStore } from "../../store/navigation";
 import { usePlatformStore } from "../../store/platform";
 import { createMockApi } from "../../test/setup";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 beforeAll(() => {
 	class ResizeObserverMock {
@@ -69,30 +70,50 @@ describe("FilePane", () => {
 	});
 
 	it("renders toolbar with up, refresh and new folder buttons (local)", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("renders toolbar with up, refresh and new folder buttons (remote)", () => {
-		render(<FilePane type="remote" connectionId={1} initialPath="/" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("initializes navigation history with initialPath", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
 		const store = useNavigationStore.getState();
 		expect(store.panes.local.entries).toEqual(["/home/user"]);
 		expect(store.panes.local.index).toBe(0);
 	});
 
 	it("clears and re-initializes history on connection change", () => {
-		const { rerender } = render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
+		const { rerender } = render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
 		flushStore();
-		rerender(<FilePane type="local" connectionId={2} initialPath="/var/log" />);
+		rerender(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={2} initialPath="/var/log" />
+			</I18nWrapper>,
+		);
 		const store = useNavigationStore.getState();
 		expect(store.panes.local.entries).toEqual(["/var/log"]);
 		expect(store.panes.local.index).toBe(0);
@@ -102,7 +123,11 @@ describe("FilePane", () => {
 		const dirEntries = [{ name: "admin", isDirectory: true, size: 0, modified: "" }];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(dirEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		const adminDir = await screen.findByText("admin");
 		await userEvent.dblClick(adminDir);
@@ -123,7 +148,11 @@ describe("FilePane", () => {
 		const dirEntries = [{ name: "admin", isDirectory: true, size: 0, modified: "" }];
 		window.api.filesystem.list = vi.fn().mockResolvedValue(dirEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		const adminDir = await screen.findByText("admin");
 		await userEvent.dblClick(adminDir);
@@ -140,13 +169,21 @@ describe("FilePane", () => {
 	});
 
 	it("back and forward are not available as buttons", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home/user" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByTitle("Back")).not.toBeInTheDocument();
 		expect(screen.queryByTitle("Forward")).not.toBeInTheDocument();
 	});
 
 	it("calls goBack on mouse button 3 (back)", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		useNavigationStore.getState().push("local", "/home/user");
 		useNavigationStore.getState().push("local", "/home/user/docs");
@@ -160,7 +197,11 @@ describe("FilePane", () => {
 	});
 
 	it("calls goForward on mouse button 4 (forward)", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		useNavigationStore.getState().push("local", "/home/user");
 		useNavigationStore.getState().push("local", "/home/user/docs");
@@ -175,7 +216,11 @@ describe("FilePane", () => {
 	});
 
 	it("does not navigate on regular mouse click (button 0)", () => {
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		useNavigationStore.getState().push("local", "/home/user");
 
@@ -194,7 +239,11 @@ describe("FilePane", () => {
 		];
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue(remoteEntries);
 
-		render(<FilePane type="remote" connectionId={5} initialPath="/" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={5} initialPath="/" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("var");
 		expect(window.api.filesystem.remoteList).toHaveBeenCalledWith(5, "/");
@@ -205,7 +254,11 @@ describe("FilePane", () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(localEntries);
 		window.api.filesystem.remoteList = vi.fn().mockResolvedValue([]);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("docs");
 		expect(window.api.filesystem.list).toHaveBeenCalledWith("/home");
@@ -215,7 +268,11 @@ describe("FilePane", () => {
 		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Not connected to remote server"));
 		const onReconnect = vi.fn();
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/" onReconnect={onReconnect} />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/" onReconnect={onReconnect} />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("Reconnect");
 		expect(screen.getByText("Reconnect")).toBeInTheDocument();
@@ -232,13 +289,15 @@ describe("FilePane", () => {
 		};
 
 		render(
-			<FilePane
-				type="remote"
-				connectionId={1}
-				initialPath="/"
-				connectionError={connectionError}
-				onReconnect={vi.fn()}
-			/>,
+			<I18nWrapper>
+				<FilePane
+					type="remote"
+					connectionId={1}
+					initialPath="/"
+					connectionError={connectionError}
+					onReconnect={vi.fn()}
+				/>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("Reconnect")).toBeInTheDocument();
@@ -247,7 +306,11 @@ describe("FilePane", () => {
 	it("shows inline error with detail toggle when listing fails with permission denied", async () => {
 		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/root" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("Show details");
 		expect(screen.getByText("Permission denied")).toBeInTheDocument();
@@ -261,7 +324,11 @@ describe("FilePane", () => {
 	it("keeps toolbar functional when listing error occurs", async () => {
 		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/root" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("Permission denied");
 
@@ -272,7 +339,11 @@ describe("FilePane", () => {
 	it("toggles error detail visibility", async () => {
 		window.api.filesystem.remoteList = vi.fn().mockRejectedValue(new Error("Permission denied"));
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/root" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/root" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("Show details");
 
@@ -288,7 +359,11 @@ describe("FilePane", () => {
 	it("selects an entry on single click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
@@ -299,7 +374,11 @@ describe("FilePane", () => {
 	it("clears previous selection on plain click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -319,7 +398,11 @@ describe("FilePane", () => {
 	it("toggles entries with Ctrl+click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -342,7 +425,11 @@ describe("FilePane", () => {
 	it("selects a range with Shift+click", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -360,7 +447,11 @@ describe("FilePane", () => {
 	it("uses first entry as anchor when Shift+click with no prior selection", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -379,7 +470,11 @@ describe("FilePane", () => {
 	it("clears selection on navigate back", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(selectionEntriesWithWebapp);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
@@ -404,7 +499,11 @@ describe("FilePane", () => {
 			.mockResolvedValueOnce([{ name: "webapp", isDirectory: false, size: 300, modified: "" }])
 			.mockResolvedValue(selectionEntriesWithWebapp);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 		const user = userEvent.setup();
 
@@ -452,7 +551,11 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("var");
 		expect(mockApiWin.filesystem.remoteList).toHaveBeenCalledWith(1, "/home");
@@ -501,7 +604,11 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/home/user" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/home/user" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("subdir");
 		await userEvent.dblClick(screen.getByText("subdir"));
@@ -549,7 +656,11 @@ describe("FilePane", () => {
 			pathSep: "\\",
 		});
 
-		render(<FilePane type="remote" connectionId={1} initialPath="/home" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
 
 		await screen.findByText("docs");
 		await userEvent.dblClick(screen.getByText("docs"));
@@ -578,7 +689,11 @@ describe("FilePane", () => {
 				{ name: "deploy", isDirectory: false, size: 100, modified: "" },
 			]);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/home/admin" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home/admin" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		await userEvent.click(screen.getByText("projects"));
@@ -603,7 +718,11 @@ describe("FilePane", () => {
 	it("filter input shows all entries when empty", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		expect(screen.getByText("albacete")).toBeInTheDocument();
@@ -616,7 +735,11 @@ describe("FilePane", () => {
 	it("plain text filter shows only entries containing the text", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -632,7 +755,11 @@ describe("FilePane", () => {
 	it("plain text filter matches substring in middle of name", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -648,7 +775,11 @@ describe("FilePane", () => {
 	it("trailing wildcard filters files starting with pattern", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -663,7 +794,11 @@ describe("FilePane", () => {
 	it("leading wildcard filters files ending with pattern", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -678,7 +813,11 @@ describe("FilePane", () => {
 	it("wildcards on both sides filters files containing pattern", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -694,7 +833,11 @@ describe("FilePane", () => {
 	it("wildcard in middle filters files with prefix and suffix", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -709,7 +852,11 @@ describe("FilePane", () => {
 	it("filter is case-insensitive", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -723,7 +870,11 @@ describe("FilePane", () => {
 	it("filter shows empty state when no entries match", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -735,7 +886,11 @@ describe("FilePane", () => {
 	it("clear filter button resets filter and shows all entries", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -753,7 +908,11 @@ describe("FilePane", () => {
 	it("filter entries are passed to FileList for selection", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");
@@ -766,7 +925,11 @@ describe("FilePane", () => {
 	it("filter with dot pattern filters by extension", async () => {
 		window.api.filesystem.list = vi.fn().mockResolvedValue(filterEntries);
 
-		render(<FilePane type="local" connectionId={1} initialPath="/cities" />);
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/cities" />
+			</I18nWrapper>,
+		);
 		await waitForEntries();
 
 		const filterInput = screen.getByPlaceholderText("Filter...");

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ServerSidebar } from "./ServerSidebar";
 import { ThemeProvider } from "../theme-provider";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { Connection } from "../../../shared/types";
 
 function makeConn(overrides: Partial<Connection> = {}): Connection {
@@ -39,19 +40,21 @@ const connections: Connection[] = [
 describe("ServerSidebar", () => {
 	it("renders active connection name when expanded", () => {
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("Production Server")).toBeInTheDocument();
@@ -60,19 +63,21 @@ describe("ServerSidebar", () => {
 
 	it("shows empty message when no active connection", () => {
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={null}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={null}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("No active connection")).toBeInTheDocument();
@@ -82,19 +87,21 @@ describe("ServerSidebar", () => {
 		const user = userEvent.setup();
 		const onSelect = vi.fn();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={onSelect}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={onSelect}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByText("Production Server"));
@@ -105,19 +112,21 @@ describe("ServerSidebar", () => {
 		const user = userEvent.setup();
 		const onAdd = vi.fn();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={onAdd}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={onAdd}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Add Connection" }));
@@ -127,19 +136,21 @@ describe("ServerSidebar", () => {
 	it("collapses and expands sidebar", async () => {
 		const user = userEvent.setup();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		expect(screen.getByText("Production Server")).toBeInTheDocument();
@@ -153,19 +164,21 @@ describe("ServerSidebar", () => {
 	it("shows theme dropdown and changes theme", async () => {
 		const user = userEvent.setup();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByRole("button", { name: "Change theme" }));
@@ -178,19 +191,21 @@ describe("ServerSidebar", () => {
 		const user = userEvent.setup();
 		const onViewAll = vi.fn();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={onViewAll}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={onViewAll}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByTitle("OpenSCP"));
@@ -201,19 +216,21 @@ describe("ServerSidebar", () => {
 		const user = userEvent.setup();
 		const onViewAll = vi.fn();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={onViewAll}
-					onDisconnect={vi.fn()}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={onViewAll}
+						onDisconnect={vi.fn()}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByText("OpenSCP"));
@@ -224,19 +241,21 @@ describe("ServerSidebar", () => {
 		const user = userEvent.setup();
 		const onDisconnect = vi.fn();
 		render(
-			<ThemeProvider defaultTheme="dark">
-				<ServerSidebar
-					connections={connections}
-					selectedId={null}
-					activeConnectionId={1}
-					onSelect={vi.fn()}
-					onAdd={vi.fn()}
-					onDoubleClick={vi.fn()}
-					onViewAll={vi.fn()}
-					onDisconnect={onDisconnect}
-					onSettings={vi.fn()}
-				/>
-			</ThemeProvider>,
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<ServerSidebar
+						connections={connections}
+						selectedId={null}
+						activeConnectionId={1}
+						onSelect={vi.fn()}
+						onAdd={vi.fn()}
+						onDoubleClick={vi.fn()}
+						onViewAll={vi.fn()}
+						onDisconnect={onDisconnect}
+						onSettings={vi.fn()}
+					/>
+				</ThemeProvider>
+			</I18nWrapper>,
 		);
 
 		await user.click(screen.getByTitle("Disconnect"));

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ConnectionForm } from "./ConnectionForm";
 import type { Connection } from "../../../shared/types";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 const sampleConnection: Connection = {
 	id: 1,
@@ -27,7 +28,11 @@ const sampleConnection: Connection = {
 
 describe("ConnectionForm", () => {
 	it("renders all form fields for new connection", () => {
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.getByLabelText("Name")).toBeInTheDocument();
 		expect(screen.getByLabelText("Protocol")).toBeInTheDocument();
@@ -38,7 +43,11 @@ describe("ConnectionForm", () => {
 	});
 
 	it("pre-fills fields when editing a connection", () => {
-		render(<ConnectionForm initial={sampleConnection} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={sampleConnection} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.getByDisplayValue("My Server")).toBeInTheDocument();
 		expect(screen.getByDisplayValue("example.com")).toBeInTheDocument();
@@ -48,7 +57,11 @@ describe("ConnectionForm", () => {
 	});
 
 	it("defaults protocol to sftp", () => {
-		const { container } = render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		const { container } = render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = container.querySelector("select");
 		expect(select?.value).toBe("sftp");
@@ -56,7 +69,11 @@ describe("ConnectionForm", () => {
 
 	it("updates port when protocol changes to s3", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -67,7 +84,11 @@ describe("ConnectionForm", () => {
 
 	it("shows S3 fields when protocol is s3", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -82,7 +103,11 @@ describe("ConnectionForm", () => {
 
 	it("hides SSH fields when protocol is s3", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -94,7 +119,11 @@ describe("ConnectionForm", () => {
 
 	it("shows SSH fields again when switching back from s3", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -107,14 +136,22 @@ describe("ConnectionForm", () => {
 	it("calls onCancel when cancel button is clicked", async () => {
 		const user = userEvent.setup();
 		const onCancel = vi.fn();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={onCancel} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={onCancel} />
+			</I18nWrapper>,
+		);
 
 		await user.click(screen.getByRole("button", { name: "Cancel" }));
 		expect(onCancel).toHaveBeenCalledOnce();
 	});
 
 	it("renders back button in header", () => {
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.getByRole("button", { name: "Back" })).toBeInTheDocument();
 	});
@@ -122,20 +159,32 @@ describe("ConnectionForm", () => {
 	it("calls onCancel when back button is clicked", async () => {
 		const user = userEvent.setup();
 		const onCancel = vi.fn();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={onCancel} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={onCancel} />
+			</I18nWrapper>,
+		);
 
 		await user.click(screen.getByRole("button", { name: "Back" }));
 		expect(onCancel).toHaveBeenCalledOnce();
 	});
 
 	it("shows 'New Connection' title for new connection", () => {
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.getByText("New Connection")).toBeInTheDocument();
 	});
 
 	it("shows 'Edit Connection' title when editing", () => {
-		render(<ConnectionForm initial={sampleConnection} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={sampleConnection} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.getByText("Edit Connection")).toBeInTheDocument();
 	});
@@ -143,7 +192,11 @@ describe("ConnectionForm", () => {
 	it("calls onSave with form data on Save Connection button click", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Name"), "My Server");
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
@@ -191,7 +244,11 @@ describe("ConnectionForm", () => {
 		};
 		const onSave = vi.fn().mockResolvedValue(savedConnection);
 		const onConnect = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Name"), "My Server");
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
@@ -211,7 +268,11 @@ describe("ConnectionForm", () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
 		const onConnect = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} onConnect={onConnect} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
 		await user.type(screen.getByLabelText("Username"), "newuser");
@@ -226,7 +287,11 @@ describe("ConnectionForm", () => {
 	it("calls onSave with S3 fields on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -257,7 +322,11 @@ describe("ConnectionForm", () => {
 
 	it("defaults useHttps to checked for S3", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -269,7 +338,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for empty name on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Host"), "myhost.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
@@ -283,7 +356,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for missing S3 fields on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const select = screen.getByLabelText("Protocol");
 		await user.selectOptions(select, "s3");
@@ -296,13 +373,21 @@ describe("ConnectionForm", () => {
 	});
 
 	it("shows password field for password auth", () => {
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByLabelText("Password", { selector: "input[type='password']" })).toBeInTheDocument();
 	});
 
 	it("shows private key field when auth type is key", async () => {
 		const user = userEvent.setup();
-		const { container } = render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		const { container } = render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
 		expect(keyRadio).not.toBeNull();
@@ -315,7 +400,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for empty host on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Username"), "admin");
@@ -328,7 +417,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for empty username on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Host"), "example.com");
@@ -340,7 +433,11 @@ describe("ConnectionForm", () => {
 
 	it("shows validation error for empty password on blur", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
 		await user.clear(passwordInput);
@@ -351,7 +448,11 @@ describe("ConnectionForm", () => {
 
 	it("shows validation error for empty private key path on blur", async () => {
 		const user = userEvent.setup();
-		const { container } = render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		const { container } = render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
 		if (keyRadio) await user.click(keyRadio);
@@ -366,7 +467,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for missing password on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Host"), "example.com");
@@ -381,7 +486,11 @@ describe("ConnectionForm", () => {
 	it("shows validation error for missing private key path on submit", async () => {
 		const user = userEvent.setup();
 		const onSave = vi.fn();
-		const { container } = render(<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />);
+		const { container } = render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
 		if (keyRadio) await user.click(keyRadio);
@@ -397,7 +506,11 @@ describe("ConnectionForm", () => {
 
 	it("shows group field in advanced settings", async () => {
 		const user = userEvent.setup();
-		render(<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
 
 		expect(screen.queryByLabelText("Group")).not.toBeInTheDocument();
 

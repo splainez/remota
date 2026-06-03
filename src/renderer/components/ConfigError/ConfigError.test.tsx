@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { ConfigError } from "./ConfigError";
 import { createMockApi } from "../../test/setup";
 import type { ElectronAPI } from "../../../shared/types";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 function createMockApiWithError(overrides?: Partial<ElectronAPI>): ElectronAPI {
 	return createMockApi({
@@ -24,7 +25,11 @@ describe("ConfigError", () => {
 		const api = createMockApi();
 		vi.stubGlobal("api", api);
 
-		const { container } = render(<ConfigError />);
+		const { container } = render(
+			<I18nWrapper>
+				<ConfigError />
+			</I18nWrapper>,
+		);
 		expect(container.innerHTML).toBe("");
 	});
 
@@ -37,7 +42,11 @@ describe("ConfigError", () => {
 		});
 		vi.stubGlobal("api", api);
 
-		render(<ConfigError />);
+		render(
+			<I18nWrapper>
+				<ConfigError />
+			</I18nWrapper>,
+		);
 
 		expect(await screen.findByText("Configuration error")).toBeInTheDocument();
 		expect(screen.getByText("/tmp/app-config.json")).toBeInTheDocument();
@@ -53,7 +62,11 @@ describe("ConfigError", () => {
 		});
 		vi.stubGlobal("api", api);
 
-		render(<ConfigError />);
+		render(
+			<I18nWrapper>
+				<ConfigError />
+			</I18nWrapper>,
+		);
 
 		expect(await screen.findByText("Configuration error")).toBeInTheDocument();
 		fireEvent.click(screen.getByText("Continue without configuration"));

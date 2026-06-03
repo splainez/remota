@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ConnectionListView } from "./ConnectionListView";
 import { ThemeProvider } from "../theme-provider";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import type { Connection } from "../../../shared/types";
 
 function makeConn(overrides: Partial<Connection> = {}): Connection {
@@ -48,9 +49,11 @@ const defaultProps = {
 
 function renderList(props = defaultProps) {
 	return render(
-		<ThemeProvider defaultTheme="dark">
-			<ConnectionListView {...props} />
-		</ThemeProvider>,
+		<I18nWrapper>
+			<ThemeProvider defaultTheme="dark">
+				<ConnectionListView {...props} />
+			</ThemeProvider>
+		</I18nWrapper>,
 	);
 }
 

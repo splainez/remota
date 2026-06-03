@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { AdvancedSettings } from "./AdvancedSettings";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 
 function makeForm() {
 	return {
@@ -31,19 +32,31 @@ function makeForm() {
 describe("AdvancedSettings", () => {
 	it("renders toggle button with collapsed state", () => {
 		const form = makeForm();
-		render(<AdvancedSettings form={form} visible={false} onToggle={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<AdvancedSettings form={form} visible={false} onToggle={vi.fn()} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Advanced Settings (SSH Keys, Proxy...)")).toBeInTheDocument();
 	});
 
 	it("does not show group field when not visible", () => {
 		const form = makeForm();
-		render(<AdvancedSettings form={form} visible={false} onToggle={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<AdvancedSettings form={form} visible={false} onToggle={vi.fn()} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByText("Group")).not.toBeInTheDocument();
 	});
 
 	it("shows group field when visible", () => {
 		const form = makeForm();
-		render(<AdvancedSettings form={form} visible={true} onToggle={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<AdvancedSettings form={form} visible={true} onToggle={vi.fn()} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("Group")).toBeInTheDocument();
 	});
 
@@ -51,14 +64,22 @@ describe("AdvancedSettings", () => {
 		const user = userEvent.setup();
 		const onToggle = vi.fn();
 		const form = makeForm();
-		render(<AdvancedSettings form={form} visible={false} onToggle={onToggle} />);
+		render(
+			<I18nWrapper>
+				<AdvancedSettings form={form} visible={false} onToggle={onToggle} />
+			</I18nWrapper>,
+		);
 		await user.click(screen.getByRole("button"));
 		expect(onToggle).toHaveBeenCalledOnce();
 	});
 
 	it("renders input with correct placeholder", () => {
 		const form = makeForm();
-		render(<AdvancedSettings form={form} visible={true} onToggle={vi.fn()} />);
+		render(
+			<I18nWrapper>
+				<AdvancedSettings form={form} visible={true} onToggle={vi.fn()} />
+			</I18nWrapper>,
+		);
 		const input = screen.getByPlaceholderText("e.g. Work Servers");
 		expect(input).toBeInTheDocument();
 	});

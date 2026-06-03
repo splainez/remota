@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Toolbar } from "./Toolbar";
+import { I18nWrapper } from "../../test/i18n-wrapper";
 import { canGoUp } from "../../lib/utils";
 
 describe("canGoUp", () => {
@@ -44,60 +45,100 @@ describe("Toolbar", () => {
 	const dDriveRoot = ["D:", ""].join("\\");
 
 	it("renders Up, Refresh and New Folder buttons", () => {
-		render(<Toolbar {...defaultProps} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeInTheDocument();
 		expect(screen.getByTitle("Refresh")).toBeInTheDocument();
 		expect(screen.getByTitle("New Folder")).toBeInTheDocument();
 	});
 
 	it("enables Up button when not at root", () => {
-		render(<Toolbar {...defaultProps} currentPath="C:\\Users\\Sergio" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} currentPath="C:\\Users\\Sergio" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).not.toBeDisabled();
 	});
 
 	it("disables Up button at Unix root", () => {
-		render(<Toolbar {...defaultProps} currentPath="/" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} currentPath="/" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeDisabled();
 	});
 
 	it("disables Up button at Windows drive root via isAtDriveRoot", () => {
-		render(<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={true} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={true} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeDisabled();
 	});
 
 	it("disables Up button at Windows drive root via canGoUp", () => {
-		render(<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={false} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} currentPath={cDriveRoot} isAtDriveRoot={false} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Parent Directory")).toBeDisabled();
 	});
 
 	it("calls onNavigateUp when Up is clicked", async () => {
 		const onNavigateUp = vi.fn();
-		render(<Toolbar {...defaultProps} onNavigateUp={onNavigateUp} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} onNavigateUp={onNavigateUp} />
+			</I18nWrapper>,
+		);
 		await userEvent.click(screen.getByTitle("Parent Directory"));
 		expect(onNavigateUp).toHaveBeenCalledOnce();
 	});
 
 	it("calls onRefresh when Refresh is clicked", async () => {
 		const onRefresh = vi.fn();
-		render(<Toolbar {...defaultProps} onRefresh={onRefresh} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} onRefresh={onRefresh} />
+			</I18nWrapper>,
+		);
 		await userEvent.click(screen.getByTitle("Refresh"));
 		expect(onRefresh).toHaveBeenCalledOnce();
 	});
 
 	it("shows drive selector when drives list is non-empty", () => {
 		const drives = ["C:\\", "D:\\"];
-		render(<Toolbar {...defaultProps} drives={drives} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} drives={drives} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Select drive")).toBeInTheDocument();
 	});
 
 	it("hides drive selector when drives list is empty", () => {
-		render(<Toolbar {...defaultProps} drives={[]} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} drives={[]} />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByTitle("Select drive")).not.toBeInTheDocument();
 	});
 
 	it("renders all drives as options", () => {
 		const drives = ["C:\\", "D:\\", "E:\\"];
-		render(<Toolbar {...defaultProps} drives={drives} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} drives={drives} />
+			</I18nWrapper>,
+		);
 		expect(screen.getByText("C:\\")).toBeInTheDocument();
 		expect(screen.getByText("D:\\")).toBeInTheDocument();
 		expect(screen.getByText("E:\\")).toBeInTheDocument();
@@ -105,7 +146,11 @@ describe("Toolbar", () => {
 
 	it("calls onNavigateTo when a new drive is selected", async () => {
 		const onNavigateTo = vi.fn();
-		render(<Toolbar {...defaultProps} drives={[dDriveRoot]} onNavigateTo={onNavigateTo} currentPath="C:\\Users" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} drives={[dDriveRoot]} onNavigateTo={onNavigateTo} currentPath="C:\\Users" />
+			</I18nWrapper>,
+		);
 		const select = screen.getByTitle("Select drive");
 		await userEvent.selectOptions(select, dDriveRoot);
 		expect(onNavigateTo).toHaveBeenCalledWith(dDriveRoot);
@@ -113,36 +158,60 @@ describe("Toolbar", () => {
 
 	it("shows current drive as selected when at drive root", () => {
 		const drives = [cDriveRoot, dDriveRoot];
-		render(<Toolbar {...defaultProps} drives={drives} currentPath={cDriveRoot} isAtDriveRoot={true} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} drives={drives} currentPath={cDriveRoot} isAtDriveRoot={true} />
+			</I18nWrapper>,
+		);
 		const select = screen.getByTitle<HTMLSelectElement>("Select drive");
 		expect(select.value).toBe(cDriveRoot);
 	});
 
 	it("renders filter input with controlled value", () => {
-		render(<Toolbar {...defaultProps} filter="test" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} filter="test" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByPlaceholderText("Filter...")).toHaveValue("test");
 	});
 
 	it("calls onFilterChange when filter input changes", async () => {
 		const onFilterChange = vi.fn();
-		render(<Toolbar {...defaultProps} onFilterChange={onFilterChange} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} onFilterChange={onFilterChange} />
+			</I18nWrapper>,
+		);
 		await userEvent.type(screen.getByPlaceholderText("Filter..."), "a");
 		expect(onFilterChange).toHaveBeenCalledWith("a");
 	});
 
 	it("hides clear button when filter is empty", () => {
-		render(<Toolbar {...defaultProps} filter="" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} filter="" />
+			</I18nWrapper>,
+		);
 		expect(screen.queryByTitle("Clear filter")).not.toBeInTheDocument();
 	});
 
 	it("shows clear button when filter is non-empty", () => {
-		render(<Toolbar {...defaultProps} filter="test" />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} filter="test" />
+			</I18nWrapper>,
+		);
 		expect(screen.getByTitle("Clear filter")).toBeInTheDocument();
 	});
 
 	it("calls onFilterChange with empty string when clear button is clicked", async () => {
 		const onFilterChange = vi.fn();
-		render(<Toolbar {...defaultProps} filter="test" onFilterChange={onFilterChange} />);
+		render(
+			<I18nWrapper>
+				<Toolbar {...defaultProps} filter="test" onFilterChange={onFilterChange} />
+			</I18nWrapper>,
+		);
 		await userEvent.click(screen.getByTitle("Clear filter"));
 		expect(onFilterChange).toHaveBeenCalledWith("");
 	});
