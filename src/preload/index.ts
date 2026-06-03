@@ -26,6 +26,18 @@ const api = {
 		remoteList: (connectionId: number, path: string): Promise<FileEntry[]> =>
 			ipcRenderer.invoke(IPC.REMOTE_LIST, connectionId, path),
 		remoteHomeDir: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_HOME_DIR, connectionId),
+		tempGetPath: (connectionId: number): Promise<string | undefined> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_GET_PATH, connectionId),
+		tempWrite: (connectionId: number, remotePath: string, content: number[]): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_WRITE, connectionId, remotePath, content),
+		tempRead: (connectionId: number, remotePath: string): Promise<number[]> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_READ, connectionId, remotePath),
+		tempMkdir: (connectionId: number, remotePath: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_MKDIR, connectionId, remotePath),
+		tempDelete: (connectionId: number, remotePath: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_DELETE, connectionId, remotePath),
+		tempExists: (connectionId: number, remotePath: string): Promise<boolean> =>
+			ipcRenderer.invoke(IPC.FILE_TEMP_EXISTS, connectionId, remotePath),
 	},
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => {

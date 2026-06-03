@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { join, sep } from "node:path";
 
 import type { AppStore } from "@main/app-store";
+import { tempManager } from "@main/temp/temp-manager";
 import { IPC } from "@shared/ipc-channels";
 import type { FileEntry } from "@shared/types";
 import { app, ipcMain, shell } from "electron";
@@ -105,6 +106,31 @@ export function registerFilesystemHandlers(store: AppStore) {
 
 	ipcMain.handle(IPC.FILE_OPEN_PATH, (_event, filePath: string) => {
 		return openPath(filePath);
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_GET_PATH, (_event, connectionId: number) => {
+		return tempManager.getTempPath(connectionId);
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_WRITE, async (_event, connectionId: number, remotePath: string, content: number[]) => {
+		await tempManager.writeFile(connectionId, remotePath, Buffer.from(content));
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_READ, async (_event, connectionId: number, remotePath: string) => {
+		const buffer = await tempManager.readFile(connectionId, remotePath);
+		return [...buffer];
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_MKDIR, async (_event, connectionId: number, remotePath: string) => {
+		await tempManager.ensureDir(connectionId, remotePath);
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_DELETE, async (_event, connectionId: number, remotePath: string) => {
+		await tempManager.deletePath(connectionId, remotePath);
+	});
+
+	ipcMain.handle(IPC.FILE_TEMP_EXISTS, async (_event, connectionId: number, remotePath: string) => {
+		return tempManager.exists(connectionId, remotePath);
 	});
 }
 

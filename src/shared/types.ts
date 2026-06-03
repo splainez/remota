@@ -56,6 +56,12 @@ export interface ElectronAPI {
 		remoteDisconnect: (connectionId: number) => Promise<void>;
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 		remoteHomeDir: (connectionId: number) => Promise<string>;
+		tempGetPath: (connectionId: number) => Promise<string | undefined>;
+		tempWrite: (connectionId: number, remotePath: string, content: number[]) => Promise<void>;
+		tempRead: (connectionId: number, remotePath: string) => Promise<number[]>;
+		tempMkdir: (connectionId: number, remotePath: string) => Promise<void>;
+		tempDelete: (connectionId: number, remotePath: string) => Promise<void>;
+		tempExists: (connectionId: number, remotePath: string) => Promise<boolean>;
 	};
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;
