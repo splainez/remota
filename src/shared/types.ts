@@ -75,6 +75,10 @@ export interface ElectronAPI {
 		getAll: () => Promise<Settings>;
 		set: (partial: SettingsUpdate) => Promise<Settings>;
 	};
+	transferPanel: {
+		getAll: () => Promise<Record<number, { visible: boolean }>>;
+		set: (connectionId: number, update: { visible: boolean }) => Promise<void>;
+	};
 	app: {
 		getConfigPath: () => Promise<string>;
 		getConfigError: () => Promise<{ message: string; filePath: string; issues: string[] } | null>;

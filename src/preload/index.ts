@@ -74,6 +74,11 @@ const api = {
 		getAll: (): Promise<Settings> => ipcRenderer.invoke(IPC.SETTINGS_GET_ALL),
 		set: (partial: SettingsUpdate): Promise<Settings> => ipcRenderer.invoke(IPC.SETTINGS_SET, partial),
 	},
+	transferPanel: {
+		getAll: (): Promise<Record<number, { visible: boolean }>> => ipcRenderer.invoke(IPC.TRANSFER_PANEL_GET_ALL),
+		set: (connectionId: number, update: { visible: boolean }): Promise<void> =>
+			ipcRenderer.invoke(IPC.TRANSFER_PANEL_SET, connectionId, update),
+	},
 	app: {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),
 		getConfigError: (): Promise<{ message: string; filePath: string; issues: string[] } | null> =>

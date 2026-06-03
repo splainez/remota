@@ -30,4 +30,6 @@ export const IPC = {
 	APP_GET_CONFIG_ERROR: "app:getConfigError",
 	SETTINGS_GET_ALL: "settings:getAll",
 	SETTINGS_SET: "settings:set",
+	TRANSFER_PANEL_GET_ALL: "transferPanel:getAll",
+	TRANSFER_PANEL_SET: "transferPanel:set",
 } as const;
