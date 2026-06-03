@@ -93,4 +93,35 @@ const mockApi: ElectronAPI = createMockApi();
 
 vi.stubGlobal("api", mockApi);
 
+if (typeof window !== "undefined") {
+	class ResizeObserverMock {
+		observe() {
+			/* noop */
+		}
+		unobserve() {
+			/* noop */
+		}
+		disconnect() {
+			/* noop */
+		}
+	}
+	(globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverMock;
+
+	// xterm.js requires window.matchMedia with addListener; jsdom's stub lacks it
+	Object.defineProperty(window, "matchMedia", {
+		configurable: true,
+		writable: true,
+		value: (query: string) => ({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: () => undefined,
+			removeListener: () => undefined,
+			addEventListener: () => undefined,
+			removeEventListener: () => undefined,
+			dispatchEvent: () => false,
+		}),
+	});
+}
+
 export { mockApi, makeConnection };
