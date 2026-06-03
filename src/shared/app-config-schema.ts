@@ -31,6 +31,19 @@ const lastPathEntry = z.object({
 
 export const LastPathsSchema = z.record(z.string(), lastPathEntry);
 
+export const TERMINAL_APP_IDS = [
+	"windows-terminal",
+	"kitty",
+	"ghostty",
+	"alacritty",
+	"iterm2",
+	"terminal-app",
+	"gnome-terminal",
+	"konsole",
+] as const;
+
+export type TerminalAppId = (typeof TERMINAL_APP_IDS)[number];
+
 const transferPanelEntry = z.object({
 	visible: z.boolean(),
 });
@@ -43,6 +56,7 @@ export type TransferPanelUpdate = z.infer<typeof TransferPanelUpdate>;
 export const SettingsSchema = z.object({
 	theme: z.enum(["dark", "light", "system"]),
 	locale: z.enum(["en", "es"]),
+	externalTerminal: z.enum(TERMINAL_APP_IDS).optional(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;

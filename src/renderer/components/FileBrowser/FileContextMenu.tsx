@@ -17,6 +17,7 @@ interface FileContextMenuProps {
 	y: number;
 	entry: FileEntry;
 	panelType: "local" | "remote";
+	protocol?: "sftp" | "scp" | "s3";
 	onClose: () => void;
 	onAction?: (actionId: string, entry: FileEntry) => void;
 }
@@ -30,7 +31,7 @@ function clampToViewport(x: number, y: number, menuWidth: number, menuHeight: nu
 	};
 }
 
-export function FileContextMenu({ x, y, entry, panelType, onClose, onAction }: FileContextMenuProps) {
+export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onAction }: FileContextMenuProps) {
 	const { t } = useI18n();
 	const itemsRef = useRef<HTMLButtonElement[]>([]);
 	const focusIndex = useRef(0);
@@ -42,6 +43,8 @@ export function FileContextMenu({ x, y, entry, panelType, onClose, onAction }: F
 		},
 		[onAction, entry, onClose],
 	);
+
+	const showTerminal = entry.isDirectory && (panelType === "local" || protocol !== "s3");
 
 	const menuItems: MenuItem[] = [
 		{
@@ -92,7 +95,7 @@ export function FileContextMenu({ x, y, entry, panelType, onClose, onAction }: F
 			id: "openInTerminal",
 			icon: "terminal",
 			label: t("file.contextMenu.openInTerminal"),
-			visible: entry.isDirectory,
+			visible: showTerminal,
 		},
 	];
 

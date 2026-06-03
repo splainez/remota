@@ -18,6 +18,7 @@ describe("registerTerminalHandlers", () => {
 		kill: vi.fn(),
 		killAll: vi.fn(),
 		has: vi.fn().mockReturnValue(false),
+		openExternalTerminal: vi.fn().mockReturnValue(Promise.resolve()),
 	};
 
 	beforeEach(() => {
@@ -25,14 +26,15 @@ describe("registerTerminalHandlers", () => {
 		registerTerminalHandlers(mockManager as unknown as Parameters<typeof registerTerminalHandlers>[0]);
 	});
 
-	it("registers spawn, write, resize, and kill handlers", () => {
+	it("registers spawn, write, resize, kill, and openExternal handlers", () => {
 		const calls: unknown[][] = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls;
 		const channels = calls.map((c) => c[0]);
 		expect(channels).toContain(IPC.TERMINAL_SPAWN);
 		expect(channels).toContain(IPC.TERMINAL_WRITE);
 		expect(channels).toContain(IPC.TERMINAL_RESIZE);
 		expect(channels).toContain(IPC.TERMINAL_KILL);
-		expect(calls.length).toBe(4);
+		expect(channels).toContain(IPC.TERMINAL_OPEN_EXTERNAL);
+		expect(calls.length).toBe(5);
 	});
 
 	it("spawn handler calls spawnLocal for local type", () => {
@@ -68,5 +70,15 @@ describe("registerTerminalHandlers", () => {
 		const fn = calls.find((c) => c[0] === IPC.TERMINAL_KILL)?.[1] as (event: unknown, ...args: unknown[]) => void;
 		fn({}, "local-1");
 		expect(mockManager.kill).toHaveBeenCalledWith("local-1");
+	});
+
+	it("openExternal handler calls manager.openExternalTerminal with forwarded args", () => {
+		const calls: unknown[][] = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls;
+		const fn = calls.find((c) => c[0] === IPC.TERMINAL_OPEN_EXTERNAL)?.[1] as (
+			event: unknown,
+			...args: unknown[]
+		) => void;
+		fn({}, 7, "/home/user", "local");
+		expect(mockManager.openExternalTerminal).toHaveBeenCalledWith(7, "/home/user", "local");
 	});
 });

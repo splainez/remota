@@ -8,6 +8,7 @@ export default defineConfig({
 	main: {
 		build: {
 			externalizeDeps: true,
+			sourcemap: true,
 		},
 		resolve: {
 			alias: {
@@ -20,6 +21,7 @@ export default defineConfig({
 	preload: {
 		build: {
 			externalizeDeps: true,
+			sourcemap: true,
 		},
 		resolve: {
 			alias: {
@@ -32,6 +34,7 @@ export default defineConfig({
 		plugins: [react(), tailwindcss()],
 		root: resolve("src/renderer"),
 		build: {
+			sourcemap: true,
 			rollupOptions: {
 				input: resolve("src/renderer/index.html"),
 			},

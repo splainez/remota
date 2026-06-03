@@ -68,6 +68,7 @@ export interface ElectronAPI {
 		write: (sessionId: string, data: string) => Promise<void>;
 		resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
 		kill: (sessionId: string) => Promise<void>;
+		openExternal: (connectionId: number, path: string | undefined, type: "local" | "remote") => Promise<void>;
 		onData: (sessionId: string, callback: (data: string) => void) => () => void;
 		onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
 	};

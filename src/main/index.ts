@@ -89,7 +89,7 @@ void app.whenReady().then(() => {
 		throw new Error("Main window not created");
 	}
 
-	const terminalManager = new TerminalManager(sftp, mainWindow.webContents);
+	const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);
 	registerTerminalHandlers(terminalManager);
 
 	app.on("will-quit", () => {

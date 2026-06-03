@@ -4,18 +4,18 @@ import { create } from "zustand";
 
 const logger = LoggerFactory.init({ name: "renderer.store.settings" });
 
-interface SettingsStore {
-	theme: Settings["theme"];
-	locale: Settings["locale"];
+interface SettingsStore extends Settings {
 	loaded: boolean;
 	load: () => Promise<void>;
 	setTheme: (theme: Settings["theme"]) => void;
 	setLocale: (locale: Settings["locale"]) => void;
+	setExternalTerminal: (terminal: Settings["externalTerminal"]) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>((set) => ({
 	theme: "system",
 	locale: "en",
+	externalTerminal: undefined,
 	loaded: false,
 
 	load: async () => {
@@ -24,6 +24,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 			set({
 				theme: settings.theme,
 				locale: settings.locale,
+				externalTerminal: settings.externalTerminal,
 				loaded: true,
 			});
 		} catch {
@@ -42,6 +43,13 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 		set({ locale });
 		window.api.settings.set({ locale }).catch((error: unknown) => {
 			logger.error("setLocale error", { error });
+		});
+	},
+
+	setExternalTerminal: (terminal) => {
+		set({ externalTerminal: terminal });
+		window.api.settings.set({ externalTerminal: terminal }).catch((error: unknown) => {
+			logger.error("setExternalTerminal error", { error });
 		});
 	},
 }));

@@ -127,6 +127,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 								type="remote"
 								connectionId={connection.id}
 								initialPath={remotePath}
+								protocol={connection.protocol}
 								onReconnect={() => {
 									void connect();
 								}}

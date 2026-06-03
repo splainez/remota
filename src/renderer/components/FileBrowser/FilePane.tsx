@@ -8,6 +8,7 @@ import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
 import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
 import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
 import { matchesWildcard } from "@renderer/lib/utils";
+import { useSettingsStore } from "@renderer/store/settings";
 import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -22,6 +23,7 @@ interface FilePaneProps {
 	type: "local" | "remote";
 	connectionId: number;
 	initialPath: string;
+	protocol?: "sftp" | "scp" | "s3";
 	connectionError?: SftpErrorInfo | null;
 	onReconnect?: () => void;
 	onPathChange?: (path: string) => void;
@@ -31,6 +33,7 @@ export function FilePane({
 	type,
 	connectionId,
 	initialPath,
+	protocol,
 	connectionError,
 	onReconnect,
 	onPathChange,
@@ -132,6 +135,40 @@ export function FilePane({
 		[t],
 	);
 
+	const openInTerminal = useCallback(
+		async (path: string) => {
+			const { externalTerminal } = useSettingsStore.getState();
+
+			if (!externalTerminal) {
+				handleToggleTerminal();
+				return;
+			}
+
+			try {
+				await window.api.terminal.openExternal(connectionId, path, type);
+				if (type === "remote" && (externalTerminal === "iterm2" || externalTerminal === "terminal-app")) {
+					toast.info(t("terminal.externalOpenSshless"));
+				}
+			} catch {
+				handleToggleTerminal();
+				toast.error(t("terminal.externalOpenError"));
+			}
+		},
+		[connectionId, type, handleToggleTerminal, t],
+	);
+
+	const handleOpenInTerminal = useCallback(
+		(entry: FileEntry) => {
+			const path = type === "remote" ? entry.fullPath : currentPath;
+			return openInTerminal(path);
+		},
+		[openInTerminal, type, currentPath],
+	);
+
+	const handleToggleTerminalButton = useCallback(() => {
+		return openInTerminal(currentPath);
+	}, [openInTerminal, currentPath]);
+
 	const handleContextMenuAction = useCallback(
 		(actionId: string, entry: FileEntry) => {
 			if (actionId === "open") {
@@ -140,9 +177,11 @@ export function FilePane({
 				} else {
 					handleOpenFile(entry);
 				}
+			} else if (actionId === "openInTerminal") {
+				void handleOpenInTerminal(entry);
 			}
 		},
-		[handleEnterDirectory, handleOpenFile],
+		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal],
 	);
 
 	const handleKeyDown = useCallback(
@@ -179,7 +218,9 @@ export function FilePane({
 				onNavigateUp={handleNavigateUp}
 				onRefresh={handleRefresh}
 				onNavigateTo={handleNavigateTo}
-				onToggleTerminal={handleToggleTerminal}
+				onToggleTerminal={() => {
+					void handleToggleTerminalButton();
+				}}
 				terminalVisible={showTerminal}
 				drives={showDriveSelector ? drives : []}
 				currentPath={currentPath}
@@ -217,6 +258,7 @@ export function FilePane({
 					y={contextMenu.menu.y}
 					entry={contextMenu.menu.data}
 					panelType={type}
+					protocol={protocol}
 					onClose={contextMenu.close}
 					onAction={handleContextMenuAction}
 				/>

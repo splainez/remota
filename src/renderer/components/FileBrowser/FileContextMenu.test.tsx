@@ -231,4 +231,46 @@ describe("FileContextMenu", () => {
 		await user.click(screen.getByText("Open"));
 		expect(screen.getByRole("menu")).toBeInTheDocument();
 	});
+
+	// --- protocol-aware "Open in terminal" visibility ---
+
+	it("hides Open in terminal for remote S3 directories", () => {
+		const entry = makeEntry({ isDirectory: true });
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="remote" protocol="s3" />
+			</I18nWrapper>,
+		);
+		expect(screen.queryByText("Open in terminal")).not.toBeInTheDocument();
+	});
+
+	it("shows Open in terminal for remote SFTP directories", () => {
+		const entry = makeEntry({ isDirectory: true });
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="remote" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Open in terminal")).toBeInTheDocument();
+	});
+
+	it("shows Open in terminal for remote SCP directories", () => {
+		const entry = makeEntry({ isDirectory: true });
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="remote" protocol="scp" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Open in terminal")).toBeInTheDocument();
+	});
+
+	it("shows Open in terminal for local directories regardless of protocol prop", () => {
+		const entry = makeEntry({ isDirectory: true });
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} entry={entry} panelType="local" protocol="s3" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Open in terminal")).toBeInTheDocument();
+	});
 });
