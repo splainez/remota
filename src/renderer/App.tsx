@@ -1,8 +1,7 @@
 import type { Connection, NewConnection } from "@shared/types";
-import { useState } from "react";
+import { useEffect } from "react";
 import { Toaster } from "sonner";
 
-import { ActiveTransfers } from "./components/ActiveTransfers/ActiveTransfers";
 import { ConfigError } from "./components/ConfigError/ConfigError";
 import { ConnectionDetail } from "./components/ConnectionManager/ConnectionDetail";
 import { ConnectionForm } from "./components/ConnectionManager/ConnectionForm";
@@ -14,6 +13,7 @@ import { SettingsView } from "./components/Settings/SettingsView";
 import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
 import { useAppNavigation } from "./store/appNavigation";
+import { useTransferPanelStore } from "./store/transferPanel";
 
 export function App() {
 	const { t } = useI18n();
@@ -21,7 +21,22 @@ export function App() {
 
 	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser, openSettings } =
 		useAppNavigation();
-	const [showTransfers, setShowTransfers] = useState(true);
+
+	const loadTransferPanels = useTransferPanelStore((s) => s.load);
+	useEffect(() => {
+		void loadTransferPanels();
+	}, [loadTransferPanels]);
+
+	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
+	const isTransferPanelVisible = useTransferPanelStore((s) =>
+		activeConnectionId == null ? false : s.isVisible(activeConnectionId),
+	);
+	const toggleTransferPanel = useTransferPanelStore((s) => s.toggle);
+
+	const handleToggleTransferPanel = () => {
+		if (activeConnectionId == null) return;
+		void toggleTransferPanel(activeConnectionId);
+	};
 
 	const handleSelect = (id: number) => {
 		select(id);
@@ -179,25 +194,16 @@ export function App() {
 				<div className="flex-1 flex flex-col min-w-0">
 					{renderMainContent()}
 
-					<ActiveTransfers
-						visible={showTransfers}
-						onToggle={() => {
-							setShowTransfers((v) => !v);
-						}}
-					/>
-
 					<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
 						<div className="flex items-center gap-2">
 							<span className="w-2 h-2 rounded-full bg-primary" />
 							<span>{t("app.ready")}</span>
 						</div>
 						<div className="flex items-center gap-3">
-							{!showTransfers && (
+							{activeConnectionId != null && !isTransferPanelVisible && (
 								<button
 									className="flex items-center gap-1 hover:text-foreground transition-colors"
-									onClick={() => {
-										setShowTransfers(true);
-									}}
+									onClick={handleToggleTransferPanel}
 								>
 									<Icon name="sync" size={14} />
 									<span>{t("transfer.active")}</span>
