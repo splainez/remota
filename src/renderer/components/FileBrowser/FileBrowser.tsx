@@ -1,7 +1,10 @@
+import { ActiveTransfers } from "@renderer/components/ActiveTransfers/ActiveTransfers";
 import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@renderer/components/ui/resizable";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
+import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { getErrorI18nKey } from "@shared/sftp-error";
 import type { Connection } from "@shared/types";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +25,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
 		connection.id,
 	);
+	const isTransferPanelVisible = useTransferPanelStore((s) => s.isVisible(connection.id));
 
 	useEffect(() => {
 		let cancelled = false;
@@ -112,44 +116,57 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 				</div>
 			</header>
 
-			{/* Dual Pane Explorer */}
-			<main className="flex-1 flex min-h-0 relative">
-				<FilePane type="local" connectionId={connection.id} initialPath={localPath} onPathChange={setLocalPath} />
-				{remoteStatus === "connected" ? (
-					<FilePane
-						key={reconnectKey}
-						type="remote"
-						connectionId={connection.id}
-						initialPath={remotePath}
-						onReconnect={() => {
-							void connect();
-						}}
-						onPathChange={setRemotePath}
-					/>
-				) : (
-					<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-lowest border-l border-outline-variant">
-						{remoteStatus === "connecting" ? (
-							<ToggleableError message={t("remote.connecting")} />
+			{/* Dual Pane Explorer + optional Active Transfers panel */}
+			<ResizablePanelGroup orientation="vertical" className="flex-1 min-h-0">
+				<ResizablePanel id="file-panes" defaultSize={80} minSize={30}>
+					<main className="flex h-full min-h-0 relative">
+						<FilePane type="local" connectionId={connection.id} initialPath={localPath} onPathChange={setLocalPath} />
+						{remoteStatus === "connected" ? (
+							<FilePane
+								key={reconnectKey}
+								type="remote"
+								connectionId={connection.id}
+								initialPath={remotePath}
+								onReconnect={() => {
+									void connect();
+								}}
+								onPathChange={setRemotePath}
+							/>
 						) : (
-							<>
-								<ToggleableError
-									message={errorMessage ?? t("remote.connectionError")}
-									detail={remoteError?.technicalDetail}
-								/>
-								<Button
-									variant="default"
-									size="sm"
-									onClick={() => {
-										void connect();
-									}}
-								>
-									{t("remote.retry")}
-								</Button>
-							</>
+							<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-lowest border-l border-outline-variant">
+								{remoteStatus === "connecting" ? (
+									<ToggleableError message={t("remote.connecting")} />
+								) : (
+									<>
+										<ToggleableError
+											message={errorMessage ?? t("remote.connectionError")}
+											detail={remoteError?.technicalDetail}
+										/>
+										<Button
+											variant="default"
+											size="sm"
+											onClick={() => {
+												void connect();
+											}}
+										>
+											{t("remote.retry")}
+										</Button>
+									</>
+								)}
+							</div>
 						)}
-					</div>
+					</main>
+				</ResizablePanel>
+
+				{isTransferPanelVisible && (
+					<>
+						<ResizableHandle withHandle />
+						<ResizablePanel id="transfers" defaultSize={20} minSize={10}>
+							<ActiveTransfers connectionId={connection.id} />
+						</ResizablePanel>
+					</>
 				)}
-			</main>
+			</ResizablePanelGroup>
 		</div>
 	);
 }

@@ -1,3 +1,4 @@
+import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { createMockApi } from "@renderer/test/setup";
 import { render, screen, waitFor } from "@testing-library/react";
@@ -75,6 +76,7 @@ describe("FileBrowser", () => {
 		vi.clearAllMocks();
 		mockApi = createConnectedMockApi();
 		vi.stubGlobal("api", mockApi);
+		useTransferPanelStore.setState({ visibility: {}, loaded: false });
 	});
 
 	it("calls remoteConnect on mount", async () => {
@@ -252,6 +254,85 @@ describe("FileBrowser", () => {
 
 		await waitFor(() => {
 			expect(screen.getByText("Host key verification failed")).toBeInTheDocument();
+		});
+	});
+
+	describe("active transfers panel", () => {
+		it("does not render the active transfers panel by default", async () => {
+			render(
+				<I18nWrapper>
+					<FileBrowser connection={testConnection} />
+				</I18nWrapper>,
+			);
+
+			await waitFor(() => {
+				expect(window.api.filesystem.remoteConnect).toHaveBeenCalled();
+			});
+
+			expect(screen.queryByText("Active Transfers")).not.toBeInTheDocument();
+		});
+
+		it("renders the active transfers panel when visible for the connection", async () => {
+			useTransferPanelStore.setState({ visibility: { 1: true } });
+
+			render(
+				<I18nWrapper>
+					<FileBrowser connection={testConnection} />
+				</I18nWrapper>,
+			);
+
+			await waitFor(() => {
+				expect(screen.getByText("Active Transfers")).toBeInTheDocument();
+			});
+		});
+
+		it("hides the panel when its visibility flips to false", async () => {
+			useTransferPanelStore.setState({ visibility: { 1: true } });
+
+			const { rerender } = render(
+				<I18nWrapper>
+					<FileBrowser connection={testConnection} />
+				</I18nWrapper>,
+			);
+
+			await waitFor(() => {
+				expect(screen.getByText("Active Transfers")).toBeInTheDocument();
+			});
+
+			useTransferPanelStore.setState({ visibility: { 1: false } });
+			rerender(
+				<I18nWrapper>
+					<FileBrowser connection={testConnection} />
+				</I18nWrapper>,
+			);
+
+			await waitFor(() => {
+				expect(screen.queryByText("Active Transfers")).not.toBeInTheDocument();
+			});
+		});
+
+		it("calls setVisible(false) when the panel close button is pressed", async () => {
+			useTransferPanelStore.setState({ visibility: { 1: true } });
+			const setSpy = vi.fn().mockResolvedValue(undefined);
+			mockApi.transferPanel.set = setSpy;
+			vi.stubGlobal("api", mockApi);
+
+			const user = userEvent.setup();
+
+			render(
+				<I18nWrapper>
+					<FileBrowser connection={testConnection} />
+				</I18nWrapper>,
+			);
+
+			await waitFor(() => {
+				expect(screen.getByText("Active Transfers")).toBeInTheDocument();
+			});
+
+			const closeBtn = screen.getByTitle("Close transfers panel");
+			await user.click(closeBtn);
+
+			expect(useTransferPanelStore.getState().isVisible(1)).toBe(false);
 		});
 	});
 });
