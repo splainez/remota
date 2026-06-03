@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { AppConfigSchema, ConnectionSchema, LastPathsSchema } from "./app-config-schema";
+import { AppConfigSchema, ConnectionSchema, LastPathsSchema, SettingsSchema } from "./app-config-schema";
 
 describe("ConnectionSchema", () => {
 	it("accepts a valid connection", () => {
@@ -99,6 +99,38 @@ describe("AppConfigSchema", () => {
 
 	it("rejects invalid connection inside connections", () => {
 		const result = AppConfigSchema.safeParse({ connections: [{ id: "not-a-number" }] });
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("SettingsSchema", () => {
+	it("accepts settings with no externalTerminal", () => {
+		const result = SettingsSchema.safeParse({ theme: "system", locale: "en" });
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.externalTerminal).toBeUndefined();
+		}
+	});
+
+	it("accepts each supported externalTerminal value", () => {
+		const ids = [
+			"windows-terminal",
+			"kitty",
+			"ghostty",
+			"alacritty",
+			"iterm2",
+			"terminal-app",
+			"gnome-terminal",
+			"konsole",
+		] as const;
+		for (const id of ids) {
+			const result = SettingsSchema.safeParse({ theme: "system", locale: "en", externalTerminal: id });
+			expect(result.success).toBe(true);
+		}
+	});
+
+	it("rejects unknown externalTerminal value", () => {
+		const result = SettingsSchema.safeParse({ theme: "system", locale: "en", externalTerminal: "hyper" });
 		expect(result.success).toBe(false);
 	});
 });
