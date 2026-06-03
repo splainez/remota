@@ -10,8 +10,8 @@
 	"scripts": {
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
-		"lint": "eslint . --config eslint.config.ts ",
-		"lint:fix": "eslint . --config eslint.config.ts  --fix",
+		"lint": "eslint . --config eslint.config.ts --cache --cache-strategy content ",
+		"lint:fix": "eslint . --config eslint.config.ts --cache --cache-strategy content --fix ",
 		"dev": "electron-vite dev",
 		"build": "electron-vite build",
 		"preview": "electron-vite preview",

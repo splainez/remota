@@ -11,3 +11,4 @@ tests/integration/.containers-state.json
 .opencode/*
 !.opencode/commands/
 .vscode/mcp.json
+.eslintcache
