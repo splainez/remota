@@ -1,4 +1,4 @@
-import pino from "pino";
+import pino, { type LevelWithSilentOrString } from "pino";
 
 const isProduction = process.env.NODE_ENV === "production";
 const defaultLevel = isProduction ? "info" : "debug";
@@ -30,14 +30,24 @@ export const rootLogger = pino({
 	...(isProduction
 		? {}
 		: {
-				transport: {
-					target: "pino-pretty",
-					options: { colorize: true },
-				},
-			}),
+			transport: {
+				target: "pino-pretty",
+				options: { colorize: true },
+			},
+		}),
 });
 
-export type Logger = pino.Logger;
+type LogFn = (msg: string, extra?: Record<string, unknown>) => void;
+
+export interface Logger {
+	fatal: LogFn;
+	error: LogFn;
+	warn: LogFn;
+	info: LogFn;
+	debug: LogFn;
+	trace: LogFn;
+	isLevelEnabled(level: LevelWithSilentOrString): boolean;
+}
 
 export const LoggerFactory = {
 	init({ name }: { name: string }): Logger {

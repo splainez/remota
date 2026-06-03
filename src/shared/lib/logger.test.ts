@@ -49,10 +49,10 @@ describe("LoggerFactory", () => {
 			const log = LoggerFactory.init({ name: "test.service" });
 
 			expect(() => {
-				log.info({ key: "value" }, "test message");
+				log.info("test message", { key: "value" });
 			}).not.toThrow();
 			expect(() => {
-				log.error(new Error("test"));
+				log.error('test', { error: new Error("test") });
 			}).not.toThrow();
 		});
 	});

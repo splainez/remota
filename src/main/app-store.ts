@@ -78,7 +78,7 @@ export class AppStore {
 			try {
 				writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), "utf-8");
 			} catch (err) {
-				log.error({ err }, "Failed to save app-config.json");
+				log.error("Failed to save app-config.json", { err });
 			}
 		}, 500);
 	}
@@ -194,7 +194,7 @@ export class AppStore {
 		try {
 			writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), "utf-8");
 		} catch (err) {
-			log.error({ err }, "Failed to flush app-config.json");
+			log.error("Failed to flush app-config.json", { err });
 		}
 	}
 }
