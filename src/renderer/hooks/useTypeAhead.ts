@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import type { FileEntry } from "../../shared/types";
+import type { FileEntry } from "@shared/types";
 
 const CYCLE_THRESHOLD_MS = 500;
 

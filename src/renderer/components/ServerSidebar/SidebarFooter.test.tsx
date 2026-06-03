@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SidebarFooter } from "./SidebarFooter";
-import { I18nWrapper } from "../../test/i18n-wrapper";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 vi.mock("../../hooks/useTheme", () => ({
 	useTheme: () => ({

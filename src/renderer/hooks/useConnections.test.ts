@@ -1,8 +1,8 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useConnections } from "./useConnections";
-import { createMockApi } from "../test/setup";
-import type { Connection } from "../../shared/types";
+import { createMockApi } from "@renderer/test/setup";
+import type { Connection } from "@shared/types";
 
 function makeConn(count: number): Connection[] {
 	return Array.from({ length: count }, (_, i) => ({

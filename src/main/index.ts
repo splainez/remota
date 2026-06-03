@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { join } from "node:path";
 import { AppStore } from "./app-store";
-import { IPC } from "../shared/ipc-channels";
+import { IPC } from "@shared/ipc-channels";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";

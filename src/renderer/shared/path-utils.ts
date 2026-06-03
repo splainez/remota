@@ -1,4 +1,4 @@
-import { usePlatformStore } from "../store/platform";
+import { usePlatformStore } from "@renderer/store/platform";
 
 export function join(base: string, ...parts: string[]): string {
 	const platformSep = usePlatformStore.getState().pathSep;

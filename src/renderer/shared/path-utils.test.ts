@@ -7,7 +7,7 @@ vi.mock("../store/platform", () => ({
 	},
 }));
 
-import { usePlatformStore } from "../store/platform";
+import { usePlatformStore } from "@renderer/store/platform";
 
 beforeEach(() => {
 	vi.clearAllMocks();

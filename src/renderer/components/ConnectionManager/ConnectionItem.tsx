@@ -1,5 +1,5 @@
-import type { Connection } from "../../../shared/types";
-import { Icon } from "../icons/Icon";
+import type { Connection } from "@shared/types";
+import { Icon } from "@renderer/components/icons/Icon";
 
 function protocolIcon(protocol: string): string {
 	switch (protocol) {

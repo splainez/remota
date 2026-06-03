@@ -1,4 +1,4 @@
-import type { TranslationKey } from "../i18n";
+import type { TranslationKey } from "@i18n/i18n";
 
 export const SFTP_ERROR_CODES = [
 	"CONNECTION_REFUSED",

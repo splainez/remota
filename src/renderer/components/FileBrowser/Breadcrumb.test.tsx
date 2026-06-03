@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Breadcrumb } from "./Breadcrumb";
-import { parsePath } from "../../lib/utils";
+import { parsePath } from "@renderer/lib/utils";
 
 beforeAll(() => {
 	class ResizeObserverMock {

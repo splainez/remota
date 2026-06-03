@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { AppStore } from "./app-store";
-import type { NewConnection } from "../shared/types";
+import type { NewConnection } from "@shared/types";
 
 function makeNewConnection(overrides: Partial<NewConnection> = {}): NewConnection {
 	return {

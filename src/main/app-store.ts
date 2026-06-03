@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { LoggerFactory } from "../shared/lib/logger";
-import { AppConfigSchema } from "../shared/app-config-schema";
-import type { AppConfig } from "../shared/app-config-schema";
-import type { Connection, NewConnection, ConnectionUpdate } from "../shared/types";
-import type { Settings, SettingsUpdate } from "../shared/app-config-schema";
+import { LoggerFactory } from "@shared/lib/logger";
+import { AppConfigSchema } from "@shared/app-config-schema";
+import type { AppConfig } from "@shared/app-config-schema";
+import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
+import type { Settings, SettingsUpdate } from "@shared/app-config-schema";
 
 const log = LoggerFactory.init({ name: "app-store" });
 

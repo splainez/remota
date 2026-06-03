@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { IPC } from "../../shared/ipc-channels";
+import { IPC } from "@shared/ipc-channels";
 
 vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },

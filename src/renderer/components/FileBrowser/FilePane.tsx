@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useI18n } from "../../hooks/useI18n";
-import { useFileList } from "../../hooks/useFileList";
-import { useFileSelection } from "../../hooks/useFileSelection";
-import { usePaneNavigation } from "../../hooks/usePaneNavigation";
-import { useLocalDrives } from "../../hooks/useLocalDrives";
-import { useTerminalToggle } from "../../hooks/useTerminalToggle";
-import { useContextMenu } from "../../hooks/useContextMenu";
-import { useTypeAhead } from "../../hooks/useTypeAhead";
-import type { FileEntry } from "../../../shared/types";
-import { matchesWildcard } from "../../lib/utils";
-import { getErrorI18nKey, type SftpErrorInfo } from "../../../shared/sftp-error";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { useFileList } from "@renderer/hooks/useFileList";
+import { useFileSelection } from "@renderer/hooks/useFileSelection";
+import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
+import { useLocalDrives } from "@renderer/hooks/useLocalDrives";
+import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
+import { useContextMenu } from "@renderer/hooks/useContextMenu";
+import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
+import type { FileEntry } from "@shared/types";
+import { matchesWildcard } from "@renderer/lib/utils";
+import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import { FileList } from "./FileList";
 import { FileContextMenu } from "./FileContextMenu";
 import { Toolbar } from "./Toolbar";
-import { Terminal } from "../Terminal/Terminal";
+import { Terminal } from "@renderer/components/Terminal/Terminal";
 import { ConnectionErrorView } from "./ConnectionErrorView";
 
 interface FilePaneProps {

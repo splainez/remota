@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Connection } from "../../../shared/types";
-import { useConnections } from "../../hooks/useConnections";
+import type { Connection } from "@shared/types";
+import { useConnections } from "@renderer/hooks/useConnections";
 import { Sidebar } from "./Sidebar";
 import { ConnectionDetail } from "./ConnectionDetail";
 

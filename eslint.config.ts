@@ -4,11 +4,13 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
+import importAlias from '@dword-design/eslint-plugin-import-alias';
 
 export default defineConfig(
 	{
 		ignores: ["coverage/**", "out/**", "dist/**", "node_modules/**"],
 	},
+	importAlias.configs.recommended,
 	js.configs.recommended,
 	...tseslint.configs.strictTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,

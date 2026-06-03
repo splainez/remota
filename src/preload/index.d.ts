@@ -1,4 +1,4 @@
-import type { Connection, NewConnection, ConnectionUpdate, FileEntry } from "../shared/types";
+import type { Connection, NewConnection, ConnectionUpdate, FileEntry } from "@shared/types";
 
 declare global {
 	interface Window {

@@ -2,9 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ConnectionManager } from "./ConnectionManager";
-import { createMockApi } from "../../test/setup";
-import { I18nWrapper } from "../../test/i18n-wrapper";
-import type { Connection } from "../../../shared/types";
+import { createMockApi } from "@renderer/test/setup";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import type { Connection } from "@shared/types";
 
 function mockConnections(overrides: Partial<Connection>[] = []) {
 	return overrides.map((o, i) => ({

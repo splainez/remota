@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useXTerm } from "../../hooks/useXTerm";
+import { useXTerm } from "@renderer/hooks/useXTerm";
 import "@xterm/xterm/css/xterm.css";
 
 interface TerminalProps {

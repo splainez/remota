@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
-import type { Connection, NewConnection } from "../shared/types";
+import type { Connection, NewConnection } from "@shared/types";
 import { useConnections } from "./hooks/useConnections";
 import { useAppNavigation } from "./store/appNavigation";
 import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";

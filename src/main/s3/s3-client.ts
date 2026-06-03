@@ -1,5 +1,5 @@
 import { S3Client, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
-import type { FileEntry } from "../../shared/types";
+import type { FileEntry } from "@shared/types";
 
 interface S3Session {
 	client: S3Client;

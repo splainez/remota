@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { type TranslationKey } from "../../../i18n";
-import { useI18n } from "../../hooks/useI18n";
+import { type TranslationKey } from "@i18n/i18n";
+import { useI18n } from "@renderer/hooks/useI18n";
 
 interface FormFieldProps {
 	label: string;

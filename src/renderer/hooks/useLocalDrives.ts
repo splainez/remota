@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { usePlatformStore } from "../store/platform";
+import { usePlatformStore } from "@renderer/store/platform";
 
 export function useLocalDrives(currentPath: string) {
 	const isWindows = usePlatformStore((s) => s.isWindows);

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { useI18n } from "../../hooks/useI18n";
-import type { Connection } from "../../../shared/types";
-import { Icon } from "../icons/Icon";
+import { useI18n } from "@renderer/hooks/useI18n";
+import type { Connection } from "@shared/types";
+import { Icon } from "@renderer/components/icons/Icon";
 import { BrandButton } from "./BrandButton";
 import { SidebarFooter } from "./SidebarFooter";
 

@@ -2,9 +2,9 @@ import { app, ipcMain, shell } from "electron";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join, sep } from "node:path";
 import { homedir } from "node:os";
-import { IPC } from "../../shared/ipc-channels";
-import type { FileEntry } from "../../shared/types";
-import type { AppStore } from "../app-store";
+import { IPC } from "@shared/ipc-channels";
+import type { FileEntry } from "@shared/types";
+import type { AppStore } from "@main/app-store";
 
 export function listDirectory(dirPath: string): FileEntry[] {
 	let entryNames: string[];

@@ -2,8 +2,25 @@
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"composite": true,
-		"lib": ["ES2022", "DOM", "DOM.Iterable"],
-		"types": ["node"]
+		"lib": [
+			"ES2022",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"node"
+		],
+		"paths": {
+			"@renderer/*": [
+				"./src/renderer/*"
+			],
+			"@shared/*": [
+				"./src/shared/*"
+			],
+			"@i18n/*": [
+				"./src/i18n/*"
+			]
+		},
 	},
 	"include": [
 		"src/renderer/**/*.ts",

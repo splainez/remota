@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useFileList } from "./useFileList";
-import type { FileEntry } from "../../shared/types";
+import type { FileEntry } from "@shared/types";
 
 describe("useFileList", () => {
 	it("returns loading state initially (local)", () => {

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { classifyError, type SftpErrorInfo } from "../../shared/sftp-error";
+import { classifyError, type SftpErrorInfo } from "@shared/sftp-error";
 
 type RemoteStatus = "connecting" | "connected" | "error";
 

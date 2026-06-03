@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FileBrowser } from "./FileBrowser";
-import { createMockApi } from "../../test/setup";
-import { I18nWrapper } from "../../test/i18n-wrapper";
+import { createMockApi } from "@renderer/test/setup";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 beforeAll(() => {
 	class ResizeObserverMock {

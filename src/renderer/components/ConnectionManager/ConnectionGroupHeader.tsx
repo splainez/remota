@@ -1,4 +1,4 @@
-import { Icon } from "../icons/Icon";
+import { Icon } from "@renderer/components/icons/Icon";
 
 interface ConnectionGroupHeaderProps {
 	name: string;

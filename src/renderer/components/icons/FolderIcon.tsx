@@ -1,5 +1,5 @@
 import type { SVGAttributes } from "react";
-import { getFolderIcon } from "../../shared/icon-utils";
+import { getFolderIcon } from "@renderer/shared/icon-utils";
 import { Icon } from "./Icon";
 
 export interface FolderIconProps extends SVGAttributes<SVGSVGElement> {

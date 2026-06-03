@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { useI18n } from "../../hooks/useI18n";
-import { Icon } from "../icons/Icon";
-import { canGoUp } from "../../lib/utils";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
+import { canGoUp } from "@renderer/lib/utils";
 
 interface ToolbarProps {
 	onGoBack: () => void;

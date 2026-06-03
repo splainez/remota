@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Icon } from "../icons/Icon";
-import { useI18n } from "../../hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
+import { useI18n } from "@renderer/hooks/useI18n";
 interface ConfigErrorData {
 	message: string;
 	filePath: string;

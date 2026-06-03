@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { FileEntry } from "../../shared/types";
-import { classifyError, type SftpErrorInfo } from "../../shared/sftp-error";
+import type { FileEntry } from "@shared/types";
+import { classifyError, type SftpErrorInfo } from "@shared/sftp-error";
 
 interface UseFileListOptions {
 	type?: "local" | "remote";

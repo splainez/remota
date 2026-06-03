@@ -1,5 +1,5 @@
-import { useI18n } from "../../hooks/useI18n";
-import { Icon } from "../icons/Icon";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
 import { ThemeSelect } from "./ThemeSelect";
 
 interface SidebarFooterProps {

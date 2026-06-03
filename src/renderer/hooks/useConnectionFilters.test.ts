@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useConnectionFilters, groupConnections } from "./useConnectionFilters";
-import type { Connection } from "../../shared/types";
-import type { TranslationKey } from "../../i18n";
-import { I18nWrapper } from "../test/i18n-wrapper";
+import type { Connection } from "@shared/types";
+import type { TranslationKey } from "@i18n/i18n";
+import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 
 const mockT = (key: TranslationKey): string => key;
 

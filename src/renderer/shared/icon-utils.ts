@@ -1,4 +1,4 @@
-import type { IconName } from "../components/icons/icon-names";
+import type { IconName } from "@renderer/components/icons/icon-names";
 
 const extensionMap: Record<string, IconName> = {
 	".ts": "file-code",

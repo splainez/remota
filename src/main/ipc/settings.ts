@@ -1,8 +1,8 @@
 import { ipcMain } from "electron";
-import { IPC } from "../../shared/ipc-channels";
-import { SettingsSchema } from "../../shared/app-config-schema";
-import type { SettingsUpdate } from "../../shared/app-config-schema";
-import type { AppStore } from "../app-store";
+import { IPC } from "@shared/ipc-channels";
+import { SettingsSchema } from "@shared/app-config-schema";
+import type { SettingsUpdate } from "@shared/app-config-schema";
+import type { AppStore } from "@main/app-store";
 
 export function registerSettingsHandlers(store: AppStore) {
 	ipcMain.handle(IPC.SETTINGS_GET_ALL, () => {

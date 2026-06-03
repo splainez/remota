@@ -1,6 +1,6 @@
-import { Icon } from "../icons/Icon";
-import { Button } from "../ui/button";
-import { useI18n } from "../../hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
+import { useI18n } from "@renderer/hooks/useI18n";
 
 interface FormFooterProps {
 	onCancel: () => void;

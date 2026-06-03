@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { LoggerFactory } from "../../shared/lib/logger";
-import type { Settings } from "../../shared/types";
+import { LoggerFactory } from "@shared/lib/logger";
+import type { Settings } from "@shared/types";
 
 const logger = LoggerFactory.init({ name: 'renderer.store.settings' });
 

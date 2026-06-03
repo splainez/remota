@@ -1,6 +1,6 @@
-import { useI18n } from "../../hooks/useI18n";
-import { Icon } from "../icons/Icon";
-import type { SortKey, SortDir } from "../../hooks/useSort";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
+import type { SortKey, SortDir } from "@renderer/hooks/useSort";
 
 interface FileListHeaderProps {
 	onSort: (key: SortKey) => void;

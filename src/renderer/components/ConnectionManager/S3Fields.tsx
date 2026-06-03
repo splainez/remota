@@ -1,6 +1,6 @@
 import { FormField } from "./FormField";
-import { accessKeySchema, secretKeySchema, regionSchema, bucketSchema } from "../../../shared/validation";
-import { useI18n } from "../../hooks/useI18n";
+import { accessKeySchema, secretKeySchema, regionSchema, bucketSchema } from "@shared/validation";
+import { useI18n } from "@renderer/hooks/useI18n";
 
 interface FieldProps<T = string> {
 	state: { value: T; meta: { errors: unknown[] } };

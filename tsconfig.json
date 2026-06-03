@@ -18,12 +18,31 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true,
+		"types": [
+			"node",
+			"electron-vite/node"
+		],
 		"paths": {
-			"@/*": ["./src/*"]
+			"@main/*": [
+				"./src/main/*"
+			],
+			"@renderer/*": [
+				"./src/renderer/*"
+			],
+			"@shared/*": [
+				"./src/shared/*"
+			],
+			"@i18n/*": [
+				"./src/i18n/*"
+			]
 		},
-		"types": ["node", "electron-vite/node"]
 	},
-	"include": ["**/*.ts", "**/*.tsx", "eslint.config.ts", "vitest.config.js"],
+	"include": [
+		"**/*.ts",
+		"**/*.tsx",
+		"eslint.config.ts",
+		"vitest.config.js"
+	],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

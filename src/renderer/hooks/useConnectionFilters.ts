@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
-import type { Connection } from "../../shared/types";
-import type { TranslationKey } from "../../i18n";
+import type { Connection } from "@shared/types";
+import type { TranslationKey } from "@i18n/i18n";
 import { useI18n } from "./useI18n";
 
 export function groupConnections(

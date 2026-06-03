@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { SftpConnectionManager } from "../sftp/sftp-client";
+import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 
 const { mockPty } = vi.hoisted(() => ({
 	mockPty: {

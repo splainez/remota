@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { IPC } from "../../shared/ipc-channels";
-import { AppStore } from "../app-store";
-import type { NewConnection } from "../../shared/types";
+import { IPC } from "@shared/ipc-channels";
+import { AppStore } from "@main/app-store";
+import type { NewConnection } from "@shared/types";
 
 vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },

@@ -8,10 +8,23 @@ export default defineConfig({
 		build: {
 			externalizeDeps: true,
 		},
+		resolve: {
+			alias: {
+				'@main': resolve('src/main'),
+				'@shared': resolve('src/shared'),
+				'@i18n': resolve('src/i18n')
+			}
+		},
 	},
 	preload: {
 		build: {
 			externalizeDeps: true,
+		},
+		resolve: {
+			alias: {
+				'@shared': resolve('src/shared'),
+				'@i18n': resolve('src/i18n')
+			}
 		},
 	},
 	renderer: {
@@ -21,6 +34,13 @@ export default defineConfig({
 			rollupOptions: {
 				input: resolve("src/renderer/index.html"),
 			},
+		},
+		resolve: {
+			alias: {
+				'@renderer': resolve('src/renderer'),
+				'@shared': resolve('src/shared'),
+				'@i18n': resolve('src/i18n')
+			}
 		},
 	},
 });

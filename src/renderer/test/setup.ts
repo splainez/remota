@@ -7,7 +7,7 @@ import type {
 	Settings,
 	SettingsUpdate,
 	ElectronAPI,
-} from "../../shared/types";
+} from "@shared/types";
 
 function makeConnection(overrides: Partial<Connection> = {}): Connection {
 	return {

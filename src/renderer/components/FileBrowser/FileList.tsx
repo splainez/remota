@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { useI18n } from "../../hooks/useI18n";
-import type { FileEntry } from "../../../shared/types";
-import { useSort, type SortKey } from "../../hooks/useSort";
+import { useI18n } from "@renderer/hooks/useI18n";
+import type { FileEntry } from "@shared/types";
+import { useSort, type SortKey } from "@renderer/hooks/useSort";
 import { FileListHeader } from "./FileListHeader";
 import { FileRow } from "./FileRow";
 import { ToggleableError } from "./ToggleableError";

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import type { Connection } from "../../../shared/types";
-import { useI18n } from "../../hooks/useI18n";
-import { Icon } from "../icons/Icon";
-import { useContextMenu } from "../../hooks/useContextMenu";
-import { useConnectionFilters } from "../../hooks/useConnectionFilters";
+import type { Connection } from "@shared/types";
+import { useI18n } from "@renderer/hooks/useI18n";
+import { Icon } from "@renderer/components/icons/Icon";
+import { useContextMenu } from "@renderer/hooks/useContextMenu";
+import { useConnectionFilters } from "@renderer/hooks/useConnectionFilters";
 import { ConnectionContextMenu } from "./ConnectionContextMenu";
 import { ConnectionGroupHeader } from "./ConnectionGroupHeader";
 import { ConnectionItem } from "./ConnectionItem";

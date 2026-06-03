@@ -1,7 +1,7 @@
-import { type TranslationKey } from "../../../i18n";
-import { Icon } from "../icons/Icon";
+import { type TranslationKey } from "@i18n/i18n";
+import { Icon } from "@renderer/components/icons/Icon";
 import { FormField } from "./FormField";
-import { useI18n } from "../../hooks/useI18n";
+import { useI18n } from "@renderer/hooks/useI18n";
 import {
 	hostSchema,
 	portSchema,
@@ -9,7 +9,7 @@ import {
 	passwordSchema,
 	privateKeyPathSchema,
 	DEFAULT_PORT,
-} from "../../../shared/validation";
+} from "@shared/validation";
 
 interface FieldProps<T = string> {
 	state: { value: T; meta: { errors: unknown[] } };

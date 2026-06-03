@@ -1,7 +1,7 @@
-import type { FileEntry } from "../../../shared/types";
-import { FileIcon } from "../icons/FileIcon";
-import { FolderIcon } from "../icons/FolderIcon";
-import { formatSize, formatDate } from "../../lib/file-utils";
+import type { FileEntry } from "@shared/types";
+import { FileIcon } from "@renderer/components/icons/FileIcon";
+import { FolderIcon } from "@renderer/components/icons/FolderIcon";
+import { formatSize, formatDate } from "@renderer/lib/file-utils";
 
 interface FileRowProps {
 	entry: FileEntry;

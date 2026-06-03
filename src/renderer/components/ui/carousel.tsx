@@ -4,8 +4,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import React from "react";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useCarousel } from "../../hooks/useCarrusel";
-import { cn } from "../../lib/utils";
+import { useCarousel } from "@renderer/hooks/useCarrusel";
+import { cn } from "@renderer/lib/utils";
 import { Button } from "./button";
 import { CarouselContext } from "./carrusel-context";
 import type { CarouselApi, CarouselProps } from "./carrusel-types";

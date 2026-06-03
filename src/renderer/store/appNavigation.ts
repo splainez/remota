@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Connection } from "../../shared/types";
+import type { Connection } from "@shared/types";
 
 export type AppView =
 	| { view: "empty" }

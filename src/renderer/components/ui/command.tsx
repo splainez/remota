@@ -3,7 +3,7 @@
 import React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 
-import { cn } from "../../lib/utils";
+import { cn } from "@renderer/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
 import { InputGroup, InputGroupAddon } from "./input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
