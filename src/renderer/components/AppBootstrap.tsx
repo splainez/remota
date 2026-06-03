@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { initLocale } from "../../i18n";
 import { useSettingsStore } from "../store/settings";
+import { I18nProvider } from "../providers/I18nProvider";
 import { ThemeProvider } from "./theme-provider";
 import { App } from "../App";
 
@@ -30,7 +31,9 @@ export function AppBootstrap() {
 
 	return (
 		<ThemeProvider defaultTheme={theme} onThemeChange={setTheme}>
-			<App key={locale} />
+			<I18nProvider>
+				<App />
+			</I18nProvider>
 		</ThemeProvider>
 	);
 }

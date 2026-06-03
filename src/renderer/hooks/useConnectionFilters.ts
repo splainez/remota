@@ -1,8 +1,12 @@
 import { useMemo, useState, useCallback } from "react";
 import type { Connection } from "../../shared/types";
-import { t } from "../../i18n";
+import type { TranslationKey } from "../../i18n";
+import { useI18n } from "./useI18n";
 
-export function groupConnections(connections: Connection[]): Map<string, Connection[]> {
+export function groupConnections(
+	connections: Connection[],
+	t: (key: TranslationKey) => string,
+): Map<string, Connection[]> {
 	const map = new Map<string, Connection[]>();
 	for (const conn of connections) {
 		const group = conn.groupName.trim() || t("connection.uncategorized");
@@ -14,6 +18,7 @@ export function groupConnections(connections: Connection[]): Map<string, Connect
 }
 
 export function useConnectionFilters(connections: Connection[]) {
+	const { t } = useI18n();
 	const [search, setSearch] = useState("");
 	const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
@@ -26,7 +31,7 @@ export function useConnectionFilters(connections: Connection[]) {
 		);
 	}, [connections, search]);
 
-	const grouped = useMemo(() => groupConnections(filtered), [filtered]);
+	const grouped = useMemo(() => groupConnections(filtered, t), [filtered, t]);
 	const groups = useMemo(() => Array.from(grouped.entries()), [grouped]);
 
 	const toggleGroup = useCallback((group: string) => {

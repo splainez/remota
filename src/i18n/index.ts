@@ -39,10 +39,6 @@ export function getLocale(): LocaleAvailable {
 	return currentLocale;
 }
 
-function getTranslations(): Translations {
+export function getTranslations(): Translations {
 	return translations[currentLocale];
-}
-
-export function t(key: TranslationKey): string {
-	return getTranslations()[key];
 }
