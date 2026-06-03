@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { AppConfigSchema, ConnectionSchema, LastPathsSchema } from "./app-config-schema";
+import { AppConfigSchema, ConnectionSchema, LastPathsSchema, TransferPanelsSchema } from "./app-config-schema";
 
 describe("ConnectionSchema", () => {
 	it("accepts a valid connection", () => {
@@ -57,6 +57,7 @@ describe("AppConfigSchema", () => {
 		if (result.success) {
 			expect(result.data.connections).toEqual([]);
 			expect(result.data.lastPaths).toEqual({});
+			expect(result.data.transferPanels).toEqual({});
 			expect(result.data.settings).toEqual({ theme: "system", locale: "en" });
 		}
 	});
@@ -86,6 +87,7 @@ describe("AppConfigSchema", () => {
 				},
 			],
 			lastPaths: { "1": { local: "/home" } },
+			transferPanels: { "1": { visible: true } },
 			settings: { theme: "dark", locale: "es" },
 		};
 		const result = AppConfigSchema.safeParse(data);
@@ -99,6 +101,28 @@ describe("AppConfigSchema", () => {
 
 	it("rejects invalid connection inside connections", () => {
 		const result = AppConfigSchema.safeParse({ connections: [{ id: "not-a-number" }] });
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("TransferPanelsSchema", () => {
+	it("accepts empty object", () => {
+		const result = TransferPanelsSchema.safeParse({});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts entries with visible boolean", () => {
+		const result = TransferPanelsSchema.safeParse({ "1": { visible: true } });
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects entry without visible", () => {
+		const result = TransferPanelsSchema.safeParse({ "1": {} });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects non-boolean visible", () => {
+		const result = TransferPanelsSchema.safeParse({ "1": { visible: "yes" } });
 		expect(result.success).toBe(false);
 	});
 });

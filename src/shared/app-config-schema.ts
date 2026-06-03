@@ -31,6 +31,15 @@ const lastPathEntry = z.object({
 
 export const LastPathsSchema = z.record(z.string(), lastPathEntry);
 
+const transferPanelEntry = z.object({
+	visible: z.boolean(),
+});
+
+export const TransferPanelsSchema = z.record(z.string(), transferPanelEntry);
+
+export const TransferPanelUpdate = transferPanelEntry.partial();
+export type TransferPanelUpdate = z.infer<typeof TransferPanelUpdate>;
+
 export const SettingsSchema = z.object({
 	theme: z.enum(["dark", "light", "system"]),
 	locale: z.enum(["en", "es"]),
@@ -45,6 +54,7 @@ export const AppConfigSchema = z
 	.object({
 		connections: z.array(ConnectionSchema).default([]),
 		lastPaths: LastPathsSchema.default({}),
+		transferPanels: TransferPanelsSchema.default({}),
 		settings: SettingsSchema.default(defaultSettings),
 	})
 	.strict();
