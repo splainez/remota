@@ -11,6 +11,7 @@ import { registerSettingsHandlers } from "./ipc/settings";
 import { registerTerminalHandlers } from "./ipc/terminal";
 import { S3ConnectionManager } from "./s3/s3-client";
 import { SftpConnectionManager } from "./sftp/sftp-client";
+import { tempManager } from "./temp/temp-manager";
 import { TerminalManager } from "./terminal/terminal-manager";
 
 let mainWindow: BrowserWindow | null = null;
@@ -93,6 +94,7 @@ void app.whenReady().then(() => {
 		terminalManager.killAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
+		void tempManager.removeAll();
 		appStore.flush();
 	});
 

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 
+import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry } from "@shared/types";
 import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
 
@@ -60,13 +61,25 @@ export class SftpConnectionManager {
 
 					this.sessions.set(connectionId, { client, sftp, connectionId });
 
-					sftp.realpath(".", (realpathErr, absPath) => {
-						if (realpathErr) {
-							resolve("/");
-						} else {
-							resolve(absPath);
-						}
-					});
+					tempManager
+						.createTempDir(connectionId)
+						.then(() => {
+							sftp.realpath(".", (realpathErr, absPath) => {
+								if (realpathErr) {
+									resolve("/");
+								} else {
+									resolve(absPath);
+								}
+							});
+						})
+						.catch((tempErr: unknown) => {
+							client.end();
+							reject(
+								new Error(
+									`Failed to create temp directory: ${tempErr instanceof Error ? tempErr.message : String(tempErr)}`,
+								),
+							);
+						});
 				});
 			});
 
@@ -81,6 +94,8 @@ export class SftpConnectionManager {
 	async disconnect(connectionId: number): Promise<void> {
 		const session = this.sessions.get(connectionId);
 		if (!session) return;
+
+		await tempManager.removeTempDir(connectionId);
 
 		return new Promise<void>((resolve) => {
 			session.client.end();

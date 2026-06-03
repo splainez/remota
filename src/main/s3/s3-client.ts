@@ -1,4 +1,5 @@
 import { S3Client, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
+import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry } from "@shared/types";
 
 interface S3Session {
@@ -73,6 +74,8 @@ export class S3ConnectionManager {
 			connectionId,
 		});
 
+		await tempManager.createTempDir(connectionId);
+
 		return "/";
 	}
 
@@ -81,6 +84,7 @@ export class S3ConnectionManager {
 		if (!session) return;
 		session.client.destroy();
 		this.sessions.delete(connectionId);
+		void tempManager.removeTempDir(connectionId);
 	}
 
 	disconnectAll(): void {
