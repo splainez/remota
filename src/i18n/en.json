@@ -148,6 +148,8 @@
 	"settings.terminalTerminalApp": "Terminal.app",
 	"settings.terminalGnomeTerminal": "GNOME Terminal",
 	"settings.terminalKonsole": "Konsole",
+	"settings.terminalNotFound": "(not found on this system)",
+	"settings.terminalRecoveredToast": "Previously selected terminal ({name}) is no longer available. Falling back to the integrated terminal.",
 	"settings.languageEnglish": "English",
 	"settings.languageSpanish": "Espa\u00f1ol",
 	"terminal.externalOpenError": "Could not open external terminal. Opening integrated terminal.",

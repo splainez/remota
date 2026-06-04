@@ -145,6 +145,8 @@
 	"settings.terminalTerminalApp": "Terminal.app",
 	"settings.terminalGnomeTerminal": "GNOME Terminal",
 	"settings.terminalKonsole": "Konsole",
+	"settings.terminalNotFound": "(no encontrada en este sistema)",
+	"settings.terminalRecoveredToast": "La terminal seleccionada ({name}) ya no est\u00e1 disponible. Volviendo a la terminal integrada.",
 	"settings.languageEnglish": "English",
 	"settings.languageSpanish": "Espa\u00f1ol",
 	"terminal.externalOpenError": "No se pudo abrir la terminal externa. Abriendo la terminal integrada.",
