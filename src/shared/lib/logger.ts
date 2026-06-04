@@ -30,11 +30,11 @@ export const rootLogger = pino({
 	...(isProduction
 		? {}
 		: {
-			transport: {
-				target: "pino-pretty",
-				options: { colorize: true },
-			},
-		}),
+				transport: {
+					target: "pino-pretty",
+					options: { colorize: true },
+				},
+			}),
 });
 
 type LogFn = (msg: string, extra?: Record<string, unknown>) => void;
@@ -51,9 +51,6 @@ export interface Logger {
 
 export const LoggerFactory = {
 	init({ name }: { name: string }): Logger {
-
-		return rootLogger.child(
-			{ component: name },
-		);
+		return rootLogger.child({ component: name });
 	},
 };
