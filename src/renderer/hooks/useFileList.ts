@@ -1,6 +1,9 @@
+import { LoggerFactory } from "@shared/lib/logger";
 import { classifyError, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+const logger = LoggerFactory.init({ name: "renderer.useFileList" });
 
 interface UseFileListOptions {
 	type?: "local" | "remote";
@@ -46,7 +49,9 @@ export function useFileList(path: string, opts: UseFileListOptions = {}): UseFil
 	}, [path, type, connectionId]);
 
 	useEffect(() => {
-		void load();
+		load().catch((error: unknown) => {
+			logger.error("load failed", { error });
+		});
 	}, [load]);
 
 	return { entries, loading, error, refresh: load };

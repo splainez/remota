@@ -1,3 +1,4 @@
+import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection } from "@shared/types";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
@@ -15,6 +16,8 @@ import { useI18n } from "./hooks/useI18n";
 import { useAppNavigation } from "./store/appNavigation";
 import { useTransferPanelStore } from "./store/transferPanel";
 
+const logger = LoggerFactory.init({ name: "renderer.App" });
+
 export function App() {
 	const { t } = useI18n();
 	const { connections, selected, loading, select, create, update, remove } = useConnections();
@@ -24,7 +27,9 @@ export function App() {
 
 	const loadTransferPanels = useTransferPanelStore((s) => s.load);
 	useEffect(() => {
-		void loadTransferPanels();
+		loadTransferPanels().catch((error: unknown) => {
+			logger.error("loadTransferPanels failed", { error });
+		});
 	}, [loadTransferPanels]);
 
 	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
@@ -35,7 +40,7 @@ export function App() {
 
 	const handleToggleTransferPanel = () => {
 		if (activeConnectionId == null) return;
-		void toggleTransferPanel(activeConnectionId);
+		toggleTransferPanel(activeConnectionId);
 	};
 
 	const handleSelect = (id: number) => {
@@ -107,7 +112,9 @@ export function App() {
 						onAdd={handleAdd}
 						onDoubleClick={handleDoubleClick}
 						onDelete={(id) => {
-							void handleDelete(id);
+							handleDelete(id).catch((error: unknown) => {
+								logger.error("handleDelete failed", { id, error });
+							});
 						}}
 					/>
 				);

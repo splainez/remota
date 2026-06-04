@@ -9,6 +9,7 @@ import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
 import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
 import { matchesWildcard } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
+import { LoggerFactory } from "@shared/lib/logger";
 import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -18,6 +19,8 @@ import { ConnectionErrorView } from "./ConnectionErrorView";
 import { FileContextMenu } from "./FileContextMenu";
 import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
+
+const logger = LoggerFactory.init({ name: "renderer.FilePane" });
 
 interface FilePaneProps {
 	type: "local" | "remote";
@@ -123,7 +126,9 @@ export function FilePane({
 	}, [clearSelection, paneGoForward]);
 
 	const handleRefresh = useCallback(() => {
-		void refresh();
+		refresh().catch((error: unknown) => {
+			logger.error("refresh failed", { error });
+		});
 	}, [refresh]);
 
 	const handleOpenFile = useCallback(
@@ -178,7 +183,9 @@ export function FilePane({
 					handleOpenFile(entry);
 				}
 			} else if (actionId === "openInTerminal") {
-				void handleOpenInTerminal(entry);
+				handleOpenInTerminal(entry).catch((error: unknown) => {
+					logger.error("openInTerminal failed", { error });
+				});
 			}
 		},
 		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal],
@@ -219,7 +226,9 @@ export function FilePane({
 				onRefresh={handleRefresh}
 				onNavigateTo={handleNavigateTo}
 				onToggleTerminal={() => {
-					void handleToggleTerminalButton();
+					handleToggleTerminalButton().catch((error: unknown) => {
+						logger.error("toggle terminal failed", { error });
+					});
 				}}
 				terminalVisible={showTerminal}
 				drives={showDriveSelector ? drives : []}

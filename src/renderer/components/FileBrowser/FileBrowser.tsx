@@ -5,6 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@renderer/
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
+import { LoggerFactory } from "@shared/lib/logger";
 import { getErrorI18nKey } from "@shared/sftp-error";
 import type { Connection } from "@shared/types";
 import { useEffect, useRef, useState } from "react";
@@ -12,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import { Breadcrumb } from "./Breadcrumb";
 import { FilePane } from "./FilePane";
 import { ToggleableError } from "./ToggleableError";
+
+const logger = LoggerFactory.init({ name: "renderer.FileBrowser" });
 
 interface FileBrowserProps {
 	connection: Connection;
@@ -62,11 +65,15 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 			}
 		}
 
-		void init();
+		init().catch((error: unknown) => {
+			logger.error("init failed", { error });
+		});
 
 		return () => {
 			cancelled = true;
-			void window.api.filesystem.remoteDisconnect(connection.id);
+			window.api.filesystem.remoteDisconnect(connection.id).catch((error: unknown) => {
+				logger.error("remoteDisconnect failed", { connectionId: connection.id, error });
+			});
 		};
 	}, [connection.id, setRemotePath]);
 
@@ -75,7 +82,9 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 	useEffect(() => {
 		if (ready && !startedConnect.current) {
 			startedConnect.current = true;
-			void connect();
+			connect().catch((error: unknown) => {
+				logger.error("connect failed", { error });
+			});
 		}
 	}, [ready, connect]);
 
@@ -129,7 +138,9 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 								initialPath={remotePath}
 								protocol={connection.protocol}
 								onReconnect={() => {
-									void connect();
+									connect().catch((error: unknown) => {
+										logger.error("reconnect failed", { error });
+									});
 								}}
 								onPathChange={setRemotePath}
 							/>
@@ -147,7 +158,9 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 											variant="default"
 											size="sm"
 											onClick={() => {
-												void connect();
+												connect().catch((error: unknown) => {
+													logger.error("retry connect failed", { error });
+												});
 											}}
 										>
 											{t("remote.retry")}

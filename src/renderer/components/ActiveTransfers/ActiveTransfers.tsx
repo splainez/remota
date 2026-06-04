@@ -58,7 +58,7 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 	const setVisible = useTransferPanelStore((s) => s.setVisible);
 
 	const handleClose = useCallback(() => {
-		void setVisible(connectionId, false);
+		setVisible(connectionId, false);
 	}, [connectionId, setVisible]);
 
 	return (
