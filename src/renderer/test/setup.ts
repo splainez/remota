@@ -1,5 +1,13 @@
 import "@testing-library/jest-dom/vitest";
-import type { Connection, NewConnection, ConnectionUpdate, Settings, SettingsUpdate, ElectronAPI } from "@shared/types";
+import type {
+	Connection,
+	NewConnection,
+	ConnectionUpdate,
+	Settings,
+	SettingsUpdate,
+	ElectronAPI,
+	TerminalAppId,
+} from "@shared/types";
 import { vi } from "vitest";
 
 function makeConnection(overrides: Partial<Connection> = {}): Connection {
@@ -67,6 +75,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			resize: vi.fn().mockResolvedValue(undefined),
 			kill: vi.fn().mockResolvedValue(undefined),
 			openExternal: vi.fn().mockResolvedValue(undefined),
+			detectInstalled: vi.fn<() => Promise<TerminalAppId[]>>().mockResolvedValue([]),
 			onData: vi.fn().mockReturnValue(vi.fn()),
 			onExit: vi.fn().mockReturnValue(vi.fn()),
 			...overrides?.terminal,

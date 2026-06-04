@@ -1,3 +1,4 @@
+import { detectInstalledTerminals } from "@main/terminal/terminal-detector";
 import type { TerminalManager } from "@main/terminal/terminal-manager";
 import { IPC } from "@shared/ipc-channels";
 import { ipcMain } from "electron";
@@ -31,4 +32,6 @@ export function registerTerminalHandlers(terminalManager: TerminalManager): void
 			return terminalManager.openExternalTerminal(connectionId, path, type);
 		},
 	);
+
+	ipcMain.handle(IPC.TERMINAL_DETECT_INSTALLED, () => detectInstalledTerminals());
 }

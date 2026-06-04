@@ -1,5 +1,13 @@
 import { IPC } from "@shared/ipc-channels";
-import type { Connection, ConnectionUpdate, FileEntry, NewConnection, Settings, SettingsUpdate } from "@shared/types";
+import type {
+	Connection,
+	ConnectionUpdate,
+	FileEntry,
+	NewConnection,
+	Settings,
+	SettingsUpdate,
+	TerminalAppId,
+} from "@shared/types";
 import { contextBridge, ipcRenderer } from "electron";
 
 const api = {
@@ -51,6 +59,7 @@ const api = {
 		},
 		openExternal: (connectionId: number, path: string | undefined, type: "local" | "remote"): Promise<void> =>
 			ipcRenderer.invoke(IPC.TERMINAL_OPEN_EXTERNAL, connectionId, path, type),
+		detectInstalled: (): Promise<TerminalAppId[]> => ipcRenderer.invoke(IPC.TERMINAL_DETECT_INSTALLED),
 		onData: (sessionId: string, callback: (data: string) => void) => {
 			const channel = `terminal:data:${sessionId}`;
 			const handler = (_event: Electron.IpcRendererEvent, data: string) => {

@@ -5,6 +5,10 @@ vi.mock("electron", () => ({
 	ipcMain: { handle: vi.fn() },
 }));
 
+vi.mock("@main/terminal/terminal-detector", () => ({
+	detectInstalledTerminals: vi.fn().mockResolvedValue(["kitty"]),
+}));
+
 import { ipcMain } from "electron";
 
 import { registerTerminalHandlers } from "./terminal";
@@ -26,7 +30,7 @@ describe("registerTerminalHandlers", () => {
 		registerTerminalHandlers(mockManager as unknown as Parameters<typeof registerTerminalHandlers>[0]);
 	});
 
-	it("registers spawn, write, resize, kill, and openExternal handlers", () => {
+	it("registers spawn, write, resize, kill, openExternal, and detectInstalled handlers", () => {
 		const calls: unknown[][] = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls;
 		const channels = calls.map((c) => c[0]);
 		expect(channels).toContain(IPC.TERMINAL_SPAWN);
@@ -34,7 +38,8 @@ describe("registerTerminalHandlers", () => {
 		expect(channels).toContain(IPC.TERMINAL_RESIZE);
 		expect(channels).toContain(IPC.TERMINAL_KILL);
 		expect(channels).toContain(IPC.TERMINAL_OPEN_EXTERNAL);
-		expect(calls.length).toBe(5);
+		expect(channels).toContain(IPC.TERMINAL_DETECT_INSTALLED);
+		expect(calls.length).toBe(6);
 	});
 
 	it("spawn handler calls spawnLocal for local type", () => {
@@ -80,5 +85,12 @@ describe("registerTerminalHandlers", () => {
 		) => void;
 		fn({}, 7, "/home/user", "local");
 		expect(mockManager.openExternalTerminal).toHaveBeenCalledWith(7, "/home/user", "local");
+	});
+
+	it("detectInstalled handler returns the result of detectInstalledTerminals", async () => {
+		const calls: unknown[][] = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls;
+		const fn = calls.find((c) => c[0] === IPC.TERMINAL_DETECT_INSTALLED)?.[1] as (event: unknown) => Promise<unknown>;
+		const result = await fn({});
+		expect(result).toEqual(["kitty"]);
 	});
 });
