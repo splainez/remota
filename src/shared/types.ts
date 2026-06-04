@@ -1,6 +1,7 @@
 import type { Settings, SettingsUpdate } from "./app-config-schema";
+import type { TerminalAppId } from "./app-config-schema";
 
-export type { Settings, SettingsUpdate };
+export type { Settings, SettingsUpdate, TerminalAppId };
 
 export interface Connection {
 	id: number;
@@ -69,6 +70,7 @@ export interface ElectronAPI {
 		resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
 		kill: (sessionId: string) => Promise<void>;
 		openExternal: (connectionId: number, path: string | undefined, type: "local" | "remote") => Promise<void>;
+		detectInstalled: () => Promise<TerminalAppId[]>;
 		onData: (sessionId: string, callback: (data: string) => void) => () => void;
 		onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
 	};

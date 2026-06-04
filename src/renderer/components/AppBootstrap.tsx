@@ -1,18 +1,25 @@
 import { App } from "@renderer/App";
 import { I18nProvider } from "@renderer/providers/I18nProvider";
 import { useSettingsStore } from "@renderer/store/settings";
+import { LoggerFactory } from "@shared/lib/logger";
 import { useEffect, useState } from "react";
 
 import { ThemeProvider } from "./theme-provider";
+
+const logger = LoggerFactory.init({ name: "renderer.AppBootstrap" });
 
 export function AppBootstrap() {
 	const { theme, load, setTheme } = useSettingsStore();
 	const [ready, setReady] = useState(false);
 
 	useEffect(() => {
-		void load().then(() => {
-			setReady(true);
-		});
+		load()
+			.then(() => {
+				setReady(true);
+			})
+			.catch((error: unknown) => {
+				logger.error("load failed", { error });
+			});
 	}, [load]);
 
 	if (!ready) {

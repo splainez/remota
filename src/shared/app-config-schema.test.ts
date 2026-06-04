@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 
-import { AppConfigSchema, ConnectionSchema, LastPathsSchema, SettingsSchema, TransferPanelsSchema } from "./app-config-schema";
+import {
+	AppConfigSchema,
+	ConnectionSchema,
+	LastPathsSchema,
+	SettingsSchema,
+	TransferPanelsSchema,
+} from "./app-config-schema";
 
 describe("ConnectionSchema", () => {
 	it("accepts a valid connection", () => {

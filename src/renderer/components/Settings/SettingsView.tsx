@@ -4,6 +4,8 @@ import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
 import { useSettingsStore } from "@renderer/store/settings";
 import type { TerminalAppId } from "@shared/app-config-schema";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 interface SettingsViewProps {
 	onBack: () => void;
@@ -37,9 +39,27 @@ const terminalOptions: { value: TerminalOptionValue; label: TranslationKey }[] =
 export function SettingsView({ onBack }: SettingsViewProps) {
 	const { t } = useI18n();
 	const { theme, setTheme } = useTheme();
-	const { locale, setLocale, externalTerminal, setExternalTerminal } = useSettingsStore();
+	const {
+		locale,
+		setLocale,
+		externalTerminal,
+		setExternalTerminal,
+		availableTerminals,
+		pendingRecoveryToast,
+		clearPendingRecoveryToast,
+	} = useSettingsStore();
 
 	const currentTerminal: TerminalOptionValue = externalTerminal ?? "none";
+
+	useEffect(() => {
+		if (!pendingRecoveryToast) return;
+		const option = terminalOptions.find((o) => o.value === pendingRecoveryToast);
+		const label = option ? t(option.label) : pendingRecoveryToast;
+		toast.warning(t("settings.terminalRecoveredToast", { name: label }));
+		clearPendingRecoveryToast();
+	}, [pendingRecoveryToast, clearPendingRecoveryToast, t]);
+
+	const notFoundLabel = t("settings.terminalNotFound");
 
 	return (
 		<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
@@ -71,6 +91,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								{themeOptions.map((opt) => (
 									<button
 										key={opt.value}
+										type="button"
 										className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all duration-200 ${
 											theme === opt.value
 												? "border-primary bg-primary/10 text-primary"
@@ -101,6 +122,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								{languageOptions.map((opt) => (
 									<button
 										key={opt.value}
+										type="button"
 										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
 											locale === opt.value
 												? "border-primary bg-primary/10 text-primary"
@@ -135,28 +157,44 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								<span className="text-xs text-muted-foreground">{t("settings.externalTerminalDescription")}</span>
 							</div>
 							<div className="flex flex-col gap-2">
-								{terminalOptions.map((opt) => (
-									<button
-										key={opt.value}
-										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-											currentTerminal === opt.value
-												? "border-primary bg-primary/10 text-primary"
-												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
-										}`}
-										onClick={() => {
-											setExternalTerminal(opt.value === "none" ? undefined : opt.value);
-										}}
-									>
-										<span
-											className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
-												currentTerminal === opt.value ? "border-primary" : "border-outline-variant"
-											}`}
+								{terminalOptions.map((opt) => {
+									const isNone = opt.value === "none";
+									const isAvailable = isNone || availableTerminals.includes(opt.value as TerminalAppId);
+									const isActive = currentTerminal === opt.value;
+									const showNotFound = !isAvailable;
+									const baseClass = "flex items-center gap-3 p-3 rounded-lg border transition-all duration-200";
+									const stateClass = !isAvailable
+										? `border-primary/40 opacity-50 cursor-not-allowed ${isActive ? "bg-primary/5" : ""}`
+										: isActive
+											? "border-primary bg-primary/10 text-primary"
+											: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground";
+									return (
+										<button
+											key={opt.value}
+											type="button"
+											disabled={!isAvailable}
+											className={`${baseClass} ${stateClass}`}
+											onClick={() => {
+												if (!isAvailable) return;
+												setExternalTerminal(opt.value === "none" ? undefined : opt.value);
+											}}
 										>
-											{currentTerminal === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
-										</span>
-										<span className="text-sm font-medium">{t(opt.label)}</span>
-									</button>
-								))}
+											<span
+												className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
+													isActive ? "border-primary" : "border-outline-variant"
+												}`}
+											>
+												{isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+											</span>
+											<span className="text-sm font-medium flex-1 text-left">
+												{t(opt.label)}
+												{showNotFound && (
+													<span className="ml-2 text-xs text-muted-foreground font-normal">{notFoundLabel}</span>
+												)}
+											</span>
+										</button>
+									);
+								})}
 							</div>
 						</div>
 					</section>

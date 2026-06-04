@@ -27,6 +27,7 @@ export const IPC = {
 	TERMINAL_RESIZE: "terminal:resize",
 	TERMINAL_KILL: "terminal:kill",
 	TERMINAL_OPEN_EXTERNAL: "terminal:openExternal",
+	TERMINAL_DETECT_INSTALLED: "terminal:detectInstalled",
 	APP_GET_CONFIG_PATH: "app:getConfigPath",
 	APP_GET_CONFIG_ERROR: "app:getConfigError",
 	SETTINGS_GET_ALL: "settings:getAll",

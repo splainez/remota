@@ -1,4 +1,4 @@
-import type { Connection, NewConnection, ConnectionUpdate, FileEntry } from "@shared/types";
+import type { Connection, NewConnection, ConnectionUpdate, FileEntry, TerminalAppId } from "@shared/types";
 
 declare global {
 	interface Window {
@@ -30,6 +30,7 @@ declare global {
 				resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
 				kill: (sessionId: string) => Promise<void>;
 				openExternal: (connectionId: number, path: string | undefined, type: "local" | "remote") => Promise<void>;
+				detectInstalled: () => Promise<TerminalAppId[]>;
 				onData: (sessionId: string, callback: (data: string) => void) => () => void;
 				onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
 			};

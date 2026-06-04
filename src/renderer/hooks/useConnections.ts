@@ -1,5 +1,8 @@
+import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
 import { useCallback, useEffect, useState } from "react";
+
+const logger = LoggerFactory.init({ name: "renderer.useConnections" });
 
 export function useConnections() {
 	const [connections, setConnections] = useState<Connection[]>([]);
@@ -13,7 +16,9 @@ export function useConnections() {
 	}, []);
 
 	useEffect(() => {
-		void loadConnections();
+		loadConnections().catch((error: unknown) => {
+			logger.error("loadConnections failed", { error });
+		});
 	}, [loadConnections]);
 
 	const selected = connections.find((c) => c.id === selectedId) ?? null;

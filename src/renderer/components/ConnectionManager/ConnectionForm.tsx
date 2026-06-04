@@ -1,6 +1,7 @@
 import { type TranslationKey } from "@i18n/i18n";
 import { Icon } from "@renderer/components/icons/Icon";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection } from "@shared/types";
 import { connectionFormSchema, nameSchema, DEFAULT_PORT, type ConnectionFormData } from "@shared/validation";
 import { useForm } from "@tanstack/react-form";
@@ -10,6 +11,8 @@ import { AdvancedSettings } from "./AdvancedSettings";
 import { FormFooter } from "./FormFooter";
 import { S3Fields } from "./S3Fields";
 import { SftpFields } from "./SftpFields";
+
+const logger = LoggerFactory.init({ name: "renderer.ConnectionForm" });
 
 interface ConnectionFormProps {
 	initial: Connection | null;
@@ -87,7 +90,9 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			onSubmit={(e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				void handleSubmit(false);
+				handleSubmit(false).catch((error: unknown) => {
+					logger.error("handleSubmit failed", { error });
+				});
 			}}
 		>
 			<div className="flex items-center gap-3 mb-1">
@@ -191,10 +196,14 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			<FormFooter
 				onCancel={onCancel}
 				onSave={() => {
-					void handleSubmit(false);
+					handleSubmit(false).catch((error: unknown) => {
+						logger.error("handleSubmit (save) failed", { error });
+					});
 				}}
 				onConnect={() => {
-					void handleSubmit(true);
+					handleSubmit(true).catch((error: unknown) => {
+						logger.error("handleSubmit (connect) failed", { error });
+					});
 				}}
 			/>
 		</form>
