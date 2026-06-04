@@ -484,7 +484,7 @@ describe("getSshCommand", () => {
 	const sshArgs = ["ssh", "-t", "user@example.com", "cd / && exec $SHELL"];
 
 	const cases: [TerminalAppId, string, string[]][] = [
-		["windows-terminal", "wt.exe", ["ssh", ...sshArgs]],
+		["windows-terminal", "wt.exe", [...sshArgs]],
 		["kitty", "kitty", ["-e", ...sshArgs]],
 		["ghostty", "ghostty", ["-e", ...sshArgs]],
 		["alacritty", "alacritty", ["-e", ...sshArgs]],
@@ -583,7 +583,7 @@ describe("TerminalManager.openExternalTerminal", () => {
 		await mgr.openExternalTerminal(1, "/var/log", "remote");
 		expect(mockSpawn).toHaveBeenCalledWith(
 			"wt.exe",
-			["ssh", "ssh", "-t", "user@example.com", "cd /var/log && exec $SHELL"],
+			["ssh", "-t", "user@example.com", "cd /var/log && exec $SHELL"],
 			expect.any(Object),
 		);
 	});
