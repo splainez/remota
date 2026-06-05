@@ -44,10 +44,8 @@ describe("BrandButton", () => {
 				<BrandButton collapsed={false} onViewAll={onViewAll} />
 			</I18nWrapper>,
 		);
-		const outerDiv = screen.getByText("OpenSCP").closest('[role="button"]');
-		if (outerDiv instanceof HTMLElement) {
-			outerDiv.focus();
-		}
+		const brandButton = screen.getByTitle("OpenSCP");
+		brandButton.focus();
 		await user.keyboard("{Enter}");
 		expect(onViewAll).toHaveBeenCalled();
 	});
@@ -60,10 +58,8 @@ describe("BrandButton", () => {
 				<BrandButton collapsed={false} onViewAll={onViewAll} />
 			</I18nWrapper>,
 		);
-		const outerDiv = screen.getByText("OpenSCP").closest('[role="button"]');
-		if (outerDiv instanceof HTMLElement) {
-			outerDiv.focus();
-		}
+		const brandButton = screen.getByTitle("OpenSCP");
+		brandButton.focus();
 		await user.keyboard(" ");
 		expect(onViewAll).toHaveBeenCalled();
 	});
