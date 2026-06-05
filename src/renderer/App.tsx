@@ -1,7 +1,8 @@
+import { connectionSupportsTerminal } from "@shared/lib/connection";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection } from "@shared/types";
 import { useEffect } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 
 import { ConfigError } from "./components/ConfigError/ConfigError";
 import { ConnectionDetail } from "./components/ConnectionManager/ConnectionDetail";
@@ -14,6 +15,7 @@ import { SettingsView } from "./components/Settings/SettingsView";
 import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
 import { useAppNavigation } from "./store/appNavigation";
+import { useSettingsStore } from "./store/settings";
 import { useTransferPanelStore } from "./store/transferPanel";
 
 const logger = LoggerFactory.init({ name: "renderer.App" });
@@ -53,10 +55,34 @@ export function App() {
 		openConnectionForm("new");
 	};
 
-	const handleDoubleClick = (id: number) => {
+	const handleOpenFileBrowser = (id: number) => {
 		const conn = connections.find((c) => c.id === id);
 		if (conn) {
 			openFileBrowser(conn);
+		}
+	};
+
+	const handleOpenTerminal = async (id: number) => {
+		const conn = connections.find((c) => c.id === id);
+		if (!conn || !connectionSupportsTerminal(conn)) return;
+
+		const { externalTerminal } = useSettingsStore.getState();
+
+		if (!externalTerminal) {
+			openFileBrowser(conn, { openTerminal: true });
+			return;
+		}
+
+		try {
+			const lastPath = await window.api.filesystem.getLastPath(id, "remote");
+			await window.api.terminal.openExternal(id, lastPath ?? undefined, "remote");
+			if (externalTerminal === "iterm2" || externalTerminal === "terminal-app") {
+				toast.info(t("terminal.externalOpenSshless"));
+			}
+		} catch (error: unknown) {
+			logger.error("openExternal terminal failed; falling back to integrated", { id, error });
+			openFileBrowser(conn, { openTerminal: true });
+			toast.error(t("terminal.externalOpenError"));
 		}
 	};
 
@@ -110,7 +136,13 @@ export function App() {
 						activeConnectionId={null}
 						onSelect={handleSelect}
 						onAdd={handleAdd}
-						onDoubleClick={handleDoubleClick}
+						onDoubleClick={handleOpenFileBrowser}
+						onOpen={handleOpenFileBrowser}
+						onOpenTerminal={(id) => {
+							handleOpenTerminal(id).catch((error: unknown) => {
+								logger.error("handleOpenTerminal failed", { id, error });
+							});
+						}}
 						onDelete={(id) => {
 							handleDelete(id).catch((error: unknown) => {
 								logger.error("handleDelete failed", { id, error });
@@ -120,7 +152,7 @@ export function App() {
 				);
 
 			case "fileBrowser":
-				return <FileBrowser connection={currentView.connection} />;
+				return <FileBrowser connection={currentView.connection} initialShowTerminal={currentView.openTerminal} />;
 
 			case "connectionForm": {
 				const editingConnection =
@@ -192,7 +224,7 @@ export function App() {
 					activeConnectionId={currentView.view === "fileBrowser" ? currentView.connection.id : null}
 					onSelect={handleSelect}
 					onAdd={handleAdd}
-					onDoubleClick={handleDoubleClick}
+					onDoubleClick={handleOpenFileBrowser}
 					onViewAll={openConnectionList}
 					onDisconnect={openConnectionList}
 					onSettings={openSettings}

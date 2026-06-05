@@ -16,6 +16,8 @@ interface ConnectionListViewProps {
 	onSelect: (id: number) => void;
 	onAdd: () => void;
 	onDoubleClick: (id: number) => void;
+	onOpen: (id: number) => void;
+	onOpenTerminal: (id: number) => void;
 	onDelete: (id: number) => void;
 }
 
@@ -26,6 +28,8 @@ export function ConnectionListView({
 	onSelect,
 	onAdd,
 	onDoubleClick,
+	onOpen,
+	onOpenTerminal,
 	onDelete,
 }: ConnectionListViewProps) {
 	const { t } = useI18n();
@@ -101,6 +105,12 @@ export function ConnectionListView({
 										}}
 										onContextMenu={(e) => {
 											open(e, conn.id);
+										}}
+										onOpen={() => {
+											onOpen(conn.id);
+										}}
+										onOpenTerminal={() => {
+											onOpenTerminal(conn.id);
 										}}
 									/>
 								))}

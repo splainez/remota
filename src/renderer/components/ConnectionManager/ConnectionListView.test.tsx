@@ -45,6 +45,8 @@ const defaultProps = {
 	onSelect: vi.fn(),
 	onAdd: vi.fn(),
 	onDoubleClick: vi.fn(),
+	onOpen: vi.fn(),
+	onOpenTerminal: vi.fn(),
 	onDelete: vi.fn(),
 };
 
@@ -164,5 +166,35 @@ describe("ConnectionListView", () => {
 
 		await user.click(screen.getByText("Delete"));
 		expect(onDelete).toHaveBeenCalledWith(1);
+	});
+
+	describe("quick action buttons", () => {
+		it("renders Open and Open Terminal buttons for each connection", () => {
+			renderList();
+			expect(screen.getAllByRole("button", { name: "Open" })).toHaveLength(connections.length);
+			expect(screen.getAllByRole("button", { name: "Open Terminal" })).toHaveLength(connections.length);
+		});
+
+		it("calls onOpen with the connection id when Open is clicked", async () => {
+			const user = userEvent.setup();
+			const onOpen = vi.fn();
+			renderList({ ...defaultProps, onOpen });
+
+			const openButtons = screen.getAllByRole("button", { name: "Open" });
+			await user.click(openButtons[0]);
+
+			expect(onOpen).toHaveBeenCalledWith(1);
+		});
+
+		it("calls onOpenTerminal with the connection id when Open Terminal is clicked", async () => {
+			const user = userEvent.setup();
+			const onOpenTerminal = vi.fn();
+			renderList({ ...defaultProps, onOpenTerminal });
+
+			const terminalButtons = screen.getAllByRole("button", { name: "Open Terminal" });
+			await user.click(terminalButtons[2]);
+
+			expect(onOpenTerminal).toHaveBeenCalledWith(3);
+		});
 	});
 });
