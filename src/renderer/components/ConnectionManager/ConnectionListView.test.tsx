@@ -169,10 +169,10 @@ describe("ConnectionListView", () => {
 	});
 
 	describe("quick action buttons", () => {
-		it("renders Open and Open Terminal buttons for each connection", () => {
+		it("renders Open and Terminal buttons for each connection", () => {
 			renderList();
 			expect(screen.getAllByRole("button", { name: "Open" })).toHaveLength(connections.length);
-			expect(screen.getAllByRole("button", { name: "Open Terminal" })).toHaveLength(connections.length);
+			expect(screen.getAllByRole("button", { name: "Terminal" })).toHaveLength(connections.length);
 		});
 
 		it("calls onOpen with the connection id when Open is clicked", async () => {
@@ -186,12 +186,12 @@ describe("ConnectionListView", () => {
 			expect(onOpen).toHaveBeenCalledWith(1);
 		});
 
-		it("calls onOpenTerminal with the connection id when Open Terminal is clicked", async () => {
+		it("calls onOpenTerminal with the connection id when Terminal is clicked", async () => {
 			const user = userEvent.setup();
 			const onOpenTerminal = vi.fn();
 			renderList({ ...defaultProps, onOpenTerminal });
 
-			const terminalButtons = screen.getAllByRole("button", { name: "Open Terminal" });
+			const terminalButtons = screen.getAllByRole("button", { name: "Terminal" });
 			await user.click(terminalButtons[2]);
 
 			expect(onOpenTerminal).toHaveBeenCalledWith(3);

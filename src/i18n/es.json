@@ -55,7 +55,7 @@
 	"connection.connect": "Conectar",
 	"connection.disconnect": "Desconectar",
 	"connection.open": "Abrir",
-	"connection.openTerminal": "Abrir Terminal",
+	"connection.openTerminal": "Terminal",
 	"connection.terminalDisabledS3": "Los terminales no están disponibles para conexiones S3",
 	"file.navigateUp": "Directorio Superior",
 	"file.refresh": "Actualizar",

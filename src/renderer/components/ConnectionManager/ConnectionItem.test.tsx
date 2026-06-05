@@ -111,16 +111,16 @@ describe("ConnectionItem", () => {
 	});
 
 	describe("quick action buttons", () => {
-		it("renders Open and Open Terminal action buttons when handlers are provided", () => {
+		it("renders Open and Terminal action buttons when handlers are provided", () => {
 			renderItem({ onOpen: vi.fn(), onOpenTerminal: vi.fn() });
 			expect(screen.getByRole("button", { name: "Open" })).toBeInTheDocument();
-			expect(screen.getByRole("button", { name: "Open Terminal" })).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: "Terminal" })).toBeInTheDocument();
 		});
 
 		it("does not render action buttons when handlers are omitted", () => {
 			renderItem();
 			expect(screen.queryByRole("button", { name: "Open" })).not.toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: "Open Terminal" })).not.toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: "Terminal" })).not.toBeInTheDocument();
 		});
 
 		it("calls onOpen when Open button is clicked", async () => {
@@ -133,27 +133,27 @@ describe("ConnectionItem", () => {
 			expect(onClick).not.toHaveBeenCalled();
 		});
 
-		it("calls onOpenTerminal when Open Terminal button is clicked", async () => {
+		it("calls onOpenTerminal when Terminal button is clicked", async () => {
 			const user = userEvent.setup();
 			const onOpenTerminal = vi.fn();
 			const onClick = vi.fn();
 			renderItem({ onOpenTerminal, onClick });
-			await user.click(screen.getByRole("button", { name: "Open Terminal" }));
+			await user.click(screen.getByRole("button", { name: "Terminal" }));
 			expect(onOpenTerminal).toHaveBeenCalledOnce();
 			expect(onClick).not.toHaveBeenCalled();
 		});
 
-		it("disables Open Terminal button for S3 protocol", () => {
+		it("disables Terminal button for S3 protocol", () => {
 			const conn = makeConnection({ protocol: "s3", host: "s3.amazonaws.com", port: 443 });
 			renderItem({ connection: conn, onOpenTerminal: vi.fn() });
 			const terminalBtn = screen.getByRole("button", { name: "Terminals are not supported for S3 connections" });
 			expect(terminalBtn).toBeDisabled();
 		});
 
-		it("enables Open Terminal button for non-S3 protocols", () => {
+		it("enables Terminal button for non-S3 protocols", () => {
 			const conn = makeConnection({ protocol: "sftp" });
 			renderItem({ connection: conn, onOpenTerminal: vi.fn() });
-			const terminalBtn = screen.getByRole("button", { name: "Open Terminal" });
+			const terminalBtn = screen.getByRole("button", { name: "Terminal" });
 			expect(terminalBtn).not.toBeDisabled();
 		});
 
@@ -184,11 +184,11 @@ describe("ConnectionItem", () => {
 			expect(onClick).not.toHaveBeenCalled();
 		});
 
-		it("does not trigger row onClick when Enter is pressed on the Open Terminal action button", () => {
+		it("does not trigger row onClick when Enter is pressed on the Terminal action button", () => {
 			const onClick = vi.fn();
 			const onOpenTerminal = vi.fn();
 			renderItem({ onOpenTerminal, onClick });
-			const terminalBtn = screen.getByRole("button", { name: "Open Terminal" });
+			const terminalBtn = screen.getByRole("button", { name: "Terminal" });
 			fireEvent.keyDown(terminalBtn, { key: "Enter" });
 			expect(onClick).not.toHaveBeenCalled();
 		});
