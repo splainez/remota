@@ -1,7 +1,9 @@
 import { type TranslationKey } from "@i18n/i18n";
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
+import { cn } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
 import type { TerminalAppId } from "@shared/app-config-schema";
 import { useEffect } from "react";
@@ -65,14 +67,9 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 		<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 			<div className="w-full max-w-2xl p-6 md:p-10">
 				<div className="flex items-center gap-3 mb-6">
-					<button
-						type="button"
-						aria-label={t("connection.back")}
-						className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-high transition-colors"
-						onClick={onBack}
-					>
+					<Button type="button" variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onBack}>
 						<Icon name="arrow-left" size={18} />
-					</button>
+					</Button>
 					<h2 className="text-lg font-semibold text-foreground">{t("settings.title")}</h2>
 				</div>
 
@@ -89,21 +86,19 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 							</div>
 							<div className="grid grid-cols-3 gap-2">
 								{themeOptions.map((opt) => (
-									<button
+									<Button
 										key={opt.value}
 										type="button"
-										className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all duration-200 ${
-											theme === opt.value
-												? "border-primary bg-primary/10 text-primary"
-												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
-										}`}
+										variant={theme === opt.value ? "selected" : "outline"}
+										size="default"
+										className="h-auto flex-col gap-2 p-3"
 										onClick={() => {
 											setTheme(opt.value);
 										}}
 									>
 										<Icon name={opt.icon} size={20} />
 										<span className="text-xs font-medium">{t(opt.label)}</span>
-									</button>
+									</Button>
 								))}
 							</div>
 						</div>
@@ -120,27 +115,26 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 							</div>
 							<div className="flex flex-col gap-2">
 								{languageOptions.map((opt) => (
-									<button
+									<Button
 										key={opt.value}
 										type="button"
-										className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-											locale === opt.value
-												? "border-primary bg-primary/10 text-primary"
-												: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground"
-										}`}
+										variant={locale === opt.value ? "selected" : "outline"}
+										size="default"
+										className="h-auto justify-start gap-3 p-3"
 										onClick={() => {
 											setLocale(opt.value);
 										}}
 									>
 										<span
-											className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
-												locale === opt.value ? "border-primary" : "border-outline-variant"
-											}`}
+											className={cn(
+												"w-3 h-3 rounded-full border-2 flex items-center justify-center",
+												locale === opt.value ? "border-primary" : "border-outline-variant",
+											)}
 										>
 											{locale === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</span>
 										<span className="text-sm font-medium">{t(opt.label)}</span>
-									</button>
+									</Button>
 								))}
 							</div>
 						</div>
@@ -162,27 +156,24 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 									const isAvailable = isNone || availableTerminals.includes(opt.value as TerminalAppId);
 									const isActive = currentTerminal === opt.value;
 									const showNotFound = !isAvailable;
-									const baseClass = "flex items-center gap-3 p-3 rounded-lg border transition-all duration-200";
-									const stateClass = !isAvailable
-										? `border-primary/40 opacity-50 cursor-not-allowed ${isActive ? "bg-primary/5" : ""}`
-										: isActive
-											? "border-primary bg-primary/10 text-primary"
-											: "border-outline-variant hover:border-outline hover:bg-surface-container-high text-muted-foreground hover:text-foreground";
 									return (
-										<button
+										<Button
 											key={opt.value}
 											type="button"
+											variant={isActive ? "selected" : "outline"}
+											size="default"
 											disabled={!isAvailable}
-											className={`${baseClass} ${stateClass}`}
+											className={cn("h-auto justify-start gap-3 p-3", !isAvailable && "opacity-50 cursor-not-allowed")}
 											onClick={() => {
 												if (!isAvailable) return;
 												setExternalTerminal(opt.value === "none" ? undefined : opt.value);
 											}}
 										>
 											<span
-												className={`w-3 h-3 rounded-full border-2 flex items-center justify-center ${
-													isActive ? "border-primary" : "border-outline-variant"
-												}`}
+												className={cn(
+													"w-3 h-3 rounded-full border-2 flex items-center justify-center",
+													isActive ? "border-primary" : "border-outline-variant",
+												)}
 											>
 												{isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
 											</span>
@@ -192,7 +183,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 													<span className="ml-2 text-xs text-muted-foreground font-normal">{notFoundLabel}</span>
 												)}
 											</span>
-										</button>
+										</Button>
 									);
 								})}
 							</div>

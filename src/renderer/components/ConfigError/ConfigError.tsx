@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useState, useEffect, useCallback } from "react";
 interface ConfigErrorData {
@@ -72,18 +73,12 @@ export function ConfigError() {
 				)}
 
 				<div className="flex gap-3 justify-center">
-					<button
-						className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-body-md font-medium bg-primary text-white hover:bg-primary/90 transition-colors"
-						onClick={handleRetry}
-					>
+					<Button variant="default" size="default" onClick={handleRetry}>
 						{t("config.error.retry")}
-					</button>
-					<button
-						className="inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-body-md font-medium bg-surface-container text-foreground border border-outline-variant hover:bg-surface-container-high transition-colors"
-						onClick={handleIgnore}
-					>
+					</Button>
+					<Button variant="outline" size="default" onClick={handleIgnore}>
 						{t("config.error.ignore")}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

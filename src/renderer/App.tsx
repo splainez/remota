@@ -12,6 +12,7 @@ import { FileBrowser } from "./components/FileBrowser/FileBrowser";
 import { Icon } from "./components/icons/Icon";
 import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
 import { SettingsView } from "./components/Settings/SettingsView";
+import { Button } from "./components/ui/button";
 import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
 import { useAppNavigation } from "./store/appNavigation";
@@ -240,13 +241,15 @@ export function App() {
 						</div>
 						<div className="flex items-center gap-3">
 							{activeConnectionId != null && !isTransferPanelVisible && (
-								<button
-									className="flex items-center gap-1 hover:text-foreground transition-colors"
+								<Button
+									variant="link"
+									size="sm"
+									className="h-auto p-0 text-xs gap-1"
 									onClick={handleToggleTransferPanel}
 								>
 									<Icon name="sync" size={14} />
-									<span>{t("transfer.active")}</span>
-								</button>
+									{t("transfer.active")}
+								</Button>
 							)}
 							<span>{t("app.version")}</span>
 						</div>
