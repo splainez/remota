@@ -1,255 +1,124 @@
 # AGENTS.md — OpenSCP
 
-## Project
+## 1. Stack
 
-OpenSCP is an Electron desktop app: a modular WinSCP replacement with a dual-pane file manager (local | remote), connection manager, external editor/terminal integration, and pluggable protocol support.
+Electron 42 + electron-vite 5 (main / preload / renderer). React 19.2 + TS 6.0.3 strict. Tailwind v4. shadcn/ui (`base-nova`, `neutral`, `lucide`). Zustand 5. ssh2 + @aws-sdk/client-s3. xterm + node-pty. Zod 4. @tanstack/react-form. pino. **pnpm.**
 
-Package manager: **pnpm** (pnpm-lock.yaml present).
+## 2. Commands
 
-## Reference
+| Cmd | What |
+| --- | --- |
+| `pnpm dev` / `build` / `preview` | dev / prod build / preview prod |
+| `pnpm typecheck` | `tsc --noEmit` on both tsconfig projects |
+| `pnpm lint` / `lint:fix` | ESLint |
+| `pnpm fmt` / `fmt:check` | oxfmt (sortImports, printWidth 120) |
+| `pnpm test` / `test:watch` / `test:coverage` | vitest unit |
+| `pnpm test:integration` | vitest + testcontainers (Docker or `TEST_USE_EXTERNAL=true`) |
+| `pnpm test:all` | unit + integration |
+| `pnpm test:e2e` / `test:e2e:ui` | Playwright (chromium, port 5174) |
+| `pnpm check` | fmt+lint+typecheck+test+build. **Pre-PR gate.** |
 
-WinSCP source code and translations are at `https://github.com/winscp/winscp/tree/master`:
+## 3. Architecture
 
-- Source code: `/sources`
-- Translations: `/translations`
+3 procs, **context isolation ON**. Renderer → only via `window.api`. Tree: `src/{main,preload,renderer,shared,i18n}/`. Path aliases: `@main/*`, `@renderer/*`, `@shared/*`, `@i18n/*`. 5 Zustand stores in `src/renderer/store/`. 20 hooks in `src/renderer/hooks/`. Both co-locate `*.test.{ts,tsx}`.
 
-Refer to these for protocol behavior, UI patterns, and i18n conventions.
+## 4. window.api (preload + contextBridge)
 
-## Commands
+Renderer NEVER imports Node. 7 NS: `connections`, `filesystem` (local/remote/temp), `terminal`, `settings`, `transferPanel`, `app`, `platform`. All async → Promises. `on*` return unsub fn. Mirror type in `src/preload/index.d.ts` (`ElectronAPI`).
 
-```bash
-pnpm run dev              # Start Electron in dev mode (electron-vite dev)
-pnpm run build            # Production build (electron-vite build)
-pnpm run typecheck        # Type-check all packages (tsc --noEmit for node + web configs)
-pnpm run lint             # run linter
-pnpm run lint:fix         # run linter with autofix
-pnpm run test             # Run all vitest unit tests
-pnpm run test:e2e         # Playwright integration tests
-pnpm run fmt              # run formatter
-```
+## 5. Protocols
 
-## Architecture
+SFTP/SCP: `ssh2` `Client` (`readyTimeout: 10_000ms`, `keepaliveInterval: 30_000ms`). Auth: `password` | `key` (file → `privateKey`) | `agent` (`SSH_AUTH_SOCK`). S3: `@aws-sdk/client-s3` w/ `forcePathStyle: true`, bucket validated via `HeadBucketCommand`, `ListObjectsV2Command` w/ `Delimiter: "/"` for folder emulation + `ContinuationToken` for pagination. `scp`/`sftp` share code path. Discriminated union via `z.discriminatedUnion("protocol", …)`.
 
-```
-src/
-  main/          Electron main process (window, IPC handlers, database)
-  preload/       contextBridge API exposure to renderer
-  renderer/      React UI (ConnectionManager → FileBrowser)
-  shared/        Types, IPC channel constants shared between processes
-  i18n/          Translation files (locale.json + index.ts)
-```
+## 6. Persistence
 
-- **Two tsconfigs**: `tsconfig.node.json` (main + preload + shared) and `tsconfig.web.json` (renderer + shared). The root `tsconfig.json` references both.
-- **Build**: `electron-vite` with three entry configs: `main`, `preload`, `renderer`.
-- **Database**: SQLite via `sql.js` + `drizzle-orm`. Schema at `src/main/database/schema.ts`, migrations at `src/main/database/migrations/`. Drizzle config at `drizzle.config.ts`.
-- **IPC**: handlers registered in `src/main/ipc/`, channel names in `src/shared/ipc-channels.ts` using `connection:<action>` and `file:<action>` patterns.
-- **Renderer API mock layer**: Electron context isolation is on — renderer accesses backend via `window.api` (typed `ElectronAPI`), exposed through preload `contextBridge`.
-- **Default view**: app opens to Connection Manager UI. User selects/creates a connection before the FileBrowser view appears.
-- **State**: Zustand for global state (`src/renderer/store/`). Hooks in `src/renderer/hooks/`.
+JSON file at `app.getPath("userData")/app-config.json` (NOT repo, NOT bundle). **No SQL / no Drizzle / no sql.js** (earlier drafts mentioned these by mistake). `AppStore` (src/main/app-store.ts): debounced 500ms write, `flush()` on `will-quit`, `ConfigValidationError` surfaced via `app:getConfigError` + `config-error` push ch → `ConfigError` modal. **Credentials plaintext** — treat file as sensitive.
 
-## i18n
+## 7. Terminal
 
-- All user-facing strings via `t('key')` from `src/i18n/index.ts`. Never hardcode strings.
-- Translation files: `src/i18n/<locale>.json` with dot-notation flat keys (`"connection.new": "New Connection"`).
-- Adding a locale = adding one JSON file; no code changes.
+`TerminalAppId` in `src/shared/app-config-schema.ts` (8 values: windows-terminal, kitty, ghostty, alacritty, iterm2, terminal-app, gnome-terminal, konsole). Detection in `terminal-detector.ts`: CLI via `where.exe`/`which` w/ 2s timeout; macOS `.app` via `ABSOLUTE_PATHS` + `existsSync`. Local: `node-pty` w/ `$SHELL` (win32: pwsh → powershell → cmd). Remote: ssh2 `shell` ch. Session id: `${type}-${String(connectionId)}`. `useSettingsStore.load` does recovery: if configured `externalTerminal` not installed → reset + sonner warning toast.
 
-## Testing
+**macOS exception:** `iterm2` / `terminal-app` launch "sshless" (user runs `ssh` manually) → renderer info toast. Other macOS terminals use normal `ssh args` path.
 
-### Unit tests (vitest)
+## 8. i18n
 
-- **Every utility, feature, component, hook, or other code module must have unit tests.**
-- Tests are co-located with source files: `*.test.ts` or `*.test.tsx` in the same directory.
-- vitest config: `globals: true`, `environment: "jsdom"`, setup file at `src/renderer/test/setup.ts`.
-- Path aliases: `@renderer` → `src/renderer`, `@shared` → `src/shared`, `@i18n` → `src/i18n`.
-- The setup file mocks `window.api` using `vi.stubGlobal("api", mockApi)`. Use `createMockApi()` (exported from setup) to build mock API objects. It provides default mock implementations for `connections.*` and `filesystem.*` IPC methods.
-- Use `@testing-library/react` + `@testing-library/user-event` for component tests.
+`en.json` = source of truth for `TranslationKey` (derived union). `es.json` must mirror. Validation error messages = translation keys, NEVER localized strings. New locale = add `<locale>.json` + update `i18n.ts` (`TranslationsAll` + `LocaleAvailable`) + add option in `SettingsView`.
 
-### E2E tests (Playwright)
+## 9. UI
 
-- Located in `tests/integration/`.
-- Uses a standalone Vite dev server (`vite.renderer.test.config.ts`, port 5174) with in-page mock API via `page.addInitScript()`.
-- Run with `pnpm test:e2e`.
+- `ThemeProvider` cycles `light`/`dark`/`system` via global `d` shortcut. Persists via `useSettingsStore.setTheme`. `sonner`: `richColors`, `position="bottom-right"`.
+- **Design specs:** `desing/light/DESIGN.md` + `desing/dark/DESIGN.md` (dir intentionally `desing`). **Always ref both** before touching views.
+- **Tailwind v4** tokens in `src/renderer/global.css` via `@theme inline`. **Semantic class names** (`bg-surface`, `text-on-surface`, `border-outline-variant`). **No hardcoded hex.**
+- **Icons:** `<Icon name="folder" size={16} />` from `src/renderer/components/icons/Icon.tsx` (wraps `react-icons/vsc`). Never direct `react-icons/vsc` imports. `iconMap` in that file = single place to add/alias.
+- **shadcn/ui** in `src/renderer/components/ui/`. Config in `components.json` (`base-nova`, `neutral`, `lucide`). **No barrel re-exports** — import directly from the shadcn module.
+- **React 19:** `ref` = regular prop (no `forwardRef`). Prefer `use()` over `useContext()`.
 
-## Workflow
+## 10. Forms
 
-Before considering any task complete, the following checks **must** pass:
+`@tanstack/react-form` w/ Zod. `ConnectionForm` flat `defaultValues` for both proto branches; switches visible fields via `form.Subscribe selector={(s) => s.values.protocol}`. `DEFAULT_PORT = { sftp: 22, scp: 22, s3: 443 }`. Per-field blur validators for inline feedback; full schema validates on submit.
+
+## 11. Validation
+
+Zod 4 everywhere. `AppConfigSchema` (`.strict()`) w/ defaults. IPC handlers re-parse payloads and throw `Error("Invalid …: …")`. `classifyError(unknown)` in `src/shared/sftp-error.ts` → typed `SftpErrorCode` + `getErrorI18nKey(code)` for `t(...)`. **Never raw `Error.message` to user.**
+
+## 12. Testing
+
+- **Unit (vitest):** `environment: "jsdom"` w/ `environmentMatchGlobs: [["src/main/**", "node"]]` (main-proc tests use node env). Setup at `src/renderer/test/setup.ts`: `createMockApi(overrides?)` stub, `ResizeObserver` mock, legacy `matchMedia` w/ `addListener` (xterm needs this — don't remove). Co-locate `*.test.{ts,tsx}`.
+- **E2E (Playwright):** `tests/integration/*.spec.ts` (separate from vitest `*.test.ts`). Vite dev server on port 5174. In-page mock API via `page.addInitScript(...)`. Single `chromium` project.
+- **Integration (vitest + testcontainers):** `vitest.integration.config.ts`, `environment: "node"`, 120s timeouts, `globalSetup: "./tests/integration/vitest-global-setup.ts"`. Wrappers in `tests/integration/containers/`. `.env.example` for `TEST_USE_EXTERNAL=true` (real servers) vs Docker. `docker-compose.yml` brings up ssh (10022), sftp (2222), ftp (21), s3 (9000/9001) + bucket init.
+
+## 13. Workflow
 
 ```bash
-pnpm run typecheck   # Verify all types are correct
-pnpm run lint        # Verify no linting errors
-pnpm run test:all    # Run all tests (unit + e2e + integration)
-pnpm run build       # Production build (electron-vite build)
-pnpm run fmt         # run formatter after each task
-pnpm run check       # run all checks to verify no errors
+pnpm check   # = fmt:check + lint --quiet + typecheck + test --silent + build
 ```
 
-If any of these commands fail, fix the issues before marking the task as done.
+If fail → fix before marking done. **Never commit with failing pipeline.**
 
-## Code Style
+Beyond passing checks: every change must leave codebase **more maintainable** than found. *Would I understand this in 6 months?* If no → refactor. Integration + E2E not in `check` (need Docker/browsers). Run before PR if you touch IPC, main-proc, proto clients, cross-process types, or Playwright-covered flows.
 
-- **Indentation**: tabs (set in `.editorconfig`).
-- **TypeScript 6.0.3**, strict mode enabled in root `tsconfig.json`.
-- **Component pattern**: each component folder (e.g. `ConnectionManager/`) contains the component `.tsx`, its CSS module `.module.css`, and co-located test `.test.tsx`.
-- **CSS Modules**: use `*.module.css` for component styles (Tailwind is also available).
-- **IPC channel constants**: always use `IPC.*` from `src/shared/ipc-channels.ts`, never hardcode channel strings.
-- **Logging**: use `@sym:Logger` for logs and ensure any error is recorded through the shared logger.
+## 14. Code style
 
-## Design System
+- Tabs. Print width 120. LF.
+- TS 6.0.3 strict + `noUnusedLocals` + `noUnusedParameters` + `noFallthroughCasesInSwitch` + `verbatimModuleSyntax` + `allowImportingTsExtensions` + `noUncheckedSideEffectImports`.
+- ESLint: `typescript-eslint` `strictTypeChecked` + `stylisticTypeChecked`, `react-hooks`, `react-refresh`, `import-alias` (enforces alias usage). `consistent-type-exports`/`consistent-type-imports` = error. `react-hooks/set-state-in-effect` = warn.
+- Component pattern: folder w/ `.tsx` + `*.module.css` + `*.test.tsx` co-located.
+- **Maintainability = primary non-functional goal.** SOLID + KISS as default lens.
 
-The application uses a comprehensive design system with **Light** and **Dark** modes. When adding new views or modifying existing ones, always reference the corresponding design guidelines:
+## 15. Good practices (mandatory)
 
-- **Light Mode:** [desing/light/DESIGN.md](desing/light/DESIGN.md)
-- **Dark Mode:** [desing/dark/DESIGN.md](desing/dark/DESIGN.md)
+1. **`as` → Zod.** Never `as` to force type. Unknown → Zod `parse`/`safeParse`. Source type change → schema throws, not silent fail. Schema + TS type in sync → `z.infer`. Known lib type → mirror w/ `z.ZodType<T>`.
+2. **Classify errors.** Caught → `classifyError(err)` → `t(getErrorI18nKey(code))`. **Never raw `Error.message` to user.**
+3. **Async lifecycle.** Long-lived effects: `cancelled` flag or request-id guard before applying async results to state. See `useFileList` + `FileBrowser.tsx`.
+4. **Persist via stores.** **Never** `window.api.settings.set` / `transferPanel.set` from components. Go through Zustand store.
+5. **SOLID + KISS — maintainability first.**
+   - **KISS:** simplest impl. One thing per fn. No clever one-liners. No abstraction until 2 concrete use cases.
+   - **S** (SRP): each module/hook/store/component = 1 reason to change. `SftpConnectionManager` = ssh2; `useRemoteConnection` = lifecycle; `app-store.ts` = config JSON.
+   - **O** (OCP): extend by adding. New proto = new mgr + branch in `remote-filesystem.ts`. New terminal = new `TerminalAppId` + case in `getLocalCommand`/`getSshCommand`. New locale = new JSON + 1 line in `i18n.ts`.
+   - **L** (LSP): `IPtySession` / `RemoteShellSession` honour same write/resize/kill contract. `ElectronAPI` mocks MUST follow same shape or tests lie.
+   - **I** (ISP): components get only callbacks they use. `useContextMenu<T>()` generic. Zod schemas split: full / IPC partials / form.
+   - **D** (DIP): renderer talks `window.api.*`, never `ipcRenderer` direct. Stores depend on `window.api`, not `ipcRenderer`. Tests inject `createMockApi(overrides?)`, not patch `ipcRenderer`.
 
-### Style Guidelines Summary
+   **Red flags — stop + refactor:**
+   - `flag: boolean` switching 2 unrelated behaviours → 2 fns.
+   - Component importing `src/main/*` → wrong boundary.
+   - Store action calling multiple `window.api.*` NS to "save everything" → split per-resource.
+   - `try/catch` swallowing w/o `logger.error(...)` + `classifyError(...)` → silent fail.
+   - Test mocking 6+ internals to verify 2-line behaviour → module too big.
+   - 8-case switch + "just one more `else if`" → registry/map.
 
-#### Colors
+## 16. Gotchas
 
-- **Primary:** `#5865f2` (Blurple) - used for brand recognition, primary actions, and active states
-- **Light Mode Surfaces:** `#ffffff` (content), `#f8f9fa` (background), `#f3f4f5` (containers)
-- **Dark Mode Surfaces:** `#0d141b` (background), `#151c23` (container low), `#192027` (container)
-- **Text:** High contrast (`#191c1d` light / `#dce3ed` dark) for WCAG AA/AAA compliance
-- **Borders & Dividers:** `#e1e3e4` (light) / `#454655` (dark) for subtle separation
-
-#### Typography (Inter font exclusively)
-
-- **headline-lg:** 32px / 700 weight (24px on dark, 600 weight)
-- **headline-md:** 24px / 600 weight (18px on dark)
-- **body-lg:** 16px / 400 weight (15px on dark)
-- **body-md:** 14px / 400 weight
-- **label-md:** 12px / 600 weight with 0.01em letter-spacing
-- **mono-sm:** JetBrains Mono, 12px (dark mode only, for logs/terminals)
-
-#### Spacing & Layout
-
-- **Base unit:** 8px grid rhythm
-- **Gutter:** 16px
-- **Margin (desktop):** 24px / 16px (mobile)
-- **Sidebar width:** 240px (dark mode)
-- **Header height:** 48px
-
-#### Border Radius
-
-- **sm:** 0.25rem (4px)
-- **DEFAULT:** 0.5rem (8px)
-- **md:** 0.75rem (12px)
-- **lg:** 1rem (16px)
-- **xl:** 1.5rem (24px)
-
-#### Elevation & Depth
-
-- **Light mode:** Tonal layers with 1px subtle borders; minimal shadows
-- **Dark mode:** Tonal layering through charcoal shifts; subtle outlines; glassmorphism overlays with `backdrop-filter: blur(12px)`
-- **Hover states:** Light tint overlay (10% opacity) on light mode; subtle background highlight on dark mode
-
-#### Components Standards
-
-- **Buttons:** Primary (Blurple bg + white text), Secondary (light gray bg + dark text), 8px radius
-- **Inputs:** White/dark bg, 1px border, focus state with 2px primary glow, 8px radius
-- **Cards:** White/dark bg, 1px border, no shadow for static cards
-- **File lists:** 32-40px row height, monospace font for metadata
-- **Transfer panel:** Bottom-anchored, 4px progress bar, collapsible
-
-## React Best Practices
-
-This project follows Vercel's React composition and performance guidelines. Load the corresponding skill before refactoring React components or implementing new UI patterns.
-
-### Composition Patterns
-
-Use **[`vercel-composition-patterns`](.agents/skills/composition-patterns/SKILL.md)** when refactoring components with many boolean props, building reusable component APIs, or designing compound components. Key principles:
-
-- **Avoid boolean prop proliferation** — use compound components with explicit variants instead of `isEditing`, `isThread`, etc.
-- **Decouple state from UI** via provider components exposing `{ state, actions, meta }` context interfaces; same UI works with different state implementations (useState, Zustand, server sync).
-- **Lift state into providers** so siblings outside the visual tree can access shared state and actions without prop drilling.
-- **Prefer children over render props** for composition; use render props only when the parent provides data.
-- **React 19**: `ref` is a regular prop (no `forwardRef`), use `use()` instead of `useContext()`.
-
-### Performance Optimization
-
-Use **[`vercel-react-best-practices`](.agents/skills/react-best-practices/SKILL.md)** when writing new React components, reviewing for performance, or optimizing bundle size. Key priorities by impact:
-
-- **CRITICAL — Eliminate waterfalls**: use `Promise.all()` for independent async operations, defer `await` into branches that need it, start promises early and await late.
-- **CRITICAL — Bundle size**: avoid barrel file imports (import directly), use `React.lazy` / dynamic imports for heavy components, defer non-critical third-party libs.
-- **HIGH — Server-side**: use `React.cache()` for per-request deduplication, minimize data passed through RSC boundaries, hoist static I/O to module level.
-- **MEDIUM — Re-renders**: derive state during render instead of syncing via effects, use functional `setState` for stable callbacks, extract expensive work into `memo`-ized components, use `useRef` for transient values, use `startTransition` for non-urgent updates.
-- **MEDIUM — Rendering**: `content-visibility: auto` for long lists, hoist static JSX outside components, use ternary (`? :`) instead of `&&` for conditional rendering.
-- **LOW-MEDIUM — JS perf**: use `Set`/`Map` for O(1) lookups, build index maps for repeated searches, combine multiple `filter`/`map` into one loop, use `flatMap` to map+filter in one pass.
-
-## Good Practices (Mandatory)
-
-### 1. Casting with `as` → Use Zod for runtime validation
-
-Never use `as` to force a type (type casting). When converting an unknown or generic type to a concrete one, create a Zod schema that validates the structure at runtime and use `parse` / `safeParse`. This way, if the source type changes, the schema will throw an error instead of failing silently in production.
-
-#### ❌ DON'T — Casting with `as`
-
-```typescript
-const data: unknown = JSON.parse(rawJson);
-
-// Danger: if data doesn't match expected shape, it fails silently at runtime
-const user = data as { name: string; email: string };
-console.log(user.email); // could be undefined without warning
-```
-
-#### ✅ DO — Zod schema + parse
-
-```typescript
-import { z } from "zod";
-
-const UserSchema = z.object({
-	name: z.string(),
-	email: z.string().email(),
-});
-
-const parsed = UserSchema.safeParse(data);
-
-if (!parsed.success) {
-	console.error("Validation error:", parsed.error.flatten());
-	return;
-}
-
-// parsed.data is safely typed as { name: string; email: string }
-console.log(parsed.data.email);
-```
-
-If the schema and TypeScript type must stay in sync, also export the type with `z.infer`:
-
-```typescript
-export type User = z.infer<typeof UserSchema>;
-```
-
-#### ✅ DO — Known type from a library, create equivalent schema
-
-When the type already exists (imported from a library or from `shared/`), don't use `as` to convert. Create a Zod schema that mirrors the type's structure and validate at runtime:
-
-```typescript
-import type { ConnectionConfig } from "../shared/types";
-import { z } from "zod";
-
-// Schema that replicates the known type's structure
-const ConnectionConfigSchema: z.ZodType<ConnectionConfig> = z.object({
-	host: z.string(),
-	port: z.number(),
-	username: z.string(),
-	protocol: z.enum(["sftp", "scp", "ftp"]),
-});
-
-function processConfig(raw: unknown) {
-	const parsed = ConnectionConfigSchema.safeParse(raw);
-
-	if (!parsed.success) {
-		throw new Error(`Invalid config: ${parsed.error.flatten()}`);
-	}
-
-	// parsed.data is safely typed as ConnectionConfig
-	const config: ConnectionConfig = parsed.data;
-	return config;
-}
-```
-
-## Gotchas
-
-- **Context isolation** is on — renderer code never imports Node/native modules. All OS/db access goes through `contextBridge` + `ipcRenderer.invoke`.
-- **Settings persist in `app.getPath('userData')`**, not the repo or app bundle.
-- **Database uses sql.js** (WASM-based SQLite), not better-sqlite3 (native). The adapter is in `src/main/database/sqljs-adapter.ts`.
-- **Tailwind CSS v4** with `@tailwindcss/vite` plugin.
+- **Context isolation ON.** Renderer NEVER imports Node/native. All OS/db/network → `window.api`.
+- **Settings path:** Win `%APPDATA%\openscp`, macOS `~/Library/Application Support/openscp`, Linux `~/.config/openscp`.
+- **IPC chs = `IPC.*` only** from `src/shared/ipc-channels.ts`. Never hardcode `"connection:list"` etc.
+- **No comments in code.** Project policy. If unclear → rename or split.
+- **No `as` casts.** Validate w/ Zod.
+- **No barrel re-exports from `components/ui`.** Import directly from shadcn module.
+- **Logger = `LoggerFactory.init({ name: "…" })`** from `@shared/lib/logger` (pino, pretty-print in dev). Not `@sym:Logger`. Always structured ctx: `logger.error("action failed", { id, error })`.
+- **jsdom + xterm** need legacy `matchMedia` w/ `addListener`/`removeListener`. Setup file stubs it — don't remove.
+- **Main proc tests** use `node` env (via `environmentMatchGlobs`); renderer uses `jsdom`. **No Node imports in renderer tests.**
+- **`process.platform`** snapshotted in preload (`window.api.platform` = string, not live). Use `usePlatformStore`, not re-read.
+- **`ELECTRON_RENDERER_URL`** = dev mode flag in `src/main/index.ts`. Any code branching on it = dev-only path.
+- **Credentials plaintext** in `app-config.json` (no OS keychain yet) → treat file as sensitive, warn users before sharing logs.
+- **`pnpm check` is the pre-PR gate.** CI runs `fmt:check` + `lint --quiet` + `typecheck` + `test --silent` + `build`. Integration + E2E skipped (Docker/browsers needed).
