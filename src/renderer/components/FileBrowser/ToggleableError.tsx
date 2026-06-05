@@ -1,3 +1,4 @@
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useState } from "react";
 
@@ -15,14 +16,16 @@ export function ToggleableError({ message, detail }: ToggleableErrorProps) {
 			<span>{message}</span>
 			{detail && (
 				<>
-					<button
-						className="text-xs text-primary hover:underline cursor-pointer mt-1"
+					<Button
+						variant="link"
+						size="sm"
+						className="h-auto p-0 mt-1 text-xs"
 						onClick={() => {
 							setShowDetail((v) => !v);
 						}}
 					>
 						{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
-					</button>
+					</Button>
 					{showDetail && (
 						<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
 							{detail}

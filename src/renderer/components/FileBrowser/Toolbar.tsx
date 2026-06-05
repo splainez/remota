@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { canGoUp } from "@renderer/lib/utils";
 import { useCallback } from "react";
@@ -46,36 +47,52 @@ export function Toolbar({
 		[currentPath],
 	);
 
-	const btnClass =
-		"p-1 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors flex items-center justify-center";
-
 	return (
 		<div className="h-9 border-b border-outline-variant bg-surface flex items-center px-3 justify-between shrink-0">
 			<div className="flex items-center gap-1">
-				<button className={btnClass} onClick={onNavigateUp} disabled={upDisabled} title={t("file.navigateUp")}>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onNavigateUp}
+					disabled={upDisabled}
+					aria-label={t("file.navigateUp")}
+					title={t("file.navigateUp")}
+				>
 					<Icon name="arrow-up" size={16} />
-				</button>
-				<button className={btnClass} onClick={onRefresh} title={t("file.refresh")}>
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onRefresh}
+					aria-label={t("file.refresh")}
+					title={t("file.refresh")}
+				>
 					<Icon name="refresh" size={16} />
-				</button>
+				</Button>
 				{onToggleTerminal && (
-					<button
-						className={`${btnClass} ${terminalVisible ? "text-primary" : ""}`}
+					<Button
+						variant="ghost"
+						size="icon-sm"
 						onClick={onToggleTerminal}
+						aria-label={t("terminal.toggle")}
 						title={t("terminal.toggle")}
+						aria-pressed={terminalVisible}
+						className={terminalVisible ? "text-primary" : undefined}
 					>
 						<Icon name="terminal" size={16} />
-					</button>
+					</Button>
 				)}
-				<button
-					className={btnClass}
+				<Button
+					variant="ghost"
+					size="icon-sm"
 					onClick={() => {
 						/* New folder - no-op for now */
 					}}
+					aria-label={t("file.newFolder")}
 					title={t("file.newFolder")}
 				>
 					<Icon name="new-folder" size={16} />
-				</button>
+				</Button>
 				{drives.length > 0 && (
 					<select
 						className="h-6 px-1.5 border border-outline-variant rounded bg-surface-container-lowest text-on-surface text-xs min-w-[60px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
@@ -106,15 +123,18 @@ export function Toolbar({
 					}}
 				/>
 				{filter && (
-					<button
-						className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors"
+					<Button
+						variant="ghost"
+						size="icon-xs"
+						className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full"
 						onClick={() => {
 							onFilterChange("");
 						}}
+						aria-label={t("file.clearFilter")}
 						title={t("file.clearFilter")}
 					>
 						<Icon name="close" size={12} />
-					</button>
+					</Button>
 				)}
 			</div>
 		</div>

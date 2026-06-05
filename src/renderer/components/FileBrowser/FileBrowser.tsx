@@ -109,7 +109,8 @@ export function FileBrowser({ connection, initialShowTerminal = false }: FileBro
 				<div className="flex items-center justify-center px-4 shrink-0">
 					<Button
 						variant="default"
-						className="bg-primary text-on-primary text-xs font-semibold px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-surface-tint transition-colors shadow-sm h-8"
+						size="sm"
+						className="shadow-sm hover:bg-surface-tint"
 						onClick={() => {
 							/* Sync folders - no-op for now */
 						}}
