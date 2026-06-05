@@ -6,8 +6,12 @@ export type AppView =
 	| { view: "connectionList" }
 	| { view: "connectionDetail"; id: number }
 	| { view: "connectionForm"; mode: "new" | "edit"; id?: number }
-	| { view: "fileBrowser"; connection: Connection }
+	| { view: "fileBrowser"; connection: Connection; openTerminal?: boolean }
 	| { view: "settings" };
+
+export interface OpenFileBrowserOptions {
+	openTerminal?: boolean;
+}
 
 interface AppNavigationStore {
 	currentView: AppView;
@@ -15,7 +19,7 @@ interface AppNavigationStore {
 	openConnectionList: () => void;
 	openConnectionDetail: (id: number) => void;
 	openConnectionForm: (mode: "new" | "edit", id?: number) => void;
-	openFileBrowser: (connection: Connection) => void;
+	openFileBrowser: (connection: Connection, options?: OpenFileBrowserOptions) => void;
 	openSettings: () => void;
 	goBack: () => void;
 }
@@ -39,8 +43,8 @@ export const useAppNavigation = create<AppNavigationStore>((set) => ({
 		set({ currentView: { view: "connectionForm", mode, id } });
 	},
 
-	openFileBrowser: (connection) => {
-		set({ currentView: { view: "fileBrowser", connection } });
+	openFileBrowser: (connection, options) => {
+		set({ currentView: { view: "fileBrowser", connection, openTerminal: options?.openTerminal ?? false } });
 	},
 
 	openSettings: () => {

@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
-export function useTerminalToggle() {
-	const [visible, setVisible] = useState(false);
+export function useTerminalToggle(initial = false) {
+	const [visible, setVisible] = useState(initial);
 
 	const toggle = useCallback(() => {
 		setVisible((prev) => !prev);

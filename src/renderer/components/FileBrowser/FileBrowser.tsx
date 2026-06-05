@@ -18,9 +18,10 @@ const logger = LoggerFactory.init({ name: "renderer.FileBrowser" });
 
 interface FileBrowserProps {
 	connection: Connection;
+	initialShowTerminal?: boolean;
 }
 
-export function FileBrowser({ connection }: FileBrowserProps) {
+export function FileBrowser({ connection, initialShowTerminal = false }: FileBrowserProps) {
 	const { t } = useI18n();
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
@@ -137,6 +138,7 @@ export function FileBrowser({ connection }: FileBrowserProps) {
 								connectionId={connection.id}
 								initialPath={remotePath}
 								protocol={connection.protocol}
+								initialShowTerminal={initialShowTerminal}
 								onReconnect={() => {
 									connect().catch((error: unknown) => {
 										logger.error("reconnect failed", { error });

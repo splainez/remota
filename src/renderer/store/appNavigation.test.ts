@@ -65,7 +65,21 @@ describe("useAppNavigation", () => {
 	it("openFileBrowser sets view with connection", () => {
 		const conn = makeConnection({ id: 5, name: "My Server" });
 		useAppNavigation.getState().openFileBrowser(conn);
-		expect(useAppNavigation.getState().currentView).toEqual({ view: "fileBrowser", connection: conn });
+		expect(useAppNavigation.getState().currentView).toEqual({
+			view: "fileBrowser",
+			connection: conn,
+			openTerminal: false,
+		});
+	});
+
+	it("openFileBrowser accepts openTerminal option", () => {
+		const conn = makeConnection({ id: 5, name: "My Server" });
+		useAppNavigation.getState().openFileBrowser(conn, { openTerminal: true });
+		expect(useAppNavigation.getState().currentView).toEqual({
+			view: "fileBrowser",
+			connection: conn,
+			openTerminal: true,
+		});
 	});
 
 	it("goBack resets to connectionList", () => {

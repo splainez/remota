@@ -28,6 +28,7 @@ interface FilePaneProps {
 	initialPath: string;
 	protocol?: "sftp" | "scp" | "s3";
 	connectionError?: SftpErrorInfo | null;
+	initialShowTerminal?: boolean;
 	onReconnect?: () => void;
 	onPathChange?: (path: string) => void;
 }
@@ -38,6 +39,7 @@ export function FilePane({
 	initialPath,
 	protocol,
 	connectionError,
+	initialShowTerminal = false,
 	onReconnect,
 	onPathChange,
 }: FilePaneProps) {
@@ -64,7 +66,7 @@ export function FilePane({
 		visible: showTerminal,
 		toggle: handleToggleTerminal,
 		handleKeyDown: terminalHandleKeyDown,
-	} = useTerminalToggle();
+	} = useTerminalToggle(initialShowTerminal);
 	const contextMenu = useContextMenu<FileEntry>();
 
 	useEffect(() => {
