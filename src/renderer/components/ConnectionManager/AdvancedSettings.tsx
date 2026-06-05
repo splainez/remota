@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 
 import { FormField } from "./FormField";
@@ -23,14 +24,16 @@ export function AdvancedSettings({ form, visible, onToggle }: AdvancedSettingsPr
 	const { t } = useI18n();
 	return (
 		<div className="border-t border-outline-variant pt-4">
-			<button
+			<Button
 				type="button"
-				className="flex items-center gap-1.5 text-sm text-primary hover:text-primary-foreground transition-colors"
+				variant="link"
+				size="sm"
+				className="h-auto p-0 text-sm text-primary hover:text-primary-foreground transition-colors"
 				onClick={onToggle}
 			>
 				<Icon name={visible ? "arrow-up" : "arrow-down"} size={14} />
 				{t("connection.advancedSettings")}
-			</button>
+			</Button>
 			{visible && (
 				<div className="mt-3 grid grid-cols-2 gap-4">
 					<form.Field name="groupName">

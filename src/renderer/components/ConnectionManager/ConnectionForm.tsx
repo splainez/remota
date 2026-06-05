@@ -1,5 +1,6 @@
 import { type TranslationKey } from "@i18n/i18n";
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection } from "@shared/types";
@@ -96,14 +97,9 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			}}
 		>
 			<div className="flex items-center gap-3 mb-1">
-				<button
-					type="button"
-					aria-label={t("connection.back")}
-					className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-high transition-colors"
-					onClick={onCancel}
-				>
+				<Button type="button" variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onCancel}>
 					<Icon name="arrow-left" size={18} />
-				</button>
+				</Button>
 				<h2 className="text-lg font-semibold text-foreground">
 					{initial ? t("connection.edit") : t("connection.new")}
 				</h2>
