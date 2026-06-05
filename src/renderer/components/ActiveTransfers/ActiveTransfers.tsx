@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { useCallback } from "react";
@@ -20,19 +21,18 @@ function TransferHeader({ pendingCount, onClose }: TransferHeaderProps) {
 				</span>
 			</div>
 			<div className="flex gap-1">
-				<button
-					className="p-1 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors"
-					title={t("transfer.pauseAll")}
-				>
+				<Button variant="ghost" size="icon-sm" aria-label={t("transfer.pauseAll")} title={t("transfer.pauseAll")}>
 					<Icon name="sync" size={16} />
-				</button>
-				<button
-					className="p-1 rounded hover:bg-surface-container-low text-on-surface-variant transition-colors"
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					aria-label={t("transfer.close")}
 					title={t("transfer.close")}
 					onClick={onClose}
 				>
 					<Icon name="close" size={16} />
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

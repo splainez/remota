@@ -1,3 +1,4 @@
+import { Button } from "@renderer/components/ui/button";
 import { useBreadcrumbMeasure } from "@renderer/hooks/useBreadcrumbMeasure";
 import { cn, parsePath } from "@renderer/lib/utils";
 
@@ -10,15 +11,17 @@ export function Breadcrumb({ path, onNavigate, className }: BreadcrumbProps) {
 
 	const renderSegment = (seg: BreadcrumbSegment, _idx: number, isLast: boolean) => (
 		<span key={seg.path} className="flex items-center gap-1 shrink-0">
-			<button
-				className="px-1 py-0.5 border border-transparent rounded text-foreground text-sm whitespace-nowrap shrink-0 hover:bg-surface-container-high hover:border-outline-variant"
+			<Button
+				variant="ghost"
+				size="xs"
+				className="text-foreground hover:bg-surface-container-high"
 				onClick={() => {
 					onNavigate(seg.path);
 				}}
 				title={seg.path}
 			>
 				{seg.label}
-			</button>
+			</Button>
 			{!isLast && seg.path !== "/" && <span className="text-muted-foreground text-sm shrink-0">/</span>}
 		</span>
 	);
@@ -34,13 +37,15 @@ export function Breadcrumb({ path, onNavigate, className }: BreadcrumbProps) {
 			{headSegments.map((seg, i) => renderSegment(seg, i, !showEllipsis && i === headSegments.length - 1))}
 			{showEllipsis && (
 				<span className="flex items-center gap-1 shrink-0">
-					<button
-						className="px-1 py-0.5 border border-transparent rounded text-muted-foreground text-sm cursor-default whitespace-nowrap shrink-0"
+					<Button
+						variant="ghost"
+						size="xs"
+						className="text-muted-foreground cursor-default pointer-events-none"
 						disabled
 						title={allSegments.map((s) => s.path).join(" / ")}
 					>
 						...
-					</button>
+					</Button>
 					<span className="text-muted-foreground text-sm shrink-0">/</span>
 				</span>
 			)}
@@ -52,15 +57,18 @@ export function Breadcrumb({ path, onNavigate, className }: BreadcrumbProps) {
 				aria-hidden="true"
 			>
 				{allSegments.map((seg, i) => (
-					<button
+					<Button
 						key={seg.path}
 						ref={(el) => {
 							segmentRefs.current[i] = el;
 						}}
-						className="px-1 py-0.5 border border-transparent rounded text-foreground text-sm whitespace-nowrap shrink-0 hover:bg-surface-container-high hover:border-outline-variant"
+						variant="ghost"
+						size="xs"
+						className="text-foreground hover:bg-surface-container-high"
+						tabIndex={-1}
 					>
 						{seg.label}
-					</button>
+					</Button>
 				))}
 			</span>
 		</div>

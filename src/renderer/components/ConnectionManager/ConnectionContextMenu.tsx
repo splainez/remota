@@ -1,4 +1,4 @@
-import { Icon } from "@renderer/components/icons/Icon";
+import { MenuItem, MenuItemSeparator } from "@renderer/components/ui/menu-item";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useAppNavigation } from "@renderer/store/appNavigation";
 
@@ -29,38 +29,37 @@ export function ConnectionContextMenu({
 			onClick={(e) => {
 				e.stopPropagation();
 			}}
+			role="menu"
 		>
-			<button
-				className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-surface-container-high transition-colors text-popover-foreground"
+			<MenuItem
+				icon="edit"
 				onClick={() => {
 					openConnectionForm("edit", connectionId);
 					onClose();
 				}}
 			>
-				<Icon name="edit" size={14} />
 				{t("connection.edit")}
-			</button>
-			<button
-				className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-surface-container-high transition-colors text-popover-foreground"
+			</MenuItem>
+			<MenuItem
+				icon="play"
 				onClick={() => {
 					onConnect(connectionId);
 					onClose();
 				}}
 			>
-				<Icon name="play" size={14} />
 				{t("connection.connect")}
-			</button>
-			<div className="h-px bg-outline-variant my-1" />
-			<button
-				className="w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-destructive/10 transition-colors text-destructive"
+			</MenuItem>
+			<MenuItemSeparator />
+			<MenuItem
+				icon="trash"
+				variant="destructive"
 				onClick={() => {
 					onDelete(connectionId);
 					onClose();
 				}}
 			>
-				<Icon name="trash" size={14} />
 				{t("connection.delete")}
-			</button>
+			</MenuItem>
 		</div>
 	);
 }

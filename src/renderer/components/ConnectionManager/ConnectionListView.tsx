@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useConnectionFilters } from "@renderer/hooks/useConnectionFilters";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useI18n } from "@renderer/hooks/useI18n";
@@ -47,13 +48,10 @@ export function ConnectionListView({
 			<div className="shrink-0 border-b border-outline-variant bg-surface-container-low px-6 py-4">
 				<div className="flex items-center justify-between mb-3">
 					<h1 className="text-lg font-semibold text-on-surface">{t("connection.manager")}</h1>
-					<button
-						className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
-						onClick={onAdd}
-					>
+					<Button variant="default" size="sm" onClick={onAdd}>
 						<Icon name="add" size={14} />
-						<span>{t("connection.add")}</span>
-					</button>
+						{t("connection.add")}
+					</Button>
 				</div>
 				<div className="relative">
 					<Icon name="search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />

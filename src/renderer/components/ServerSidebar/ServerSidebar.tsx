@@ -1,4 +1,5 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import type { Connection } from "@shared/types";
 import { useMemo, useState } from "react";
@@ -74,20 +75,13 @@ export function ServerSidebar({
 					const isSelected = conn.id === selectedId;
 					const isConnActive = isActive.has(conn.id);
 					return (
-						<button
+						<Button
 							key={conn.id}
-							className={[
-								"relative flex items-center gap-2 transition-all duration-300 text-xs font-semibold",
-								collapsed ? "w-10 h-10 rounded-xl justify-center mx-auto" : "w-full px-3 py-2 rounded-lg justify-start",
-								isSelected
-									? collapsed
-										? "bg-surface-container-highest"
-										: "bg-primary/10 text-primary"
-									: collapsed
-										? "bg-surface-container-highest hover:bg-surface-container-high"
-										: "text-muted-foreground hover:bg-surface-container-high hover:text-foreground",
-								isConnActive && collapsed ? "ring-2 ring-primary" : "",
-							].join(" ")}
+							variant={isSelected ? "selected" : "ghost"}
+							size="default"
+							className={`relative ${
+								collapsed ? "w-10 h-10 rounded-xl mx-auto px-0" : "w-full px-3 py-2 rounded-lg justify-start"
+							} text-xs font-semibold ${isConnActive && collapsed ? "ring-2 ring-primary" : ""}`}
 							title={conn.name}
 							onClick={() => {
 								onSelect(conn.id);
@@ -97,17 +91,20 @@ export function ServerSidebar({
 							}}
 						>
 							{isSelected && collapsed && (
-								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
+								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
 							)}
 							{isSelected && !collapsed && (
-								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
+								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
 							)}
 							<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
 								{collapsed ? getInitials(conn.name) : conn.name}
 							</span>
 							{!collapsed && isConnActive && (
-								<button
-									className="w-5 h-5 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+								<Button
+									variant="ghost"
+									size="icon-xs"
+									className="ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded"
+									aria-label={t("connection.disconnect")}
 									title={t("connection.disconnect")}
 									onClick={(e) => {
 										e.stopPropagation();
@@ -115,31 +112,37 @@ export function ServerSidebar({
 									}}
 								>
 									<Icon name="close" size={12} />
-								</button>
+								</Button>
 							)}
-						</button>
+						</Button>
 					);
 				})}
 
 				{/* Add button */}
 				{!collapsed && (
-					<button
-						className="border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center gap-2 w-full py-2 rounded-lg text-on-surface-variant hover:text-primary shrink-0"
+					<Button
+						variant="outline"
+						size="default"
+						className="w-full py-2 border-dashed text-on-surface-variant hover:text-primary hover:border-primary justify-center"
+						aria-label={t("connection.add")}
 						title={t("connection.add")}
 						onClick={onAdd}
 					>
 						<Icon name="add" size={16} />
 						<span className="text-xs">{t("connection.add")}</span>
-					</button>
+					</Button>
 				)}
 				{collapsed && (
-					<button
-						className="border border-dashed border-outline hover:border-primary hover:bg-surface-container transition-all duration-300 flex items-center justify-center text-on-surface-variant hover:text-primary shrink-0 w-10 h-10 rounded-full mx-auto"
+					<Button
+						variant="outline"
+						size="icon"
+						className="w-10 h-10 rounded-full border-dashed text-on-surface-variant hover:text-primary hover:border-primary mx-auto"
+						aria-label={t("connection.add")}
 						title={t("connection.add")}
 						onClick={onAdd}
 					>
 						<Icon name="add" size={16} />
-					</button>
+					</Button>
 				)}
 			</div>
 

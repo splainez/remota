@@ -1,6 +1,8 @@
 import { Icon } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import type { SortKey, SortDir } from "@renderer/hooks/useSort";
+import { cn } from "@renderer/lib/utils";
 
 interface FileListHeaderProps {
 	onSort: (key: SortKey) => void;
@@ -22,33 +24,39 @@ export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps
 	return (
 		<div className="flex px-3 py-1.5 border-b border-outline-variant bg-surface-container-lowest text-xs text-on-surface-variant select-none shrink-0">
 			<div className="w-7" />
-			<button
-				className="flex-1 cursor-pointer hover:text-on-surface flex items-center gap-0.5 text-left font-semibold"
+			<Button
+				variant="ghost"
+				size="sm"
+				className={cn("flex-1 justify-start text-on-surface-variant font-semibold hover:text-on-surface px-2")}
 				onClick={() => {
 					onSort("name");
 				}}
 			>
 				{t("file.name")}
 				{sortIndicator("name")}
-			</button>
-			<button
-				className="w-20 text-right cursor-pointer hover:text-on-surface font-semibold"
+			</Button>
+			<Button
+				variant="ghost"
+				size="sm"
+				className="w-20 justify-end text-on-surface-variant font-semibold hover:text-on-surface px-2"
 				onClick={() => {
 					onSort("size");
 				}}
 			>
 				{t("file.size")}
 				{sortIndicator("size")}
-			</button>
-			<button
-				className="w-28 text-right cursor-pointer hover:text-on-surface hidden xl:block font-semibold"
+			</Button>
+			<Button
+				variant="ghost"
+				size="sm"
+				className="w-28 justify-end text-on-surface-variant font-semibold hover:text-on-surface px-2 hidden xl:flex"
 				onClick={() => {
 					onSort("modified");
 				}}
 			>
 				{t("file.modified")}
 				{sortIndicator("modified")}
-			</button>
+			</Button>
 		</div>
 	);
 }
