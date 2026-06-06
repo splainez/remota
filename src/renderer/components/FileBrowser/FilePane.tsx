@@ -1,5 +1,6 @@
 import { Terminal } from "@renderer/components/Terminal/Terminal";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
+import { useDelete } from "@renderer/hooks/useDelete";
 import { useDownload } from "@renderer/hooks/useDownload";
 import { useFileList } from "@renderer/hooks/useFileList";
 import { useFileSelection } from "@renderer/hooks/useFileSelection";
@@ -93,6 +94,12 @@ export function FilePane({
 	const { entries, loading, error, refresh, refreshSilently } = useFileList(currentPath, {
 		type,
 		connectionId: type === "remote" ? connectionId : undefined,
+	});
+
+	const deleteOp = useDelete({
+		panelType: type,
+		connectionId,
+		refresh,
 	});
 
 	useFileWatcher(currentPath, type, refreshSilently);
@@ -243,9 +250,25 @@ export function FilePane({
 					});
 			} else if (actionId === "rename") {
 				setEditingName(entry.name);
+			} else if (actionId === "delete") {
+				const useSelection = selectedNames.length > 1 && selectedNames.includes(entry.name);
+				const targets = useSelection ? filteredEntries.filter((e) => selectedNames.includes(e.name)) : [entry];
+				deleteOp.startDelete(targets).catch((error: unknown) => {
+					logger.error("delete failed", { error });
+				});
 			}
 		},
-		[download, filteredEntries, handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t, selectedNames, type],
+		[
+			deleteOp,
+			download,
+			filteredEntries,
+			handleEnterDirectory,
+			handleOpenFile,
+			handleOpenInTerminal,
+			t,
+			selectedNames,
+			type,
+		],
 	);
 
 	const handleRenameCommit = useCallback(
@@ -374,6 +397,7 @@ export function FilePane({
 				/>
 			)}
 			{download.dialog}
+			{deleteOp.dialog}
 		</div>
 	);
 }
