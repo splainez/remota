@@ -35,6 +35,8 @@ declare global {
 				remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 				remoteHomeDir: (connectionId: number) => Promise<string>;
 				remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
+				delete: (path: string) => Promise<void>;
+				remoteDelete: (connectionId: number, path: string) => Promise<void>;
 				download: (request: DownloadRequest) => Promise<DownloadResult>;
 				getLocalStat: (path: string) => Promise<LocalStat | null>;
 				onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;

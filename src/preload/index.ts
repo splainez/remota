@@ -41,6 +41,9 @@ const api = {
 		remoteHomeDir: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_HOME_DIR, connectionId),
 		remoteRename: (connectionId: number, oldPath: string, newName: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.REMOTE_RENAME, connectionId, oldPath, newName),
+		delete: (path: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_DELETE, path),
+		remoteDelete: (connectionId: number, path: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.REMOTE_DELETE, connectionId, path),
 		tempGetPath: (connectionId: number): Promise<string | undefined> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_GET_PATH, connectionId),
 		tempWrite: (connectionId: number, remotePath: string, content: number[]): Promise<void> =>

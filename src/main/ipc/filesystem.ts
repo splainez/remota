@@ -1,4 +1,4 @@
-import { readdirSync, renameSync, statSync, existsSync } from "node:fs";
+import { readdirSync, renameSync, statSync, existsSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, sep } from "node:path";
 
@@ -125,6 +125,16 @@ export function registerFilesystemHandlers(store: AppStore, fileWatcher: FileWat
 			const message = err instanceof Error ? err.message : String(err);
 			logger.error("rename failed", { oldPath: parsed.data.oldPath, newName: parsed.data.newName, error: message });
 			throw new Error(`Rename failed: ${message}`, { cause: err });
+		}
+	});
+
+	ipcMain.handle(IPC.FILE_DELETE, (_event, filePath: string) => {
+		try {
+			rmSync(filePath, { recursive: true, force: true });
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("delete failed", { path: filePath, error: message });
+			throw new Error(`Delete failed: ${message}`, { cause: err });
 		}
 	});
 

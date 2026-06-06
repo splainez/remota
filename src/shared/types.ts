@@ -71,6 +71,8 @@ export interface ElectronAPI {
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 		remoteHomeDir: (connectionId: number) => Promise<string>;
 		remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
+		delete: (path: string) => Promise<void>;
+		remoteDelete: (connectionId: number, path: string) => Promise<void>;
 		startWatch: (watcherId: string, dirPath: string) => Promise<void>;
 		stopWatch: (watcherId: string) => Promise<void>;
 		onFileChanged: (callback: (watcherId: string) => void) => () => void;

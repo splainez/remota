@@ -68,4 +68,16 @@ export function registerRemoteFilesystemHandlers(
 		}
 		throw new Error("Not connected to remote server");
 	});
+
+	ipcMain.handle(IPC.REMOTE_DELETE, async (_event, connectionId: number, remotePath: string) => {
+		if (sftp.isConnected(connectionId)) {
+			await sftp.deletePath(connectionId, remotePath);
+			return;
+		}
+		if (s3.isConnected(connectionId)) {
+			await s3.deletePath(connectionId, remotePath);
+			return;
+		}
+		throw new Error("Not connected to remote server");
+	});
 }
