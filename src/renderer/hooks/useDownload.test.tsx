@@ -1,3 +1,4 @@
+import { useTransferStore } from "@renderer/store/transfer";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import type { DownloadRequest, FileEntry, LocalStat } from "@shared/types";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -64,6 +65,7 @@ function lastDownloadRequest(): DownloadRequest {
 describe("useDownload", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		useTransferStore.getState().reset();
 		mockGetLocalStat({ exists: false, size: 0, modified: "", isDirectory: false });
 		vi.mocked(window.api.filesystem.download).mockResolvedValue({ jobId: "job-1" });
 		vi.mocked(window.api.filesystem.remoteList).mockResolvedValue([]);
@@ -232,6 +234,156 @@ describe("useDownload", () => {
 		});
 		await waitFor(() => {
 			expect(window.api.filesystem.download).not.toHaveBeenCalled();
+		});
+	});
+
+	it("shows duplicate dialog when file is already being downloaded", async () => {
+		useTransferStore.getState().handleProgress({
+			jobId: "existing-job",
+			id: "existing-item",
+			connectionId: 1,
+			name: "a.txt",
+			source: "/remote/a.txt",
+			target: "/downloads/a.txt",
+			direction: "download",
+			totalBytes: 100,
+			transferredBytes: 50,
+			status: "active",
+		});
+		const handle = renderDownloadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startDownload([fileEntry("a.txt", false, "/remote/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("Download in progress")).toBeInTheDocument();
+		});
+	});
+
+	it("restarts download when user chooses 'Restart'", async () => {
+		useTransferStore.getState().handleProgress({
+			jobId: "existing-job",
+			id: "existing-item",
+			connectionId: 1,
+			name: "a.txt",
+			source: "/remote/a.txt",
+			target: "/downloads/a.txt",
+			direction: "download",
+			totalBytes: 100,
+			transferredBytes: 50,
+			status: "active",
+		});
+		const handle = renderDownloadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startDownload([fileEntry("a.txt", false, "/remote/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("Download in progress")).toBeInTheDocument();
+		});
+		const user = userEvent.setup();
+		await user.click(screen.getByText("Restart"));
+		await waitFor(() => {
+			expect(window.api.filesystem.cancelTransfer).toHaveBeenCalledWith("existing-job", "existing-item");
+		});
+		await waitFor(() => {
+			expect(window.api.filesystem.download).toHaveBeenCalledOnce();
+		});
+	});
+
+	it("skips duplicate when user chooses 'Keep existing'", async () => {
+		useTransferStore.getState().handleProgress({
+			jobId: "existing-job",
+			id: "existing-item",
+			connectionId: 1,
+			name: "a.txt",
+			source: "/remote/a.txt",
+			target: "/downloads/a.txt",
+			direction: "download",
+			totalBytes: 100,
+			transferredBytes: 50,
+			status: "active",
+		});
+		const handle = renderDownloadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startDownload([fileEntry("a.txt", false, "/remote/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("Download in progress")).toBeInTheDocument();
+		});
+		const user = userEvent.setup();
+		await user.click(screen.getByText("Keep existing"));
+		await waitFor(() => {
+			expect(window.api.filesystem.download).not.toHaveBeenCalled();
+		});
+	});
+
+	it("cancels all when user chooses 'Cancel' on duplicate dialog", async () => {
+		useTransferStore.getState().handleProgress({
+			jobId: "existing-job",
+			id: "existing-item",
+			connectionId: 1,
+			name: "a.txt",
+			source: "/remote/a.txt",
+			target: "/downloads/a.txt",
+			direction: "download",
+			totalBytes: 100,
+			transferredBytes: 50,
+			status: "active",
+		});
+		const handle = renderDownloadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startDownload([fileEntry("a.txt", false, "/remote/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("Download in progress")).toBeInTheDocument();
+		});
+		const user = userEvent.setup();
+		await user.click(screen.getByText("Cancel"));
+		await waitFor(() => {
+			expect(window.api.filesystem.download).not.toHaveBeenCalled();
+		});
+	});
+
+	it("keyboard 'R' restarts download on duplicate dialog", async () => {
+		useTransferStore.getState().handleProgress({
+			jobId: "existing-job",
+			id: "existing-item",
+			connectionId: 1,
+			name: "a.txt",
+			source: "/remote/a.txt",
+			target: "/downloads/a.txt",
+			direction: "download",
+			totalBytes: 100,
+			transferredBytes: 50,
+			status: "active",
+		});
+		const handle = renderDownloadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startDownload([fileEntry("a.txt", false, "/remote/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("Download in progress")).toBeInTheDocument();
+		});
+		fireEvent.keyDown(document, { key: "r" });
+		await waitFor(() => {
+			expect(window.api.filesystem.cancelTransfer).toHaveBeenCalledOnce();
+		});
+		await waitFor(() => {
+			expect(window.api.filesystem.download).toHaveBeenCalledOnce();
 		});
 	});
 });
