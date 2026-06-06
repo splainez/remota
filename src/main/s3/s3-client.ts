@@ -1,4 +1,10 @@
-import { S3Client, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
+import { createWriteStream } from "node:fs";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+import { Transform } from "node:stream";
+import { pipeline } from "node:stream/promises";
+
+import { S3Client, GetObjectCommand, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
 import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry } from "@shared/types";
 
@@ -163,5 +169,58 @@ export class S3ConnectionManager {
 
 	homeDir(): string {
 		return "/";
+	}
+
+	async downloadFile(
+		connectionId: number,
+		key: string,
+		localPath: string,
+		onProgress?: (transferredBytes: number) => void,
+	): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		mkdirSync(dirname(localPath), { recursive: true });
+
+		const response = await session.client.send(
+			new GetObjectCommand({ Bucket: session.bucket, Key: key.replace(/^\/+/, "") }),
+		);
+
+		if (!response.Body) {
+			throw new Error("S3 download error: empty response body");
+		}
+
+		const writeStream = createWriteStream(localPath);
+		const body = response.Body as NodeJS.ReadableStream;
+
+		if (!onProgress) {
+			try {
+				await pipeline(body, writeStream);
+			} catch (err) {
+				writeStream.destroy();
+				const message = err instanceof Error ? err.message : String(err);
+				throw new Error(`S3 download error: ${message}`, { cause: err });
+			}
+			return;
+		}
+
+		let totalBytesRead = 0;
+		const counter = new Transform({
+			transform(chunk: Buffer, _enc, callback): void {
+				totalBytesRead += chunk.length;
+				onProgress(totalBytesRead);
+				callback(null, chunk);
+			},
+		});
+
+		try {
+			await pipeline(body, counter, writeStream);
+		} catch (err) {
+			writeStream.destroy();
+			const message = err instanceof Error ? err.message : String(err);
+			throw new Error(`S3 download error: ${message}`, { cause: err });
+		}
 	}
 }

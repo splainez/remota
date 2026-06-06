@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync, createWriteStream } from "node:fs";
+import { dirname } from "node:path";
 
 import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry } from "@shared/types";
@@ -168,6 +169,58 @@ export class SftpConnectionManager {
 					return;
 				}
 				resolve(stream);
+			});
+		});
+	}
+
+	async downloadFile(
+		connectionId: number,
+		remotePath: string,
+		localPath: string,
+		onProgress?: (transferredBytes: number) => void,
+	): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const dir = dirname(localPath);
+		mkdirSync(dir, { recursive: true });
+
+		return new Promise<void>((resolve, reject) => {
+			const writeStream = createWriteStream(localPath);
+			let settled = false;
+			let transferred = 0;
+
+			const fail = (err: Error): void => {
+				if (settled) return;
+				settled = true;
+				writeStream.destroy();
+				reject(err);
+			};
+
+			writeStream.on("error", (err) => {
+				fail(new Error(`Failed to write local file: ${err.message}`));
+			});
+
+			const readStream = session.sftp.createReadStream(remotePath, { highWaterMark: 64 * 1024 });
+			readStream.on("error", (err: Error) => {
+				fail(new Error(`Failed to read remote file: ${err.message}`));
+			});
+
+			readStream.on("data", (chunk: Buffer) => {
+				transferred += chunk.length;
+				if (onProgress) {
+					onProgress(transferred);
+				}
+			});
+
+			readStream.pipe(writeStream);
+
+			writeStream.on("close", () => {
+				if (settled) return;
+				settled = true;
+				resolve();
 			});
 		});
 	}
