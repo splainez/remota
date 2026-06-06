@@ -1,12 +1,35 @@
 <!doctype html>
-<html lang="en" class="dark">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>OpenSCP</title>
-	</head>
-	<body>
-		<div id="root"></div>
-		<script type="module" src="./main.tsx"></script>
-	</body>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>OpenSCP</title>
+	<style>
+		html {
+			color-scheme: light dark;
+		}
+
+		html.light {
+			color-scheme: light;
+		}
+
+		html.dark {
+			color-scheme: dark;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			html:not(.light):not(.dark) {
+				background-color: #0d141b;
+				color: #dce3ed;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div id="root"></div>
+	<script type="module" src="./main.tsx"></script>
+</body>
+
 </html>
