@@ -87,6 +87,18 @@ const api = {
 		cancelTransfer: (jobId: string, itemId: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.TRANSFER_CANCEL, jobId, itemId),
 		cancelAllTransfers: (): Promise<void> => ipcRenderer.invoke(IPC.TRANSFER_CANCEL_ALL),
+		startWatch: (watcherId: string, dirPath: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_WATCH_START, watcherId, dirPath),
+		stopWatch: (watcherId: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_WATCH_STOP, watcherId),
+		onFileChanged: (callback: (watcherId: string) => void) => {
+			const handler = (_event: Electron.IpcRendererEvent, watcherId: string) => {
+				callback(watcherId);
+			};
+			ipcRenderer.on("file:changed", handler);
+			return () => {
+				ipcRenderer.removeListener("file:changed", handler);
+			};
+		},
 	},
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => {

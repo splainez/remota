@@ -71,6 +71,9 @@ export interface ElectronAPI {
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 		remoteHomeDir: (connectionId: number) => Promise<string>;
 		remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
+		startWatch: (watcherId: string, dirPath: string) => Promise<void>;
+		stopWatch: (watcherId: string) => Promise<void>;
+		onFileChanged: (callback: (watcherId: string) => void) => () => void;
 		tempGetPath: (connectionId: number) => Promise<string | undefined>;
 		tempWrite: (connectionId: number, remotePath: string, content: number[]) => Promise<void>;
 		tempRead: (connectionId: number, remotePath: string) => Promise<number[]>;

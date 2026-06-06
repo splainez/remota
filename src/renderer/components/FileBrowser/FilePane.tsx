@@ -3,6 +3,7 @@ import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useDownload } from "@renderer/hooks/useDownload";
 import { useFileList } from "@renderer/hooks/useFileList";
 import { useFileSelection } from "@renderer/hooks/useFileSelection";
+import { useFileWatcher } from "@renderer/hooks/useFileWatcher";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useLocalDrives } from "@renderer/hooks/useLocalDrives";
 import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
@@ -93,6 +94,8 @@ export function FilePane({
 		type,
 		connectionId: type === "remote" ? connectionId : undefined,
 	});
+
+	useFileWatcher(currentPath, type, refresh);
 
 	const filteredEntries = useMemo(() => {
 		if (!filter.trim()) return entries;

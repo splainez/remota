@@ -46,6 +46,9 @@ declare global {
 				) => () => void;
 				cancelTransfer: (jobId: string, itemId: string) => Promise<void>;
 				cancelAllTransfers: () => Promise<void>;
+				startWatch: (watcherId: string, dirPath: string) => Promise<void>;
+				stopWatch: (watcherId: string) => Promise<void>;
+				onFileChanged: (callback: (watcherId: string) => void) => () => void;
 			};
 			terminal: {
 				spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;

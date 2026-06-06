@@ -77,6 +77,9 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
 			cancelTransfer: vi.fn().mockResolvedValue(undefined),
 			cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
+			startWatch: vi.fn().mockResolvedValue(undefined),
+			stopWatch: vi.fn().mockResolvedValue(undefined),
+			onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 			...overrides?.filesystem,
 		},
 		terminal: {
