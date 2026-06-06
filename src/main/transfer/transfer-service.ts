@@ -88,6 +88,7 @@ export class TransferService {
 				.catch(() => {
 					if (!Object.hasOwn(job.results, item.id)) {
 						job.results[item.id] = { id: item.id, status: "cancelled" };
+						this.emit(webContents, job, item, "cancelled", 0);
 					}
 				});
 		});

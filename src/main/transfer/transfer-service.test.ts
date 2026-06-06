@@ -523,6 +523,52 @@ describe("TransferService", () => {
 		expect(cancelledEvents).toHaveLength(0);
 	});
 
+	it("cancelItem() on queued item emits progress event with cancelled status", async () => {
+		const wc = makeWebContents();
+		const resolvers: (() => void)[] = [];
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async () => {
+				await new Promise<void>((resolve) => {
+					resolvers.push(resolve);
+				});
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(1) as unknown as AppStore,
+		});
+
+		const items = makeItems(3);
+		const { jobId } = service.startDownload({ connectionId: 1, items }, wc as unknown as WebContents);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(wc.events).toHaveLength(1);
+		expect(wc.events[0].status).toBe("active");
+		expect(wc.events[0].id).toBe("f0");
+
+		service.cancelItem(jobId, items[1].id);
+
+		await new Promise((r) => setTimeout(r, 30));
+
+		const cancelledEvents = wc.events.filter((e) => e.status === "cancelled");
+		expect(cancelledEvents).toHaveLength(1);
+		expect(cancelledEvents[0].id).toBe("f1");
+
+		resolvers[0]();
+		await new Promise((r) => setTimeout(r, 10));
+		resolvers[1]();
+
+		await new Promise((r) => setTimeout(r, 30));
+
+		const completedEvents = wc.events.filter((e) => e.status === "completed");
+		expect(completedEvents).toHaveLength(2);
+	});
+
 	it("an item failure does not cancel other items", async () => {
 		const wc = makeWebContents();
 		const sftp: SftpStub = {
