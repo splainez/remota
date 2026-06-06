@@ -171,4 +171,31 @@ describe("S3ConnectionManager.downloadFile", () => {
 	it("throws when not connected", async () => {
 		await expect(manager.downloadFile(99, "f", join(tempDir, "o"))).rejects.toThrow("Not connected");
 	});
+
+	it("rejects when pipeline signal is aborted", async () => {
+		const abort = new AbortController();
+		let destroyHandler: () => void = () => undefined;
+
+		mockSend.mockImplementation((cmd: { constructor: { name: string } }) => {
+			if (cmd.constructor.name === "GetObjectCommand") {
+				const body = new Readable({
+					read() {
+						destroyHandler = () => {
+							this.destroy();
+						};
+					},
+				});
+				return Promise.resolve({ Body: body });
+			}
+			return Promise.resolve({});
+		});
+
+		const downloadPromise = manager.downloadFile(1, "f.txt", join(tempDir, "out.txt"), undefined, abort.signal);
+
+		await new Promise((r) => setTimeout(r, 10));
+		abort.abort();
+		destroyHandler();
+
+		await expect(downloadPromise).rejects.toThrow();
+	});
 });

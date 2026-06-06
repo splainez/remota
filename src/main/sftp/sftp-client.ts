@@ -178,6 +178,7 @@ export class SftpConnectionManager {
 		remotePath: string,
 		localPath: string,
 		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
 	): Promise<void> {
 		const session = this.sessions.get(connectionId);
 		if (!session) {
@@ -195,6 +196,7 @@ export class SftpConnectionManager {
 			const fail = (err: Error): void => {
 				if (settled) return;
 				settled = true;
+				readStream.destroy();
 				writeStream.destroy();
 				reject(err);
 			};
@@ -214,6 +216,21 @@ export class SftpConnectionManager {
 					onProgress(transferred);
 				}
 			});
+
+			if (signal) {
+				signal.addEventListener(
+					"abort",
+					() => {
+						if (!settled) {
+							settled = true;
+							readStream.destroy();
+							writeStream.destroy();
+							reject(new DOMException("Aborted", "AbortError"));
+						}
+					},
+					{ once: true },
+				);
+			}
 
 			readStream.pipe(writeStream);
 

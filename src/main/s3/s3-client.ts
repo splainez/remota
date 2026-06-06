@@ -176,6 +176,7 @@ export class S3ConnectionManager {
 		key: string,
 		localPath: string,
 		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
 	): Promise<void> {
 		const session = this.sessions.get(connectionId);
 		if (!session) {
@@ -186,6 +187,7 @@ export class S3ConnectionManager {
 
 		const response = await session.client.send(
 			new GetObjectCommand({ Bucket: session.bucket, Key: key.replace(/^\/+/, "") }),
+			{ abortSignal: signal },
 		);
 
 		if (!response.Body) {
@@ -197,7 +199,7 @@ export class S3ConnectionManager {
 
 		if (!onProgress) {
 			try {
-				await pipeline(body, writeStream);
+				await pipeline(body, writeStream, { signal });
 			} catch (err) {
 				writeStream.destroy();
 				const message = err instanceof Error ? err.message : String(err);
@@ -216,7 +218,7 @@ export class S3ConnectionManager {
 		});
 
 		try {
-			await pipeline(body, counter, writeStream);
+			await pipeline(body, counter, writeStream, { signal });
 		} catch (err) {
 			writeStream.destroy();
 			const message = err instanceof Error ? err.message : String(err);

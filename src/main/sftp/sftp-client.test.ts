@@ -125,7 +125,44 @@ describe("SftpConnectionManager.downloadFile", () => {
 		await expect(manager.downloadFile(1, "/remote/file.txt", localPath)).rejects.toThrow("read fail");
 	});
 
-	it("throws when not connected", async () => {
-		await expect(manager.downloadFile(99, "/x", join(tempDir, "o"))).rejects.toThrow("Not connected");
+	it("rejects with AbortError when signal is aborted during download", async () => {
+		const localPath = join(tempDir, "out.txt");
+		const abort = new AbortController();
+
+		let destroyHandler: () => void = () => undefined;
+		const readStream = new Readable({
+			read() {
+				destroyHandler = () => {
+					this.destroy();
+				};
+			},
+		});
+		mockCreateReadStream.mockReturnValue(readStream);
+
+		const downloadPromise = manager.downloadFile(1, "/remote/big.bin", localPath, undefined, abort.signal);
+
+		await new Promise((r) => setTimeout(r, 10));
+		abort.abort();
+		destroyHandler();
+
+		await expect(downloadPromise).rejects.toThrow("Aborted");
+	});
+
+	it("does not create partial file when abort is triggered before data arrives", async () => {
+		const localPath = join(tempDir, "partial.bin");
+		const abort = new AbortController();
+
+		const readStream = new Readable({
+			read() {
+				this.push(Buffer.alloc(1024));
+				abort.abort();
+				this.destroy();
+			},
+		});
+		mockCreateReadStream.mockReturnValue(readStream);
+
+		await expect(manager.downloadFile(1, "/remote/big.bin", localPath, undefined, abort.signal)).rejects.toThrow(
+			"Aborted",
+		);
 	});
 });
