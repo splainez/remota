@@ -17,6 +17,7 @@ import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
 import { useAppNavigation } from "./store/appNavigation";
 import { useSettingsStore } from "./store/settings";
+import { useTransferStore } from "./store/transfer";
 import { useTransferPanelStore } from "./store/transferPanel";
 
 const logger = LoggerFactory.init({ name: "renderer.App" });
@@ -38,6 +39,9 @@ export function App() {
 	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
 		activeConnectionId == null ? false : s.isVisible(activeConnectionId),
+	);
+	const hasActiveTransfers = useTransferStore((s) =>
+		activeConnectionId == null ? false : s.pendingCount(activeConnectionId) > 0,
 	);
 	const toggleTransferPanel = useTransferPanelStore((s) => s.toggle);
 
@@ -244,7 +248,7 @@ export function App() {
 								<Button
 									variant="link"
 									size="sm"
-									className="h-auto p-0 text-xs gap-1"
+									className={`h-auto p-0 text-xs gap-1 ${hasActiveTransfers ? "" : "text-muted-foreground"}`}
 									onClick={handleToggleTransferPanel}
 								>
 									<Icon name="sync" size={14} />
