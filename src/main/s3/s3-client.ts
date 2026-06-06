@@ -4,7 +4,14 @@ import { dirname } from "node:path";
 import { Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
-import { S3Client, GetObjectCommand, ListObjectsV2Command, HeadBucketCommand } from "@aws-sdk/client-s3";
+import {
+	S3Client,
+	GetObjectCommand,
+	ListObjectsV2Command,
+	HeadBucketCommand,
+	DeleteObjectCommand,
+	DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
 import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry } from "@shared/types";
 
@@ -164,6 +171,64 @@ export class S3ConnectionManager {
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			throw new Error(`S3 list error: ${message}`, { cause: err });
+		}
+	}
+
+	async deletePath(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const key = remotePath.replace(/^\/+/, "");
+
+		const isDir = remotePath.endsWith("/");
+		if (!isDir) {
+			try {
+				await session.client.send(new DeleteObjectCommand({ Bucket: session.bucket, Key: key }));
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err);
+				throw new Error(`S3 delete error: ${message}`, { cause: err });
+			}
+			return;
+		}
+
+		let continuationToken: string | undefined;
+		const objectsToDelete: { Key: string }[] = [];
+
+		do {
+			const listResponse = await session.client.send(
+				new ListObjectsV2Command({
+					Bucket: session.bucket,
+					Prefix: key,
+					ContinuationToken: continuationToken,
+				}),
+			);
+
+			if (listResponse.Contents) {
+				for (const obj of listResponse.Contents) {
+					if (obj.Key) {
+						objectsToDelete.push({ Key: obj.Key });
+					}
+				}
+			}
+
+			continuationToken = listResponse.IsTruncated ? listResponse.NextContinuationToken : undefined;
+		} while (continuationToken);
+
+		for (let i = 0; i < objectsToDelete.length; i += 1000) {
+			const batch = objectsToDelete.slice(i, i + 1000);
+			try {
+				await session.client.send(
+					new DeleteObjectsCommand({
+						Bucket: session.bucket,
+						Delete: { Objects: batch },
+					}),
+				);
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err);
+				throw new Error(`S3 delete error: ${message}`, { cause: err });
+			}
 		}
 	}
 
