@@ -5,7 +5,12 @@ import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
 import { cn } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
-import { RETENTION_MS_MAX, RETENTION_MS_MIN } from "@shared/app-config-schema";
+import {
+	MAX_PARALLEL_TRANSFERS_MAX,
+	MAX_PARALLEL_TRANSFERS_MIN,
+	RETENTION_MS_MAX,
+	RETENTION_MS_MIN,
+} from "@shared/app-config-schema";
 import type { TerminalAppId } from "@shared/app-config-schema";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -50,6 +55,8 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 		availableTerminals,
 		pendingRecoveryToast,
 		clearPendingRecoveryToast,
+		maxParallelTransfers,
+		setMaxParallelTransfers,
 		retentionMs,
 		setRetentionMs,
 	} = useSettingsStore();
@@ -115,6 +122,26 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
 							{t("settings.transfers")}
 						</h3>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.maxParallelTransfers")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.maxParallelTransfersDescription")}</span>
+							</div>
+							<input
+								type="number"
+								min={MAX_PARALLEL_TRANSFERS_MIN}
+								max={MAX_PARALLEL_TRANSFERS_MAX}
+								step={1}
+								value={maxParallelTransfers}
+								onChange={(e) => {
+									const parsed = Number(e.target.value);
+									if (Number.isFinite(parsed) && parsed > 0) {
+										setMaxParallelTransfers(parsed);
+									}
+								}}
+								className="w-20 h-8 px-2 text-sm rounded-md border border-outline-variant bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+							/>
+						</div>
 						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
 							<div className="flex flex-col gap-1 mb-3">
 								<span className="text-sm font-medium text-foreground">{t("settings.retentionMs")}</span>
