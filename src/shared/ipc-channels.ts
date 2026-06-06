@@ -13,6 +13,8 @@ export const IPC = {
 	FILE_GET_ICON: "file:getIcon",
 	FILE_OPEN_PATH: "file:openPath",
 	FILE_RENAME: "file:rename",
+	FILE_WATCH_START: "file:watchStart",
+	FILE_WATCH_STOP: "file:watchStop",
 	REMOTE_CONNECT: "remote:connect",
 	REMOTE_DISCONNECT: "remote:disconnect",
 	REMOTE_LIST: "remote:list",

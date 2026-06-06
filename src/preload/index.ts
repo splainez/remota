@@ -49,6 +49,18 @@ const api = {
 			ipcRenderer.invoke(IPC.FILE_TEMP_DELETE, connectionId, remotePath),
 		tempExists: (connectionId: number, remotePath: string): Promise<boolean> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_EXISTS, connectionId, remotePath),
+		startWatch: (watcherId: string, dirPath: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_WATCH_START, watcherId, dirPath),
+		stopWatch: (watcherId: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_WATCH_STOP, watcherId),
+		onFileChanged: (callback: (watcherId: string) => void) => {
+			const handler = (_event: Electron.IpcRendererEvent, watcherId: string) => {
+				callback(watcherId);
+			};
+			ipcRenderer.on("file:changed", handler);
+			return () => {
+				ipcRenderer.removeListener("file:changed", handler);
+			};
+		},
 	},
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => {
