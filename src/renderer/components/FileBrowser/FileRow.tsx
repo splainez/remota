@@ -29,10 +29,12 @@ export function FileRow({
 	onCancelRename,
 }: FileRowProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const committedRef = useRef(false);
 	const [draftName, setDraftName] = useState(entry.name);
 
 	useEffect(() => {
 		if (isEditing) {
+			committedRef.current = false;
 			setDraftName(entry.name);
 		}
 	}, [isEditing, entry.name]);
@@ -46,6 +48,8 @@ export function FileRow({
 	}, [isEditing]);
 
 	const commit = () => {
+		if (committedRef.current) return;
+		committedRef.current = true;
 		onCommitRename?.(draftName.trim());
 	};
 
