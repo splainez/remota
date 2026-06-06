@@ -130,8 +130,6 @@
 	"file.contextMenu.openInTerminal": "Open in terminal",
 	"file.contextMenu.notImplemented": "Functionality not yet implemented",
 	"file.contextMenu.openError": "Could not open file",
-	"file.contextMenu.renameError": "Could not rename file",
-	"file.contextMenu.renameSuccess": "Renamed to {name}",
 	"file.contextMenu.pathCopied": "Path copied to clipboard",
 	"file.contextMenu.nameCopied": "Filename copied to clipboard",
 	"file.contextMenu.copyError": "Could not copy to clipboard",

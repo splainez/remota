@@ -127,8 +127,6 @@
 	"file.contextMenu.openInTerminal": "Abrir en terminal",
 	"file.contextMenu.notImplemented": "Funcionalidad no implementada aún",
 	"file.contextMenu.openError": "No se pudo abrir el archivo",
-	"file.contextMenu.renameError": "No se pudo renombrar el archivo",
-	"file.contextMenu.renameSuccess": "Renombrado a {name}",
 	"file.contextMenu.pathCopied": "Ruta copiada al portapapeles",
 	"file.contextMenu.nameCopied": "Nombre copiado al portapapeles",
 	"file.contextMenu.copyError": "No se pudo copiar al portapapeles",
