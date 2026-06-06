@@ -143,7 +143,7 @@ describe("TransferService", () => {
 		expect(statuses).toContain("completed");
 	});
 
-	it("respects concurrency limit: at most N active simultaneously", async () => {
+	it("respects global concurrency limit: at most N active simultaneously", async () => {
 		let activeNow = 0;
 		let peak = 0;
 		const wc = makeWebContents();
@@ -171,11 +171,42 @@ describe("TransferService", () => {
 		expect(peak).toBeGreaterThan(1);
 	});
 
-	it("snapshots concurrency at job start: changes to the setting do not affect an in-flight job", async () => {
+	it("shares concurrency across multiple startDownload calls", async () => {
 		let activeNow = 0;
 		let peak = 0;
 		const wc = makeWebContents();
-		const settings = { maxParallelTransfers: 2 };
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async () => {
+				activeNow++;
+				peak = Math.max(peak, activeNow);
+				await new Promise((r) => setTimeout(r, 20));
+				activeNow--;
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(2) as unknown as AppStore,
+		});
+
+		service.startDownload({ connectionId: 1, items: makeItems(3) }, wc as unknown as WebContents);
+		await new Promise((r) => setTimeout(r, 5));
+		service.startDownload({ connectionId: 1, items: makeItems(3) }, wc as unknown as WebContents);
+
+		await new Promise((r) => setTimeout(r, 300));
+
+		expect(peak).toBeLessThanOrEqual(2);
+		expect(peak).toBeGreaterThan(1);
+	});
+
+	it("dynamically updates concurrency when setConcurrency is called", async () => {
+		let activeNow = 0;
+		let peak = 0;
+		const wc = makeWebContents();
+		const settings = { maxParallelTransfers: 1 };
 		const store: AppStoreStub = { getSettings: () => settings };
 
 		const sftp: SftpStub = {
@@ -194,13 +225,16 @@ describe("TransferService", () => {
 			store: store as unknown as AppStore,
 		});
 
-		service.startDownload({ connectionId: 1, items: makeItems(8) }, wc as unknown as WebContents);
+		service.startDownload({ connectionId: 1, items: makeItems(4) }, wc as unknown as WebContents);
 
 		await new Promise((r) => setTimeout(r, 30));
-		settings.maxParallelTransfers = 10;
+		expect(peak).toBeLessThanOrEqual(1);
 
-		await new Promise((r) => setTimeout(r, 200));
-		expect(peak).toBeLessThanOrEqual(2);
+		service.setConcurrency(3);
+
+		await new Promise((r) => setTimeout(r, 300));
+		expect(peak).toBeGreaterThan(1);
+		expect(peak).toBeLessThanOrEqual(3);
 	});
 
 	it("clamps concurrency to the supported bounds even if store returns weird values", async () => {
@@ -248,7 +282,7 @@ describe("TransferService", () => {
 		service.cancel(jobId);
 		resolveDownloads();
 
-		await new Promise((r) => setTimeout(r, 20));
+		await new Promise((r) => setTimeout(r, 30));
 
 		const job = wc.jobs[0] as CapturedJob | undefined;
 		if (!job) throw new Error("jobDone event was not emitted");
@@ -256,7 +290,7 @@ describe("TransferService", () => {
 		const f1 = job.results.f1 as { status: "ok" | "error" | "cancelled" } | undefined;
 		const f2 = job.results.f2 as { status: "ok" | "error" | "cancelled" } | undefined;
 		if (!f0 || !f1 || !f2) throw new Error("missing items");
-		expect(f0.status).toBe("ok");
+		expect(f0.status).toBe("cancelled");
 		expect(f1.status).toBe("cancelled");
 		expect(f2.status).toBe("cancelled");
 	});

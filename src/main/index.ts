@@ -84,7 +84,6 @@ void app.whenReady().then(() => {
 	registerConnectionHandlers(appStore);
 	registerFilesystemHandlers(appStore);
 	registerRemoteFilesystemHandlers(sftp, s3, appStore);
-	registerSettingsHandlers(appStore);
 	registerTransferPanelHandlers(appStore);
 	createWindow();
 
@@ -96,6 +95,7 @@ void app.whenReady().then(() => {
 	registerTerminalHandlers(terminalManager);
 
 	transferService = new TransferService({ sftp, s3, store: appStore });
+	registerSettingsHandlers(appStore, transferService);
 	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null);
 
 	app.on("will-quit", () => {
