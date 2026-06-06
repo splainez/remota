@@ -11,9 +11,11 @@ import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
 import { matchesWildcard } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
 import { LoggerFactory } from "@shared/lib/logger";
-import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
+import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
+import { renameParamsSchema } from "@shared/validation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 
 import { ConnectionErrorView } from "./ConnectionErrorView";
@@ -51,8 +53,9 @@ export function FilePane({
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const [filter, setFilter] = useState("");
+	const [editingName, setEditingName] = useState<string | null>(null);
 
-	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
+	const { selectedNames, lastClickedName, handleSelectEntry, clearSelection } = useFileSelection();
 	const {
 		currentPath,
 		navigateTo,
@@ -105,6 +108,18 @@ export function FilePane({
 	useEffect(() => {
 		clearTypeAhead();
 	}, [filter, currentPath, clearTypeAhead]);
+
+	useHotkeys(
+		"f2",
+		() => {
+			if (!paneRef.current?.contains(document.activeElement)) return;
+			const target = lastClickedName.current ?? selectedNames.at(-1);
+			if (editingName === null && target != null) {
+				setEditingName(target);
+			}
+		},
+		{ enabled: editingName === null },
+	);
 
 	const handleNavigateTo = useCallback(
 		(path: string) => {
@@ -203,10 +218,71 @@ export function FilePane({
 				download.startDownload(targets).catch((error: unknown) => {
 					logger.error("download failed", { error });
 				});
+			} else if (actionId === "copyPath") {
+				navigator.clipboard
+					.writeText(entry.fullPath)
+					.then(() => {
+						toast.success(t("file.contextMenu.pathCopied"));
+					})
+					.catch((error: unknown) => {
+						logger.error("copyPath failed", { entry: entry.fullPath, error });
+						toast.error(t("file.contextMenu.copyError"));
+					});
+			} else if (actionId === "copyName") {
+				navigator.clipboard
+					.writeText(entry.name)
+					.then(() => {
+						toast.success(t("file.contextMenu.nameCopied"));
+					})
+					.catch((error: unknown) => {
+						logger.error("copyName failed", { entry: entry.name, error });
+						toast.error(t("file.contextMenu.copyError"));
+					});
+			} else if (actionId === "rename") {
+				setEditingName(entry.name);
 			}
 		},
-		[download, filteredEntries, handleEnterDirectory, handleOpenFile, handleOpenInTerminal, selectedNames, type],
+		[download, filteredEntries, handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t, selectedNames, type],
 	);
+
+	const handleRenameCommit = useCallback(
+		async (entry: FileEntry, newName: string) => {
+			const trimmed = newName.trim();
+			if (trimmed.length === 0) {
+				setEditingName(null);
+				return;
+			}
+			if (trimmed === entry.name) {
+				setEditingName(null);
+				return;
+			}
+			const parsed = renameParamsSchema.safeParse({ oldPath: entry.fullPath, newName: trimmed });
+			if (!parsed.success) {
+				setEditingName(null);
+				const messageKey = parsed.error.issues[0]?.message ?? "validation.default";
+				toast.error(t(messageKey as Parameters<typeof t>[0]));
+				return;
+			}
+			try {
+				await window.api.filesystem.rename(parsed.data.oldPath, parsed.data.newName);
+				setEditingName(null);
+				clearSelection();
+				refresh().catch((error: unknown) => {
+					logger.error("refresh after rename failed", { error });
+				});
+			} catch (error: unknown) {
+				setEditingName(null);
+				const errorInfo = classifyError(error);
+				logger.error("rename failed", { entry: entry.fullPath, newName: trimmed, error });
+				toast.error(t(getErrorI18nKey(errorInfo.code)));
+			}
+		},
+		[clearSelection, refresh, t],
+	);
+
+	const handleRenameCancel = useCallback(() => {
+		setEditingName(null);
+	}, []);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
@@ -271,6 +347,11 @@ export function FilePane({
 					onContextMenu={(e, entry) => {
 						contextMenu.open(e, entry);
 					}}
+					editingName={editingName}
+					onCommitRename={(entry, newName) => {
+						void handleRenameCommit(entry, newName);
+					}}
+					onCancelRename={handleRenameCancel}
 				/>
 			)}
 			{showTerminal && (

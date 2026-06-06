@@ -45,6 +45,7 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 	);
 
 	const showTerminal = entry.isDirectory && (panelType === "local" || protocol !== "s3");
+	const showRename = panelType === "local" || protocol !== "s3";
 
 	const menuItems: MenuItem[] = [
 		{
@@ -69,7 +70,7 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 			id: "rename",
 			icon: "edit",
 			label: t("file.contextMenu.rename"),
-			visible: true,
+			visible: showRename,
 		},
 		{
 			id: "delete",

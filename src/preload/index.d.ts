@@ -29,10 +29,12 @@ declare global {
 				setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
 				getIcon: (path: string) => Promise<string | null>;
 				openPath: (path: string) => Promise<void>;
+				rename: (oldPath: string, newName: string) => Promise<void>;
 				remoteConnect: (connectionId: number) => Promise<string>;
 				remoteDisconnect: (connectionId: number) => Promise<void>;
 				remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 				remoteHomeDir: (connectionId: number) => Promise<string>;
+				remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
 				download: (request: DownloadRequest) => Promise<DownloadResult>;
 				getLocalStat: (path: string) => Promise<LocalStat | null>;
 				onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;

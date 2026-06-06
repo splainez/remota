@@ -19,6 +19,9 @@ interface FileListProps {
 	typeAheadName?: string | null;
 	scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 	onContextMenu?: (e: React.MouseEvent, entry: FileEntry) => void;
+	editingName?: string | null;
+	onCommitRename?: (entry: FileEntry, newName: string) => void;
+	onCancelRename?: () => void;
 }
 
 function compareEntries(a: FileEntry, b: FileEntry, key: SortKey): number {
@@ -52,6 +55,9 @@ export function FileList({
 	typeAheadName,
 	scrollContainerRef,
 	onContextMenu,
+	editingName,
+	onCommitRename,
+	onCancelRename,
 }: FileListProps) {
 	const { t } = useI18n();
 	const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
@@ -91,6 +97,7 @@ export function FileList({
 						entry={entry}
 						isSelected={selectedSet.has(entry.name)}
 						isTypeAheadFocused={typeAheadName === entry.name}
+						isEditing={editingName === entry.name}
 						onClick={(e) => {
 							onSelectEntry(entry.name, e.ctrlKey, e.shiftKey, sortedNames);
 						}}
@@ -108,6 +115,14 @@ export function FileList({
 									}
 								: undefined
 						}
+						onCommitRename={
+							onCommitRename
+								? (newName) => {
+										onCommitRename(entry, newName);
+									}
+								: undefined
+						}
+						onCancelRename={onCancelRename}
 					/>
 				))}
 			</div>

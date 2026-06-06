@@ -65,10 +65,12 @@ export interface ElectronAPI {
 		setLastPath: (connectionId: number, pane: "local" | "remote", path: string) => Promise<void>;
 		getIcon: (path: string) => Promise<string | null>;
 		openPath: (path: string) => Promise<void>;
+		rename: (oldPath: string, newName: string) => Promise<void>;
 		remoteConnect: (connectionId: number) => Promise<string>;
 		remoteDisconnect: (connectionId: number) => Promise<void>;
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 		remoteHomeDir: (connectionId: number) => Promise<string>;
+		remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
 		tempGetPath: (connectionId: number) => Promise<string | undefined>;
 		tempWrite: (connectionId: number, remotePath: string, content: number[]) => Promise<void>;
 		tempRead: (connectionId: number, remotePath: string) => Promise<number[]>;

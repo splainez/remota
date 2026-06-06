@@ -48,6 +48,38 @@ export const secretKeySchema = z.string().trim().min(1, "validation.secretKeyReq
 export const regionSchema = z.string().trim().min(1, "validation.regionRequired");
 export const bucketSchema = z.string().trim().min(1, "validation.bucketRequired");
 
+const MAX_NAME_LENGTH = 255;
+// eslint-disable-next-line no-control-regex
+const INVALID_WIN_CHARS = /[<>:"/\\|?*\x00-\x1F]/;
+// eslint-disable-next-line no-control-regex
+const INVALID_POSIX_CHARS = /[\x00/]/;
+
+export const fileNameSchema = z.string().superRefine((val, ctx) => {
+	const trimmed = val.trim();
+	if (trimmed.length === 0) {
+		ctx.addIssue({ code: "custom", message: "validation.nameRequired" });
+		return;
+	}
+	if (trimmed === "." || trimmed === "..") {
+		ctx.addIssue({ code: "custom", message: "validation.fileNameReserved" });
+		return;
+	}
+	if (trimmed.length > MAX_NAME_LENGTH) {
+		ctx.addIssue({ code: "custom", message: "validation.fileNameTooLong" });
+		return;
+	}
+	if (INVALID_WIN_CHARS.test(trimmed) || INVALID_POSIX_CHARS.test(trimmed)) {
+		ctx.addIssue({ code: "custom", message: "validation.fileNameInvalid" });
+	}
+});
+
+export const renameParamsSchema = z.object({
+	oldPath: z.string().min(1, "validation.fileNameInvalid"),
+	newName: fileNameSchema,
+});
+
+export type RenameParams = z.infer<typeof renameParamsSchema>;
+
 // Flat schema for IPC partial updates (CONNECTION_UPDATE).
 // Update requests don't include the protocol, so this validates field
 // types only — protocol-specific requirements are enforced by connectionFormSchema.

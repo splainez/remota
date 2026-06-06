@@ -57,10 +57,14 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			setLastPath: vi.fn().mockResolvedValue(undefined),
 			getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
 			openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+			rename: vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined),
 			remoteConnect: vi.fn().mockResolvedValue("/"),
 			remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 			remoteList: vi.fn().mockResolvedValue([]),
 			remoteHomeDir: vi.fn().mockResolvedValue("/"),
+			remoteRename: vi
+				.fn<(connectionId: number, oldPath: string, newName: string) => Promise<void>>()
+				.mockResolvedValue(undefined),
 			tempGetPath: vi.fn().mockResolvedValue(undefined),
 			tempWrite: vi.fn().mockResolvedValue(undefined),
 			tempRead: vi.fn().mockResolvedValue([]),

@@ -9,6 +9,14 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 
 import { FilePane } from "./FilePane";
 
+const hotkeyCallbacks = new Map<string, () => void>();
+
+vi.mock("react-hotkeys-hook", () => ({
+	useHotkeys: (keys: string, callback: () => void) => {
+		hotkeyCallbacks.set(keys, callback);
+	},
+}));
+
 beforeAll(() => {
 	class ResizeObserverMock {
 		observe() {
@@ -35,10 +43,12 @@ const mockApi = createMockApi({
 		setLastPath: vi.fn().mockResolvedValue(undefined),
 		getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
 		openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+		rename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 		remoteConnect: vi.fn().mockResolvedValue("/"),
 		remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 		remoteList: vi.fn().mockResolvedValue([]),
 		remoteHomeDir: vi.fn().mockResolvedValue("/"),
+		remoteRename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 		tempGetPath: vi.fn().mockResolvedValue(undefined),
 		tempWrite: vi.fn().mockResolvedValue(undefined),
 		tempRead: vi.fn().mockResolvedValue([]),
@@ -553,6 +563,7 @@ describe("FilePane", () => {
 				setLastPath: vi.fn().mockResolvedValue(undefined),
 				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
 				openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+				rename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				remoteConnect: vi.fn().mockResolvedValue("/"),
 				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 				remoteList: vi.fn().mockResolvedValue([
@@ -560,6 +571,7 @@ describe("FilePane", () => {
 					{ name: "etc", isDirectory: true, size: 0, modified: "" },
 				]),
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				remoteRename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				tempGetPath: vi.fn().mockResolvedValue(undefined),
 				tempWrite: vi.fn().mockResolvedValue(undefined),
 				tempRead: vi.fn().mockResolvedValue([]),
@@ -621,10 +633,12 @@ describe("FilePane", () => {
 				setLastPath: vi.fn().mockResolvedValue(undefined),
 				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
 				openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+				rename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				remoteConnect: vi.fn().mockResolvedValue("/"),
 				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 				remoteList: remoteListWin,
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				remoteRename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				tempGetPath: vi.fn().mockResolvedValue(undefined),
 				tempWrite: vi.fn().mockResolvedValue(undefined),
 				tempRead: vi.fn().mockResolvedValue([]),
@@ -685,10 +699,12 @@ describe("FilePane", () => {
 				setLastPath: vi.fn().mockResolvedValue(undefined),
 				getIcon: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
 				openPath: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+				rename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				remoteConnect: vi.fn().mockResolvedValue("/"),
 				remoteDisconnect: vi.fn().mockResolvedValue(undefined),
 				remoteList: remoteListWin,
 				remoteHomeDir: vi.fn().mockResolvedValue("/"),
+				remoteRename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 				tempGetPath: vi.fn().mockResolvedValue(undefined),
 				tempWrite: vi.fn().mockResolvedValue(undefined),
 				tempRead: vi.fn().mockResolvedValue([]),
@@ -1110,6 +1126,110 @@ describe("FilePane", () => {
 		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
 	});
 
+	// --- "Copy path to clipboard" context-menu action ---
+
+	function stubClipboard(writeText: ReturnType<typeof vi.fn>) {
+		Object.defineProperty(navigator, "clipboard", {
+			value: { writeText },
+			configurable: true,
+		});
+	}
+
+	async function rightClickFile(fileName: string) {
+		const file = await screen.findByText(fileName);
+		fireEvent.contextMenu(file);
+	}
+
+	it("copies the right-clicked file's full path to the clipboard and shows a success toast", async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Copy path to clipboard"));
+
+		await waitFor(() => {
+			expect(writeText).toHaveBeenCalledWith("/home/readme.md");
+		});
+		expect(toastSuccessSpy).toHaveBeenCalledWith("Path copied to clipboard");
+
+		toastSuccessSpy.mockRestore();
+	});
+
+	it("shows an error toast when clipboard write rejects", async () => {
+		const writeText = vi.fn().mockRejectedValue(new Error("permission denied"));
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "secret.txt", isDirectory: false, fullPath: "/home/secret.txt", size: 0, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("secret.txt");
+		await userEvent.click(screen.getByText("Copy path to clipboard"));
+
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalledWith("Could not copy to clipboard");
+		});
+		expect(writeText).toHaveBeenCalledWith("/home/secret.txt");
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("copies the right-clicked file's name to the clipboard and shows a success toast", async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Copy filename"));
+
+		await waitFor(() => {
+			expect(writeText).toHaveBeenCalledWith("readme.md");
+		});
+		expect(toastSuccessSpy).toHaveBeenCalledWith("Filename copied to clipboard");
+
+		toastSuccessSpy.mockRestore();
+	});
+
 	// --- toolbar toggle terminal button ---
 
 	it("toggles the integrated terminal when toolbar toggle is clicked and no external is configured", async () => {
@@ -1180,5 +1300,277 @@ describe("FilePane", () => {
 		});
 
 		toastErrorSpy.mockRestore();
+	});
+
+	// --- "Rename" context-menu action (local panel — OPE-22) ---
+
+	it("right-clicking a local file and selecting Rename shows an inline input pre-filled with the current name", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("readme.md");
+	});
+
+	it("commits the rename on Enter and calls filesystem.rename with old path and new name", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "notes.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "notes.md");
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("cancels the rename on Escape and does not call filesystem.rename", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "changed");
+		await userEvent.keyboard("{Escape}");
+
+		expect(renameMock).not.toHaveBeenCalled();
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("reverts to the original name and shows a toast when the new name is invalid", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "bad/name");
+		await userEvent.keyboard("{Enter}");
+
+		expect(renameMock).not.toHaveBeenCalled();
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("reverts to the original name and shows a toast when filesystem.rename rejects", async () => {
+		const renameMock = vi
+			.fn<(oldPath: string, newName: string) => Promise<void>>()
+			.mockRejectedValue(new Error("EACCES: permission denied"));
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "renamed.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "renamed.md");
+		});
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("clears the selection after a successful rename (selection is keyed by name)", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("readme.md"));
+		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "notes.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "notes.md");
+		});
+	});
+
+	it("starts rename when F2 is pressed on a selected file", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("readme.md"));
+		hotkeyCallbacks.get("f2")?.();
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("readme.md");
+	});
+
+	it("does not start rename on F2 when no file is selected", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		hotkeyCallbacks.get("f2")?.();
+
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("renames the last clicked file on F2 when multiple files are selected", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue([
+			{ name: "a.txt", isDirectory: false, fullPath: "/home/a.txt", size: 1, modified: "" },
+			{ name: "b.txt", isDirectory: false, fullPath: "/home/b.txt", size: 1, modified: "" },
+		]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("a.txt"));
+		fireEvent.click(screen.getByText("b.txt"), { ctrlKey: true });
+		hotkeyCallbacks.get("f2")?.();
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("b.txt");
+	});
+
+	it("does not start rename on F2 when already editing", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+		await screen.findByTestId("rename-input");
+
+		hotkeyCallbacks.get("f2")?.();
+		await waitFor(() => {
+			expect(screen.getAllByTestId("rename-input")).toHaveLength(1);
+		});
 	});
 });

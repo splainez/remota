@@ -230,6 +230,16 @@ describe("FileContextMenu", () => {
 
 		await user.click(screen.getByText("Delete"));
 		expect(onAction).toHaveBeenCalledWith("delete", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Copy path to clipboard"));
+		expect(onAction).toHaveBeenCalledWith("copyPath", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Copy filename"));
+		expect(onAction).toHaveBeenCalledWith("copyName", entry);
 	});
 
 	it("does not call onAction when not provided", async () => {
@@ -283,5 +293,43 @@ describe("FileContextMenu", () => {
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("Open in terminal")).toBeInTheDocument();
+	});
+
+	// --- protocol-aware "Rename" visibility (S3 not supported) ---
+
+	it("hides Rename for remote S3 entries", () => {
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} panelType="remote" protocol="s3" />
+			</I18nWrapper>,
+		);
+		expect(screen.queryByText("Rename")).not.toBeInTheDocument();
+	});
+
+	it("shows Rename for remote SFTP entries", () => {
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} panelType="remote" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Rename")).toBeInTheDocument();
+	});
+
+	it("shows Rename for remote SCP entries", () => {
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} panelType="remote" protocol="scp" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Rename")).toBeInTheDocument();
+	});
+
+	it("shows Rename for local panel regardless of protocol prop", () => {
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} panelType="local" protocol="s3" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Rename")).toBeInTheDocument();
 	});
 });

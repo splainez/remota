@@ -37,5 +37,5 @@ export function useFileSelection() {
 		lastClickedNameRef.current = null;
 	}, []);
 
-	return { selectedNames, handleSelectEntry, clearSelection };
+	return { selectedNames, lastClickedName: lastClickedNameRef, handleSelectEntry, clearSelection };
 }

@@ -33,11 +33,14 @@ const api = {
 			ipcRenderer.invoke(IPC.FILE_SET_LAST_PATH, connectionId, pane, path),
 		getIcon: (path: string): Promise<string | null> => ipcRenderer.invoke(IPC.FILE_GET_ICON, path),
 		openPath: (path: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_OPEN_PATH, path),
+		rename: (oldPath: string, newName: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_RENAME, oldPath, newName),
 		remoteConnect: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_CONNECT, connectionId),
 		remoteDisconnect: (connectionId: number): Promise<void> => ipcRenderer.invoke(IPC.REMOTE_DISCONNECT, connectionId),
 		remoteList: (connectionId: number, path: string): Promise<FileEntry[]> =>
 			ipcRenderer.invoke(IPC.REMOTE_LIST, connectionId, path),
 		remoteHomeDir: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_HOME_DIR, connectionId),
+		remoteRename: (connectionId: number, oldPath: string, newName: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.REMOTE_RENAME, connectionId, oldPath, newName),
 		tempGetPath: (connectionId: number): Promise<string | undefined> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_GET_PATH, connectionId),
 		tempWrite: (connectionId: number, remotePath: string, content: number[]): Promise<void> =>

@@ -64,7 +64,12 @@ describe("AppConfigSchema", () => {
 			expect(result.data.connections).toEqual([]);
 			expect(result.data.lastPaths).toEqual({});
 			expect(result.data.transferPanels).toEqual({});
-			expect(result.data.settings).toEqual({ theme: "system", locale: "en", maxParallelTransfers: 5, retentionMs: 5000 });
+			expect(result.data.settings).toEqual({
+				theme: "system",
+				locale: "en",
+				maxParallelTransfers: 5,
+				retentionMs: 5000,
+			});
 		}
 	});
 
