@@ -16,7 +16,7 @@ interface ToolbarProps {
 	terminalVisible?: boolean;
 	drives: string[];
 	currentPath: string;
-	isAtDriveRoot: boolean;
+	selectedDrive: string | null;
 	filter: string;
 	onFilterChange: (value: string) => void;
 }
@@ -29,12 +29,12 @@ export function Toolbar({
 	terminalVisible,
 	drives,
 	currentPath,
-	isAtDriveRoot,
+	selectedDrive,
 	filter,
 	onFilterChange,
 }: ToolbarProps) {
 	const { t } = useI18n();
-	const upDisabled = isAtDriveRoot || !canGoUp(currentPath);
+	const upDisabled = !canGoUp(currentPath);
 
 	const handleDriveChange = useCallback(
 		(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -96,7 +96,7 @@ export function Toolbar({
 				{drives.length > 0 && (
 					<select
 						className="h-6 px-1.5 border border-outline-variant rounded bg-surface-container-lowest text-on-surface text-xs min-w-[60px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-						value={isAtDriveRoot ? currentPath : ""}
+						value={selectedDrive ?? ""}
 						onChange={handleDriveChange}
 						title={t("file.selectDrive")}
 					>

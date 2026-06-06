@@ -16,5 +16,10 @@ export function useLocalDrives(currentPath: string) {
 		return drives.find((d) => d === currentPath) ?? null;
 	}, [isWindows, drives, currentPath]);
 
-	return { drives, driveRoot, isWindows };
+	const currentDrive = useMemo(() => {
+		if (!isWindows || drives.length === 0) return null;
+		return drives.find((d) => currentPath.toUpperCase().startsWith(d.toUpperCase())) ?? null;
+	}, [isWindows, drives, currentPath]);
+
+	return { drives, driveRoot, currentDrive, isWindows };
 }

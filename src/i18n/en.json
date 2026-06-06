@@ -123,7 +123,6 @@
 	"validation.fileNameSame": "New name is the same as the current name",
 	"terminal.toggle": "Toggle Terminal",
 	"file.contextMenu.open": "Open",
-	"file.contextMenu.edit": "Edit",
 	"file.contextMenu.upload": "Upload",
 	"file.contextMenu.download": "Download",
 	"file.contextMenu.rename": "Rename",

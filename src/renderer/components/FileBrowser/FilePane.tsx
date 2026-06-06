@@ -67,7 +67,7 @@ export function FilePane({
 		canGoBack,
 		canGoForward,
 	} = usePaneNavigation(type, initialPath, clearSelection);
-	const { drives, driveRoot, isWindows } = useLocalDrives(currentPath);
+	const { drives, currentDrive, isWindows } = useLocalDrives(currentPath);
 	const {
 		visible: showTerminal,
 		toggle: handleToggleTerminal,
@@ -298,7 +298,7 @@ export function FilePane({
 	const displayError = deadError ?? error ?? null;
 	const errorMessage = displayError ? t(getErrorI18nKey(displayError.code)) : null;
 
-	const showDriveSelector = isWindows && type === "local" && drives.length > 1;
+	const showDriveSelector = isWindows && type === "local" && drives.length > 0;
 
 	const sessionId = `${type}-${String(connectionId)}`;
 
@@ -326,7 +326,7 @@ export function FilePane({
 				terminalVisible={showTerminal}
 				drives={showDriveSelector ? drives : []}
 				currentPath={currentPath}
-				isAtDriveRoot={driveRoot !== null}
+				selectedDrive={currentDrive}
 				filter={filter}
 				onFilterChange={setFilter}
 			/>

@@ -120,7 +120,6 @@
 	"validation.fileNameSame": "El nuevo nombre es igual al actual",
 	"terminal.toggle": "Alternar Terminal",
 	"file.contextMenu.open": "Abrir",
-	"file.contextMenu.edit": "Editar",
 	"file.contextMenu.upload": "Subir",
 	"file.contextMenu.download": "Descargar",
 	"file.contextMenu.rename": "Renombrar",
