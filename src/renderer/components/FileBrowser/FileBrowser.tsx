@@ -4,6 +4,7 @@ import { Button } from "@renderer/components/ui/button";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@renderer/components/ui/resizable";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
+import { useTransferProgress } from "@renderer/hooks/useTransferProgress";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { LoggerFactory } from "@shared/lib/logger";
 import { getErrorI18nKey } from "@shared/sftp-error";
@@ -25,6 +26,8 @@ export function FileBrowser({ connection, initialShowTerminal = false }: FileBro
 	const { t } = useI18n();
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
+
+	useTransferProgress();
 
 	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
 		connection.id,
@@ -131,7 +134,13 @@ export function FileBrowser({ connection, initialShowTerminal = false }: FileBro
 			<ResizablePanelGroup orientation="vertical" className="flex-1 min-h-0">
 				<ResizablePanel id="file-panes" defaultSize={80} minSize={30}>
 					<main className="flex h-full min-h-0 relative">
-						<FilePane type="local" connectionId={connection.id} initialPath={localPath} onPathChange={setLocalPath} />
+						<FilePane
+							type="local"
+							connectionId={connection.id}
+							initialPath={localPath}
+							peerLocalPath={localPath}
+							onPathChange={setLocalPath}
+						/>
 						{remoteStatus === "connected" ? (
 							<FilePane
 								key={reconnectKey}
@@ -140,6 +149,7 @@ export function FileBrowser({ connection, initialShowTerminal = false }: FileBro
 								initialPath={remotePath}
 								protocol={connection.protocol}
 								initialShowTerminal={initialShowTerminal}
+								peerLocalPath={localPath}
 								onReconnect={() => {
 									connect().catch((error: unknown) => {
 										logger.error("reconnect failed", { error });

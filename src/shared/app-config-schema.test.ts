@@ -64,7 +64,12 @@ describe("AppConfigSchema", () => {
 			expect(result.data.connections).toEqual([]);
 			expect(result.data.lastPaths).toEqual({});
 			expect(result.data.transferPanels).toEqual({});
-			expect(result.data.settings).toEqual({ theme: "system", locale: "en" });
+			expect(result.data.settings).toEqual({
+				theme: "system",
+				locale: "en",
+				maxParallelTransfers: 5,
+				retentionMs: 5000,
+			});
 		}
 	});
 
@@ -118,6 +123,55 @@ describe("SettingsSchema", () => {
 		if (result.success) {
 			expect(result.data.externalTerminal).toBeUndefined();
 		}
+	});
+
+	it("defaults maxParallelTransfers to 5 when omitted", () => {
+		const result = SettingsSchema.safeParse({ theme: "system", locale: "en" });
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.maxParallelTransfers).toBe(5);
+		}
+	});
+
+	it("accepts maxParallelTransfers at bounds (1 and 20)", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: 1 }).success).toBe(true);
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: 20 }).success).toBe(true);
+	});
+
+	it("rejects maxParallelTransfers out of bounds", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: 0 }).success).toBe(false);
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: 21 }).success).toBe(false);
+	});
+
+	it("rejects non-integer maxParallelTransfers", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: 3.5 }).success).toBe(false);
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", maxParallelTransfers: "5" }).success).toBe(false);
+	});
+
+	it("defaults retentionMs to undefined when omitted", () => {
+		const result = SettingsSchema.safeParse({ theme: "system", locale: "en" });
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.retentionMs).toBeUndefined();
+		}
+	});
+
+	it("accepts valid retentionMs values", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 5_000 }).success).toBe(true);
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 30_000 }).success).toBe(true);
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 300_000 }).success).toBe(true);
+	});
+
+	it("rejects retentionMs below minimum", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 4_999 }).success).toBe(false);
+	});
+
+	it("rejects retentionMs above maximum", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 300_001 }).success).toBe(false);
+	});
+
+	it("rejects non-integer retentionMs", () => {
+		expect(SettingsSchema.safeParse({ theme: "system", locale: "en", retentionMs: 10.5 }).success).toBe(false);
 	});
 
 	it("accepts each supported externalTerminal value", () => {

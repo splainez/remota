@@ -45,7 +45,7 @@ describe("FileContextMenu", () => {
 		expect(screen.getByText("Delete")).toBeInTheDocument();
 		expect(screen.getByText("Copy path to clipboard")).toBeInTheDocument();
 		expect(screen.getByText("Copy filename")).toBeInTheDocument();
-		expect(screen.queryByText("Upload")).not.toBeInTheDocument();
+		expect(screen.getByText("Upload")).toBeInTheDocument();
 		expect(screen.queryByText("Open in terminal")).not.toBeInTheDocument();
 	});
 
@@ -55,6 +55,17 @@ describe("FileContextMenu", () => {
 				<FileContextMenu {...defaultProps} />
 			</I18nWrapper>,
 		);
+		expect(screen.getByText("Upload")).toBeInTheDocument();
+		expect(screen.queryByText("Download")).not.toBeInTheDocument();
+	});
+
+	it("shows Download for files in remote panel", () => {
+		render(
+			<I18nWrapper>
+				<FileContextMenu {...defaultProps} panelType="remote" />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Download")).toBeInTheDocument();
 		expect(screen.queryByText("Upload")).not.toBeInTheDocument();
 	});
 

@@ -1,7 +1,19 @@
 import type { Settings, SettingsUpdate } from "./app-config-schema";
 import type { TerminalAppId } from "./app-config-schema";
+import type { DownloadRequest, DownloadResult, LocalStat, TransferProgressEvent } from "./transfer-types";
 
 export type { Settings, SettingsUpdate, TerminalAppId };
+export type {
+	DownloadRequest,
+	DownloadItem,
+	DownloadResult,
+	DownloadItemResult,
+	DownloadJobResult,
+	LocalStat,
+	TransferDirection,
+	TransferItemStatus,
+	TransferProgressEvent,
+} from "./transfer-types";
 
 export interface Connection {
 	id: number;
@@ -68,6 +80,17 @@ export interface ElectronAPI {
 		tempMkdir: (connectionId: number, remotePath: string) => Promise<void>;
 		tempDelete: (connectionId: number, remotePath: string) => Promise<void>;
 		tempExists: (connectionId: number, remotePath: string) => Promise<boolean>;
+		download: (request: DownloadRequest) => Promise<DownloadResult>;
+		getLocalStat: (path: string) => Promise<LocalStat | null>;
+		onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;
+		onTransferJobDone: (
+			callback: (result: {
+				jobId: string;
+				results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+			}) => void,
+		) => () => void;
+		cancelTransfer: (jobId: string, itemId: string) => Promise<void>;
+		cancelAllTransfers: () => Promise<void>;
 	};
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;

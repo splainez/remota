@@ -53,16 +53,35 @@ export const TransferPanelsSchema = z.record(z.string(), transferPanelEntry);
 export const TransferPanelUpdate = transferPanelEntry.partial();
 export type TransferPanelUpdate = z.infer<typeof TransferPanelUpdate>;
 
+export const MAX_PARALLEL_TRANSFERS_MIN = 1;
+export const MAX_PARALLEL_TRANSFERS_MAX = 20;
+export const MAX_PARALLEL_TRANSFERS_DEFAULT = 5;
+
+export const RETENTION_MS_MIN = 5_000;
+export const RETENTION_MS_MAX = 300_000;
+
 export const SettingsSchema = z.object({
 	theme: z.enum(["dark", "light", "system"]),
 	locale: z.enum(["en", "es"]),
 	externalTerminal: z.enum(TERMINAL_APP_IDS).optional(),
+	maxParallelTransfers: z
+		.number()
+		.int()
+		.min(MAX_PARALLEL_TRANSFERS_MIN)
+		.max(MAX_PARALLEL_TRANSFERS_MAX)
+		.default(MAX_PARALLEL_TRANSFERS_DEFAULT),
+	retentionMs: z.number().int().min(RETENTION_MS_MIN).max(RETENTION_MS_MAX).optional(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
 export type SettingsUpdate = Partial<Settings>;
 
-const defaultSettings: Settings = { theme: "system", locale: "en" };
+const defaultSettings: Settings = {
+	theme: "system",
+	locale: "en",
+	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+	retentionMs: RETENTION_MS_MIN,
+};
 
 export const AppConfigSchema = z
 	.object({

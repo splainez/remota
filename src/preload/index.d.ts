@@ -1,4 +1,14 @@
-import type { Connection, NewConnection, ConnectionUpdate, FileEntry, TerminalAppId } from "@shared/types";
+import type {
+	Connection,
+	NewConnection,
+	ConnectionUpdate,
+	FileEntry,
+	TerminalAppId,
+	DownloadRequest,
+	DownloadResult,
+	LocalStat,
+	TransferProgressEvent,
+} from "@shared/types";
 
 declare global {
 	interface Window {
@@ -25,6 +35,17 @@ declare global {
 				remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 				remoteHomeDir: (connectionId: number) => Promise<string>;
 				remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
+				download: (request: DownloadRequest) => Promise<DownloadResult>;
+				getLocalStat: (path: string) => Promise<LocalStat | null>;
+				onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;
+				onTransferJobDone: (
+					callback: (result: {
+						jobId: string;
+						results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+					}) => void,
+				) => () => void;
+				cancelTransfer: (jobId: string, itemId: string) => Promise<void>;
+				cancelAllTransfers: () => Promise<void>;
 				startWatch: (watcherId: string, dirPath: string) => Promise<void>;
 				stopWatch: (watcherId: string) => Promise<void>;
 				onFileChanged: (callback: (watcherId: string) => void) => () => void;

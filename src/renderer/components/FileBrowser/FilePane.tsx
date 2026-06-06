@@ -1,5 +1,6 @@
 import { Terminal } from "@renderer/components/Terminal/Terminal";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
+import { useDownload } from "@renderer/hooks/useDownload";
 import { useFileList } from "@renderer/hooks/useFileList";
 import { useFileSelection } from "@renderer/hooks/useFileSelection";
 import { useFileWatcher } from "@renderer/hooks/useFileWatcher";
@@ -32,6 +33,7 @@ interface FilePaneProps {
 	protocol?: "sftp" | "scp" | "s3";
 	connectionError?: SftpErrorInfo | null;
 	initialShowTerminal?: boolean;
+	peerLocalPath?: string;
 	onReconnect?: () => void;
 	onPathChange?: (path: string) => void;
 }
@@ -43,6 +45,7 @@ export function FilePane({
 	protocol,
 	connectionError,
 	initialShowTerminal = false,
+	peerLocalPath,
 	onReconnect,
 	onPathChange,
 }: FilePaneProps) {
@@ -72,6 +75,12 @@ export function FilePane({
 		handleKeyDown: terminalHandleKeyDown,
 	} = useTerminalToggle(initialShowTerminal);
 	const contextMenu = useContextMenu<FileEntry>();
+
+	const download = useDownload({
+		connectionId,
+		localBasePath: peerLocalPath ?? currentPath,
+		remoteBasePath: currentPath,
+	});
 
 	useEffect(() => {
 		void window.api.filesystem.setLastPath(connectionId, type, currentPath);
@@ -206,6 +215,12 @@ export function FilePane({
 				handleOpenInTerminal(entry).catch((error: unknown) => {
 					logger.error("openInTerminal failed", { error });
 				});
+			} else if (actionId === "download" && type === "remote") {
+				const useSelection = selectedNames.length > 1 && selectedNames.includes(entry.name);
+				const targets = useSelection ? filteredEntries.filter((e) => selectedNames.includes(e.name)) : [entry];
+				download.startDownload(targets).catch((error: unknown) => {
+					logger.error("download failed", { error });
+				});
 			} else if (actionId === "copyPath") {
 				navigator.clipboard
 					.writeText(entry.fullPath)
@@ -230,7 +245,7 @@ export function FilePane({
 				setEditingName(entry.name);
 			}
 		},
-		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t],
+		[download, filteredEntries, handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t, selectedNames, type],
 	);
 
 	const handleRenameCommit = useCallback(
@@ -358,6 +373,7 @@ export function FilePane({
 					onAction={handleContextMenuAction}
 				/>
 			)}
+			{download.dialog}
 		</div>
 	);
 }
