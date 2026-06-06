@@ -1,4 +1,14 @@
-import type { Connection, NewConnection, ConnectionUpdate, FileEntry, TerminalAppId } from "@shared/types";
+import type {
+	Connection,
+	NewConnection,
+	ConnectionUpdate,
+	FileEntry,
+	TerminalAppId,
+	DownloadRequest,
+	DownloadResult,
+	LocalStat,
+	TransferProgressEvent,
+} from "@shared/types";
 
 declare global {
 	interface Window {
@@ -23,6 +33,15 @@ declare global {
 				remoteDisconnect: (connectionId: number) => Promise<void>;
 				remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 				remoteHomeDir: (connectionId: number) => Promise<string>;
+				download: (request: DownloadRequest) => Promise<DownloadResult>;
+				getLocalStat: (path: string) => Promise<LocalStat | null>;
+				onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;
+				onTransferJobDone: (
+					callback: (result: {
+						jobId: string;
+						results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+					}) => void,
+				) => () => void;
 			};
 			terminal: {
 				spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;

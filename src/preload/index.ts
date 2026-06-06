@@ -2,11 +2,15 @@ import { IPC } from "@shared/ipc-channels";
 import type {
 	Connection,
 	ConnectionUpdate,
+	DownloadRequest,
+	DownloadResult,
 	FileEntry,
+	LocalStat,
 	NewConnection,
 	Settings,
 	SettingsUpdate,
 	TerminalAppId,
+	TransferProgressEvent,
 } from "@shared/types";
 import { contextBridge, ipcRenderer } from "electron";
 
@@ -46,6 +50,37 @@ const api = {
 			ipcRenderer.invoke(IPC.FILE_TEMP_DELETE, connectionId, remotePath),
 		tempExists: (connectionId: number, remotePath: string): Promise<boolean> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_EXISTS, connectionId, remotePath),
+		download: (request: DownloadRequest): Promise<DownloadResult> => ipcRenderer.invoke(IPC.FILE_DOWNLOAD, request),
+		getLocalStat: (path: string): Promise<LocalStat | null> => ipcRenderer.invoke(IPC.FILE_GET_LOCAL_STAT, path),
+		onTransferProgress: (callback: (event: TransferProgressEvent) => void) => {
+			const handler = (_e: Electron.IpcRendererEvent, event: TransferProgressEvent) => {
+				callback(event);
+			};
+			ipcRenderer.on(IPC.TRANSFER_PROGRESS, handler);
+			return () => {
+				ipcRenderer.removeListener(IPC.TRANSFER_PROGRESS, handler);
+			};
+		},
+		onTransferJobDone: (
+			callback: (result: {
+				jobId: string;
+				results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+			}) => void,
+		) => {
+			const handler = (
+				_e: Electron.IpcRendererEvent,
+				result: {
+					jobId: string;
+					results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+				},
+			) => {
+				callback(result);
+			};
+			ipcRenderer.on(IPC.TRANSFER_JOB_DONE, handler);
+			return () => {
+				ipcRenderer.removeListener(IPC.TRANSFER_JOB_DONE, handler);
+			};
+		},
 	},
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => {
