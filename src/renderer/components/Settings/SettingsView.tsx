@@ -5,8 +5,9 @@ import { useI18n } from "@renderer/hooks/useI18n";
 import { useTheme } from "@renderer/hooks/useTheme";
 import { cn } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
+import { RETENTION_MS_MAX, RETENTION_MS_MIN } from "@shared/app-config-schema";
 import type { TerminalAppId } from "@shared/app-config-schema";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface SettingsViewProps {
@@ -49,9 +50,14 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 		availableTerminals,
 		pendingRecoveryToast,
 		clearPendingRecoveryToast,
+		retentionMs,
+		setRetentionMs,
 	} = useSettingsStore();
 
 	const currentTerminal: TerminalOptionValue = externalTerminal ?? "none";
+	const retentionEnabled = retentionMs !== undefined;
+	const retentionSeconds = retentionMs !== undefined ? Math.round(retentionMs / 1000) : 30;
+	const [retentionInput, setRetentionInput] = useState(String(retentionSeconds));
 
 	useEffect(() => {
 		if (!pendingRecoveryToast) return;
@@ -100,6 +106,66 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 										<span className="text-xs font-medium">{t(opt.label)}</span>
 									</Button>
 								))}
+							</div>
+						</div>
+					</section>
+
+					{/* Transfers Section */}
+					<section className="flex flex-col gap-3">
+						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("settings.transfers")}
+						</h3>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.retentionMs")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.retentionMsDescription")}</span>
+							</div>
+							<div className="flex items-center gap-3">
+								<button
+									type="button"
+									role="switch"
+									aria-checked={retentionEnabled}
+									className={cn(
+										"relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+										retentionEnabled ? "bg-primary" : "bg-outline-variant",
+									)}
+									onClick={() => {
+										if (retentionEnabled) {
+											setRetentionMs(undefined);
+											setRetentionInput("30");
+										} else {
+											setRetentionMs(30_000);
+											setRetentionInput("30");
+										}
+									}}
+								>
+									<span
+										className={cn(
+											"pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
+											retentionEnabled ? "translate-x-5" : "translate-x-0",
+										)}
+									/>
+								</button>
+								{retentionEnabled && (
+									<div className="flex items-center gap-2">
+										<input
+											type="number"
+											min={Math.round(RETENTION_MS_MIN / 1000)}
+											max={Math.round(RETENTION_MS_MAX / 1000)}
+											step={5}
+											value={retentionInput}
+											onChange={(e) => {
+												setRetentionInput(e.target.value);
+												const parsed = Number(e.target.value);
+												if (Number.isFinite(parsed) && parsed > 0) {
+													setRetentionMs(parsed * 1000);
+												}
+											}}
+											className="w-20 h-8 px-2 text-sm rounded-md border border-outline-variant bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+										/>
+										<span className="text-sm text-on-surface-variant">{t("settings.retentionMsSeconds")}</span>
+									</div>
+								)}
 							</div>
 						</div>
 					</section>
