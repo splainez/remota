@@ -1,5 +1,5 @@
 import { useTransferStore } from "@renderer/store/transfer";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 const SPEED_WINDOW_MS = 2_000;
 const MAX_SAMPLES = 10;
@@ -75,5 +75,5 @@ export function useTransferSpeed(connectionId: number): (itemId: string) => numb
 		};
 	}, []);
 
-	return (itemId: string) => speedsRef.current.get(itemId) ?? 0;
+	return useCallback((itemId: string) => speedsRef.current.get(itemId) ?? 0, []);
 }

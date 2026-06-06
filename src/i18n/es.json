@@ -191,7 +191,6 @@
 	"transfer.item.cancelled": "Cancelado",
 	"transfer.item.bytes": "{transferred} de {total}",
 	"transfer.item.percent": "{percent}%",
-	"transfer.item.speed": "{speed}/s",
 	"terminal.externalOpenError": "No se pudo abrir la terminal externa. Abriendo la terminal integrada.",
 	"terminal.externalOpenSshless": "Terminal abierta sin SSH. Ejecuta `ssh <usuario>@<servidor>` para conectar."
 }

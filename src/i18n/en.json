@@ -194,7 +194,6 @@
 	"transfer.item.cancelled": "Cancelled",
 	"transfer.item.bytes": "{transferred} of {total}",
 	"transfer.item.percent": "{percent}%",
-	"transfer.item.speed": "{speed}/s",
 	"terminal.externalOpenError": "Could not open external terminal. Opening integrated terminal.",
 	"terminal.externalOpenSshless": "Opened terminal without SSH. Run `ssh <user>@<host>` to connect."
 }
