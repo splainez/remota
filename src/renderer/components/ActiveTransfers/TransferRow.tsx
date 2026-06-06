@@ -1,7 +1,9 @@
 import type { TranslationKey } from "@i18n/i18n";
 import { Icon, type IconName } from "@renderer/components/icons/Icon";
+import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import type { TransferItem } from "@renderer/store/transfer";
+import { useCallback } from "react";
 
 function statusLabelKey(status: TransferItem["status"]): TranslationKey {
 	switch (status) {
@@ -54,12 +56,19 @@ function statusIsSpinning(status: TransferItem["status"]): boolean {
 interface TransferRowProps {
 	item: TransferItem;
 	totalLabel: string;
+	onCancel: (jobId: string) => void;
 }
 
-export function TransferRow({ item, totalLabel }: TransferRowProps) {
+export function TransferRow({ item, totalLabel, onCancel }: TransferRowProps) {
 	const { t } = useI18n();
 	const percent = item.totalBytes > 0 ? Math.min(100, Math.round((item.transferredBytes / item.totalBytes) * 100)) : 0;
 	const transferredLabel = item.transferredBytes > 0 || item.totalBytes > 0 ? formatBytes(item.transferredBytes) : "";
+
+	const canCancel = item.status === "queued" || item.status === "active";
+
+	const handleCancel = useCallback(() => {
+		onCancel(item.jobId);
+	}, [onCancel, item.jobId]);
 
 	return (
 		<div className="bg-surface-container-low rounded-md border border-outline-variant p-2 flex flex-col gap-1">
@@ -72,7 +81,21 @@ export function TransferRow({ item, totalLabel }: TransferRowProps) {
 				<span className={`text-sm font-medium truncate ${statusTone(item.status)}`} title={item.name}>
 					{item.name}
 				</span>
-				<span className="text-xs text-on-surface-variant ml-auto shrink-0">{t(statusLabelKey(item.status))}</span>
+				{canCancel && (
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label={t("transfer.cancel")}
+						title={t("transfer.cancel")}
+						onClick={handleCancel}
+						className="shrink-0 ml-auto"
+					>
+						<Icon name="close" size={14} />
+					</Button>
+				)}
+				{!canCancel && (
+					<span className="text-xs text-on-surface-variant ml-auto shrink-0">{t(statusLabelKey(item.status))}</span>
+				)}
 			</div>
 			{item.error !== undefined && (
 				<div className="text-xs text-destructive truncate" title={item.error}>

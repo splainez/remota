@@ -12,10 +12,11 @@ import { TransferRow } from "./TransferRow";
 interface TransferHeaderProps {
 	pendingCount: number;
 	onClearCompleted: () => void;
+	onCancelAll: () => void;
 	onClose: () => void;
 }
 
-function TransferHeader({ pendingCount, onClearCompleted, onClose }: TransferHeaderProps) {
+function TransferHeader({ pendingCount, onClearCompleted, onCancelAll, onClose }: TransferHeaderProps) {
 	const { t } = useI18n();
 	return (
 		<div className="h-10 px-4 flex justify-between items-center border-b border-outline-variant bg-surface-container-highest shrink-0">
@@ -27,6 +28,17 @@ function TransferHeader({ pendingCount, onClearCompleted, onClose }: TransferHea
 				)}
 			</div>
 			<div className="flex gap-1">
+				{pendingCount > 0 && (
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label={t("transfer.cancelAll")}
+						title={t("transfer.cancelAll")}
+						onClick={onCancelAll}
+					>
+						{t("transfer.cancelAll")}
+					</Button>
+				)}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -91,6 +103,14 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 		clearAll(connectionId);
 	}, [clearAll, connectionId]);
 
+	const handleCancelAll = useCallback(() => {
+		void window.api.filesystem.cancelAllTransfers();
+	}, []);
+
+	const handleCancelItem = useCallback((jobId: string) => {
+		void window.api.filesystem.cancelTransfer(jobId);
+	}, []);
+
 	const sorted: TransferItem[] = useMemo(() => {
 		const order: Record<TransferItem["status"], number> = {
 			active: 0,
@@ -111,6 +131,7 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 			<TransferHeader
 				pendingCount={pendingCount}
 				onClearCompleted={pendingCount === 0 ? handleClearAll : handleClearCompleted}
+				onCancelAll={handleCancelAll}
 				onClose={handleClose}
 			/>
 			{sorted.length === 0 ? (
@@ -122,7 +143,7 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 					<ul className="flex flex-col gap-2">
 						{sorted.map((item) => (
 							<li key={item.id}>
-								<TransferRow item={item} totalLabel={formatSize(item.totalBytes)} />
+								<TransferRow item={item} totalLabel={formatSize(item.totalBytes)} onCancel={handleCancelItem} />
 							</li>
 						))}
 					</ul>

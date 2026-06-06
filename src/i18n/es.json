@@ -96,6 +96,8 @@
 	"transfer.pauseAll": "Pausar todas las transferencias",
 	"transfer.close": "Cerrar panel de transferencias",
 	"transfer.clearCompleted": "Limpiar completadas",
+	"transfer.cancel": "Cancelar transferencia",
+	"transfer.cancelAll": "Cancelar todas",
 	"transfer.empty": "Sin transferencias activas",
 	"transfer.emptyHint": "Las transferencias aparecerán aquí cuando subas o descargues archivos.",
 	"validation.hostRequired": "El servidor es obligatorio",

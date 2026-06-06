@@ -99,6 +99,8 @@
 	"transfer.pauseAll": "Pause all transfers",
 	"transfer.close": "Close transfers panel",
 	"transfer.clearCompleted": "Clear completed",
+	"transfer.cancel": "Cancel transfer",
+	"transfer.cancelAll": "Cancel all",
 	"transfer.empty": "No active transfers",
 	"transfer.emptyHint": "Transfers will appear here when you upload or download files.",
 	"validation.hostRequired": "Host is required",

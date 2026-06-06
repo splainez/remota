@@ -42,6 +42,8 @@ declare global {
 						results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
 					}) => void,
 				) => () => void;
+				cancelTransfer: (jobId: string) => Promise<void>;
+				cancelAllTransfers: () => Promise<void>;
 			};
 			terminal: {
 				spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;

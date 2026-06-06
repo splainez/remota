@@ -49,6 +49,8 @@ const mockApi = createMockApi({
 		getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
 		onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
 		onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
+		cancelTransfer: vi.fn().mockResolvedValue(undefined),
+		cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
 	},
 });
 
@@ -568,6 +570,8 @@ describe("FilePane", () => {
 				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
 				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
 				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
+				cancelTransfer: vi.fn().mockResolvedValue(undefined),
+				cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin);
@@ -631,6 +635,8 @@ describe("FilePane", () => {
 				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
 				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
 				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
+				cancelTransfer: vi.fn().mockResolvedValue(undefined),
+				cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin2);
@@ -693,6 +699,8 @@ describe("FilePane", () => {
 				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
 				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
 				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
+				cancelTransfer: vi.fn().mockResolvedValue(undefined),
+				cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin3);

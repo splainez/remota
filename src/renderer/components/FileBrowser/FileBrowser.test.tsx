@@ -48,6 +48,8 @@ function createConnectedMockApi() {
 			getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
 			onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
 			onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
+			cancelTransfer: vi.fn().mockResolvedValue(undefined),
+			cancelAllTransfers: vi.fn().mockResolvedValue(undefined),
 		},
 	});
 }

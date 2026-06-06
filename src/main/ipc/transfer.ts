@@ -30,4 +30,12 @@ export function registerTransferHandlers(service: TransferService, getWebContent
 		}
 		return service.startDownload(request, wc);
 	});
+
+	ipcMain.handle(IPC.TRANSFER_CANCEL, (_event, jobId: string) => {
+		service.cancel(jobId);
+	});
+
+	ipcMain.handle(IPC.TRANSFER_CANCEL_ALL, () => {
+		service.cancelAll();
+	});
 }

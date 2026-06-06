@@ -26,6 +26,8 @@ export const IPC = {
 	FILE_GET_LOCAL_STAT: "file:getLocalStat",
 	TRANSFER_PROGRESS: "transfer:progress",
 	TRANSFER_JOB_DONE: "transfer:jobDone",
+	TRANSFER_CANCEL: "transfer:cancel",
+	TRANSFER_CANCEL_ALL: "transfer:cancelAll",
 	TERMINAL_SPAWN: "terminal:spawn",
 	TERMINAL_WRITE: "terminal:write",
 	TERMINAL_RESIZE: "terminal:resize",
