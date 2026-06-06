@@ -200,5 +200,17 @@
 	"transfer.item.bytes": "{transferred} of {total}",
 	"transfer.item.percent": "{percent}%",
 	"terminal.externalOpenError": "Could not open external terminal. Opening integrated terminal.",
-	"terminal.externalOpenSshless": "Opened terminal without SSH. Run `ssh <user>@<host>` to connect."
+	"terminal.externalOpenSshless": "Opened terminal without SSH. Run `ssh <user>@<host>` to connect.",
+	"file.delete.title": "Delete file",
+	"file.delete.titleMultiple": "Delete files",
+	"file.delete.description": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+	"file.delete.descriptionMultiple": "Are you sure you want to delete \"{name}\" and {count} other items?",
+	"file.delete.yes": "Yes",
+	"file.delete.yesToAll": "Yes to all",
+	"file.delete.noToAll": "No to all",
+	"file.delete.cancel": "Cancel",
+	"file.delete.success": "File deleted",
+	"file.delete.successMultiple": "Files deleted",
+	"file.delete.cancelled": "Delete cancelled",
+	"file.delete.error": "Could not delete file"
 }

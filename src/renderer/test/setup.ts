@@ -65,6 +65,8 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			remoteRename: vi
 				.fn<(connectionId: number, oldPath: string, newName: string) => Promise<void>>()
 				.mockResolvedValue(undefined),
+			delete: vi.fn<(path: string) => Promise<void>>().mockResolvedValue(undefined),
+			remoteDelete: vi.fn<(connectionId: number, path: string) => Promise<void>>().mockResolvedValue(undefined),
 			tempGetPath: vi.fn().mockResolvedValue(undefined),
 			tempWrite: vi.fn().mockResolvedValue(undefined),
 			tempRead: vi.fn().mockResolvedValue([]),

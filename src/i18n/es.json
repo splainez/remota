@@ -197,5 +197,17 @@
 	"transfer.item.bytes": "{transferred} de {total}",
 	"transfer.item.percent": "{percent}%",
 	"terminal.externalOpenError": "No se pudo abrir la terminal externa. Abriendo la terminal integrada.",
-	"terminal.externalOpenSshless": "Terminal abierta sin SSH. Ejecuta `ssh <usuario>@<servidor>` para conectar."
+	"terminal.externalOpenSshless": "Terminal abierta sin SSH. Ejecuta `ssh <usuario>@<servidor>` para conectar.",
+	"file.delete.title": "Borrar archivo",
+	"file.delete.titleMultiple": "Borrar archivos",
+	"file.delete.description": "\u00bfEst\u00e1s seguro de que quieres borrar \u201c{name}\u201d? Esta acci\u00f3n no se puede deshacer.",
+	"file.delete.descriptionMultiple": "\u00bfEst\u00e1s seguro de que quieres borrar \u201c{name}\u201d y {count} elementos m\u00e1s?",
+	"file.delete.yes": "S\u00ed",
+	"file.delete.yesToAll": "S\u00ed a todo",
+	"file.delete.noToAll": "No a todo",
+	"file.delete.cancel": "Cancelar",
+	"file.delete.success": "Archivo eliminado",
+	"file.delete.successMultiple": "Archivos eliminados",
+	"file.delete.cancelled": "Borrado cancelado",
+	"file.delete.error": "No se pudo eliminar el archivo"
 }
