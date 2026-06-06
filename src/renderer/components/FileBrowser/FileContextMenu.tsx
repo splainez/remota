@@ -63,7 +63,7 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 			id: panelType === "local" ? "upload" : "download",
 			icon: panelType === "local" ? "arrow-up" : "arrow-down",
 			label: panelType === "local" ? t("file.contextMenu.upload") : t("file.contextMenu.download"),
-			visible: entry.isDirectory,
+			visible: true,
 		},
 		{
 			id: "rename",

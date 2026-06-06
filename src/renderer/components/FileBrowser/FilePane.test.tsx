@@ -45,6 +45,10 @@ const mockApi = createMockApi({
 		tempMkdir: vi.fn().mockResolvedValue(undefined),
 		tempDelete: vi.fn().mockResolvedValue(undefined),
 		tempExists: vi.fn().mockResolvedValue(false),
+		download: vi.fn().mockResolvedValue({ jobId: "test-job" }),
+		getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
+		onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
+		onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
 	},
 });
 
@@ -560,6 +564,10 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				download: vi.fn().mockResolvedValue({ jobId: "test-job" }),
+				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
+				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
+				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin);
@@ -619,6 +627,10 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				download: vi.fn().mockResolvedValue({ jobId: "test-job" }),
+				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
+				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
+				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin2);
@@ -677,6 +689,10 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				download: vi.fn().mockResolvedValue({ jobId: "test-job" }),
+				getLocalStat: vi.fn().mockResolvedValue({ exists: false, size: 0, modified: "", isDirectory: false }),
+				onTransferProgress: vi.fn().mockReturnValue(vi.fn()),
+				onTransferJobDone: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin3);
