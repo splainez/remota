@@ -21,6 +21,7 @@ interface TransferState {
 	clearCompleted: (connectionId: number) => void;
 	clearAll: (connectionId: number) => void;
 	removeItem: (id: string, connectionId: number) => void;
+	findBySource: (source: string) => TransferItem[];
 	reset: () => void;
 	pendingCount: (connectionId: number) => number;
 }
@@ -94,6 +95,20 @@ export const useTransferStore = create<TransferState>((set, get) => ({
 
 	reset: () => {
 		set({ byConnection: {} });
+	},
+
+	findBySource: (source) => {
+		const { byConnection } = get();
+		const result: TransferItem[] = [];
+		for (const list of Object.values(byConnection)) {
+			if (!list) continue;
+			for (const item of list) {
+				if (item.source === source && (item.status === "queued" || item.status === "active")) {
+					result.push(item);
+				}
+			}
+		}
+		return result;
 	},
 
 	pendingCount: (connectionId) => {

@@ -1,3 +1,4 @@
+import { DuplicateDownloadDialog, type DuplicateDecision } from "@renderer/components/Dialogs/DuplicateDownloadDialog";
 import { OverwriteDialog, type OverwriteDecision } from "@renderer/components/Dialogs/OverwriteDialog";
 import { join as joinPath } from "@renderer/shared/path-utils";
 import { useTransferStore } from "@renderer/store/transfer";
@@ -22,6 +23,10 @@ interface ResolvedFile {
 interface ConflictState {
 	current: ResolvedFile;
 	remaining: number;
+}
+
+interface DuplicateState {
+	fileName: string;
 }
 
 export interface UseDownloadParams {
@@ -81,7 +86,9 @@ function buildItem(file: ResolvedFile): DownloadItem {
 export function useDownload({ connectionId, localBasePath, remoteBasePath }: UseDownloadParams): UseDownloadResult {
 	const { t } = useI18n();
 	const [conflict, setConflict] = useState<ConflictState | null>(null);
+	const [duplicate, setDuplicate] = useState<DuplicateState | null>(null);
 	const resolveRef = useRef<((d: OverwriteDecision) => void) | null>(null);
+	const resolveDuplicateRef = useRef<((d: DuplicateDecision) => void) | null>(null);
 	const downloadingRef = useRef(false);
 
 	const askOverwrite = useCallback((current: ResolvedFile, remaining: number): Promise<OverwriteDecision> => {
@@ -91,9 +98,21 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 		});
 	}, []);
 
+	const askDuplicate = useCallback((fileName: string): Promise<DuplicateDecision> => {
+		return new Promise<DuplicateDecision>((resolve) => {
+			resolveDuplicateRef.current = resolve;
+			setDuplicate({ fileName });
+		});
+	}, []);
+
 	const clearConflict = useCallback(() => {
 		setConflict(null);
 		resolveRef.current = null;
+	}, []);
+
+	const clearDuplicate = useCallback(() => {
+		setDuplicate(null);
+		resolveDuplicateRef.current = null;
 	}, []);
 
 	const handleDecision = useCallback(
@@ -103,6 +122,15 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 			resolve?.(decision);
 		},
 		[clearConflict],
+	);
+
+	const handleDuplicateDecision = useCallback(
+		(decision: DuplicateDecision) => {
+			const resolve = resolveDuplicateRef.current;
+			clearDuplicate();
+			resolve?.(decision);
+		},
+		[clearDuplicate],
 	);
 
 	const startDownload = useCallback(
@@ -141,9 +169,34 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 				let bulkDecision: "overwrite" | "skip" | null = null;
 				const state: { cancelled: boolean } = { cancelled: false };
 
-				for (let i = 0; i < resolved.length; i++) {
-					if (state.cancelled) break;
-					const file = resolved[i];
+				const filtered: ResolvedFile[] = [];
+				for (const file of resolved) {
+					const existing = useTransferStore.getState().findBySource(file.remotePath);
+					if (existing.length > 0) {
+						const decision = await askDuplicate(file.entry.name);
+						if (decision === "cancel") {
+							state.cancelled = true;
+							break;
+						}
+						if (decision === "restart") {
+							for (const item of existing) {
+								void window.api.filesystem.cancelTransfer(item.jobId, item.id);
+							}
+							filtered.push(file);
+							continue;
+						}
+						continue;
+					}
+					filtered.push(file);
+				}
+
+				if (state.cancelled) {
+					toast.info(t("transfer.download.cancelled"));
+					return;
+				}
+
+				for (let i = 0; i < filtered.length; i++) {
+					const file = filtered[i];
 					const localExists = file.stat?.exists === true;
 					if (!localExists) {
 						toDownload.push(buildItem(file));
@@ -155,7 +208,7 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 					}
 					if (bulkDecision === "skip") continue;
 
-					const remaining = resolved.length - i;
+					const remaining = filtered.length - i;
 					const decision = await askOverwrite(file, remaining);
 					if (decision === "cancel") {
 						state.cancelled = true;
@@ -209,24 +262,31 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 				downloadingRef.current = false;
 			}
 		},
-		[askOverwrite, connectionId, localBasePath, remoteBasePath, t],
+		[askDuplicate, askOverwrite, connectionId, localBasePath, remoteBasePath, t],
 	);
 
-	const dialog =
-		conflict !== null ? (
-			<OverwriteDialog
-				open={true}
-				fileName={conflict.current.entry.name}
-				localPath={conflict.current.localPath}
-				remotePath={conflict.current.remotePath}
-				localSize={conflict.current.stat?.exists === true ? conflict.current.stat.size : null}
-				localModified={conflict.current.stat?.exists === true ? conflict.current.stat.modified : null}
-				remoteSize={conflict.current.entry.size}
-				remoteModified={conflict.current.entry.modified}
-				remaining={conflict.remaining}
-				onResolve={handleDecision}
-			/>
-		) : null;
-
-	return { startDownload, dialog };
+	return {
+		startDownload,
+		dialog: (
+			<>
+				{conflict !== null && (
+					<OverwriteDialog
+						open={true}
+						fileName={conflict.current.entry.name}
+						localPath={conflict.current.localPath}
+						remotePath={conflict.current.remotePath}
+						localSize={conflict.current.stat?.exists === true ? conflict.current.stat.size : null}
+						localModified={conflict.current.stat?.exists === true ? conflict.current.stat.modified : null}
+						remoteSize={conflict.current.entry.size}
+						remoteModified={conflict.current.entry.modified}
+						remaining={conflict.remaining}
+						onResolve={handleDecision}
+					/>
+				)}
+				{duplicate !== null && (
+					<DuplicateDownloadDialog open={true} fileName={duplicate.fileName} onResolve={handleDuplicateDecision} />
+				)}
+			</>
+		),
+	};
 }
