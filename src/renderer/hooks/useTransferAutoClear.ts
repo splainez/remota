@@ -35,12 +35,14 @@ export function useTransferAutoClear(connectionId: number): void {
 
 			pending.set(item.id, timerId);
 		}
+	}, [items, connectionId, retentionMs]);
 
+	useEffect(() => {
 		return () => {
-			for (const timerId of pending.values()) {
+			for (const timerId of timersRef.current.values()) {
 				clearTimeout(timerId);
 			}
-			pending.clear();
+			timersRef.current.clear();
 		};
-	}, [items, connectionId, retentionMs]);
+	}, []);
 }
