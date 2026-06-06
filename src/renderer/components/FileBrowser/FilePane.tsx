@@ -14,6 +14,7 @@ import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp
 import type { FileEntry } from "@shared/types";
 import { renameParamsSchema } from "@shared/validation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 
 import { ConnectionErrorView } from "./ConnectionErrorView";
@@ -51,7 +52,7 @@ export function FilePane({
 	const [filter, setFilter] = useState("");
 	const [editingName, setEditingName] = useState<string | null>(null);
 
-	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
+	const { selectedNames, lastClickedName, handleSelectEntry, clearSelection } = useFileSelection();
 	const {
 		currentPath,
 		navigateTo,
@@ -98,6 +99,18 @@ export function FilePane({
 	useEffect(() => {
 		clearTypeAhead();
 	}, [filter, currentPath, clearTypeAhead]);
+
+	useHotkeys(
+		"f2",
+		() => {
+			if (!paneRef.current?.contains(document.activeElement)) return;
+			const target = lastClickedName.current ?? selectedNames.at(-1);
+			if (editingName === null && target != null) {
+				setEditingName(target);
+			}
+		},
+		{ enabled: editingName === null },
+	);
 
 	const handleNavigateTo = useCallback(
 		(path: string) => {

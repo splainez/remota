@@ -9,6 +9,14 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 
 import { FilePane } from "./FilePane";
 
+const hotkeyCallbacks = new Map<string, () => void>();
+
+vi.mock("react-hotkeys-hook", () => ({
+	useHotkeys: (keys: string, callback: () => void) => {
+		hotkeyCallbacks.set(keys, callback);
+	},
+}));
+
 beforeAll(() => {
 	class ResizeObserverMock {
 		observe() {
@@ -1454,6 +1462,91 @@ describe("FilePane", () => {
 
 		await waitFor(() => {
 			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "notes.md");
+		});
+	});
+
+	it("starts rename when F2 is pressed on a selected file", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("readme.md"));
+		hotkeyCallbacks.get("f2")?.();
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("readme.md");
+	});
+
+	it("does not start rename on F2 when no file is selected", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		hotkeyCallbacks.get("f2")?.();
+
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("renames the last clicked file on F2 when multiple files are selected", async () => {
+		window.api.filesystem.list = vi.fn().mockResolvedValue([
+			{ name: "a.txt", isDirectory: false, fullPath: "/home/a.txt", size: 1, modified: "" },
+			{ name: "b.txt", isDirectory: false, fullPath: "/home/b.txt", size: 1, modified: "" },
+		]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("a.txt"));
+		fireEvent.click(screen.getByText("b.txt"), { ctrlKey: true });
+		hotkeyCallbacks.get("f2")?.();
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("b.txt");
+	});
+
+	it("does not start rename on F2 when already editing", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+		await screen.findByTestId("rename-input");
+
+		hotkeyCallbacks.get("f2")?.();
+		await waitFor(() => {
+			expect(screen.getAllByTestId("rename-input")).toHaveLength(1);
 		});
 	});
 });
