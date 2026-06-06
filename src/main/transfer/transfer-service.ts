@@ -17,7 +17,11 @@ import PQueue from "p-queue";
 
 const logger = LoggerFactory.init({ name: "main.transfer.service" });
 
-type Downloader = (item: DownloadItem, onProgress: (transferredBytes: number) => void) => Promise<void>;
+type Downloader = (
+	item: DownloadItem,
+	onProgress: (transferredBytes: number) => void,
+	signal: AbortSignal,
+) => Promise<void>;
 
 interface TransferJob {
 	id: string;
@@ -26,6 +30,7 @@ interface TransferJob {
 	cancelled: boolean;
 	results: Record<string, DownloadItemResult>;
 	abortControllers: AbortController[];
+	itemControllers: Map<string, AbortController>;
 }
 
 export interface TransferServiceOptions {
@@ -54,6 +59,7 @@ export class TransferService {
 			cancelled: false,
 			results: {},
 			abortControllers: [],
+			itemControllers: new Map(),
 		};
 		this.jobs.set(job.id, job);
 
@@ -73,6 +79,7 @@ export class TransferService {
 		const promises = job.items.map((item) => {
 			const controller = new AbortController();
 			job.abortControllers.push(controller);
+			job.itemControllers.set(item.id, controller);
 
 			return this.queue
 				.add(() => this.downloadItem(job, item, downloader, webContents, controller.signal), {
@@ -107,6 +114,15 @@ export class TransferService {
 		}
 	}
 
+	cancelItem(jobId: string, itemId: string): void {
+		const job = this.jobs.get(jobId);
+		if (!job) return;
+		const controller = job.itemControllers.get(itemId);
+		if (controller) {
+			controller.abort();
+		}
+	}
+
 	cancelAll(): void {
 		for (const job of this.jobs.values()) {
 			job.cancelled = true;
@@ -128,10 +144,12 @@ export class TransferService {
 
 	private resolveDownloader(connectionId: number): Downloader {
 		if (this.sftp.isConnected(connectionId)) {
-			return (item, onProgress) => this.sftp.downloadFile(connectionId, item.remotePath, item.localPath, onProgress);
+			return (item, onProgress, signal) =>
+				this.sftp.downloadFile(connectionId, item.remotePath, item.localPath, onProgress, signal);
 		}
 		if (this.s3.isConnected(connectionId)) {
-			return (item, onProgress) => this.s3.downloadFile(connectionId, item.remotePath, item.localPath, onProgress);
+			return (item, onProgress, signal) =>
+				this.s3.downloadFile(connectionId, item.remotePath, item.localPath, onProgress, signal);
 		}
 		throw new Error("Not connected to remote server");
 	}
@@ -170,9 +188,13 @@ export class TransferService {
 		this.emit(webContents, job, item, "active", 0);
 
 		try {
-			await downloader(item, (transferredBytes) => {
-				this.emit(webContents, job, item, "active", transferredBytes);
-			});
+			await downloader(
+				item,
+				(transferredBytes) => {
+					this.emit(webContents, job, item, "active", transferredBytes);
+				},
+				signal,
+			);
 
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
 			if (signal.aborted) {

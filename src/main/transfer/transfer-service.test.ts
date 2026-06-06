@@ -18,6 +18,7 @@ interface SftpStub {
 		remotePath: string,
 		localPath: string,
 		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
 	) => Promise<void>;
 }
 
@@ -28,6 +29,7 @@ interface S3Stub {
 		remotePath: string,
 		localPath: string,
 		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
 	) => Promise<void>;
 }
 
@@ -39,11 +41,18 @@ function makeAppStore(maxParallel = 5): AppStoreStub {
 
 function makeSftp(
 	connected: boolean,
-	downloadImpl?: (connectionId: number, remotePath: string, localPath: string) => Promise<void>,
+	downloadImpl?: (
+		connectionId: number,
+		remotePath: string,
+		localPath: string,
+		onProgress?: (b: number) => void,
+		signal?: AbortSignal,
+	) => Promise<void>,
 ): SftpStub {
 	return {
 		isConnected: () => connected,
-		downloadFile: (cid, rp, lp) => downloadImpl?.(cid, rp, lp) ?? Promise.resolve(),
+		downloadFile: (cid, rp, lp, onProgress, signal) =>
+			downloadImpl?.(cid, rp, lp, onProgress, signal) ?? Promise.resolve(),
 	};
 }
 
@@ -293,6 +302,225 @@ describe("TransferService", () => {
 		expect(f0.status).toBe("cancelled");
 		expect(f1.status).toBe("cancelled");
 		expect(f2.status).toBe("cancelled");
+	});
+
+	it("cancel() aborts an in-flight download: downloader receives signal and throws", async () => {
+		const wc = makeWebContents();
+		let downloadStarted: () => void = () => undefined;
+		const started = new Promise<void>((r) => {
+			downloadStarted = r;
+		});
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
+				downloadStarted();
+				await new Promise<void>((_resolve, reject) => {
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
+					if (signal?.aborted) {
+						reject(new DOMException("Aborted", "AbortError"));
+						return;
+					}
+					signal?.addEventListener(
+						"abort",
+						() => {
+							reject(new DOMException("Aborted", "AbortError"));
+						},
+						{ once: true },
+					);
+				});
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(1) as unknown as AppStore,
+		});
+
+		const { jobId } = service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+
+		await started;
+		service.cancel(jobId);
+
+		await new Promise((r) => setTimeout(r, 30));
+
+		const job = wc.jobs[0] as CapturedJob | undefined;
+		if (!job) throw new Error("jobDone event was not emitted");
+		const f0 = job.results.f0 as { status: "ok" | "error" | "cancelled" } | undefined;
+		expect(f0?.status).toBe("cancelled");
+
+		const cancelledEvents = wc.events.filter((e) => e.status === "cancelled");
+		expect(cancelledEvents.length).toBeGreaterThanOrEqual(1);
+	});
+
+	it("cancel() aborts in-flight download: downloader uses signal to destroy streams early", async () => {
+		const wc = makeWebContents();
+		let resolveDownload: () => void = () => undefined;
+		const downloadGate = new Promise<void>((r) => {
+			resolveDownload = r;
+		});
+		const abortSignals: (AbortSignal | undefined)[] = [];
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
+				abortSignals.push(signal);
+				await downloadGate;
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(1) as unknown as AppStore,
+		});
+
+		const { jobId } = service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+
+		await new Promise((r) => setTimeout(r, 5));
+		service.cancel(jobId);
+		resolveDownload();
+
+		await new Promise((r) => setTimeout(r, 30));
+
+		expect(abortSignals).toHaveLength(1);
+		expect(abortSignals[0]?.aborted).toBe(true);
+	});
+
+	it("cancel() on one job does not affect downloads from other jobs", async () => {
+		const wc = makeWebContents();
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
+				await new Promise<void>((_resolve, reject) => {
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
+					if (signal?.aborted) {
+						reject(new DOMException("Aborted", "AbortError"));
+						return;
+					}
+					signal?.addEventListener(
+						"abort",
+						() => {
+							reject(new DOMException("Aborted", "AbortError"));
+						},
+						{ once: true },
+					);
+				});
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(1) as unknown as AppStore,
+		});
+
+		const { jobId: job1Id } = service.startDownload(
+			{ connectionId: 1, items: makeItems(1) },
+			wc as unknown as WebContents,
+		);
+		const { jobId: job2Id } = service.startDownload(
+			{ connectionId: 1, items: makeItems(1) },
+			wc as unknown as WebContents,
+		);
+
+		await new Promise((r) => setTimeout(r, 5));
+		service.cancel(job1Id);
+
+		await new Promise((r) => setTimeout(r, 50));
+
+		const job1Done = wc.jobs.find((j) => j.jobId === job1Id);
+		const job2Done = wc.jobs.find((j) => j.jobId === job2Id);
+
+		expect(job1Done).toBeDefined();
+		expect(job1Done?.results.f0).toEqual({ id: "f0", status: "cancelled" });
+
+		if (job2Done) {
+			expect(job2Done.results.f0).toEqual({ id: "f0", status: "ok" });
+		}
+	});
+
+	it("cancelItem() cancels only the targeted item, other items in the same job continue", async () => {
+		const wc = makeWebContents();
+		const resolvers: (() => void)[] = [];
+
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
+				await new Promise<void>((_resolve, reject) => {
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
+					if (signal?.aborted) {
+						reject(new DOMException("Aborted", "AbortError"));
+						return;
+					}
+					signal?.addEventListener(
+						"abort",
+						() => {
+							reject(new DOMException("Aborted", "AbortError"));
+						},
+						{ once: true },
+					);
+					resolvers.push(_resolve);
+				});
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(3) as unknown as AppStore,
+		});
+
+		const items = makeItems(3);
+		const { jobId } = service.startDownload({ connectionId: 1, items }, wc as unknown as WebContents);
+
+		await new Promise((r) => setTimeout(r, 10));
+		expect(resolvers).toHaveLength(3);
+
+		service.cancelItem(jobId, items[1].id);
+
+		resolvers[0]();
+		resolvers[2]();
+
+		await new Promise((r) => setTimeout(r, 50));
+
+		const job = wc.jobs[0] as CapturedJob | undefined;
+		if (!job) throw new Error("jobDone event was not emitted");
+		const f0 = job.results.f0 as { status: "ok" | "error" | "cancelled" } | undefined;
+		const f1 = job.results.f1 as { status: "ok" | "error" | "cancelled" } | undefined;
+		const f2 = job.results.f2 as { status: "ok" | "error" | "cancelled" } | undefined;
+		if (!f0 || !f1 || !f2) throw new Error("missing items");
+		expect(f0.status).toBe("ok");
+		expect(f1.status).toBe("cancelled");
+		expect(f2.status).toBe("ok");
+	});
+
+	it("cancelItem() with unknown itemId is a no-op", async () => {
+		const wc = makeWebContents();
+		const sftp: SftpStub = {
+			isConnected: () => true,
+			downloadFile: async () => {
+				await new Promise((r) => setTimeout(r, 50));
+			},
+		};
+
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore(1) as unknown as AppStore,
+		});
+
+		const { jobId } = service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+
+		await new Promise((r) => setTimeout(r, 5));
+		service.cancelItem(jobId, "nonexistent-item-id");
+
+		await new Promise((r) => setTimeout(r, 30));
+
+		const cancelledEvents = wc.events.filter((e) => e.status === "cancelled");
+		expect(cancelledEvents).toHaveLength(0);
 	});
 
 	it("an item failure does not cancel other items", async () => {
