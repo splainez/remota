@@ -55,6 +55,9 @@ const mockApi = createMockApi({
 		tempMkdir: vi.fn().mockResolvedValue(undefined),
 		tempDelete: vi.fn().mockResolvedValue(undefined),
 		tempExists: vi.fn().mockResolvedValue(false),
+		startWatch: vi.fn().mockResolvedValue(undefined),
+		stopWatch: vi.fn().mockResolvedValue(undefined),
+		onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 	},
 });
 
@@ -572,6 +575,9 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				startWatch: vi.fn().mockResolvedValue(undefined),
+				stopWatch: vi.fn().mockResolvedValue(undefined),
+				onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin);
@@ -633,6 +639,9 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				startWatch: vi.fn().mockResolvedValue(undefined),
+				stopWatch: vi.fn().mockResolvedValue(undefined),
+				onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin2);
@@ -693,6 +702,9 @@ describe("FilePane", () => {
 				tempMkdir: vi.fn().mockResolvedValue(undefined),
 				tempDelete: vi.fn().mockResolvedValue(undefined),
 				tempExists: vi.fn().mockResolvedValue(false),
+				startWatch: vi.fn().mockResolvedValue(undefined),
+				stopWatch: vi.fn().mockResolvedValue(undefined),
+				onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 			},
 		});
 		vi.stubGlobal("api", mockApiWin3);

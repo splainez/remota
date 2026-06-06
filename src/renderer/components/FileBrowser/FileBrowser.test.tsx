@@ -46,6 +46,9 @@ function createConnectedMockApi() {
 			tempMkdir: vi.fn().mockResolvedValue(undefined),
 			tempDelete: vi.fn().mockResolvedValue(undefined),
 			tempExists: vi.fn().mockResolvedValue(false),
+			startWatch: vi.fn().mockResolvedValue(undefined),
+			stopWatch: vi.fn().mockResolvedValue(undefined),
+			onFileChanged: vi.fn().mockReturnValue(vi.fn()),
 		},
 	});
 }
