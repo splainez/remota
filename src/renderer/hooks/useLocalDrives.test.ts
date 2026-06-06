@@ -89,6 +89,46 @@ describe("useLocalDrives", () => {
 		const { result } = renderHook(() => useLocalDrives("/home/user"));
 		expect(result.current.isWindows).toBe(false);
 		expect(result.current.driveRoot).toBeNull();
+		expect(result.current.currentDrive).toBeNull();
 		expect(result.current.drives).toEqual([]);
+	});
+
+	it("currentDrive matches when at drive root", async () => {
+		(window as unknown as { api: { filesystem: { listDrives: () => Promise<string[]> } } }).api = {
+			filesystem: {
+				listDrives: vi.fn().mockResolvedValue(["C:\\", "D:\\"]),
+			},
+		};
+
+		const { result } = renderHook(() => useLocalDrives("C:\\"));
+		await waitFor(() => {
+			expect(result.current.currentDrive).toBe("C:\\");
+		});
+	});
+
+	it("currentDrive matches when in subdirectory", async () => {
+		(window as unknown as { api: { filesystem: { listDrives: () => Promise<string[]> } } }).api = {
+			filesystem: {
+				listDrives: vi.fn().mockResolvedValue(["C:\\", "D:\\"]),
+			},
+		};
+
+		const { result } = renderHook(() => useLocalDrives("C:\\Users\\Sergio\\AppData"));
+		await waitFor(() => {
+			expect(result.current.currentDrive).toBe("C:\\");
+		});
+	});
+
+	it("currentDrive is null when path does not match any drive", async () => {
+		(window as unknown as { api: { filesystem: { listDrives: () => Promise<string[]> } } }).api = {
+			filesystem: {
+				listDrives: vi.fn().mockResolvedValue(["C:\\"]),
+			},
+		};
+
+		const { result } = renderHook(() => useLocalDrives("/home/user"));
+		await waitFor(() => {
+			expect(result.current.currentDrive).toBeNull();
+		});
 	});
 });
