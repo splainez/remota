@@ -6,17 +6,17 @@ Electron 42 + electron-vite 5 (main / preload / renderer). React 19.2 + TS 6.0.3
 
 ## 2. Commands
 
-| Cmd | What |
-| --- | --- |
-| `pnpm dev` / `build` / `preview` | dev / prod build / preview prod |
-| `pnpm typecheck` | `tsc --noEmit` on both tsconfig projects |
-| `pnpm lint` / `lint:fix` | ESLint |
-| `pnpm fmt` / `fmt:check` | oxfmt (sortImports, printWidth 120) |
-| `pnpm test` / `test:watch` / `test:coverage` | vitest unit |
-| `pnpm test:integration` | vitest + testcontainers (Docker or `TEST_USE_EXTERNAL=true`) |
-| `pnpm test:all` | unit + integration |
-| `pnpm test:e2e` / `test:e2e:ui` | Playwright (chromium, port 5174) |
-| `pnpm check` | fmt+lint+typecheck+test+build. **Pre-PR gate.** |
+| Cmd                                          | What                                                         |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| `pnpm dev` / `build` / `preview`             | dev / prod build / preview prod                              |
+| `pnpm typecheck`                             | `tsc --noEmit` on both tsconfig projects                     |
+| `pnpm lint` / `lint:fix`                     | ESLint                                                       |
+| `pnpm fmt` / `fmt:check`                     | oxfmt (sortImports, printWidth 120)                          |
+| `pnpm test` / `test:watch` / `test:coverage` | vitest unit                                                  |
+| `pnpm test:integration`                      | vitest + testcontainers (Docker or `TEST_USE_EXTERNAL=true`) |
+| `pnpm test:all`                              | unit + integration                                           |
+| `pnpm test:e2e` / `test:e2e:ui`              | Playwright (chromium, port 5174)                             |
+| `pnpm check`                                 | fmt+lint+typecheck+test+build. **Pre-PR gate.**              |
 
 ## 3. Architecture
 
@@ -75,7 +75,7 @@ pnpm check   # = fmt:check + lint --quiet + typecheck + test --silent + build
 
 If fail → fix before marking done. **Never commit with failing pipeline.**
 
-Beyond passing checks: every change must leave codebase **more maintainable** than found. *Would I understand this in 6 months?* If no → refactor. Integration + E2E not in `check` (need Docker/browsers). Run before PR if you touch IPC, main-proc, proto clients, cross-process types, or Playwright-covered flows.
+Beyond passing checks: every change must leave codebase **more maintainable** than found. _Would I understand this in 6 months?_ If no → refactor. Integration + E2E not in `check` (need Docker/browsers). Run before PR if you touch IPC, main-proc, proto clients, cross-process types, or Playwright-covered flows.
 
 ## 14. Code style
 
