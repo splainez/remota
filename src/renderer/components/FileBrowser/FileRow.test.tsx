@@ -1,5 +1,5 @@
 import type { FileEntry } from "@shared/types";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
@@ -83,5 +83,148 @@ describe("FileRow", () => {
 		const entry = makeEntry({ isDirectory: false, name: "readme.md" });
 		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
 		expect(screen.getByText("readme.md")).toBeInTheDocument();
+	});
+
+	// --- rename (inline edit) ---
+
+	it("renders an input pre-filled with the current name when editing", () => {
+		const entry = makeEntry({ name: "draft.txt" });
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				isEditing={true}
+				onCommitRename={vi.fn()}
+				onCancelRename={vi.fn()}
+			/>,
+		);
+		const input = screen.getByTestId<HTMLInputElement>("rename-input");
+		expect(input).toBeInTheDocument();
+		expect(input.value).toBe("draft.txt");
+	});
+
+	it("selects all text in the rename input on focus", () => {
+		const entry = makeEntry({ name: "draft.txt" });
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				isEditing={true}
+				onCommitRename={vi.fn()}
+				onCancelRename={vi.fn()}
+			/>,
+		);
+		const input = screen.getByTestId<HTMLInputElement>("rename-input");
+		expect(document.activeElement).toBe(input);
+		expect(input.selectionStart).toBe(0);
+		expect(input.selectionEnd).toBe("draft.txt".length);
+	});
+
+	it("calls onCommitRename with trimmed name on Enter", async () => {
+		const user = userEvent.setup();
+		const onCommitRename = vi.fn();
+		const entry = makeEntry({ name: "draft.txt" });
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				isEditing={true}
+				onCommitRename={onCommitRename}
+				onCancelRename={vi.fn()}
+			/>,
+		);
+		const input = screen.getByTestId("rename-input");
+		await user.clear(input);
+		await user.type(input, "  final.md  ");
+		await user.keyboard("{Enter}");
+		expect(onCommitRename).toHaveBeenCalledWith("final.md");
+	});
+
+	it("calls onCancelRename on Escape and does not commit", async () => {
+		const user = userEvent.setup();
+		const onCommitRename = vi.fn();
+		const onCancelRename = vi.fn();
+		const entry = makeEntry({ name: "draft.txt" });
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				isEditing={true}
+				onCommitRename={onCommitRename}
+				onCancelRename={onCancelRename}
+			/>,
+		);
+		const input = screen.getByTestId("rename-input");
+		await user.clear(input);
+		await user.type(input, "changed");
+		await user.keyboard("{Escape}");
+		expect(onCancelRename).toHaveBeenCalledOnce();
+		expect(onCommitRename).not.toHaveBeenCalled();
+	});
+
+	it("calls onCommitRename on blur", async () => {
+		const user = userEvent.setup();
+		const onCommitRename = vi.fn();
+		const entry = makeEntry({ name: "draft.txt" });
+		render(
+			<div>
+				<FileRow
+					entry={entry}
+					isSelected={false}
+					onClick={vi.fn()}
+					onDoubleClick={vi.fn()}
+					isEditing={true}
+					onCommitRename={onCommitRename}
+					onCancelRename={vi.fn()}
+				/>
+				<button data-testid="outside">outside</button>
+			</div>,
+		);
+		const input = screen.getByTestId("rename-input");
+		await user.click(input);
+		await user.click(screen.getByTestId("outside"));
+		expect(onCommitRename).toHaveBeenCalledOnce();
+	});
+
+	it("does not call onClick / onDoubleClick / onContextMenu while editing", async () => {
+		const user = userEvent.setup();
+		const onClick = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onContextMenu = vi.fn();
+		const entry = makeEntry({ name: "draft.txt" });
+		const { container } = render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={onClick}
+				onDoubleClick={onDoubleClick}
+				onContextMenu={onContextMenu}
+				isEditing={true}
+				onCommitRename={vi.fn()}
+				onCancelRename={vi.fn()}
+			/>,
+		);
+		const row = container.firstElementChild as HTMLElement;
+		await user.click(row);
+		await user.dblClick(row);
+		fireEvent.contextMenu(row);
+		expect(onClick).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
+		expect(onContextMenu).not.toHaveBeenCalled();
+	});
+
+	it("does not render the input when not editing", () => {
+		const entry = makeEntry();
+		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+		expect(screen.getByText("test.txt")).toBeInTheDocument();
 	});
 });

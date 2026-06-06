@@ -278,4 +278,55 @@ describe("FileList", () => {
 			"config.json",
 		);
 	});
+
+	// --- rename plumbing ---
+
+	it("renders the rename input only for the row matching editingName", () => {
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} editingName="readme.md" onCommitRename={vi.fn()} onCancelRename={vi.fn()} />
+			</I18nWrapper>,
+		);
+		const inputs = screen.getAllByTestId("rename-input");
+		expect(inputs).toHaveLength(1);
+		expect((inputs[0] as HTMLInputElement).value).toBe("readme.md");
+	});
+
+	it("calls onCommitRename with the matching entry and the new name", async () => {
+		const user = userEvent.setup();
+		const onCommitRename = vi.fn();
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} editingName="readme.md" onCommitRename={onCommitRename} onCancelRename={vi.fn()} />
+			</I18nWrapper>,
+		);
+		const input = screen.getByTestId("rename-input");
+		await user.clear(input);
+		await user.type(input, "renamed.md{Enter}");
+		const matchingEntry = sampleEntries.find((e) => e.name === "readme.md");
+		expect(onCommitRename).toHaveBeenCalledWith(matchingEntry, "renamed.md");
+	});
+
+	it("calls onCancelRename when Escape is pressed in the rename input", async () => {
+		const user = userEvent.setup();
+		const onCancelRename = vi.fn();
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} editingName="readme.md" onCommitRename={vi.fn()} onCancelRename={onCancelRename} />
+			</I18nWrapper>,
+		);
+		const input = screen.getByTestId("rename-input");
+		await user.click(input);
+		await user.keyboard("{Escape}");
+		expect(onCancelRename).toHaveBeenCalledOnce();
+	});
+
+	it("does not render rename input when editingName is null", () => {
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} editingName={null} onCommitRename={vi.fn()} onCancelRename={vi.fn()} />
+			</I18nWrapper>,
+		);
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
 });

@@ -1269,4 +1269,191 @@ describe("FilePane", () => {
 
 		toastErrorSpy.mockRestore();
 	});
+
+	// --- "Rename" context-menu action (local panel — OPE-22) ---
+
+	it("right-clicking a local file and selecting Rename shows an inline input pre-filled with the current name", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		expect((input as HTMLInputElement).value).toBe("readme.md");
+	});
+
+	it("commits the rename on Enter and calls filesystem.rename with old path and new name", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "notes.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "notes.md");
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("cancels the rename on Escape and does not call filesystem.rename", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "changed");
+		await userEvent.keyboard("{Escape}");
+
+		expect(renameMock).not.toHaveBeenCalled();
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+	});
+
+	it("reverts to the original name and shows a toast when the new name is invalid", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "bad/name");
+		await userEvent.keyboard("{Enter}");
+
+		expect(renameMock).not.toHaveBeenCalled();
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("reverts to the original name and shows a toast when filesystem.rename rejects", async () => {
+		const renameMock = vi
+			.fn<(oldPath: string, newName: string) => Promise<void>>()
+			.mockRejectedValue(new Error("EACCES: permission denied"));
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "renamed.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "renamed.md");
+		});
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("clears the selection after a successful rename (selection is keyed by name)", async () => {
+		const renameMock = vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined);
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+		window.api.filesystem.rename = renameMock;
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await userEvent.click(screen.getByText("readme.md"));
+		expect(screen.getByText("readme.md").closest(".cursor-pointer")?.className).toContain("bg-primary-fixed-dim/20");
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Rename"));
+
+		const input = await screen.findByTestId("rename-input");
+		await userEvent.clear(input);
+		await userEvent.type(input, "notes.md");
+		await userEvent.keyboard("{Enter}");
+
+		await waitFor(() => {
+			expect(renameMock).toHaveBeenCalledWith("/home/readme.md", "notes.md");
+		});
+	});
 });

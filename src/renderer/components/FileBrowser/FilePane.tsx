@@ -10,8 +10,9 @@ import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
 import { matchesWildcard } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
 import { LoggerFactory } from "@shared/lib/logger";
-import { getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
+import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
+import { renameParamsSchema } from "@shared/validation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -48,6 +49,7 @@ export function FilePane({
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const [filter, setFilter] = useState("");
+	const [editingName, setEditingName] = useState<string | null>(null);
 
 	const { selectedNames, handleSelectEntry, clearSelection } = useFileSelection();
 	const {
@@ -208,10 +210,51 @@ export function FilePane({
 						logger.error("copyName failed", { entry: entry.name, error });
 						toast.error(t("file.contextMenu.copyError"));
 					});
+			} else if (actionId === "rename") {
+				setEditingName(entry.name);
 			}
 		},
 		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t],
 	);
+
+	const handleRenameCommit = useCallback(
+		async (entry: FileEntry, newName: string) => {
+			const trimmed = newName.trim();
+			if (trimmed.length === 0) {
+				setEditingName(null);
+				return;
+			}
+			if (trimmed === entry.name) {
+				setEditingName(null);
+				return;
+			}
+			const parsed = renameParamsSchema.safeParse({ oldPath: entry.fullPath, newName: trimmed });
+			if (!parsed.success) {
+				setEditingName(null);
+				const messageKey = parsed.error.issues[0]?.message ?? "validation.default";
+				toast.error(t(messageKey as Parameters<typeof t>[0]));
+				return;
+			}
+			try {
+				await window.api.filesystem.rename(parsed.data.oldPath, parsed.data.newName);
+				setEditingName(null);
+				clearSelection();
+				refresh().catch((error: unknown) => {
+					logger.error("refresh after rename failed", { error });
+				});
+			} catch (error: unknown) {
+				setEditingName(null);
+				const errorInfo = classifyError(error);
+				logger.error("rename failed", { entry: entry.fullPath, newName: trimmed, error });
+				toast.error(t(getErrorI18nKey(errorInfo.code)));
+			}
+		},
+		[clearSelection, refresh, t],
+	);
+
+	const handleRenameCancel = useCallback(() => {
+		setEditingName(null);
+	}, []);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
@@ -276,6 +319,11 @@ export function FilePane({
 					onContextMenu={(e, entry) => {
 						contextMenu.open(e, entry);
 					}}
+					editingName={editingName}
+					onCommitRename={(entry, newName) => {
+						void handleRenameCommit(entry, newName);
+					}}
+					onCancelRename={handleRenameCancel}
 				/>
 			)}
 			{showTerminal && (

@@ -1,12 +1,16 @@
-import { readdirSync, statSync, existsSync } from "node:fs";
+import { readdirSync, renameSync, statSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, sep } from "node:path";
+import { dirname, join, sep } from "node:path";
 
 import type { AppStore } from "@main/app-store";
 import { tempManager } from "@main/temp/temp-manager";
 import { IPC } from "@shared/ipc-channels";
+import { LoggerFactory } from "@shared/lib/logger";
 import type { FileEntry } from "@shared/types";
+import { renameParamsSchema } from "@shared/validation";
 import { app, ipcMain, shell } from "electron";
+
+const logger = LoggerFactory.init({ name: "main.ipc.filesystem" });
 
 export function listDirectory(dirPath: string): FileEntry[] {
 	let entryNames: string[];
@@ -106,6 +110,21 @@ export function registerFilesystemHandlers(store: AppStore) {
 
 	ipcMain.handle(IPC.FILE_OPEN_PATH, (_event, filePath: string) => {
 		return openPath(filePath);
+	});
+
+	ipcMain.handle(IPC.FILE_RENAME, (_event, oldPath: string, newName: string) => {
+		const parsed = renameParamsSchema.safeParse({ oldPath, newName });
+		if (!parsed.success) {
+			throw new Error(`Invalid rename params: ${parsed.error.message}`);
+		}
+		const newPath = join(dirname(parsed.data.oldPath), parsed.data.newName);
+		try {
+			renameSync(parsed.data.oldPath, newPath);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("rename failed", { oldPath: parsed.data.oldPath, newName: parsed.data.newName, error: message });
+			throw new Error(`Rename failed: ${message}`, { cause: err });
+		}
 	});
 
 	ipcMain.handle(IPC.FILE_TEMP_GET_PATH, (_event, connectionId: number) => {

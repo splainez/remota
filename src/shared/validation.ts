@@ -68,11 +68,7 @@ export const fileNameSchema = z.string().superRefine((val, ctx) => {
 		ctx.addIssue({ code: "custom", message: "validation.fileNameTooLong" });
 		return;
 	}
-	if (process.platform === "win32" && INVALID_WIN_CHARS.test(trimmed)) {
-		ctx.addIssue({ code: "custom", message: "validation.fileNameInvalid" });
-		return;
-	}
-	if (INVALID_POSIX_CHARS.test(trimmed)) {
+	if (INVALID_WIN_CHARS.test(trimmed) || INVALID_POSIX_CHARS.test(trimmed)) {
 		ctx.addIssue({ code: "custom", message: "validation.fileNameInvalid" });
 	}
 });
