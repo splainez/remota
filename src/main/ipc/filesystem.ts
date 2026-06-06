@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { dirname, join, sep } from "node:path";
 
 import type { AppStore } from "@main/app-store";
+import type { FileWatcherManager } from "@main/file-watcher/file-watcher-manager";
 import { tempManager } from "@main/temp/temp-manager";
 import { IPC } from "@shared/ipc-channels";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -66,7 +67,7 @@ export function listDrives(): string[] {
 	return drives;
 }
 
-export function registerFilesystemHandlers(store: AppStore) {
+export function registerFilesystemHandlers(store: AppStore, fileWatcher: FileWatcherManager) {
 	ipcMain.handle(IPC.FILE_LIST, (_event, dirPath: string) => {
 		const normalized = normalizePath(dirPath);
 		return listDirectory(normalized);
@@ -150,6 +151,15 @@ export function registerFilesystemHandlers(store: AppStore) {
 
 	ipcMain.handle(IPC.FILE_TEMP_EXISTS, async (_event, connectionId: number, remotePath: string) => {
 		return tempManager.exists(connectionId, remotePath);
+	});
+
+	ipcMain.handle(IPC.FILE_WATCH_START, (_event, watcherId: string, dirPath: string) => {
+		const normalized = normalizePath(dirPath);
+		fileWatcher.start(watcherId, normalized);
+	});
+
+	ipcMain.handle(IPC.FILE_WATCH_STOP, (_event, watcherId: string) => {
+		fileWatcher.stop(watcherId);
 	});
 }
 

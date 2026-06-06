@@ -4,6 +4,7 @@ import { IPC } from "@shared/ipc-channels";
 import { app, BrowserWindow, ipcMain } from "electron";
 
 import { AppStore } from "./app-store";
+import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
@@ -79,7 +80,6 @@ void app.whenReady().then(() => {
 	const sftp = new SftpConnectionManager();
 	const s3 = new S3ConnectionManager();
 	registerConnectionHandlers(appStore);
-	registerFilesystemHandlers(appStore);
 	registerRemoteFilesystemHandlers(sftp, s3, appStore);
 	registerSettingsHandlers(appStore);
 	registerTransferPanelHandlers(appStore);
@@ -89,10 +89,13 @@ void app.whenReady().then(() => {
 		throw new Error("Main window not created");
 	}
 
+	const fileWatcher = new FileWatcherManager(mainWindow.webContents);
+	registerFilesystemHandlers(appStore, fileWatcher);
 	const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);
 	registerTerminalHandlers(terminalManager);
 
 	app.on("will-quit", () => {
+		fileWatcher.stopAll();
 		terminalManager.killAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
