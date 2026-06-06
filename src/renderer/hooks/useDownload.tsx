@@ -82,6 +82,7 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 	const { t } = useI18n();
 	const [conflict, setConflict] = useState<ConflictState | null>(null);
 	const resolveRef = useRef<((d: OverwriteDecision) => void) | null>(null);
+	const downloadingRef = useRef(false);
 
 	const askOverwrite = useCallback((current: ResolvedFile, remaining: number): Promise<OverwriteDecision> => {
 		return new Promise<OverwriteDecision>((resolve) => {
@@ -107,99 +108,105 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 	const startDownload = useCallback(
 		async (entries: FileEntry[]): Promise<void> => {
 			if (entries.length === 0) return;
-
-			useTransferPanelStore.getState().notifyTransferStarted(connectionId);
-
-			let flat: FileEntry[];
-			try {
-				flat = await flattenEntries(entries, connectionId, new Set());
-			} catch (err) {
-				logger.error("flatten entries failed", { error: err });
-				toast.error(t(getErrorI18nKey(classifyError(err).code)));
-				return;
-			}
-			if (flat.length === 0) return;
-
-			const resolved: ResolvedFile[] = flat.map((entry) => {
-				const rel = relativeRemotePath(entry.fullPath, remoteBasePath);
-				const localPath = joinPath(localBasePath, rel);
-				return { entry, remotePath: entry.fullPath, localPath, stat: null };
-			});
-
-			const stats = await Promise.all(
-				resolved.map((r) => window.api.filesystem.getLocalStat(r.localPath).catch(() => null)),
-			);
-			resolved.forEach((r, i) => {
-				r.stat = stats[i];
-			});
-
-			const toDownload: DownloadItem[] = [];
-			let bulkDecision: "overwrite" | "skip" | null = null;
-			const state: { cancelled: boolean } = { cancelled: false };
-
-			for (let i = 0; i < resolved.length; i++) {
-				if (state.cancelled) break;
-				const file = resolved[i];
-				const localExists = file.stat?.exists === true;
-				if (!localExists) {
-					toDownload.push(buildItem(file));
-					continue;
-				}
-				if (bulkDecision === "overwrite") {
-					toDownload.push(buildItem(file));
-					continue;
-				}
-				if (bulkDecision === "skip") continue;
-
-				const remaining = resolved.length - i;
-				const decision = await askOverwrite(file, remaining);
-				if (decision === "cancel") {
-					state.cancelled = true;
-					break;
-				}
-				if (decision === "overwriteAll") {
-					bulkDecision = "overwrite";
-					toDownload.push(buildItem(file));
-					continue;
-				}
-				if (decision === "skipAll") {
-					bulkDecision = "skip";
-					continue;
-				}
-				if (decision === "overwrite") {
-					toDownload.push(buildItem(file));
-				}
-			}
-
-			if (state.cancelled) {
-				toast.info(t("transfer.download.cancelled"));
-				return;
-			}
-			if (toDownload.length === 0) {
-				toast.info(t("transfer.download.cancelled"));
-				return;
-			}
+			if (downloadingRef.current) return;
+			downloadingRef.current = true;
 
 			try {
-				const { jobId } = await window.api.filesystem.download({ connectionId, items: toDownload });
-				for (const item of toDownload) {
-					useTransferStore.getState().handleProgress({
-						jobId,
-						id: item.id,
-						connectionId,
-						name: item.remotePath.split("/").pop() ?? item.remotePath,
-						source: item.remotePath,
-						target: item.localPath,
-						direction: "download",
-						totalBytes: item.size,
-						transferredBytes: 0,
-						status: "queued",
-					});
+				useTransferPanelStore.getState().notifyTransferStarted(connectionId);
+
+				let flat: FileEntry[];
+				try {
+					flat = await flattenEntries(entries, connectionId, new Set());
+				} catch (err) {
+					logger.error("flatten entries failed", { error: err });
+					toast.error(t(getErrorI18nKey(classifyError(err).code)));
+					return;
 				}
-				toast.info(t("transfer.download.started"));
-			} catch (err) {
-				logger.error("download start failed", { error: err });
-				toast.error(t(getErrorI18nKey(classifyError(err).code)));
+				if (flat.length === 0) return;
+
+				const resolved: ResolvedFile[] = flat.map((entry) => {
+					const rel = relativeRemotePath(entry.fullPath, remoteBasePath);
+					const localPath = joinPath(localBasePath, rel);
+					return { entry, remotePath: entry.fullPath, localPath, stat: null };
+				});
+
+				const stats = await Promise.all(
+					resolved.map((r) => window.api.filesystem.getLocalStat(r.localPath).catch(() => null)),
+				);
+				resolved.forEach((r, i) => {
+					r.stat = stats[i];
+				});
+
+				const toDownload: DownloadItem[] = [];
+				let bulkDecision: "overwrite" | "skip" | null = null;
+				const state: { cancelled: boolean } = { cancelled: false };
+
+				for (let i = 0; i < resolved.length; i++) {
+					if (state.cancelled) break;
+					const file = resolved[i];
+					const localExists = file.stat?.exists === true;
+					if (!localExists) {
+						toDownload.push(buildItem(file));
+						continue;
+					}
+					if (bulkDecision === "overwrite") {
+						toDownload.push(buildItem(file));
+						continue;
+					}
+					if (bulkDecision === "skip") continue;
+
+					const remaining = resolved.length - i;
+					const decision = await askOverwrite(file, remaining);
+					if (decision === "cancel") {
+						state.cancelled = true;
+						break;
+					}
+					if (decision === "overwriteAll") {
+						bulkDecision = "overwrite";
+						toDownload.push(buildItem(file));
+						continue;
+					}
+					if (decision === "skipAll") {
+						bulkDecision = "skip";
+						continue;
+					}
+					if (decision === "overwrite") {
+						toDownload.push(buildItem(file));
+					}
+				}
+
+				if (state.cancelled) {
+					toast.info(t("transfer.download.cancelled"));
+					return;
+				}
+				if (toDownload.length === 0) {
+					toast.info(t("transfer.download.cancelled"));
+					return;
+				}
+
+				try {
+					const { jobId } = await window.api.filesystem.download({ connectionId, items: toDownload });
+					for (const item of toDownload) {
+						useTransferStore.getState().handleProgress({
+							jobId,
+							id: item.id,
+							connectionId,
+							name: item.remotePath.split("/").pop() ?? item.remotePath,
+							source: item.remotePath,
+							target: item.localPath,
+							direction: "download",
+							totalBytes: item.size,
+							transferredBytes: 0,
+							status: "queued",
+						});
+					}
+					toast.info(t("transfer.download.started"));
+				} catch (err) {
+					logger.error("download start failed", { error: err });
+					toast.error(t(getErrorI18nKey(classifyError(err).code)));
+				}
+			} finally {
+				downloadingRef.current = false;
 			}
 		},
 		[askOverwrite, connectionId, localBasePath, remoteBasePath, t],
