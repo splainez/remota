@@ -188,9 +188,29 @@ export function FilePane({
 				handleOpenInTerminal(entry).catch((error: unknown) => {
 					logger.error("openInTerminal failed", { error });
 				});
+			} else if (actionId === "copyPath") {
+				navigator.clipboard
+					.writeText(entry.fullPath)
+					.then(() => {
+						toast.success(t("file.contextMenu.pathCopied"));
+					})
+					.catch((error: unknown) => {
+						logger.error("copyPath failed", { entry: entry.fullPath, error });
+						toast.error(t("file.contextMenu.copyError"));
+					});
+			} else if (actionId === "copyName") {
+				navigator.clipboard
+					.writeText(entry.name)
+					.then(() => {
+						toast.success(t("file.contextMenu.nameCopied"));
+					})
+					.catch((error: unknown) => {
+						logger.error("copyName failed", { entry: entry.name, error });
+						toast.error(t("file.contextMenu.copyError"));
+					});
 			}
 		},
-		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal],
+		[handleEnterDirectory, handleOpenFile, handleOpenInTerminal, t],
 	);
 
 	const handleKeyDown = useCallback(
