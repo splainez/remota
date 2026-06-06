@@ -80,6 +80,7 @@ const defaultSettings: Settings = {
 	theme: "system",
 	locale: "en",
 	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+	retentionMs: RETENTION_MS_MIN,
 };
 
 export const AppConfigSchema = z
