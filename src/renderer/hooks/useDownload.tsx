@@ -180,23 +180,22 @@ export function useDownload({ connectionId, localBasePath, remoteBasePath }: Use
 				return;
 			}
 
-			for (const item of toDownload) {
-				useTransferStore.getState().handleProgress({
-					jobId: "pending",
-					id: item.id,
-					connectionId,
-					name: item.remotePath.split("/").pop() ?? item.remotePath,
-					source: item.remotePath,
-					target: item.localPath,
-					direction: "download",
-					totalBytes: item.size,
-					transferredBytes: 0,
-					status: "queued",
-				});
-			}
-
 			try {
-				await window.api.filesystem.download({ connectionId, items: toDownload });
+				const { jobId } = await window.api.filesystem.download({ connectionId, items: toDownload });
+				for (const item of toDownload) {
+					useTransferStore.getState().handleProgress({
+						jobId,
+						id: item.id,
+						connectionId,
+						name: item.remotePath.split("/").pop() ?? item.remotePath,
+						source: item.remotePath,
+						target: item.localPath,
+						direction: "download",
+						totalBytes: item.size,
+						transferredBytes: 0,
+						status: "queued",
+					});
+				}
 				toast.info(t("transfer.download.started"));
 			} catch (err) {
 				logger.error("download start failed", { error: err });

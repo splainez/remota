@@ -107,8 +107,8 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 		void window.api.filesystem.cancelAllTransfers();
 	}, []);
 
-	const handleCancelItem = useCallback((jobId: string) => {
-		void window.api.filesystem.cancelTransfer(jobId);
+	const handleCancelItem = useCallback((jobId: string, itemId: string) => {
+		void window.api.filesystem.cancelTransfer(jobId, itemId);
 	}, []);
 
 	const sorted: TransferItem[] = useMemo(() => {

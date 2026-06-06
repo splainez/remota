@@ -56,7 +56,7 @@ function statusIsSpinning(status: TransferItem["status"]): boolean {
 interface TransferRowProps {
 	item: TransferItem;
 	totalLabel: string;
-	onCancel: (jobId: string) => void;
+	onCancel: (jobId: string, itemId: string) => void;
 }
 
 export function TransferRow({ item, totalLabel, onCancel }: TransferRowProps) {
@@ -67,8 +67,8 @@ export function TransferRow({ item, totalLabel, onCancel }: TransferRowProps) {
 	const canCancel = item.status === "queued" || item.status === "active";
 
 	const handleCancel = useCallback(() => {
-		onCancel(item.jobId);
-	}, [onCancel, item.jobId]);
+		onCancel(item.jobId, item.id);
+	}, [onCancel, item.jobId, item.id]);
 
 	return (
 		<div className="bg-surface-container-low rounded-md border border-outline-variant p-2 flex flex-col gap-1">
