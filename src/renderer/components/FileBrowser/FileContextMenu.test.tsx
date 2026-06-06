@@ -219,6 +219,16 @@ describe("FileContextMenu", () => {
 
 		await user.click(screen.getByText("Delete"));
 		expect(onAction).toHaveBeenCalledWith("delete", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Copy path to clipboard"));
+		expect(onAction).toHaveBeenCalledWith("copyPath", entry);
+
+		vi.clearAllMocks();
+
+		await user.click(screen.getByText("Copy filename"));
+		expect(onAction).toHaveBeenCalledWith("copyName", entry);
 	});
 
 	it("does not call onAction when not provided", async () => {

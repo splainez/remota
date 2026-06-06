@@ -1086,6 +1086,110 @@ describe("FilePane", () => {
 		expect(window.api.terminal.openExternal).not.toHaveBeenCalled();
 	});
 
+	// --- "Copy path to clipboard" context-menu action ---
+
+	function stubClipboard(writeText: ReturnType<typeof vi.fn>) {
+		Object.defineProperty(navigator, "clipboard", {
+			value: { writeText },
+			configurable: true,
+		});
+	}
+
+	async function rightClickFile(fileName: string) {
+		const file = await screen.findByText(fileName);
+		fireEvent.contextMenu(file);
+	}
+
+	it("copies the right-clicked file's full path to the clipboard and shows a success toast", async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Copy path to clipboard"));
+
+		await waitFor(() => {
+			expect(writeText).toHaveBeenCalledWith("/home/readme.md");
+		});
+		expect(toastSuccessSpy).toHaveBeenCalledWith("Path copied to clipboard");
+
+		toastSuccessSpy.mockRestore();
+	});
+
+	it("shows an error toast when clipboard write rejects", async () => {
+		const writeText = vi.fn().mockRejectedValue(new Error("permission denied"));
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "secret.txt", isDirectory: false, fullPath: "/home/secret.txt", size: 0, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("secret.txt");
+		await userEvent.click(screen.getByText("Copy path to clipboard"));
+
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalledWith("Could not copy to clipboard");
+		});
+		expect(writeText).toHaveBeenCalledWith("/home/secret.txt");
+
+		toastErrorSpy.mockRestore();
+	});
+
+	it("copies the right-clicked file's name to the clipboard and shows a success toast", async () => {
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		stubClipboard(writeText);
+		const { toast } = await import("sonner");
+		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "readme.md", isDirectory: false, fullPath: "/home/readme.md", size: 12, modified: "" },
+			]);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("readme.md");
+		await userEvent.click(screen.getByText("Copy filename"));
+
+		await waitFor(() => {
+			expect(writeText).toHaveBeenCalledWith("readme.md");
+		});
+		expect(toastSuccessSpy).toHaveBeenCalledWith("Filename copied to clipboard");
+
+		toastSuccessSpy.mockRestore();
+	});
+
 	// --- toolbar toggle terminal button ---
 
 	it("toggles the integrated terminal when toolbar toggle is clicked and no external is configured", async () => {
