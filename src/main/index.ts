@@ -9,14 +9,17 @@ import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerSettingsHandlers } from "./ipc/settings";
 import { registerTerminalHandlers } from "./ipc/terminal";
+import { registerTransferHandlers } from "./ipc/transfer";
 import { registerTransferPanelHandlers } from "./ipc/transfer-panel";
 import { S3ConnectionManager } from "./s3/s3-client";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { tempManager } from "./temp/temp-manager";
 import { TerminalManager } from "./terminal/terminal-manager";
+import { TransferService } from "./transfer/transfer-service";
 
 let mainWindow: BrowserWindow | null = null;
 let appStore: AppStore;
+let transferService: TransferService;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -92,8 +95,12 @@ void app.whenReady().then(() => {
 	const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);
 	registerTerminalHandlers(terminalManager);
 
+	transferService = new TransferService({ sftp, s3, store: appStore });
+	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null);
+
 	app.on("will-quit", () => {
 		terminalManager.killAll();
+		transferService.cancelAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
 		void tempManager.removeAll();
