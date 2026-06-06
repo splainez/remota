@@ -33,13 +33,14 @@ describe("ActiveTransfers", () => {
 		expect(screen.queryByText("45%")).not.toBeInTheDocument();
 	});
 
-	it("renders 0 pending counter", () => {
+	it("does not render a pending count badge when nothing is active", () => {
 		render(
 			<I18nWrapper>
 				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("0 Pending")).toBeInTheDocument();
+		expect(screen.queryByText("1")).not.toBeInTheDocument();
+		expect(screen.queryByText("0")).not.toBeInTheDocument();
 	});
 
 	it("calls setVisible(false) when close button is clicked", async () => {
@@ -78,12 +79,12 @@ describe("ActiveTransfers", () => {
 		expect(setSpy).toHaveBeenCalledWith(5, { visible: false });
 	});
 
-	it("renders pause-all button with title attribute", () => {
+	it("renders the clear button label", () => {
 		render(
 			<I18nWrapper>
 				<ActiveTransfers connectionId={1} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByTitle("Pause all transfers")).toBeInTheDocument();
+		expect(screen.getByText("Clear completed")).toBeInTheDocument();
 	});
 });
