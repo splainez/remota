@@ -41,23 +41,12 @@ describe("FileContextMenu", () => {
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("Open")).toBeInTheDocument();
-		expect(screen.getByText("Edit")).toBeInTheDocument();
 		expect(screen.getByText("Rename")).toBeInTheDocument();
 		expect(screen.getByText("Delete")).toBeInTheDocument();
 		expect(screen.getByText("Copy path to clipboard")).toBeInTheDocument();
 		expect(screen.getByText("Copy filename")).toBeInTheDocument();
 		expect(screen.queryByText("Upload")).not.toBeInTheDocument();
 		expect(screen.queryByText("Open in terminal")).not.toBeInTheDocument();
-	});
-
-	it("hides Edit for directories", () => {
-		const entry = makeEntry({ isDirectory: true });
-		render(
-			<I18nWrapper>
-				<FileContextMenu {...defaultProps} entry={entry} />
-			</I18nWrapper>,
-		);
-		expect(screen.queryByText("Edit")).not.toBeInTheDocument();
 	});
 
 	it("hides Upload for files in local panel", () => {
@@ -204,11 +193,6 @@ describe("FileContextMenu", () => {
 
 		await user.click(screen.getByText("Open"));
 		expect(onAction).toHaveBeenCalledWith("open", entry);
-
-		vi.clearAllMocks();
-
-		await user.click(screen.getByText("Edit"));
-		expect(onAction).toHaveBeenCalledWith("edit", entry);
 
 		vi.clearAllMocks();
 

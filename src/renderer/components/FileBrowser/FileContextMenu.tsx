@@ -55,12 +55,6 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 			visible: true,
 		},
 		{
-			id: "edit",
-			icon: "edit",
-			label: t("file.contextMenu.edit"),
-			visible: !entry.isDirectory,
-		},
-		{
 			id: panelType === "local" ? "upload" : "download",
 			icon: panelType === "local" ? "arrow-up" : "arrow-down",
 			label: panelType === "local" ? t("file.contextMenu.upload") : t("file.contextMenu.download"),
