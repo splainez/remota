@@ -2,7 +2,8 @@ import { stat } from "node:fs/promises";
 
 import type { TransferService } from "@main/transfer/transfer-service";
 import { IPC } from "@shared/ipc-channels";
-import type { DownloadRequest, LocalStat } from "@shared/transfer-types";
+import type { LocalStat } from "@shared/transfer-types";
+import { DownloadRequestSchema } from "@shared/transfer-types";
 import { ipcMain } from "electron";
 
 export function registerTransferHandlers(service: TransferService, getWebContents: () => Electron.WebContents | null) {
@@ -23,12 +24,16 @@ export function registerTransferHandlers(service: TransferService, getWebContent
 		}
 	});
 
-	ipcMain.handle(IPC.FILE_DOWNLOAD, (_event, request: DownloadRequest) => {
+	ipcMain.handle(IPC.FILE_DOWNLOAD, (_event, request: unknown) => {
+		const parsed = DownloadRequestSchema.safeParse(request);
+		if (!parsed.success) {
+			throw new Error(`Invalid download request: ${parsed.error.message}`);
+		}
 		const wc = getWebContents();
 		if (!wc) {
 			throw new Error("No active window to send transfer progress");
 		}
-		return service.startDownload(request, wc);
+		return service.startDownload(parsed.data, wc);
 	});
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL, (_event, jobId: string, itemId: string) => {

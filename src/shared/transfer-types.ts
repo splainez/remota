@@ -1,4 +1,18 @@
 import type { TranslationKey } from "@i18n/i18n";
+import { z } from "zod";
+
+export const DownloadItemSchema = z.object({
+	id: z.string(),
+	remotePath: z.string(),
+	localPath: z.string(),
+	remoteModified: z.string(),
+	size: z.number(),
+});
+
+export const DownloadRequestSchema = z.object({
+	connectionId: z.number(),
+	items: z.array(DownloadItemSchema),
+});
 
 export interface DownloadItem {
 	id: string;
