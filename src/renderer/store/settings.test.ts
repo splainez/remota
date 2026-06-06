@@ -181,4 +181,47 @@ describe("useSettingsStore setters", () => {
 		expect(useSettingsStore.getState().externalTerminal).toBeUndefined();
 		expect(setSpy).toHaveBeenCalledWith({ externalTerminal: undefined });
 	});
+
+	it("setRetentionMs updates state and calls settings.set", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setRetentionMs(30_000);
+		expect(useSettingsStore.getState().retentionMs).toBe(30_000);
+		expect(setSpy).toHaveBeenCalledWith({ retentionMs: 30_000 });
+	});
+
+	it("setRetentionMs accepts undefined to disable auto-clear", () => {
+		useSettingsStore.setState({ retentionMs: 30_000 });
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setRetentionMs(undefined);
+		expect(useSettingsStore.getState().retentionMs).toBeUndefined();
+		expect(setSpy).toHaveBeenCalledWith({ retentionMs: undefined });
+	});
+
+	it("setRetentionMs clamps value below minimum to 5000", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setRetentionMs(1_000);
+		expect(useSettingsStore.getState().retentionMs).toBe(5_000);
+	});
+
+	it("setRetentionMs clamps value above maximum to 300000", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setRetentionMs(600_000);
+		expect(useSettingsStore.getState().retentionMs).toBe(300_000);
+	});
+
+	it("setRetentionMs converts non-finite to undefined", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setRetentionMs(NaN);
+		expect(useSettingsStore.getState().retentionMs).toBeUndefined();
+	});
 });
