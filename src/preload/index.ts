@@ -81,7 +81,8 @@ const api = {
 				ipcRenderer.removeListener(IPC.TRANSFER_JOB_DONE, handler);
 			};
 		},
-		cancelTransfer: (jobId: string): Promise<void> => ipcRenderer.invoke(IPC.TRANSFER_CANCEL, jobId),
+		cancelTransfer: (jobId: string, itemId: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.TRANSFER_CANCEL, jobId, itemId),
 		cancelAllTransfers: (): Promise<void> => ipcRenderer.invoke(IPC.TRANSFER_CANCEL_ALL),
 	},
 	terminal: {
