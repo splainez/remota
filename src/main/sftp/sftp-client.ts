@@ -143,6 +143,56 @@ export class SftpConnectionManager {
 		});
 	}
 
+	async deletePath(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const isDir = await new Promise<boolean>((resolve) => {
+			session.sftp.stat(remotePath, (err, stats) => {
+				resolve(!err && stats.isDirectory());
+			});
+		});
+
+		if (!isDir) {
+			return new Promise<void>((resolve, reject) => {
+				session.sftp.unlink(remotePath, (err) => {
+					if (err) {
+						reject(new Error(`Failed to delete file: ${err.message}`));
+					} else {
+						resolve();
+					}
+				});
+			});
+		}
+
+		const entries = await new Promise<string[]>((resolve, reject) => {
+			session.sftp.readdir(remotePath, (err, list) => {
+				if (err) {
+					reject(new Error(`Failed to read directory: ${err.message}`));
+					return;
+				}
+				resolve(list.filter((e) => e.filename !== "." && e.filename !== "..").map((e) => e.filename));
+			});
+		});
+
+		for (const name of entries) {
+			const childPath = remotePath.endsWith("/") ? `${remotePath}${name}` : `${remotePath}/${name}`;
+			await this.deletePath(connectionId, childPath);
+		}
+
+		return new Promise<void>((resolve, reject) => {
+			session.sftp.rmdir(remotePath, (err) => {
+				if (err) {
+					reject(new Error(`Failed to remove directory: ${err.message}`));
+				} else {
+					resolve();
+				}
+			});
+		});
+	}
+
 	async homeDir(connectionId: number): Promise<string> {
 		const session = this.sessions.get(connectionId);
 		if (!session) {
