@@ -90,12 +90,12 @@ export function FilePane({
 		onPathChange?.(currentPath);
 	}, [currentPath, onPathChange]);
 
-	const { entries, loading, error, refresh } = useFileList(currentPath, {
+	const { entries, loading, error, refresh, refreshSilently } = useFileList(currentPath, {
 		type,
 		connectionId: type === "remote" ? connectionId : undefined,
 	});
 
-	useFileWatcher(currentPath, type, refresh);
+	useFileWatcher(currentPath, type, refreshSilently);
 
 	const filteredEntries = useMemo(() => {
 		if (!filter.trim()) return entries;

@@ -40,6 +40,17 @@ describe("FileList", () => {
 		expect(screen.getByText("Loading...")).toBeInTheDocument();
 	});
 
+	it("does not show loading text when entries exist", () => {
+		render(
+			<I18nWrapper>
+				<FileList {...defaultProps} entries={sampleEntries} loading={true} />
+			</I18nWrapper>,
+		);
+		expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+		const rows = document.querySelectorAll("div.cursor-pointer");
+		expect(rows.length).toBe(4);
+	});
+
 	it("renders error state", () => {
 		render(
 			<I18nWrapper>

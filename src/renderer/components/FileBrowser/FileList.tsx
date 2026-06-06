@@ -69,7 +69,7 @@ export function FileList({
 		partition: partitionDirsFirst,
 	});
 
-	if (loading) {
+	if (loading && entries.length === 0) {
 		return (
 			<div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">{t("file.loading")}</div>
 		);

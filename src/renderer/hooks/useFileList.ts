@@ -15,6 +15,7 @@ export interface UseFileListResult {
 	loading: boolean;
 	error: SftpErrorInfo | null;
 	refresh: () => Promise<void>;
+	refreshSilently: () => Promise<void>;
 }
 
 export function useFileList(path: string, opts: UseFileListOptions = {}): UseFileListResult {
@@ -24,35 +25,43 @@ export function useFileList(path: string, opts: UseFileListOptions = {}): UseFil
 	const [error, setError] = useState<SftpErrorInfo | null>(null);
 	const loadIdRef = useRef(0);
 
-	const load = useCallback(async () => {
-		const loadId = ++loadIdRef.current;
-		setLoading(true);
-		setError(null);
-		try {
-			let result: FileEntry[];
-			if (type === "remote" && connectionId !== undefined) {
-				result = await window.api.filesystem.remoteList(connectionId, path);
-			} else {
-				result = await window.api.filesystem.list(path);
+	const load = useCallback(
+		async (silent = false) => {
+			const loadId = ++loadIdRef.current;
+			if (!silent) {
+				setLoading(true);
 			}
-			if (loadId === loadIdRef.current) {
-				setEntries(result);
-				setLoading(false);
+			setError(null);
+			try {
+				let result: FileEntry[];
+				if (type === "remote" && connectionId !== undefined) {
+					result = await window.api.filesystem.remoteList(connectionId, path);
+				} else {
+					result = await window.api.filesystem.list(path);
+				}
+				if (loadId === loadIdRef.current) {
+					setEntries(result);
+					setLoading(false);
+				}
+			} catch (err) {
+				if (loadId === loadIdRef.current) {
+					setError(classifyError(err));
+					setEntries([]);
+					setLoading(false);
+				}
 			}
-		} catch (err) {
-			if (loadId === loadIdRef.current) {
-				setError(classifyError(err));
-				setEntries([]);
-				setLoading(false);
-			}
-		}
-	}, [path, type, connectionId]);
+		},
+		[path, type, connectionId],
+	);
+
+	const refresh = useCallback(() => load(false), [load]);
+	const refreshSilently = useCallback(() => load(true), [load]);
 
 	useEffect(() => {
-		load().catch((error: unknown) => {
+		load(false).catch((error: unknown) => {
 			logger.error("load failed", { error });
 		});
 	}, [load]);
 
-	return { entries, loading, error, refresh: load };
+	return { entries, loading, error, refresh, refreshSilently };
 }

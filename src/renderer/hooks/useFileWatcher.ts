@@ -3,7 +3,11 @@ import { useEffect, useId } from "react";
 
 const logger = LoggerFactory.init({ name: "renderer.useFileWatcher" });
 
-export function useFileWatcher(path: string, type: "local" | "remote", refresh: () => Promise<void>): void {
+export function useFileWatcher(
+	path: string,
+	type: "local" | "remote",
+	refresh: (silent?: boolean) => Promise<void>,
+): void {
 	const watcherId = useId();
 
 	useEffect(() => {
@@ -15,7 +19,7 @@ export function useFileWatcher(path: string, type: "local" | "remote", refresh: 
 
 		const unsub = window.api.filesystem.onFileChanged((id) => {
 			if (id !== watcherId) return;
-			refresh().catch((error: unknown) => {
+			refresh(true).catch((error: unknown) => {
 				logger.error("auto-refresh failed", { path, error });
 			});
 		});
