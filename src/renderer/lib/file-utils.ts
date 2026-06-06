@@ -1,25 +1,44 @@
+const numberFormat2DigitsMax = new Intl.NumberFormat("en-US", {
+	minimumFractionDigits: 0,
+	maximumFractionDigits: 2,
+});
+
+const numberFormat2DigitsFix = new Intl.NumberFormat("en-US", {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+});
+
+const unitsSize = ["B", "KiB", "MiB", "GiB", "TiB"];
+const unitsSpeed = ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s"];
+
 export function formatSize(bytes: number): string {
-	if (bytes === 0) return "";
-	const units = ["B", "KB", "MB", "GB", "TB"];
-	let i = 0;
-	let size = bytes;
-	while (size >= 1024 && i < units.length - 1) {
-		size /= 1024;
-		i++;
-	}
-	return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
+	return formatUnit(numberFormat2DigitsMax, bytes, unitsSize);
 }
 
 export function formatSpeed(bytesPerSec: number): string {
 	if (bytesPerSec <= 0) return "";
-	const units = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+	return formatUnit(numberFormat2DigitsFix, bytesPerSec, unitsSpeed);
+}
+
+export function formatBytes(bytes: number): string {
+	return formatUnit(numberFormat2DigitsFix, bytes, unitsSize);
+}
+
+function formatUnit(formatted: Intl.NumberFormat, num: number, units: string[]) {
+	if (units.length === 0) {
+		return units.toString();
+	}
+	if (num === 0) {
+		return `0 ${units[0]}`;
+	}
 	let i = 0;
-	let size = bytesPerSec;
+	let size = num;
 	while (size >= 1024 && i < units.length - 1) {
 		size /= 1024;
 		i++;
 	}
-	return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
+	const unit = units[i];
+	return `${formatted.format(size)}${unit ? ` ${unit}` : ""}`;
 }
 
 export function formatDate(iso: string): string {

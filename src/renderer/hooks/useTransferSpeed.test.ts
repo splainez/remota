@@ -139,18 +139,26 @@ describe("formatSpeed", () => {
 	});
 
 	it("formats bytes per second", () => {
-		expect(formatSpeed(500)).toBe("500 B/s");
+		expect(formatSpeed(500)).toBe("500.00 B/s");
 	});
 
 	it("formats kilobytes per second", () => {
-		expect(formatSpeed(2048)).toBe("2.0 KB/s");
+		expect(formatSpeed(2048)).toBe("2.00 KiB/s");
 	});
 
 	it("formats megabytes per second", () => {
-		expect(formatSpeed(5_242_880)).toBe("5.0 MB/s");
+		expect(formatSpeed(5_242_880)).toBe("5.00 MiB/s");
 	});
 
 	it("formats gigabytes per second", () => {
-		expect(formatSpeed(2_147_483_648)).toBe("2.0 GB/s");
+		expect(formatSpeed(2_147_483_648)).toBe("2.00 GiB/s");
+	});
+
+	it("pads integer part to 3 digits", () => {
+		expect(formatSpeed(100)).toBe("100.00 B/s");
+	});
+
+	it("shows two decimal places", () => {
+		expect(formatSpeed(1536)).toBe("1.50 KiB/s");
 	});
 });

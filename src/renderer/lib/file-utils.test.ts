@@ -4,23 +4,23 @@ import { formatSize, formatDate } from "./file-utils";
 
 describe("formatSize", () => {
 	it("returns empty string for 0 bytes", () => {
-		expect(formatSize(0)).toBe("");
+		expect(formatSize(0)).toBe("0 B");
 	});
 
 	it("formats bytes", () => {
 		expect(formatSize(500)).toBe("500 B");
 	});
 
-	it("formats KB", () => {
-		expect(formatSize(1500)).toBe("1.5 KB");
+	it("formats KiB", () => {
+		expect(formatSize(1500)).toBe("1.46 KiB");
 	});
 
-	it("formats MB", () => {
-		expect(formatSize(5 * 1024 * 1024)).toBe("5.0 MB");
+	it("formats MiB", () => {
+		expect(formatSize(5 * 1024 * 1024)).toBe("5 MiB");
 	});
 
-	it("formats GB", () => {
-		expect(formatSize(3.5 * 1024 * 1024 * 1024)).toBe("3.5 GB");
+	it("formats GiB", () => {
+		expect(formatSize(3.5 * 1024 * 1024 * 1024)).toBe("3.5 GiB");
 	});
 });
 

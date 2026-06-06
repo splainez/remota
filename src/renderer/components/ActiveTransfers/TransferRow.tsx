@@ -2,7 +2,7 @@ import type { TranslationKey } from "@i18n/i18n";
 import { Icon, type IconName } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
-import { formatSpeed } from "@renderer/lib/file-utils";
+import { formatBytes, formatSpeed } from "@renderer/lib/file-utils";
 import type { TransferItem } from "@renderer/store/transfer";
 import { useCallback } from "react";
 
@@ -115,28 +115,24 @@ export function TransferRow({ item, totalLabel, speed, onCancel }: TransferRowPr
 					aria-valuenow={percent}
 				/>
 			</div>
-			<div className="flex justify-between text-xs text-on-surface-variant">
+			<div className="flex justify-between text-xs text-on-surface-variant tabular-nums">
 				<span className="truncate" title={item.target}>
 					{item.target}
 				</span>
 				<span className="shrink-0 ml-2">
-					{item.status === "active" || item.status === "completed"
-						? `${t("transfer.item.bytes", { transferred: transferredLabel, total: totalLabel })}${speedLabel !== "" ? ` — ${speedLabel}` : ""}`
-						: ""}
+					{item.status === "active" || item.status === "completed" ? (
+						<>
+							<span>{t("transfer.item.bytes", { transferred: transferredLabel, total: totalLabel })}</span>
+							{speedLabel !== "" ? (
+								<>
+									<span>—</span>
+									<span>{speedLabel}</span>
+								</>
+							) : undefined}
+						</>
+					) : undefined}
 				</span>
 			</div>
 		</div>
 	);
-}
-
-function formatBytes(bytes: number): string {
-	if (bytes === 0) return "0 B";
-	const units = ["B", "KB", "MB", "GB", "TB"];
-	let i = 0;
-	let size = bytes;
-	while (size >= 1024 && i < units.length - 1) {
-		size /= 1024;
-		i++;
-	}
-	return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
 }

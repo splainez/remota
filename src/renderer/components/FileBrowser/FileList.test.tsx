@@ -142,8 +142,8 @@ describe("FileList", () => {
 				<FileList {...defaultProps} />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("1.0 KB")).toBeInTheDocument();
-		expect(screen.getByText("2.0 KB")).toBeInTheDocument();
+		expect(screen.getByText("1 KiB")).toBeInTheDocument();
+		expect(screen.getByText("2 KiB")).toBeInTheDocument();
 	});
 
 	it("does not show size for directories", () => {

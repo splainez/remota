@@ -26,7 +26,7 @@ describe("FileRow", () => {
 	it("renders file size using formatSize", () => {
 		const entry = makeEntry({ size: 2048 });
 		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
-		expect(screen.getByText("2.0 KB")).toBeInTheDocument();
+		expect(screen.getByText("2 KiB")).toBeInTheDocument();
 	});
 
 	it("renders -- for directory size", () => {
