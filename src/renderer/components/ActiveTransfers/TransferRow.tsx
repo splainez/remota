@@ -2,6 +2,7 @@ import type { TranslationKey } from "@i18n/i18n";
 import { Icon, type IconName } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { formatSpeed } from "@renderer/lib/file-utils";
 import type { TransferItem } from "@renderer/store/transfer";
 import { useCallback } from "react";
 
@@ -56,13 +57,15 @@ function statusIsSpinning(status: TransferItem["status"]): boolean {
 interface TransferRowProps {
 	item: TransferItem;
 	totalLabel: string;
+	speed: number;
 	onCancel: (jobId: string, itemId: string) => void;
 }
 
-export function TransferRow({ item, totalLabel, onCancel }: TransferRowProps) {
+export function TransferRow({ item, totalLabel, speed, onCancel }: TransferRowProps) {
 	const { t } = useI18n();
 	const percent = item.totalBytes > 0 ? Math.min(100, Math.round((item.transferredBytes / item.totalBytes) * 100)) : 0;
 	const transferredLabel = item.transferredBytes > 0 || item.totalBytes > 0 ? formatBytes(item.transferredBytes) : "";
+	const speedLabel = item.status === "active" && speed > 0 ? formatSpeed(speed) : "";
 
 	const canCancel = item.status === "queued" || item.status === "active";
 
@@ -118,7 +121,7 @@ export function TransferRow({ item, totalLabel, onCancel }: TransferRowProps) {
 				</span>
 				<span className="shrink-0 ml-2">
 					{item.status === "active" || item.status === "completed"
-						? t("transfer.item.bytes", { transferred: transferredLabel, total: totalLabel })
+						? `${t("transfer.item.bytes", { transferred: transferredLabel, total: totalLabel })}${speedLabel !== "" ? ` — ${speedLabel}` : ""}`
 						: ""}
 				</span>
 			</div>

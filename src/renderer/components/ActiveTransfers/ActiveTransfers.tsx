@@ -2,6 +2,7 @@ import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useTransferAutoClear } from "@renderer/hooks/useTransferAutoClear";
+import { useTransferSpeed } from "@renderer/hooks/useTransferSpeed";
 import { formatSize } from "@renderer/lib/file-utils";
 import { useTransferStore, type TransferItem } from "@renderer/store/transfer";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
@@ -80,6 +81,7 @@ interface ActiveTransfersProps {
 export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 	const { t } = useI18n();
 	useTransferAutoClear(connectionId);
+	const getSpeed = useTransferSpeed(connectionId);
 	const setVisible = useTransferPanelStore((s) => s.setVisible);
 	const rawItems = useTransferStore((s) => s.byConnection[connectionId]);
 	const items = useMemo(() => rawItems ?? [], [rawItems]);
@@ -143,7 +145,12 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 					<ul className="flex flex-col gap-2">
 						{sorted.map((item) => (
 							<li key={item.id}>
-								<TransferRow item={item} totalLabel={formatSize(item.totalBytes)} onCancel={handleCancelItem} />
+								<TransferRow
+									item={item}
+									totalLabel={formatSize(item.totalBytes)}
+									speed={getSpeed(item.id)}
+									onCancel={handleCancelItem}
+								/>
 							</li>
 						))}
 					</ul>

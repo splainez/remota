@@ -10,6 +10,18 @@ export function formatSize(bytes: number): string {
 	return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
 }
 
+export function formatSpeed(bytesPerSec: number): string {
+	if (bytesPerSec <= 0) return "";
+	const units = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+	let i = 0;
+	let size = bytesPerSec;
+	while (size >= 1024 && i < units.length - 1) {
+		size /= 1024;
+		i++;
+	}
+	return i === 0 ? `${String(size)} ${units[i]}` : `${size.toFixed(1)} ${units[i]}`;
+}
+
 export function formatDate(iso: string): string {
 	if (!iso) return "";
 	const d = new Date(iso);
