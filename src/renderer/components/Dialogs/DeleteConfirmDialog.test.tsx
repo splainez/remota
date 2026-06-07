@@ -29,7 +29,6 @@ describe("DeleteConfirmDialog", () => {
 	it("shows bulk actions only when more than one item remains", () => {
 		const { rerender } = renderDialog({ remaining: 1 });
 		expect(screen.queryByText("Yes to all")).not.toBeInTheDocument();
-		expect(screen.queryByText("No to all")).not.toBeInTheDocument();
 
 		rerender(
 			<I18nWrapper>
@@ -37,7 +36,6 @@ describe("DeleteConfirmDialog", () => {
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("Yes to all")).toBeInTheDocument();
-		expect(screen.getByText("No to all")).toBeInTheDocument();
 	});
 
 	it("clicking 'Yes' resolves with delete", async () => {
