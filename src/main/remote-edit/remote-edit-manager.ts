@@ -22,6 +22,8 @@ interface EditSession {
 	debounceTimer: ReturnType<typeof setTimeout> | null;
 	currentUploadController: AbortController | null;
 	uploading: boolean;
+	uploadJobId: string | null;
+	uploadItemId: string | null;
 }
 
 export interface RemoteEditManagerOptions {
@@ -101,6 +103,8 @@ export class RemoteEditManager {
 			debounceTimer: null,
 			currentUploadController: null,
 			uploading: false,
+			uploadJobId: null,
+			uploadItemId: null,
 		};
 
 		this.sessions.set(key, session);
@@ -179,8 +183,12 @@ export class RemoteEditManager {
 		session.currentUploadController = controller;
 		session.uploading = true;
 
-		const jobId = randomUUID();
-		const itemId = randomUUID();
+		if (!session.uploadJobId || !session.uploadItemId) {
+			session.uploadJobId = randomUUID();
+			session.uploadItemId = randomUUID();
+		}
+		const jobId = session.uploadJobId;
+		const itemId = session.uploadItemId;
 
 		try {
 			let size = 0;
@@ -237,6 +245,8 @@ export class RemoteEditManager {
 				size,
 				size,
 			);
+
+			this.emitJobDone(session.connectionId, jobId, itemId);
 		} catch (err: unknown) {
 			if (controller.signal.aborted) {
 				this.emitProgress(
@@ -326,6 +336,18 @@ export class RemoteEditManager {
 			return this.s3.getRemoteStat(connectionId, remotePath);
 		}
 		return null;
+	}
+
+	private emitJobDone(_connectionId: number, jobId: string, itemId: string): void {
+		const webContents = this.getWebContents();
+		if (!webContents || webContents.isDestroyed()) return;
+
+		webContents.send(IPC.TRANSFER_JOB_DONE, {
+			jobId,
+			results: {
+				[itemId]: { id: itemId, status: "ok" as const },
+			},
+		});
 	}
 
 	private emitProgress(
