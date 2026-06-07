@@ -202,31 +202,31 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 					</section>
 
 					{/* Connections Section */}
-				<section className="flex flex-col gap-3">
-					<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-						{t("settings.connections")}
-					</h3>
-					<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
-						<div className="flex flex-col gap-1 mb-3">
-							<span className="text-sm font-medium text-foreground">{t("settings.maxSessions")}</span>
-							<span className="text-xs text-muted-foreground">{t("settings.maxSessionsDescription")}</span>
+					<section className="flex flex-col gap-3">
+						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("settings.connections")}
+						</h3>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.maxSessions")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.maxSessionsDescription")}</span>
+							</div>
+							<input
+								type="number"
+								min={MAX_SESSIONS_MIN}
+								max={MAX_SESSIONS_MAX}
+								step={1}
+								value={maxSessions}
+								onChange={(e) => {
+									const parsed = Number(e.target.value);
+									if (Number.isFinite(parsed) && parsed > 0) {
+										setMaxSessions(parsed);
+									}
+								}}
+								className="w-20 h-8 px-2 text-sm rounded-md border border-outline-variant bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+							/>
 						</div>
-						<input
-							type="number"
-							min={MAX_SESSIONS_MIN}
-							max={MAX_SESSIONS_MAX}
-							step={1}
-							value={maxSessions}
-							onChange={(e) => {
-								const parsed = Number(e.target.value);
-								if (Number.isFinite(parsed) && parsed > 0) {
-									setMaxSessions(parsed);
-								}
-							}}
-							className="w-20 h-8 px-2 text-sm rounded-md border border-outline-variant bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
-						/>
-					</div>
-				</section>
+					</section>
 
 				{/* Language Section */}
 					<section className="flex flex-col gap-3">
