@@ -116,7 +116,6 @@ void app.whenReady().then(() => {
 
 	transferService = new TransferService({ sftp, s3, store: appStore });
 	registerSettingsHandlers(appStore, transferService);
-	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null);
 
 	remoteEditManager = new RemoteEditManager({
 		sftp,
@@ -124,6 +123,7 @@ void app.whenReady().then(() => {
 		tempManager,
 		getWebContents: () => mainWindow?.webContents ?? null,
 	});
+	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null, remoteEditManager);
 	registerRemoteEditHandlers(remoteEditManager);
 
 	app.on("will-quit", () => {

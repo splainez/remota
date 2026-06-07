@@ -1,0 +1,365 @@
+const { watchRef, mockWatcher, mockStatSync, mockWatchFn } = vi.hoisted(() => {
+	const listeners = new Map<string, ((...args: unknown[]) => void)[]>();
+	const emitter = {
+		on: (event: string, fn: (...args: unknown[]) => void) => {
+			const list = listeners.get(event) ?? [];
+			list.push(fn);
+			listeners.set(event, list);
+			return emitter;
+		},
+		emit: (event: string, ...args: unknown[]) => {
+			for (const fn of listeners.get(event) ?? []) fn(...args);
+		},
+		removeAllListeners: () => {
+			listeners.clear();
+		},
+		close: vi.fn(),
+	};
+	const ref = { current: null as (() => void) | null };
+	return {
+		watchRef: ref,
+		mockWatcher: emitter,
+		mockStatSync: vi.fn(() => ({ size: 200 })),
+		mockWatchFn: vi.fn((_path: string, cb: () => void) => {
+			ref.current = cb;
+			return emitter;
+		}),
+	};
+});
+
+vi.mock("electron", () => ({
+	shell: { openPath: vi.fn().mockResolvedValue("") },
+}));
+
+vi.mock("node:fs", () => {
+	const mod = {
+		watch: mockWatchFn,
+		statSync: mockStatSync,
+		readFileSync: vi.fn(),
+		writeFileSync: vi.fn(),
+		existsSync: vi.fn().mockReturnValue(true),
+		mkdirSync: vi.fn(),
+		rmSync: vi.fn(),
+		cpSync: vi.fn(),
+		readdirSync: vi.fn().mockReturnValue([]),
+		unlinkSync: vi.fn(),
+		renameSync: vi.fn(),
+		accessSync: vi.fn(),
+		constants: { F_OK: 0, R_OK: 4, W_OK: 2, X_OK: 1 },
+		createReadStream: vi.fn(),
+		createWriteStream: vi.fn(),
+		promises: {
+			stat: vi.fn(),
+			readFile: vi.fn(),
+			writeFile: vi.fn(),
+			mkdir: vi.fn(),
+			rm: vi.fn(),
+			cp: vi.fn(),
+			readdir: vi.fn(),
+			unlink: vi.fn(),
+			rename: vi.fn(),
+			access: vi.fn(),
+		},
+	};
+	return { default: mod, ...mod };
+});
+
+import type { S3ConnectionManager } from "@main/s3/s3-client";
+import type { SftpConnectionManager } from "@main/sftp/sftp-client";
+import type { TempManager } from "@main/temp/temp-manager";
+import type { WebContents } from "electron";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { RemoteEditManager } from "./remote-edit-manager";
+
+interface SftpStub {
+	isConnected: (id: number) => boolean;
+	downloadFile: (
+		connectionId: number,
+		remotePath: string,
+		localPath: string,
+		onProgress?: (transferredBytes: number) => void,
+	) => Promise<void>;
+	uploadFile: ReturnType<typeof vi.fn>;
+	getRemoteStat: (connectionId: number, remotePath: string) => Promise<{ size: number } | null>;
+}
+
+interface TempStub {
+	getTempPath: (connectionId: number) => string | null;
+}
+
+interface CapturedEvent {
+	jobId: string;
+	id: string;
+	connectionId: number;
+	name: string;
+	source: string;
+	target: string;
+	direction: "download" | "upload";
+	totalBytes: number;
+	transferredBytes: number;
+	status: "queued" | "active" | "completed" | "failed" | "cancelled";
+	error?: string;
+}
+
+interface CapturedJob {
+	jobId: string;
+	results: Record<string, { id: string; status: "ok" | "error" | "cancelled"; error?: string }>;
+}
+
+interface WebContentsStub {
+	events: CapturedEvent[];
+	jobs: CapturedJob[];
+	send: (channel: string, payload: unknown) => void;
+	isDestroyed: () => boolean;
+}
+
+function makeWebContents(): WebContentsStub {
+	const events: CapturedEvent[] = [];
+	const jobs: CapturedJob[] = [];
+	return {
+		events,
+		jobs,
+		send: (channel, payload) => {
+			if (channel === "transfer:progress") events.push(payload as CapturedEvent);
+			if (channel === "transfer:jobDone") jobs.push(payload as CapturedJob);
+		},
+		isDestroyed: () => false,
+	};
+}
+
+function makeSftp(connected: boolean): SftpStub {
+	return {
+		isConnected: () => connected,
+		downloadFile: () => Promise.resolve(),
+		uploadFile: vi.fn(
+			(
+				_connectionId: number,
+				_localPath: string,
+				_remotePath: string,
+				_onProgress?: (transferredBytes: number) => void,
+				signal?: AbortSignal,
+			) =>
+				new Promise<void>((_resolve, reject) => {
+					if (signal?.aborted) {
+						reject(new DOMException("The operation was aborted.", "AbortError"));
+						return;
+					}
+					const onAbort = () => {
+						signal?.removeEventListener("abort", onAbort);
+						reject(new DOMException("The operation was aborted.", "AbortError"));
+					};
+					signal?.addEventListener("abort", onAbort, { once: true });
+				}),
+		),
+		getRemoteStat: () => Promise.resolve({ size: 100 }),
+	};
+}
+
+function makeTemp(): TempStub {
+	return {
+		getTempPath: () => "/tmp/connection-1",
+	};
+}
+
+function makeManager(opts?: { sftp?: SftpStub; webContents?: WebContentsStub }): {
+	manager: RemoteEditManager;
+	wc: WebContentsStub;
+	sftp: SftpStub;
+} {
+	const sftp = opts?.sftp ?? makeSftp(true);
+	const temp = makeTemp();
+	const wc = opts?.webContents ?? makeWebContents();
+
+	const manager = new RemoteEditManager({
+		sftp: sftp as unknown as SftpConnectionManager,
+		s3: { isConnected: () => false } as unknown as S3ConnectionManager,
+		tempManager: temp as unknown as TempManager,
+		getWebContents: () => wc as unknown as WebContents,
+	});
+
+	return { manager, wc, sftp };
+}
+
+function triggerFileChange(): void {
+	watchRef.current?.();
+}
+
+describe("RemoteEditManager", () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.clearAllMocks();
+		watchRef.current = null;
+		mockWatcher.removeAllListeners();
+	});
+
+	describe("upload cancellation status", () => {
+		it("emits cancelled status when upload is aborted by a new file change", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const cancelledEvents = wc.events.filter((e) => e.status === "cancelled" && e.direction === "upload");
+			expect(cancelledEvents).toHaveLength(1);
+		});
+
+		it("reuses same jobId/itemId across re-uploads for the same session", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const uploadEvents1 = wc.events.filter((e) => e.direction === "upload");
+			const firstJobId = uploadEvents1[0]?.jobId;
+			const firstItemId = uploadEvents1[0]?.id;
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const upload2Events = wc.events.filter((e) => e.status === "active" && e.direction === "upload");
+			expect(upload2Events.length).toBeGreaterThanOrEqual(1);
+
+			const lastActive = upload2Events[upload2Events.length - 1];
+			expect(lastActive.jobId).toBe(firstJobId);
+			expect(lastActive.id).toBe(firstItemId);
+		});
+
+		it("shows cancelled then active with same IDs when upload is interrupted mid-flight", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const uploadEvents1 = wc.events.filter((e) => e.direction === "upload");
+			const firstJobId = uploadEvents1[0]?.jobId;
+			const firstItemId = uploadEvents1[0]?.id;
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const statuses = wc.events
+				.filter((e) => e.jobId === firstJobId && e.id === firstItemId && e.direction === "upload")
+				.map((e) => e.status);
+
+			expect(statuses).toContain("cancelled");
+			expect(statuses).toContain("active");
+			expect(statuses.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it("does not emit completed for a cancelled upload", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const uploadEvents1 = wc.events.filter((e) => e.direction === "upload");
+			const firstJobId = uploadEvents1[0]?.jobId;
+			const firstItemId = uploadEvents1[0]?.id;
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const completedForFirstItem = wc.events.filter(
+				(e) => e.jobId === firstJobId && e.id === firstItemId && e.status === "completed" && e.direction === "upload",
+			);
+			expect(completedForFirstItem).toHaveLength(0);
+		});
+	});
+
+	describe("TRANSFER_JOB_DONE after successful upload", () => {
+		it("emits TRANSFER_JOB_DONE after upload completes", async () => {
+			const sftp = makeSftp(true);
+			sftp.uploadFile.mockReturnValueOnce(Promise.resolve());
+			const { manager, wc } = makeManager({ sftp });
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const okJobs = wc.jobs.filter((j) => Object.values(j.results).some((r) => r.status === "ok"));
+			expect(okJobs).toHaveLength(1);
+		});
+
+		it("does not emit TRANSFER_JOB_DONE when upload is cancelled", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const cancelledJobs = wc.jobs.filter((j) => Object.values(j.results).some((r) => r.status === "cancelled"));
+			expect(cancelledJobs).toHaveLength(0);
+		});
+	});
+
+	describe("cancelUpload", () => {
+		it("aborts in-flight upload and emits cancelled", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const uploadEvents = wc.events.filter((e) => e.direction === "upload");
+			const itemId = uploadEvents[0]?.id;
+
+			const cancelled = manager.cancelUpload(itemId);
+			expect(cancelled).toBe(true);
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const cancelledEvents = wc.events.filter(
+				(e) => e.id === itemId && e.status === "cancelled" && e.direction === "upload",
+			);
+			expect(cancelledEvents).toHaveLength(1);
+		});
+
+		it("returns false for unknown itemId", () => {
+			const { manager } = makeManager();
+			expect(manager.cancelUpload("nonexistent")).toBe(false);
+		});
+	});
+
+	describe("cancelAllUploads", () => {
+		it("aborts all in-flight uploads and emits cancelled for each", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			manager.cancelAllUploads();
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const uploadEvents = wc.events.filter((e) => e.direction === "upload");
+			const itemIds = [...new Set(uploadEvents.map((e) => e.id))];
+
+			for (const itemId of itemIds) {
+				const cancelledEvents = wc.events.filter(
+					(e) => e.id === itemId && e.status === "cancelled" && e.direction === "upload",
+				);
+				expect(cancelledEvents.length).toBeGreaterThanOrEqual(1);
+			}
+		});
+	});
+});

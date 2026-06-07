@@ -39,6 +39,7 @@ export class RemoteEditManager {
 	private readonly tempManager: TempManager;
 	private readonly getWebContents: () => WebContents | null;
 	private readonly sessions = new Map<string, EditSession>();
+	private readonly uploadControllers = new Map<string, AbortController>();
 
 	constructor(opts: RemoteEditManagerOptions) {
 		this.sftp = opts.sftp;
@@ -159,6 +160,19 @@ export class RemoteEditManager {
 		}
 	}
 
+	cancelUpload(itemId: string): boolean {
+		const controller = this.uploadControllers.get(itemId);
+		if (!controller) return false;
+		controller.abort();
+		return true;
+	}
+
+	cancelAllUploads(): void {
+		for (const controller of this.uploadControllers.values()) {
+			controller.abort();
+		}
+	}
+
 	private onFileChange(key: string): void {
 		const session = this.sessions.get(key);
 		if (!session) return;
@@ -190,6 +204,8 @@ export class RemoteEditManager {
 		const jobId = session.uploadJobId;
 		const itemId = session.uploadItemId;
 
+		this.uploadControllers.set(itemId, controller);
+
 		try {
 			let size = 0;
 			try {
@@ -217,7 +233,7 @@ export class RemoteEditManager {
 				session.tempPath,
 				session.remotePath,
 				(transferredBytes) => {
-					if (!controller.signal.aborted) {
+					if (session.currentUploadController === controller) {
 						this.emitProgress(
 							jobId,
 							itemId,
@@ -234,6 +250,21 @@ export class RemoteEditManager {
 				controller.signal,
 			);
 
+			if (session.currentUploadController !== controller) {
+				this.emitProgress(
+					jobId,
+					itemId,
+					session.connectionId,
+					session.remotePath,
+					session.tempPath,
+					"upload",
+					"cancelled",
+					0,
+					0,
+				);
+				return;
+			}
+
 			this.emitProgress(
 				jobId,
 				itemId,
@@ -248,7 +279,7 @@ export class RemoteEditManager {
 
 			this.emitJobDone(session.connectionId, jobId, itemId);
 		} catch (err: unknown) {
-			if (controller.signal.aborted) {
+			if (controller.signal.aborted || session.currentUploadController !== controller) {
 				this.emitProgress(
 					jobId,
 					itemId,
@@ -277,6 +308,7 @@ export class RemoteEditManager {
 				message,
 			);
 		} finally {
+			this.uploadControllers.delete(itemId);
 			if (session.currentUploadController === controller) {
 				session.currentUploadController = null;
 			}

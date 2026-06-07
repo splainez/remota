@@ -1,12 +1,17 @@
 import { stat } from "node:fs/promises";
 
+import type { RemoteEditManager } from "@main/remote-edit/remote-edit-manager";
 import type { TransferService } from "@main/transfer/transfer-service";
 import { IPC } from "@shared/ipc-channels";
 import type { LocalStat } from "@shared/transfer-types";
 import { DownloadRequestSchema, UploadRequestSchema } from "@shared/transfer-types";
 import { ipcMain } from "electron";
 
-export function registerTransferHandlers(service: TransferService, getWebContents: () => Electron.WebContents | null) {
+export function registerTransferHandlers(
+	service: TransferService,
+	getWebContents: () => Electron.WebContents | null,
+	remoteEditManager: RemoteEditManager,
+) {
 	ipcMain.handle(IPC.FILE_GET_LOCAL_STAT, async (_event, path: string): Promise<LocalStat | null> => {
 		try {
 			const stats = await stat(path);
@@ -50,13 +55,16 @@ export function registerTransferHandlers(service: TransferService, getWebContent
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL, (_event, jobId: string, itemId: string) => {
 		service.cancelItem(jobId, itemId);
+		remoteEditManager.cancelUpload(itemId);
 	});
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL_ALL, () => {
 		service.cancelAll();
+		remoteEditManager.cancelAllUploads();
 	});
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL_BY_CONNECTION, (_event, connectionId: number) => {
 		service.cancelByConnectionId(connectionId);
+		remoteEditManager.stopAllForConnection(connectionId);
 	});
 }
