@@ -35,7 +35,6 @@ function RootLayout() {
 	const router = useRouter();
 	const { connections, loading, select } = useConnections();
 	const sessions = useActiveSessionsStore((s) => s.sessions);
-	const loadFromBackend = useActiveSessionsStore((s) => s.loadFromBackend);
 	const removeSession = useActiveSessionsStore((s) => s.removeSession);
 
 	useTransferProgress();
@@ -46,12 +45,6 @@ function RootLayout() {
 			logger.error("loadTransferPanels failed", { error });
 		});
 	}, [loadTransferPanels]);
-
-	useEffect(() => {
-		loadFromBackend().catch((error: unknown) => {
-			logger.error("loadFromBackend failed", { error });
-		});
-	}, [loadFromBackend]);
 
 	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
 	const [disconnectTarget, setDisconnectTarget] = useState<number | null>(null);
