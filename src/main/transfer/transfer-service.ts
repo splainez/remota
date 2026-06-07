@@ -11,6 +11,10 @@ import type {
 	DownloadRequest,
 	DownloadResult,
 	TransferProgressEvent,
+	UploadItem,
+	UploadItemResult,
+	UploadRequest,
+	UploadResult,
 } from "@shared/transfer-types";
 import type { WebContents } from "electron";
 import PQueue from "p-queue";
@@ -23,12 +27,19 @@ type Downloader = (
 	signal: AbortSignal,
 ) => Promise<void>;
 
+type Uploader = (
+	item: UploadItem,
+	onProgress: (transferredBytes: number) => void,
+	signal: AbortSignal,
+) => Promise<void>;
+
 interface TransferJob {
 	id: string;
 	connectionId: number;
-	items: DownloadItem[];
+	direction: "download" | "upload";
+	items: (DownloadItem | UploadItem)[];
 	cancelled: boolean;
-	results: Record<string, DownloadItemResult>;
+	results: Record<string, DownloadItemResult | UploadItemResult>;
 	abortControllers: AbortController[];
 	itemControllers: Map<string, AbortController>;
 }
@@ -55,6 +66,7 @@ export class TransferService {
 		const job: TransferJob = {
 			id: randomUUID(),
 			connectionId: req.connectionId,
+			direction: "download",
 			items: req.items,
 			cancelled: false,
 			results: {},
@@ -82,7 +94,64 @@ export class TransferService {
 			job.itemControllers.set(item.id, controller);
 
 			return this.queue
-				.add(() => this.downloadItem(job, item, downloader, webContents, controller.signal), {
+				.add(() => this.downloadItem(job, item as DownloadItem, downloader, webContents, controller.signal), {
+					signal: controller.signal,
+				})
+				.catch(() => {
+					if (!Object.hasOwn(job.results, item.id)) {
+						job.results[item.id] = { id: item.id, status: "cancelled" };
+						this.emit(webContents, job, item, "cancelled", 0);
+					}
+				});
+		});
+
+		Promise.all(promises)
+			.then(() => {
+				this.jobs.delete(job.id);
+				webContents.send(IPC.TRANSFER_JOB_DONE, { jobId: job.id, results: job.results });
+			})
+			.catch((err: unknown) => {
+				logger.error("runJob crashed", { jobId: job.id, error: err });
+				this.jobs.delete(job.id);
+			});
+
+		return { jobId: job.id };
+	}
+
+	startUpload(req: UploadRequest, webContents: WebContents): UploadResult {
+		const items: UploadItem[] = req.items;
+		const job: TransferJob = {
+			id: randomUUID(),
+			connectionId: req.connectionId,
+			direction: "upload",
+			items,
+			cancelled: false,
+			results: {},
+			abortControllers: [],
+			itemControllers: new Map(),
+		};
+		this.jobs.set(job.id, job);
+
+		let uploader: Uploader;
+		try {
+			uploader = this.resolveUploader(job.connectionId);
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : String(err);
+			for (const item of job.items) {
+				job.results[item.id] = { id: item.id, status: "error", error: message };
+			}
+			this.jobs.delete(job.id);
+			webContents.send(IPC.TRANSFER_JOB_DONE, { jobId: job.id, results: job.results });
+			return { jobId: job.id };
+		}
+
+		const promises = items.map((item) => {
+			const controller = new AbortController();
+			job.abortControllers.push(controller);
+			job.itemControllers.set(item.id, controller);
+
+			return this.queue
+				.add(() => this.uploadItem(job, item, uploader, webContents, controller.signal), {
 					signal: controller.signal,
 				})
 				.catch(() => {
@@ -172,6 +241,18 @@ export class TransferService {
 		throw new Error("Not connected to remote server");
 	}
 
+	private resolveUploader(connectionId: number): Uploader {
+		if (this.sftp.isConnected(connectionId)) {
+			return (item, onProgress, signal) =>
+				this.sftp.uploadFile(connectionId, item.localPath, item.remotePath, onProgress, signal);
+		}
+		if (this.s3.isConnected(connectionId)) {
+			return (item, onProgress, signal) =>
+				this.s3.uploadFile(connectionId, item.localPath, item.remotePath, onProgress, signal);
+		}
+		throw new Error("Not connected to remote server");
+	}
+
 	private createCompositeSignal(job: TransferJob, taskSignal: AbortSignal): AbortSignal {
 		const controller = new AbortController();
 
@@ -236,22 +317,73 @@ export class TransferService {
 		}
 	}
 
+	private async uploadItem(
+		job: TransferJob,
+		item: UploadItem,
+		uploader: Uploader,
+		webContents: WebContents,
+		taskSignal: AbortSignal,
+	): Promise<void> {
+		const signal = this.createCompositeSignal(job, taskSignal);
+
+		if (signal.aborted) {
+			job.results[item.id] = { id: item.id, status: "cancelled" };
+			this.emit(webContents, job, item, "cancelled", 0);
+			return;
+		}
+
+		this.emit(webContents, job, item, "active", 0);
+
+		try {
+			await uploader(
+				item,
+				(transferredBytes) => {
+					this.emit(webContents, job, item, "active", transferredBytes);
+				},
+				signal,
+			);
+
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
+			if (signal.aborted) {
+				job.results[item.id] = { id: item.id, status: "cancelled" };
+				this.emit(webContents, job, item, "cancelled", 0);
+				return;
+			}
+
+			job.results[item.id] = { id: item.id, status: "ok" };
+			this.emit(webContents, job, item, "completed", item.size);
+		} catch (err: unknown) {
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
+			if (signal.aborted) {
+				job.results[item.id] = { id: item.id, status: "cancelled" };
+				this.emit(webContents, job, item, "cancelled", 0);
+				return;
+			}
+			const message = err instanceof Error ? err.message : String(err);
+			job.results[item.id] = { id: item.id, status: "error", error: message };
+			this.emit(webContents, job, item, "failed", 0, message);
+		}
+	}
+
 	private emit(
 		webContents: WebContents,
 		job: TransferJob,
-		item: DownloadItem,
+		item: DownloadItem | UploadItem,
 		status: TransferProgressEvent["status"],
 		transferredBytes: number,
 		error?: string,
 	): void {
+		const isUpload = job.direction === "upload";
+		const source = isUpload ? item.localPath : item.remotePath;
+		const target = isUpload ? item.remotePath : item.localPath;
 		const event: TransferProgressEvent = {
 			jobId: job.id,
 			id: item.id,
 			connectionId: job.connectionId,
-			name: item.remotePath.split("/").pop() ?? item.remotePath,
-			source: item.remotePath,
-			target: item.localPath,
-			direction: "download",
+			name: source.split("/").pop() ?? source,
+			source,
+			target,
+			direction: job.direction,
 			totalBytes: item.size,
 			transferredBytes,
 			status,

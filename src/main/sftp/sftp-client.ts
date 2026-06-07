@@ -1,8 +1,8 @@
-import { readFileSync, mkdirSync, createWriteStream } from "node:fs";
+import { readFileSync, mkdirSync, createWriteStream, createReadStream } from "node:fs";
 import { dirname } from "node:path";
 
 import { tempManager } from "@main/temp/temp-manager";
-import type { FileEntry } from "@shared/types";
+import type { FileEntry, RemoteStat } from "@shared/types";
 import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
 
 interface SftpSession {
@@ -214,6 +214,117 @@ export class SftpConnectionManager {
 		return new Promise<string>((resolve) => {
 			session.sftp.realpath(".", (err, absPath) => {
 				resolve(err ? "/" : absPath);
+			});
+		});
+	}
+
+	async getRemoteStat(connectionId: number, remotePath: string): Promise<RemoteStat | null> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		return new Promise<RemoteStat | null>((resolve) => {
+			session.sftp.stat(remotePath, (err, stats) => {
+				if (err) {
+					resolve(null);
+					return;
+				}
+				resolve({
+					exists: true,
+					size: stats.size,
+					modified: new Date(stats.mtime * 1000).toISOString(),
+					isDirectory: stats.isDirectory(),
+				});
+			});
+		});
+	}
+
+	async mkdirRecursive(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const parts = remotePath.split("/").filter(Boolean);
+		let current = parts[0] ? `/${parts[0]}` : "/";
+
+		for (const part of parts.slice(1)) {
+			current = `${current}/${part}`;
+			await new Promise<void>((resolve) => {
+				session.sftp.mkdir(current, (err: Error | null | undefined) => {
+					void err;
+					resolve();
+				});
+			});
+		}
+	}
+
+	async uploadFile(
+		connectionId: number,
+		localPath: string,
+		remotePath: string,
+		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
+	): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const dir = dirname(remotePath);
+		await this.mkdirRecursive(connectionId, dir);
+
+		return new Promise<void>((resolve, reject) => {
+			const readStream = createReadStream(localPath, { highWaterMark: 64 * 1024 });
+			const writeStream = session.sftp.createWriteStream(remotePath);
+			let settled = false;
+			let transferred = 0;
+
+			const fail = (err: Error): void => {
+				if (settled) return;
+				settled = true;
+				readStream.destroy();
+				writeStream.destroy();
+				reject(err);
+			};
+
+			writeStream.on("error", (err: Error) => {
+				fail(new Error(`Failed to write remote file: ${err.message}`));
+			});
+
+			readStream.on("error", (err: Error) => {
+				fail(new Error(`Failed to read local file: ${err.message}`));
+			});
+
+			readStream.on("data", (chunk: Buffer) => {
+				transferred += chunk.length;
+				if (onProgress) {
+					onProgress(transferred);
+				}
+			});
+
+			if (signal) {
+				signal.addEventListener(
+					"abort",
+					() => {
+						if (!settled) {
+							settled = true;
+							readStream.destroy();
+							writeStream.destroy();
+							reject(new DOMException("Aborted", "AbortError"));
+						}
+					},
+					{ once: true },
+				);
+			}
+
+			readStream.pipe(writeStream);
+
+			writeStream.on("close", () => {
+				if (settled) return;
+				settled = true;
+				resolve();
 			});
 		});
 	}

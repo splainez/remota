@@ -1,4 +1,4 @@
-import { createWriteStream } from "node:fs";
+import { createWriteStream, createReadStream } from "node:fs";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { Transform } from "node:stream";
@@ -9,11 +9,13 @@ import {
 	GetObjectCommand,
 	ListObjectsV2Command,
 	HeadBucketCommand,
+	HeadObjectCommand,
+	PutObjectCommand,
 	DeleteObjectCommand,
 	DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
 import { tempManager } from "@main/temp/temp-manager";
-import type { FileEntry } from "@shared/types";
+import type { FileEntry, RemoteStat } from "@shared/types";
 
 interface S3Session {
 	client: S3Client;
@@ -249,6 +251,73 @@ export class S3ConnectionManager {
 
 	homeDir(): string {
 		return "/";
+	}
+
+	async getRemoteStat(connectionId: number, remotePath: string): Promise<RemoteStat | null> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const key = remotePath.replace(/^\/+/, "");
+		if (key.length === 0) {
+			return { exists: true, size: 0, modified: new Date().toISOString(), isDirectory: true };
+		}
+
+		try {
+			const response = await session.client.send(new HeadObjectCommand({ Bucket: session.bucket, Key: key }));
+			return {
+				exists: true,
+				size: response.ContentLength ?? 0,
+				modified: response.LastModified ? response.LastModified.toISOString() : new Date().toISOString(),
+				isDirectory: false,
+			};
+		} catch {
+			return null;
+		}
+	}
+
+	async uploadFile(
+		connectionId: number,
+		localPath: string,
+		remotePath: string,
+		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
+	): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const key = remotePath.replace(/^\/+/, "");
+		const readStream = createReadStream(localPath, { highWaterMark: 64 * 1024 });
+
+		const body = await new Promise<Buffer>((resolve, reject) => {
+			const chunks: Buffer[] = [];
+			let totalBytes = 0;
+			readStream.on("data", (chunk: Buffer) => {
+				chunks.push(chunk);
+				totalBytes += chunk.length;
+				if (onProgress) {
+					onProgress(totalBytes);
+				}
+			});
+			readStream.on("end", () => {
+				resolve(Buffer.concat(chunks));
+			});
+			readStream.on("error", (err: Error) => {
+				reject(new Error(`Failed to read local file: ${err.message}`));
+			});
+		});
+
+		await session.client.send(
+			new PutObjectCommand({
+				Bucket: session.bucket,
+				Key: key,
+				Body: body,
+			}),
+			{ abortSignal: signal },
+		);
 	}
 
 	async downloadFile(
