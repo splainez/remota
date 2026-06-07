@@ -43,4 +43,8 @@ export function registerTransferHandlers(service: TransferService, getWebContent
 	ipcMain.handle(IPC.TRANSFER_CANCEL_ALL, () => {
 		service.cancelAll();
 	});
+
+	ipcMain.handle(IPC.TRANSFER_CANCEL_BY_CONNECTION, (_event, connectionId: number) => {
+		service.cancelByConnectionId(connectionId);
+	});
 }

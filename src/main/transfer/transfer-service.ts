@@ -133,6 +133,16 @@ export class TransferService {
 		}
 	}
 
+	cancelByConnectionId(connectionId: number): void {
+		for (const job of this.jobs.values()) {
+			if (job.connectionId !== connectionId) continue;
+			job.cancelled = true;
+			for (const controller of job.abortControllers) {
+				controller.abort();
+			}
+		}
+	}
+
 	setConcurrency(value: number): void {
 		this.queue.concurrency = this.clampConcurrency(value);
 	}
