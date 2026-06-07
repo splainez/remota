@@ -85,4 +85,14 @@ export function registerRemoteFilesystemHandlers(
 		}
 		throw new Error("Not connected to remote server");
 	});
+
+	ipcMain.handle(IPC.FILE_GET_REMOTE_STAT, async (_event, connectionId: number, remotePath: string) => {
+		if (sftp.isConnected(connectionId)) {
+			return sftp.getRemoteStat(connectionId, remotePath);
+		}
+		if (s3.isConnected(connectionId)) {
+			return s3.getRemoteStat(connectionId, remotePath);
+		}
+		throw new Error("Not connected to remote server");
+	});
 }

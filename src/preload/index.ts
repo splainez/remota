@@ -7,10 +7,13 @@ import type {
 	FileEntry,
 	LocalStat,
 	NewConnection,
+	RemoteStat,
 	Settings,
 	SettingsUpdate,
 	TerminalAppId,
 	TransferProgressEvent,
+	UploadRequest,
+	UploadResult,
 } from "@shared/types";
 import { contextBridge, ipcRenderer } from "electron";
 
@@ -57,7 +60,10 @@ const api = {
 		tempExists: (connectionId: number, remotePath: string): Promise<boolean> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_EXISTS, connectionId, remotePath),
 		download: (request: DownloadRequest): Promise<DownloadResult> => ipcRenderer.invoke(IPC.FILE_DOWNLOAD, request),
+		upload: (request: UploadRequest): Promise<UploadResult> => ipcRenderer.invoke(IPC.FILE_UPLOAD, request),
 		getLocalStat: (path: string): Promise<LocalStat | null> => ipcRenderer.invoke(IPC.FILE_GET_LOCAL_STAT, path),
+		getRemoteStat: (connectionId: number, path: string): Promise<RemoteStat | null> =>
+			ipcRenderer.invoke(IPC.FILE_GET_REMOTE_STAT, connectionId, path),
 		onTransferProgress: (callback: (event: TransferProgressEvent) => void) => {
 			const handler = (_e: Electron.IpcRendererEvent, event: TransferProgressEvent) => {
 				callback(event);
