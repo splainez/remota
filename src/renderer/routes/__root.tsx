@@ -84,13 +84,16 @@ function RootLayout() {
 	}, [requestNavigation]);
 
 	const handleConfirmDisconnect = useCallback(() => {
-		if (activeConnectionId != null) {
-			void window.api.filesystem.cancelTransfersForConnection(activeConnectionId);
-			void window.api.filesystem.remoteDisconnect(activeConnectionId);
-		}
 		setDisconnectDialogOpen(false);
 		const target = pendingNavigation ?? "/";
 		setPendingNavigation(null);
+		if (activeConnectionId != null) {
+			useTransferStore.getState().clearAll(activeConnectionId);
+			void (async () => {
+				await window.api.filesystem.cancelTransfersForConnection(activeConnectionId);
+				await window.api.filesystem.remoteDisconnect(activeConnectionId);
+			})();
+		}
 		navigateTo(target);
 	}, [activeConnectionId, pendingNavigation, navigateTo]);
 
