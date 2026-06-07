@@ -143,11 +143,23 @@ export class SftpConnectionManager {
 		});
 	}
 
-	async deletePath(connectionId: number, remotePath: string): Promise<void> {
+	async deletePath(connectionId: number, remotePath: string, visited?: Set<string>): Promise<void> {
 		const session = this.sessions.get(connectionId);
 		if (!session) {
 			throw new Error("Not connected to remote server");
 		}
+
+		const resolvedPath = await new Promise<string>((resolve) => {
+			session.sftp.realpath(remotePath, (err, absPath) => {
+				resolve(err ? remotePath : absPath);
+			});
+		});
+
+		const tracking = visited ?? new Set<string>();
+		if (tracking.has(resolvedPath)) {
+			throw new Error(`Symlink cycle detected at ${remotePath}`);
+		}
+		tracking.add(resolvedPath);
 
 		const isDir = await new Promise<boolean>((resolve) => {
 			session.sftp.stat(remotePath, (err, stats) => {
@@ -179,7 +191,7 @@ export class SftpConnectionManager {
 
 		for (const name of entries) {
 			const childPath = remotePath.endsWith("/") ? `${remotePath}${name}` : `${remotePath}/${name}`;
-			await this.deletePath(connectionId, childPath);
+			await this.deletePath(connectionId, childPath, tracking);
 		}
 
 		return new Promise<void>((resolve, reject) => {

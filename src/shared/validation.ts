@@ -80,6 +80,19 @@ export const renameParamsSchema = z.object({
 
 export type RenameParams = z.infer<typeof renameParamsSchema>;
 
+export const deleteParamsSchema = z.object({
+	filePath: z.string().min(1, "validation.fileNameInvalid"),
+});
+
+export type DeleteParams = z.infer<typeof deleteParamsSchema>;
+
+export const remoteDeleteParamsSchema = z.object({
+	connectionId: z.number().int().min(0),
+	remotePath: z.string().min(1, "validation.fileNameInvalid"),
+});
+
+export type RemoteDeleteParams = z.infer<typeof remoteDeleteParamsSchema>;
+
 // Flat schema for IPC partial updates (CONNECTION_UPDATE).
 // Update requests don't include the protocol, so this validates field
 // types only — protocol-specific requirements are enforced by connectionFormSchema.

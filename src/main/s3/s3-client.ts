@@ -181,6 +181,9 @@ export class S3ConnectionManager {
 		}
 
 		const key = remotePath.replace(/^\/+/, "");
+		if (key.length === 0) {
+			throw new Error("Cannot delete S3 bucket root");
+		}
 
 		const isDir = remotePath.endsWith("/");
 		if (!isDir) {
@@ -216,19 +219,31 @@ export class S3ConnectionManager {
 			continuationToken = listResponse.IsTruncated ? listResponse.NextContinuationToken : undefined;
 		} while (continuationToken);
 
+		const errors: { key: string; code: string; message: string }[] = [];
+
 		for (let i = 0; i < objectsToDelete.length; i += 1000) {
 			const batch = objectsToDelete.slice(i, i + 1000);
 			try {
-				await session.client.send(
+				const response = await session.client.send(
 					new DeleteObjectsCommand({
 						Bucket: session.bucket,
 						Delete: { Objects: batch },
 					}),
 				);
+				if (response.Errors) {
+					for (const err of response.Errors) {
+						errors.push({ key: err.Key ?? "", code: err.Code ?? "Unknown", message: err.Message ?? "Unknown error" });
+					}
+				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
 				throw new Error(`S3 delete error: ${message}`, { cause: err });
 			}
+		}
+
+		if (errors.length > 0) {
+			const details = errors.map((e) => `${e.key}: ${e.code}`).join(", ");
+			throw new Error(`S3 partial delete failure: ${details}`);
 		}
 	}
 

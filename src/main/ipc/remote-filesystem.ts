@@ -2,6 +2,7 @@ import type { AppStore } from "@main/app-store";
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import { IPC } from "@shared/ipc-channels";
+import { remoteDeleteParamsSchema } from "@shared/validation";
 import { ipcMain } from "electron";
 
 export function registerRemoteFilesystemHandlers(
@@ -70,12 +71,16 @@ export function registerRemoteFilesystemHandlers(
 	});
 
 	ipcMain.handle(IPC.REMOTE_DELETE, async (_event, connectionId: number, remotePath: string) => {
-		if (sftp.isConnected(connectionId)) {
-			await sftp.deletePath(connectionId, remotePath);
+		const parsed = remoteDeleteParamsSchema.safeParse({ connectionId, remotePath });
+		if (!parsed.success) {
+			throw new Error(`Invalid remote delete params: ${parsed.error.message}`);
+		}
+		if (sftp.isConnected(parsed.data.connectionId)) {
+			await sftp.deletePath(parsed.data.connectionId, parsed.data.remotePath);
 			return;
 		}
-		if (s3.isConnected(connectionId)) {
-			await s3.deletePath(connectionId, remotePath);
+		if (s3.isConnected(parsed.data.connectionId)) {
+			await s3.deletePath(parsed.data.connectionId, parsed.data.remotePath);
 			return;
 		}
 		throw new Error("Not connected to remote server");

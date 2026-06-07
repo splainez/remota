@@ -8,7 +8,7 @@ import { tempManager } from "@main/temp/temp-manager";
 import { IPC } from "@shared/ipc-channels";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { FileEntry } from "@shared/types";
-import { renameParamsSchema } from "@shared/validation";
+import { deleteParamsSchema, renameParamsSchema } from "@shared/validation";
 import { app, ipcMain, shell } from "electron";
 
 const logger = LoggerFactory.init({ name: "main.ipc.filesystem" });
@@ -129,11 +129,15 @@ export function registerFilesystemHandlers(store: AppStore, fileWatcher: FileWat
 	});
 
 	ipcMain.handle(IPC.FILE_DELETE, (_event, filePath: string) => {
+		const parsed = deleteParamsSchema.safeParse({ filePath });
+		if (!parsed.success) {
+			throw new Error(`Invalid delete params: ${parsed.error.message}`);
+		}
 		try {
-			rmSync(filePath, { recursive: true, force: true });
+			rmSync(parsed.data.filePath, { recursive: true, force: true });
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
-			logger.error("delete failed", { path: filePath, error: message });
+			logger.error("delete failed", { path: parsed.data.filePath, error: message });
 			throw new Error(`Delete failed: ${message}`, { cause: err });
 		}
 	});
