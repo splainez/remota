@@ -5,21 +5,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { ConnectionContextMenu } from "./ConnectionContextMenu";
 
-vi.mock("../../store/appNavigation", () => ({
-	useAppNavigation: vi.fn(() => ({
-		openConnectionForm: vi.fn(),
+const mockNavigate = vi.fn();
+
+vi.mock("@tanstack/react-router", () => ({
+	useRouter: vi.fn(() => ({
+		navigate: mockNavigate,
 	})),
 }));
 
-let mockOpenConnectionForm: ReturnType<typeof vi.fn>;
-
 describe("ConnectionContextMenu", () => {
-	beforeEach(async () => {
-		mockOpenConnectionForm = vi.fn();
-		const { useAppNavigation } = await import("../../store/appNavigation");
-		vi.mocked(useAppNavigation).mockReturnValue({
-			openConnectionForm: mockOpenConnectionForm,
-		});
+	beforeEach(() => {
+		mockNavigate.mockClear();
 	});
 
 	it("renders edit, connect and delete options", () => {
@@ -40,7 +36,7 @@ describe("ConnectionContextMenu", () => {
 		expect(screen.getByText("Delete")).toBeInTheDocument();
 	});
 
-	it("opens connection form for editing and closes on edit click", async () => {
+	it("navigates to edit route and closes on edit click", async () => {
 		const user = userEvent.setup();
 		const onClose = vi.fn();
 		render(
@@ -56,7 +52,7 @@ describe("ConnectionContextMenu", () => {
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByText("Edit Connection"));
-		expect(mockOpenConnectionForm).toHaveBeenCalledWith("edit", 42);
+		expect(mockNavigate).toHaveBeenCalledWith({ to: "/connections/42/edit" });
 		expect(onClose).toHaveBeenCalledOnce();
 	});
 
