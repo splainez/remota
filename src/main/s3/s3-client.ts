@@ -40,7 +40,7 @@ export class S3ConnectionManager {
 		},
 	): Promise<string> {
 		if (this.sessions.has(connectionId)) {
-			this.disconnect(connectionId);
+			return this.homeDir();
 		}
 
 		const scheme = config.useHttps ? "https://" : "http://";

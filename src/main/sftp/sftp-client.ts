@@ -26,7 +26,7 @@ export class SftpConnectionManager {
 		},
 	): Promise<string> {
 		if (this.sessions.has(connectionId)) {
-			await this.disconnect(connectionId);
+			return this.homeDir(connectionId);
 		}
 
 		const client = new Client();
