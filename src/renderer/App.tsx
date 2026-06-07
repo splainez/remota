@@ -16,7 +16,7 @@ import { SettingsView } from "./components/Settings/SettingsView";
 import { Button } from "./components/ui/button";
 import { useConnections } from "./hooks/useConnections";
 import { useI18n } from "./hooks/useI18n";
-import { useAppNavigation } from "./store/appNavigation";
+import { useAppNavigation, type AppView } from "./store/appNavigation";
 import { useSettingsStore } from "./store/settings";
 import { useTransferStore } from "./store/transfer";
 import { useTransferPanelStore } from "./store/transferPanel";
@@ -27,8 +27,7 @@ export function App() {
 	const { t } = useI18n();
 	const { connections, selected, loading, select, create, update, remove } = useConnections();
 
-	const { currentView, openConnectionList, openConnectionDetail, openConnectionForm, openFileBrowser, openSettings } =
-		useAppNavigation();
+	const { currentView, setView, openConnectionDetail, openConnectionForm, openFileBrowser } = useAppNavigation();
 
 	const loadTransferPanels = useTransferPanelStore((s) => s.load);
 	useEffect(() => {
@@ -38,6 +37,7 @@ export function App() {
 	}, [loadTransferPanels]);
 
 	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+	const [pendingNavigation, setPendingNavigation] = useState<AppView | null>(null);
 
 	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
@@ -48,21 +48,32 @@ export function App() {
 	);
 	const toggleTransferPanel = useTransferPanelStore((s) => s.toggle);
 
+	const requestNavigation = useCallback(
+		(nextView: AppView) => {
+			if (currentView.view === "fileBrowser" && hasActiveTransfers) {
+				setPendingNavigation(nextView);
+				setDisconnectDialogOpen(true);
+				return;
+			}
+			setView(nextView);
+		},
+		[currentView, hasActiveTransfers, setView],
+	);
+
 	const handleDisconnect = useCallback(() => {
-		if (hasActiveTransfers) {
-			setDisconnectDialogOpen(true);
-			return;
-		}
-		openConnectionList();
-	}, [hasActiveTransfers, openConnectionList]);
+		requestNavigation({ view: "connectionList" });
+	}, [requestNavigation]);
 
 	const handleConfirmDisconnect = useCallback(() => {
 		if (activeConnectionId != null) {
 			void window.api.filesystem.cancelTransfersForConnection(activeConnectionId);
+			void window.api.filesystem.remoteDisconnect(activeConnectionId);
 		}
 		setDisconnectDialogOpen(false);
-		openConnectionList();
-	}, [activeConnectionId, openConnectionList]);
+		const target = pendingNavigation ?? { view: "connectionList" as const };
+		setPendingNavigation(null);
+		setView(target);
+	}, [activeConnectionId, pendingNavigation, setView]);
 
 	const handleToggleTransferPanel = () => {
 		if (activeConnectionId == null) return;
@@ -71,12 +82,12 @@ export function App() {
 
 	const handleSelect = (id: number) => {
 		select(id);
-		openConnectionDetail(id);
+		requestNavigation({ view: "connectionDetail", id });
 	};
 
 	const handleAdd = () => {
 		select(null);
-		openConnectionForm("new");
+		requestNavigation({ view: "connectionForm", mode: "new" });
 	};
 
 	const handleOpenFileBrowser = (id: number) => {
@@ -111,7 +122,7 @@ export function App() {
 	};
 
 	const handleCancel = () => {
-		openConnectionList();
+		requestNavigation({ view: "connectionList" });
 	};
 
 	const handleSave = async (data: NewConnection): Promise<Connection | undefined> => {
@@ -136,7 +147,7 @@ export function App() {
 
 	const handleDelete = async (id: number) => {
 		await remove(id);
-		openConnectionList();
+		requestNavigation({ view: "connectionList" });
 	};
 
 	if (loading) {
@@ -239,7 +250,13 @@ export function App() {
 				);
 
 			case "settings":
-				return <SettingsView onBack={openConnectionList} />;
+				return (
+					<SettingsView
+						onBack={() => {
+							setView({ view: "connectionList" });
+						}}
+					/>
+				);
 		}
 	};
 
@@ -260,9 +277,13 @@ export function App() {
 					onSelect={handleSelect}
 					onAdd={handleAdd}
 					onDoubleClick={handleOpenFileBrowser}
-					onViewAll={openConnectionList}
+					onViewAll={() => {
+						requestNavigation({ view: "connectionList" });
+					}}
 					onDisconnect={handleDisconnect}
-					onSettings={openSettings}
+					onSettings={() => {
+						requestNavigation({ view: "settings" });
+					}}
 				/>
 
 				<div className="flex-1 flex flex-col min-w-0">
