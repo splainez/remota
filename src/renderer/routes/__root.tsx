@@ -6,6 +6,8 @@ import { ServerSidebar } from "@renderer/components/ServerSidebar/ServerSidebar"
 import { Button } from "@renderer/components/ui/button";
 import { useConnections } from "@renderer/hooks/useConnections";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { useTransferProgress } from "@renderer/hooks/useTransferProgress";
+import { useActiveSessionsStore } from "@renderer/store/activeSessions";
 import { useTransferStore } from "@renderer/store/transfer";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -31,7 +33,12 @@ export const rootRoute = createRootRoute({
 function RootLayout() {
 	const { t } = useI18n();
 	const router = useRouter();
-	const { connections, selected, loading, select } = useConnections();
+	const { connections, loading, select } = useConnections();
+	const sessions = useActiveSessionsStore((s) => s.sessions);
+	const loadFromBackend = useActiveSessionsStore((s) => s.loadFromBackend);
+	const removeSession = useActiveSessionsStore((s) => s.removeSession);
+
+	useTransferProgress();
 
 	const loadTransferPanels = useTransferPanelStore((s) => s.load);
 	useEffect(() => {
@@ -40,8 +47,14 @@ function RootLayout() {
 		});
 	}, [loadTransferPanels]);
 
+	useEffect(() => {
+		loadFromBackend().catch((error: unknown) => {
+			logger.error("loadFromBackend failed", { error });
+		});
+	}, [loadFromBackend]);
+
 	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-	const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+	const [disconnectTarget, setDisconnectTarget] = useState<number | null>(null);
 	const [quitDialogOpen, setQuitDialogOpen] = useState(false);
 
 	useEffect(() => {
@@ -55,47 +68,43 @@ function RootLayout() {
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
 		activeConnectionId == null ? false : s.isVisible(activeConnectionId),
 	);
-	const hasActiveTransfers = useTransferStore((s) =>
-		activeConnectionId == null ? false : s.pendingCount(activeConnectionId) > 0,
-	);
 	const toggleTransferPanel = useTransferPanelStore((s) => s.toggle);
 
-	const navigateTo = useCallback(
-		(to: string) => {
-			void router.navigate({ to });
-		},
-		[router],
-	);
-
-	const requestNavigation = useCallback(
-		(to: string) => {
-			if (activeConnectionId != null && hasActiveTransfers) {
-				setPendingNavigation(to);
+	const disconnectConnection = useCallback(
+		(connectionId: number) => {
+			const hasTransfers = useTransferStore.getState().pendingCount(connectionId) > 0;
+			if (hasTransfers) {
+				setDisconnectTarget(connectionId);
 				setDisconnectDialogOpen(true);
 				return;
 			}
-			navigateTo(to);
+			void (async () => {
+				await window.api.filesystem.remoteDisconnect(connectionId);
+				removeSession(connectionId);
+				if (activeConnectionId === connectionId) {
+					void router.navigate({ to: "/" });
+				}
+			})();
 		},
-		[activeConnectionId, hasActiveTransfers, navigateTo],
+		[activeConnectionId, removeSession, router],
 	);
-
-	const handleDisconnect = useCallback(() => {
-		requestNavigation("/");
-	}, [requestNavigation]);
 
 	const handleConfirmDisconnect = useCallback(() => {
 		setDisconnectDialogOpen(false);
-		const target = pendingNavigation ?? "/";
-		setPendingNavigation(null);
-		if (activeConnectionId != null) {
-			useTransferStore.getState().clearAll(activeConnectionId);
+		const target = disconnectTarget;
+		setDisconnectTarget(null);
+		if (target != null) {
+			useTransferStore.getState().clearAll(target);
 			void (async () => {
-				await window.api.filesystem.cancelTransfersForConnection(activeConnectionId);
-				await window.api.filesystem.remoteDisconnect(activeConnectionId);
+				await window.api.filesystem.cancelTransfersForConnection(target);
+				await window.api.filesystem.remoteDisconnect(target);
+				removeSession(target);
+				if (activeConnectionId === target) {
+					void router.navigate({ to: "/" });
+				}
 			})();
 		}
-		navigateTo(target);
-	}, [activeConnectionId, pendingNavigation, navigateTo]);
+	}, [activeConnectionId, disconnectTarget, removeSession, router]);
 
 	const handleConfirmQuit = useCallback(() => {
 		setQuitDialogOpen(false);
@@ -116,23 +125,23 @@ function RootLayout() {
 
 	const handleSelect = (id: number) => {
 		select(id);
-		requestNavigation(`/connections/${String(id)}`);
+		void router.navigate({ to: `/connections/${String(id)}` });
 	};
 
 	const handleAdd = () => {
 		select(null);
-		requestNavigation("/connections/new");
+		void router.navigate({ to: "/connections/new" });
 	};
 
 	const handleOpenFileBrowser = (id: number) => {
 		const conn = connections.find((c) => c.id === id);
 		if (conn) {
-			requestNavigation(`/browse/${String(conn.id)}`);
+			void router.navigate({ to: `/browse/${String(conn.id)}` });
 		}
 	};
 
 	const handleSettings = () => {
-		requestNavigation("/settings");
+		void router.navigate({ to: "/settings" });
 	};
 
 	if (loading) {
@@ -162,15 +171,15 @@ function RootLayout() {
 				<Toaster position="bottom-right" richColors />
 				<ServerSidebar
 					connections={connections}
-					selectedId={selected?.id ?? null}
 					activeConnectionId={activeConnectionId}
+					activeSessions={sessions}
 					onSelect={handleSelect}
 					onAdd={handleAdd}
 					onDoubleClick={handleOpenFileBrowser}
 					onViewAll={() => {
-						requestNavigation("/");
+						void router.navigate({ to: "/" });
 					}}
-					onDisconnect={handleDisconnect}
+					onDisconnect={disconnectConnection}
 					onSettings={handleSettings}
 				/>
 
@@ -187,7 +196,7 @@ function RootLayout() {
 								<Button
 									variant="link"
 									size="sm"
-									className={`h-auto p-0 text-xs gap-1 ${hasActiveTransfers ? "" : "text-muted-foreground"}`}
+									className="h-auto p-0 text-xs gap-1"
 									onClick={handleToggleTransferPanel}
 								>
 									<Icon name="sync" size={14} />
