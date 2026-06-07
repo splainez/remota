@@ -1,13 +1,14 @@
 import { connectionSupportsTerminal } from "@shared/lib/connection";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection } from "@shared/types";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 
 import { ConfigError } from "./components/ConfigError/ConfigError";
 import { ConnectionDetail } from "./components/ConnectionManager/ConnectionDetail";
 import { ConnectionForm } from "./components/ConnectionManager/ConnectionForm";
 import { ConnectionListView } from "./components/ConnectionManager/ConnectionListView";
+import { DisconnectConfirmDialog } from "./components/FileBrowser/DisconnectConfirmDialog";
 import { FileBrowser } from "./components/FileBrowser/FileBrowser";
 import { Icon } from "./components/icons/Icon";
 import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
@@ -36,6 +37,8 @@ export function App() {
 		});
 	}, [loadTransferPanels]);
 
+	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+
 	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
 		activeConnectionId == null ? false : s.isVisible(activeConnectionId),
@@ -44,6 +47,22 @@ export function App() {
 		activeConnectionId == null ? false : s.pendingCount(activeConnectionId) > 0,
 	);
 	const toggleTransferPanel = useTransferPanelStore((s) => s.toggle);
+
+	const handleDisconnect = useCallback(() => {
+		if (hasActiveTransfers) {
+			setDisconnectDialogOpen(true);
+			return;
+		}
+		openConnectionList();
+	}, [hasActiveTransfers, openConnectionList]);
+
+	const handleConfirmDisconnect = useCallback(() => {
+		if (activeConnectionId != null) {
+			void window.api.filesystem.cancelTransfersForConnection(activeConnectionId);
+		}
+		setDisconnectDialogOpen(false);
+		openConnectionList();
+	}, [activeConnectionId, openConnectionList]);
 
 	const handleToggleTransferPanel = () => {
 		if (activeConnectionId == null) return;
@@ -157,7 +176,13 @@ export function App() {
 				);
 
 			case "fileBrowser":
-				return <FileBrowser connection={currentView.connection} initialShowTerminal={currentView.openTerminal} />;
+				return (
+					<FileBrowser
+						connection={currentView.connection}
+						initialShowTerminal={currentView.openTerminal}
+						onDisconnect={handleDisconnect}
+					/>
+				);
 
 			case "connectionForm": {
 				const editingConnection =
@@ -221,6 +246,11 @@ export function App() {
 	return (
 		<>
 			<ConfigError />
+			<DisconnectConfirmDialog
+				open={disconnectDialogOpen}
+				onOpenChange={setDisconnectDialogOpen}
+				onConfirmDisconnect={handleConfirmDisconnect}
+			/>
 			<div className="flex h-screen overflow-hidden bg-background">
 				<Toaster position="bottom-right" richColors />
 				<ServerSidebar
@@ -231,7 +261,7 @@ export function App() {
 					onAdd={handleAdd}
 					onDoubleClick={handleOpenFileBrowser}
 					onViewAll={openConnectionList}
-					onDisconnect={openConnectionList}
+					onDisconnect={handleDisconnect}
 					onSettings={openSettings}
 				/>
 

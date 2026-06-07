@@ -20,9 +20,10 @@ const logger = LoggerFactory.init({ name: "renderer.FileBrowser" });
 interface FileBrowserProps {
 	connection: Connection;
 	initialShowTerminal?: boolean;
+	onDisconnect?: () => void;
 }
 
-export function FileBrowser({ connection, initialShowTerminal = false }: FileBrowserProps) {
+export function FileBrowser({ connection, initialShowTerminal = false, onDisconnect }: FileBrowserProps) {
 	const { t } = useI18n();
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
@@ -123,10 +124,20 @@ export function FileBrowser({ connection, initialShowTerminal = false }: FileBro
 					</Button>
 				</div>
 
-				{/* Remote Path */}
+				{/* Remote Path + Disconnect */}
 				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end gap-2">
 					<Breadcrumb path={remotePath} onNavigate={setRemotePath} className="bg-transparent border-none p-0 h-auto" />
 					<Icon name="globe" size={16} className="text-on-surface-variant shrink-0" />
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+						aria-label={t("connection.disconnect")}
+						title={t("connection.disconnect")}
+						onClick={onDisconnect}
+					>
+						<Icon name="close" size={16} />
+					</Button>
 				</div>
 			</header>
 
