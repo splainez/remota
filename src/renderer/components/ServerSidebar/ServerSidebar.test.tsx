@@ -45,8 +45,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -68,8 +68,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={null}
+						activeSessions={[]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -92,8 +92,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={onSelect}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -117,8 +117,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={onAdd}
 						onDoubleClick={vi.fn()}
@@ -141,8 +141,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -169,8 +169,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -196,8 +196,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -221,8 +221,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -246,8 +246,8 @@ describe("ServerSidebar", () => {
 				<ThemeProvider defaultTheme="dark">
 					<ServerSidebar
 						connections={connections}
-						selectedId={null}
 						activeConnectionId={1}
+						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
 						onSelect={vi.fn()}
 						onAdd={vi.fn()}
 						onDoubleClick={vi.fn()}
@@ -260,6 +260,6 @@ describe("ServerSidebar", () => {
 		);
 
 		await user.click(screen.getByTitle("Disconnect"));
-		expect(onDisconnect).toHaveBeenCalledOnce();
+		expect(onDisconnect).toHaveBeenCalledWith(1);
 	});
 });

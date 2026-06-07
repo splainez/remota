@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { AppConfigSchema, MAX_PARALLEL_TRANSFERS_DEFAULT } from "@shared/app-config-schema";
+import { AppConfigSchema, MAX_PARALLEL_TRANSFERS_DEFAULT, MAX_SESSIONS_DEFAULT } from "@shared/app-config-schema";
 import type { AppConfig } from "@shared/app-config-schema";
 import type { FilePaneSizeUpdate, Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -27,7 +27,12 @@ export class AppStore {
 		lastPaths: {},
 		transferPanels: {},
 		filePaneSizes: {},
-		settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
+		settings: {
+			theme: "system",
+			locale: "en",
+			maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+			maxSessions: MAX_SESSIONS_DEFAULT,
+		},
 	};
 	private nextId = 1;
 	private saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -48,7 +53,12 @@ export class AppStore {
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
-				settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
+				settings: {
+					theme: "system",
+					locale: "en",
+					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+					maxSessions: MAX_SESSIONS_DEFAULT,
+				},
 			};
 			this.save();
 			return;
@@ -67,7 +77,12 @@ export class AppStore {
 					lastPaths: {},
 					transferPanels: {},
 					filePaneSizes: {},
-					settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
+					settings: {
+						theme: "system",
+						locale: "en",
+						maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+						maxSessions: MAX_SESSIONS_DEFAULT,
+					},
 				};
 				return;
 			}
@@ -83,7 +98,12 @@ export class AppStore {
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
-				settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
+				settings: {
+					theme: "system",
+					locale: "en",
+					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+					maxSessions: MAX_SESSIONS_DEFAULT,
+				},
 			};
 		}
 	}

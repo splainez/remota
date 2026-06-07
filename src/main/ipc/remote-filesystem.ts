@@ -50,6 +50,10 @@ export function registerRemoteFilesystemHandlers(
 		}
 	});
 
+	ipcMain.handle(IPC.REMOTE_IS_CONNECTED, (_event, connectionId: number) => {
+		return sftp.isConnected(connectionId) || s3.isConnected(connectionId);
+	});
+
 	ipcMain.handle(IPC.REMOTE_LIST, async (_event, connectionId: number, path: string) => {
 		if (sftp.isConnected(connectionId)) {
 			return sftp.listDirectory(connectionId, path);

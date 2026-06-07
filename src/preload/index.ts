@@ -39,6 +39,8 @@ const api = {
 		rename: (oldPath: string, newName: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_RENAME, oldPath, newName),
 		remoteConnect: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_CONNECT, connectionId),
 		remoteDisconnect: (connectionId: number): Promise<void> => ipcRenderer.invoke(IPC.REMOTE_DISCONNECT, connectionId),
+		remoteIsConnected: (connectionId: number): Promise<boolean> =>
+			ipcRenderer.invoke(IPC.REMOTE_IS_CONNECTED, connectionId),
 		remoteList: (connectionId: number, path: string): Promise<FileEntry[]> =>
 			ipcRenderer.invoke(IPC.REMOTE_LIST, connectionId, path),
 		remoteHomeDir: (connectionId: number): Promise<string> => ipcRenderer.invoke(IPC.REMOTE_HOME_DIR, connectionId),

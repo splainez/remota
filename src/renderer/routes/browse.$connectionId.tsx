@@ -2,9 +2,10 @@
 import { DisconnectConfirmDialog } from "@renderer/components/FileBrowser/DisconnectConfirmDialog";
 import { FileBrowser } from "@renderer/components/FileBrowser/FileBrowser";
 import { useConnections } from "@renderer/hooks/useConnections";
+import { useActiveSessionsStore } from "@renderer/store/activeSessions";
 import { useTransferStore } from "@renderer/store/transfer";
-import { createRoute, useBlocker, useRouter } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createRoute, useRouter } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
 
 import { rootRoute } from "./__root";
 
@@ -18,6 +19,7 @@ function BrowseRoute() {
 	const { connectionId } = browseRoute.useParams();
 	const router = useRouter();
 	const { connections } = useConnections();
+	const removeSession = useActiveSessionsStore((s) => s.removeSession);
 
 	const connId = Number(connectionId);
 	const connection = connections.find((c) => c.id === connId) ?? null;
@@ -25,20 +27,6 @@ function BrowseRoute() {
 	const hasActiveTransfers = useTransferStore((s) => s.pendingCount(connId) > 0);
 
 	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-	const blockedLocationRef = useRef<string>("/");
-
-	const { status, next, reset } = useBlocker({
-		shouldBlockFn: () => useTransferStore.getState().pendingCount(connId) > 0,
-		enableBeforeUnload: true,
-		withResolver: true,
-	});
-
-	useEffect(() => {
-		if (status === "blocked") {
-			blockedLocationRef.current = next.fullPath;
-			setDisconnectDialogOpen(true);
-		}
-	}, [status, next]);
 
 	const handleConfirmDisconnect = useCallback(() => {
 		setDisconnectDialogOpen(false);
@@ -46,11 +34,10 @@ function BrowseRoute() {
 		void (async () => {
 			await window.api.filesystem.cancelTransfersForConnection(connId);
 			await window.api.filesystem.remoteDisconnect(connId);
-			const target = blockedLocationRef.current;
-			reset?.();
-			void router.navigate({ to: target });
+			removeSession(connId);
+			void router.navigate({ to: "/" });
 		})();
-	}, [connId, reset, router]);
+	}, [connId, removeSession, router]);
 
 	const handleDisconnect = useCallback(() => {
 		if (hasActiveTransfers) {
@@ -59,9 +46,10 @@ function BrowseRoute() {
 		}
 		void (async () => {
 			await window.api.filesystem.remoteDisconnect(connId);
+			removeSession(connId);
 			void router.navigate({ to: "/" });
 		})();
-	}, [connId, hasActiveTransfers, router]);
+	}, [connId, hasActiveTransfers, removeSession, router]);
 
 	if (connection == null) {
 		return (

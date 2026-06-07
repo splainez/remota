@@ -60,6 +60,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			rename: vi.fn<(oldPath: string, newName: string) => Promise<void>>().mockResolvedValue(undefined),
 			remoteConnect: vi.fn().mockResolvedValue("/"),
 			remoteDisconnect: vi.fn().mockResolvedValue(undefined),
+			remoteIsConnected: vi.fn().mockResolvedValue(false),
 			remoteList: vi.fn().mockResolvedValue([]),
 			remoteHomeDir: vi.fn().mockResolvedValue("/"),
 			remoteRename: vi
@@ -103,12 +104,14 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				theme: "system",
 				locale: "en",
 				maxParallelTransfers: 5,
+				maxSessions: 10,
 				retentionMs: undefined,
 			}),
 			set: vi.fn<(partial: SettingsUpdate) => Promise<Settings>>().mockResolvedValue({
 				theme: "system",
 				locale: "en",
 				maxParallelTransfers: 5,
+				maxSessions: 10,
 				retentionMs: undefined,
 			}),
 			...overrides?.settings,
