@@ -33,6 +33,7 @@ interface FilePaneProps {
 	initialPath: string;
 	protocol?: "sftp" | "scp" | "s3";
 	connectionError?: SftpErrorInfo | null;
+	remoteStatus?: "connecting" | "connected" | "error";
 	initialShowTerminal?: boolean;
 	peerLocalPath?: string;
 	onReconnect?: () => void;
@@ -45,6 +46,7 @@ export function FilePane({
 	initialPath,
 	protocol,
 	connectionError,
+	remoteStatus,
 	initialShowTerminal = false,
 	peerLocalPath,
 	onReconnect,
@@ -319,7 +321,9 @@ export function FilePane({
 	);
 
 	const listingError = error;
-	const deadError = connectionError ?? (listingError?.code === "NOT_CONNECTED" ? listingError : null);
+	const isStillConnecting = remoteStatus === "connecting";
+	const deadError =
+		connectionError ?? (!isStillConnecting && listingError?.code === "NOT_CONNECTED" ? listingError : null);
 	const isConnectionDead = deadError != null;
 	const displayError = deadError ?? error ?? null;
 	const errorMessage = displayError ? t(getErrorI18nKey(displayError.code)) : null;
@@ -358,6 +362,10 @@ export function FilePane({
 			/>
 			{isConnectionDead ? (
 				<ConnectionErrorView technicalDetail={deadError.technicalDetail} onReconnect={onReconnect} />
+			) : remoteStatus === "connecting" ? (
+				<div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+					{t("remote.connecting")}
+				</div>
 			) : (
 				<FileList
 					entries={filteredEntries}

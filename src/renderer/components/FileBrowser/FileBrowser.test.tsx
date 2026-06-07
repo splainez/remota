@@ -139,7 +139,7 @@ describe("FileBrowser", () => {
 		});
 	});
 
-	it("shows loading state before connection completes", async () => {
+	it("shows Connecting... state while remote connection is establishing", async () => {
 		let resolveConnect!: (value: string) => void;
 		const connectPromise = new Promise<string>((resolve) => {
 			resolveConnect = resolve;
@@ -161,7 +161,7 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Loading...")).toBeInTheDocument();
+			expect(screen.getByText("Connecting...")).toBeInTheDocument();
 		});
 
 		resolveRemoteList([]);
