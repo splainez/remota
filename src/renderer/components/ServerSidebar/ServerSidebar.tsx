@@ -1,6 +1,7 @@
 import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
+import type { ActiveSession } from "@renderer/store/activeSessions";
 import type { Connection } from "@shared/types";
 import { useMemo, useState } from "react";
 
@@ -9,13 +10,13 @@ import { SidebarFooter } from "./SidebarFooter";
 
 interface ServerSidebarProps {
 	connections: Connection[];
-	selectedId: number | null;
 	activeConnectionId: number | null;
+	activeSessions: ActiveSession[];
 	onSelect: (id: number) => void;
 	onAdd: () => void;
 	onDoubleClick: (id: number) => void;
 	onViewAll: () => void;
-	onDisconnect: () => void;
+	onDisconnect: (connectionId: number) => void;
 	onSettings: () => void;
 }
 
@@ -27,15 +28,15 @@ function getInitials(name: string): string {
 	return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
-function getVisibleConnections(connections: Connection[], activeConnectionId: number | null): Connection[] {
-	if (activeConnectionId == null) return [];
-	return connections.filter((c) => c.id === activeConnectionId);
+function getVisibleConnections(connections: Connection[], activeSessions: ActiveSession[]): Connection[] {
+	const activeIds = new Set(activeSessions.map((s) => s.connectionId));
+	return connections.filter((c) => activeIds.has(c.id));
 }
 
 export function ServerSidebar({
 	connections,
-	selectedId,
 	activeConnectionId,
+	activeSessions,
 	onSelect,
 	onAdd,
 	onDoubleClick,
@@ -47,15 +48,9 @@ export function ServerSidebar({
 	const [collapsed, setCollapsed] = useState(false);
 
 	const visibleConnections = useMemo(
-		() => getVisibleConnections(connections, activeConnectionId),
-		[connections, activeConnectionId],
+		() => getVisibleConnections(connections, activeSessions),
+		[connections, activeSessions],
 	);
-
-	const isActive = useMemo(() => {
-		const set = new Set<number>();
-		if (activeConnectionId != null) set.add(activeConnectionId);
-		return set;
-	}, [activeConnectionId]);
 
 	return (
 		<nav
@@ -72,16 +67,21 @@ export function ServerSidebar({
 				)}
 
 				{visibleConnections.map((conn) => {
-					const isSelected = conn.id === selectedId;
-					const isConnActive = isActive.has(conn.id);
+					const isCurrentView = conn.id === activeConnectionId;
 					return (
 						<Button
 							key={conn.id}
-							variant={isSelected ? "selected" : "ghost"}
+							variant={isCurrentView ? "selected" : "ghost"}
 							size="default"
 							className={`relative ${
 								collapsed ? "w-10 h-10 rounded-xl mx-auto px-0" : "w-full px-3 py-2 rounded-lg justify-start"
-							} text-xs font-semibold ${isConnActive && collapsed ? "ring-2 ring-primary" : ""}`}
+							} text-xs font-semibold ${
+								isCurrentView && collapsed
+									? "ring-2 ring-primary"
+									: !isCurrentView && collapsed
+										? "opacity-50"
+										: ""
+							}`}
 							title={conn.name}
 							onClick={() => {
 								onSelect(conn.id);
@@ -90,16 +90,27 @@ export function ServerSidebar({
 								onDoubleClick(conn.id);
 							}}
 						>
-							{isSelected && collapsed && (
+							{isCurrentView && collapsed && (
 								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
 							)}
-							{isSelected && !collapsed && (
+							{isCurrentView && !collapsed && (
 								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
 							)}
-							<span className={collapsed ? "text-on-surface-variant" : "truncate text-left flex-1"}>
+							{!isCurrentView && !collapsed && (
+								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-outline-variant rounded-r-full" />
+							)}
+							<span
+								className={
+									collapsed
+										? isCurrentView
+											? "text-on-surface-variant"
+											: "text-muted-foreground"
+										: "truncate text-left flex-1"
+								}
+							>
 								{collapsed ? getInitials(conn.name) : conn.name}
 							</span>
-							{!collapsed && isConnActive && (
+							{!collapsed && (
 								<Button
 									variant="ghost"
 									size="icon-xs"
@@ -108,7 +119,7 @@ export function ServerSidebar({
 									title={t("connection.disconnect")}
 									onClick={(e) => {
 										e.stopPropagation();
-										onDisconnect();
+										onDisconnect(conn.id);
 									}}
 								>
 									<Icon name="close" size={12} />
