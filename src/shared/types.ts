@@ -1,6 +1,14 @@
 import type { Settings, SettingsUpdate } from "./app-config-schema";
 import type { TerminalAppId } from "./app-config-schema";
-import type { DownloadRequest, DownloadResult, LocalStat, TransferProgressEvent } from "./transfer-types";
+import type {
+	DownloadRequest,
+	DownloadResult,
+	LocalStat,
+	RemoteStat,
+	TransferProgressEvent,
+	UploadRequest,
+	UploadResult,
+} from "./transfer-types";
 
 export type { Settings, SettingsUpdate, TerminalAppId };
 export type {
@@ -10,9 +18,15 @@ export type {
 	DownloadItemResult,
 	DownloadJobResult,
 	LocalStat,
+	RemoteStat,
 	TransferDirection,
 	TransferItemStatus,
 	TransferProgressEvent,
+	UploadRequest,
+	UploadItem,
+	UploadResult,
+	UploadItemResult,
+	UploadJobResult,
 } from "./transfer-types";
 
 export interface Connection {
@@ -83,7 +97,9 @@ export interface ElectronAPI {
 		tempDelete: (connectionId: number, remotePath: string) => Promise<void>;
 		tempExists: (connectionId: number, remotePath: string) => Promise<boolean>;
 		download: (request: DownloadRequest) => Promise<DownloadResult>;
+		upload: (request: UploadRequest) => Promise<UploadResult>;
 		getLocalStat: (path: string) => Promise<LocalStat | null>;
+		getRemoteStat: (connectionId: number, path: string) => Promise<RemoteStat | null>;
 		onTransferProgress: (callback: (event: TransferProgressEvent) => void) => () => void;
 		onTransferJobDone: (
 			callback: (result: {

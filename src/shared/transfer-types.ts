@@ -9,6 +9,13 @@ export const DownloadItemSchema = z.object({
 	size: z.number(),
 });
 
+export const UploadItemSchema = z.object({
+	id: z.string(),
+	localPath: z.string(),
+	remotePath: z.string(),
+	size: z.number(),
+});
+
 export const DownloadRequestSchema = z.object({
 	connectionId: z.number(),
 	items: z.array(DownloadItemSchema),
@@ -42,6 +49,47 @@ export interface DownloadItemResult {
 export interface DownloadJobResult {
 	jobId: string;
 	results: Record<string, DownloadItemResult>;
+}
+
+export const UploadRequestSchema = z.object({
+	connectionId: z.number(),
+	items: z.array(UploadItemSchema),
+});
+
+export interface UploadItem {
+	id: string;
+	localPath: string;
+	remotePath: string;
+	size: number;
+}
+
+export interface UploadRequest {
+	connectionId: number;
+	items: UploadItem[];
+}
+
+export interface UploadResult {
+	jobId: string;
+}
+
+export type UploadItemStatus = "ok" | "error" | "cancelled";
+
+export interface UploadItemResult {
+	id: string;
+	status: UploadItemStatus;
+	error?: string;
+}
+
+export interface UploadJobResult {
+	jobId: string;
+	results: Record<string, UploadItemResult>;
+}
+
+export interface RemoteStat {
+	exists: boolean;
+	size: number;
+	modified: string;
+	isDirectory: boolean;
 }
 
 export interface LocalStat {
