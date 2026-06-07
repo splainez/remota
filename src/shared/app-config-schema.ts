@@ -89,7 +89,8 @@ export const AppConfigSchema = z
 		lastPaths: LastPathsSchema.default({}),
 		transferPanels: TransferPanelsSchema.default({}),
 		settings: SettingsSchema.default(defaultSettings),
-	});
+	})
+	.strict();
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 export type AppConfigInput = z.input<typeof AppConfigSchema>;
