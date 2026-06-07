@@ -47,11 +47,19 @@ function newId(): string {
 	return `ul-${String(Date.now())}-${String(idCounter)}`;
 }
 
+function detectSep(p: string): "\\" | "/" {
+	return p.includes("\\") ? "\\" : "/";
+}
+
 function relativeLocalPath(absolute: string, base: string): string {
 	if (absolute === base) return "";
-	const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+	const sep = detectSep(base);
+	const normalizedBase = base.endsWith(sep) ? base : `${base}${sep}`;
 	if (absolute.startsWith(normalizedBase)) {
-		return absolute.slice(normalizedBase.length);
+		return absolute.slice(normalizedBase.length).replaceAll(sep, "/");
+	}
+	if (sep === "\\") {
+		return absolute.replace(/^\\+/, "").replaceAll("\\", "/");
 	}
 	return absolute.replace(/^\/+/, "");
 }
@@ -243,7 +251,9 @@ export function useUpload({ connectionId, localBasePath, remoteBasePath }: UseUp
 							jobId,
 							id: item.id,
 							connectionId,
-							name: item.localPath.split("/").pop() ?? item.localPath,
+							name:
+								(item.localPath.includes("\\") ? item.localPath.split("\\") : item.localPath.split("/")).pop() ??
+								item.localPath,
 							source: item.localPath,
 							target: item.remotePath,
 							direction: "upload",

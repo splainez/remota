@@ -380,7 +380,7 @@ export class TransferService {
 			jobId: job.id,
 			id: item.id,
 			connectionId: job.connectionId,
-			name: source.split("/").pop() ?? source,
+			name: (source.includes("\\") ? source.split("\\") : source.split("/")).pop() ?? source,
 			source,
 			target,
 			direction: job.direction,
