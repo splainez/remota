@@ -1,0 +1,52 @@
+services:
+  builder-linux:
+    image: electronuserland/builder
+    container_name: openscp-builder-linux
+    working_dir: /project
+    volumes:
+      - .:/project
+      - builder_node_modules:/project/node_modules
+      - electron_cache:/root/.cache/electron
+      - electron_builder_cache:/root/.cache/electron-builder
+    environment:
+      - ELECTRON_CACHE=/root/.cache/electron
+      - ELECTRON_BUILDER_CACHE=/root/.cache/electron-builder
+    command:
+      - /bin/bash
+      - -c
+      - |
+        corepack enable && corepack prepare pnpm@latest --activate
+        pnpm approve-builds --all
+        pnpm install --frozen-lockfile
+        pnpm build
+        pnpm run postinstall
+        pnpm electron-builder --linux AppImage --config electron-builder.yml --publish never
+
+  builder-win:
+    image: electronuserland/builder:wine
+    container_name: openscp-builder-win
+    working_dir: /project
+    volumes:
+      - .:/project
+      - builder_node_modules_win:/project/node_modules
+      - electron_cache:/root/.cache/electron
+      - electron_builder_cache:/root/.cache/electron-builder
+    environment:
+      - ELECTRON_CACHE=/root/.cache/electron
+      - ELECTRON_BUILDER_CACHE=/root/.cache/electron-builder
+    command:
+      - /bin/bash
+      - -c
+      - |
+        corepack enable && corepack prepare pnpm@latest --activate
+        pnpm approve-builds --all
+        pnpm install --frozen-lockfile
+        pnpm build
+        pnpm run postinstall
+        pnpm electron-builder --win portable --config electron-builder.yml --publish never
+
+volumes:
+  builder_node_modules:
+  builder_node_modules_win:
+  electron_cache:
+  electron_builder_cache:

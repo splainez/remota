@@ -1,6 +1,7 @@
 node_modules
 out
 dist
+release
 *.db
 *.db-journal
 *.tsbuildinfo
@@ -12,3 +13,4 @@ tests/integration/.containers-state.json
 !.opencode/commands/
 .vscode/mcp.json
 .eslintcache
+.pnpm-store/

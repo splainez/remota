@@ -1,0 +1,8 @@
+allowBuilds:
+  cpu-features: true
+  electron-winstaller: true
+  esbuild: true
+  msw: true
+  node-pty: true
+  protobufjs: true
+  ssh2: true
