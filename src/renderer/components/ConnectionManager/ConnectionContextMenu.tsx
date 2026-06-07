@@ -1,6 +1,6 @@
 import { MenuItem, MenuItemSeparator } from "@renderer/components/ui/menu-item";
 import { useI18n } from "@renderer/hooks/useI18n";
-import { useAppNavigation } from "@renderer/store/appNavigation";
+import { useRouter } from "@tanstack/react-router";
 
 interface ConnectionContextMenuProps {
 	x: number;
@@ -20,7 +20,7 @@ export function ConnectionContextMenu({
 	onDelete,
 }: ConnectionContextMenuProps) {
 	const { t } = useI18n();
-	const { openConnectionForm } = useAppNavigation();
+	const router = useRouter();
 
 	return (
 		<div
@@ -34,7 +34,7 @@ export function ConnectionContextMenu({
 			<MenuItem
 				icon="edit"
 				onClick={() => {
-					openConnectionForm("edit", connectionId);
+					void router.navigate({ to: `/connections/${String(connectionId)}/edit` });
 					onClose();
 				}}
 			>

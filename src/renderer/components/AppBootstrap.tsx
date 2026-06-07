@@ -1,7 +1,8 @@
-import { App } from "@renderer/App";
 import { I18nProvider } from "@renderer/providers/I18nProvider";
+import { router } from "@renderer/router";
 import { useSettingsStore } from "@renderer/store/settings";
 import { LoggerFactory } from "@shared/lib/logger";
+import { RouterProvider } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { ThemeProvider } from "./theme-provider";
@@ -33,7 +34,7 @@ export function AppBootstrap() {
 	return (
 		<ThemeProvider defaultTheme={theme} onThemeChange={setTheme}>
 			<I18nProvider>
-				<App />
+				<RouterProvider router={router} />
 			</I18nProvider>
 		</ThemeProvider>
 	);
