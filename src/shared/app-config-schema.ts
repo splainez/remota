@@ -66,6 +66,10 @@ export const MAX_PARALLEL_TRANSFERS_MIN = 1;
 export const MAX_PARALLEL_TRANSFERS_MAX = 20;
 export const MAX_PARALLEL_TRANSFERS_DEFAULT = 5;
 
+export const MAX_SESSIONS_MIN = 1;
+export const MAX_SESSIONS_MAX = 100;
+export const MAX_SESSIONS_DEFAULT = 10;
+
 export const RETENTION_MS_MIN = 5_000;
 export const RETENTION_MS_MAX = 300_000;
 
@@ -79,6 +83,12 @@ export const SettingsSchema = z.object({
 		.min(MAX_PARALLEL_TRANSFERS_MIN)
 		.max(MAX_PARALLEL_TRANSFERS_MAX)
 		.default(MAX_PARALLEL_TRANSFERS_DEFAULT),
+	maxSessions: z
+		.number()
+		.int()
+		.min(MAX_SESSIONS_MIN)
+		.max(MAX_SESSIONS_MAX)
+		.default(MAX_SESSIONS_DEFAULT),
 	retentionMs: z.number().int().min(RETENTION_MS_MIN).max(RETENTION_MS_MAX).optional(),
 });
 
@@ -89,6 +99,7 @@ const defaultSettings: Settings = {
 	theme: "system",
 	locale: "en",
 	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+	maxSessions: MAX_SESSIONS_DEFAULT,
 	retentionMs: RETENTION_MS_MIN,
 };
 

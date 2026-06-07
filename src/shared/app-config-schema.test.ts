@@ -68,6 +68,7 @@ describe("AppConfigSchema", () => {
 				theme: "system",
 				locale: "en",
 				maxParallelTransfers: 5,
+				maxSessions: 10,
 				retentionMs: 5000,
 			});
 		}

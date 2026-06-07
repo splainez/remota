@@ -2,6 +2,9 @@ import {
 	MAX_PARALLEL_TRANSFERS_DEFAULT,
 	MAX_PARALLEL_TRANSFERS_MAX,
 	MAX_PARALLEL_TRANSFERS_MIN,
+	MAX_SESSIONS_DEFAULT,
+	MAX_SESSIONS_MAX,
+	MAX_SESSIONS_MIN,
 	RETENTION_MS_MAX,
 	RETENTION_MS_MIN,
 } from "@shared/app-config-schema";
@@ -20,6 +23,7 @@ interface SettingsStore extends Settings {
 	setLocale: (locale: Settings["locale"]) => void;
 	setExternalTerminal: (terminal: Settings["externalTerminal"]) => void;
 	setMaxParallelTransfers: (value: number) => void;
+	setMaxSessions: (value: number) => void;
 	setRetentionMs: (ms: number | undefined) => void;
 	clearPendingRecoveryToast: () => void;
 }
@@ -28,6 +32,13 @@ function clampParallel(value: number): number {
 	if (!Number.isFinite(value)) return MAX_PARALLEL_TRANSFERS_DEFAULT;
 	if (value < MAX_PARALLEL_TRANSFERS_MIN) return MAX_PARALLEL_TRANSFERS_MIN;
 	if (value > MAX_PARALLEL_TRANSFERS_MAX) return MAX_PARALLEL_TRANSFERS_MAX;
+	return Math.floor(value);
+}
+
+function clampSessions(value: number): number {
+	if (!Number.isFinite(value)) return MAX_SESSIONS_DEFAULT;
+	if (value < MAX_SESSIONS_MIN) return MAX_SESSIONS_MIN;
+	if (value > MAX_SESSIONS_MAX) return MAX_SESSIONS_MAX;
 	return Math.floor(value);
 }
 
@@ -44,6 +55,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 	locale: "en",
 	externalTerminal: undefined,
 	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
+	maxSessions: MAX_SESSIONS_DEFAULT,
 	retentionMs: undefined,
 	loaded: false,
 	availableTerminals: [],
@@ -74,6 +86,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 				locale: settings.locale,
 				externalTerminal: needsRecovery ? undefined : settings.externalTerminal,
 				maxParallelTransfers: clampParallel(settings.maxParallelTransfers),
+				maxSessions: clampSessions(settings.maxSessions),
 				retentionMs: clampRetention(settings.retentionMs),
 				availableTerminals: available,
 				pendingRecoveryToast: recoveredId,
@@ -111,6 +124,14 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 		set({ maxParallelTransfers: clamped });
 		window.api.settings.set({ maxParallelTransfers: clamped }).catch((error: unknown) => {
 			logger.error("setMaxParallelTransfers error", { error });
+		});
+	},
+
+	setMaxSessions: (value) => {
+		const clamped = clampSessions(value);
+		set({ maxSessions: clamped });
+		window.api.settings.set({ maxSessions: clamped }).catch((error: unknown) => {
+			logger.error("setMaxSessions error", { error });
 		});
 	},
 
