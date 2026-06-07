@@ -370,7 +370,9 @@ export class RemoteEditManager {
 		return null;
 	}
 
-	private emitJobDone(_connectionId: number, jobId: string, itemId: string): void {
+	private emitJobDone(connectionId: number, jobId: string, itemId: string): void {
+		if (!this.sftp.isConnected(connectionId) && !this.s3.isConnected(connectionId)) return;
+
 		const webContents = this.getWebContents();
 		if (!webContents || webContents.isDestroyed()) return;
 
