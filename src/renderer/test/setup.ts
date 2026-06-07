@@ -116,6 +116,11 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			set: vi.fn<(connectionId: number, update: { visible: boolean }) => Promise<void>>().mockResolvedValue(undefined),
 			...overrides?.transferPanel,
 		},
+		filePaneSize: {
+			getAll: vi.fn<() => Promise<Record<number, { localSize: number }>>>().mockResolvedValue({}),
+			set: vi.fn<(connectionId: number, update: { localSize: number }) => Promise<void>>().mockResolvedValue(undefined),
+			...overrides?.filePaneSize,
+		},
 		app: {
 			getConfigPath: vi.fn<() => Promise<string>>().mockResolvedValue("/tmp/app-config.json"),
 			getConfigError: vi.fn<() => Promise<null>>().mockResolvedValue(null),

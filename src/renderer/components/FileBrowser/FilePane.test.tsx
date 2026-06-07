@@ -224,7 +224,7 @@ describe("FilePane", () => {
 		useNavigationStore.getState().push("local", "/home/user");
 		useNavigationStore.getState().push("local", "/home/user/docs");
 
-		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		const pane = document.querySelector(".flex.flex-col.overflow-hidden");
 		if (!pane) throw new Error("Pane element not found");
 		const event = new MouseEvent("mousedown", { button: 3, bubbles: true, cancelable: true });
 		pane.dispatchEvent(event);
@@ -243,7 +243,7 @@ describe("FilePane", () => {
 		useNavigationStore.getState().push("local", "/home/user/docs");
 		useNavigationStore.getState().goBack("local");
 
-		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		const pane = document.querySelector(".flex.flex-col.overflow-hidden");
 		if (!pane) throw new Error("Pane element not found");
 		const event = new MouseEvent("mousedown", { button: 4, bubbles: true, cancelable: true });
 		pane.dispatchEvent(event);
@@ -260,7 +260,7 @@ describe("FilePane", () => {
 
 		useNavigationStore.getState().push("local", "/home/user");
 
-		const pane = document.querySelector(".flex-1.flex.flex-col.overflow-hidden");
+		const pane = document.querySelector(".flex.flex-col.overflow-hidden");
 		if (!pane) throw new Error("Pane element not found");
 		const event = new MouseEvent("mousedown", { button: 0, bubbles: true, cancelable: true });
 		pane.dispatchEvent(event);

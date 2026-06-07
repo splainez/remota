@@ -120,10 +120,10 @@ describe("FileBrowser", () => {
 			expect(screen.getByText("Connection refused")).toBeInTheDocument();
 		});
 
-		expect(screen.getByText("Retry")).toBeInTheDocument();
+		expect(screen.getByText("Reconnect")).toBeInTheDocument();
 	});
 
-	it("shows error detail toggle on connection failure", async () => {
+	it("shows error detail on connection failure", async () => {
 		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 192.168.1.1:22"));
 
 		vi.stubGlobal("api", mockApi);
@@ -135,20 +135,22 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Show details")).toBeInTheDocument();
+			expect(screen.getByText("connect ECONNREFUSED 192.168.1.1:22")).toBeInTheDocument();
 		});
-
-		await userEvent.click(screen.getByText("Show details"));
-		expect(screen.getByText("Hide details")).toBeInTheDocument();
-		expect(screen.getByText("connect ECONNREFUSED 192.168.1.1:22")).toBeInTheDocument();
 	});
 
-	it("shows connecting state before connection completes", async () => {
+	it("shows loading state before connection completes", async () => {
 		let resolveConnect!: (value: string) => void;
 		const connectPromise = new Promise<string>((resolve) => {
 			resolveConnect = resolve;
 		});
 		mockApi.filesystem.remoteConnect = vi.fn().mockReturnValue(connectPromise);
+
+		let resolveRemoteList!: (value: unknown[]) => void;
+		const remoteListPromise = new Promise<unknown[]>((resolve) => {
+			resolveRemoteList = resolve;
+		});
+		mockApi.filesystem.remoteList = vi.fn().mockReturnValue(remoteListPromise);
 
 		vi.stubGlobal("api", mockApi);
 
@@ -159,13 +161,14 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Connecting...")).toBeInTheDocument();
+			expect(screen.getByText("Loading...")).toBeInTheDocument();
 		});
 
+		resolveRemoteList([]);
 		resolveConnect("/home/testuser");
 	});
 
-	it("retries connection when retry button is clicked", async () => {
+	it("retries connection when reconnect button is clicked", async () => {
 		mockApi.filesystem.remoteConnect = vi
 			.fn()
 			.mockRejectedValueOnce(new Error("Connection refused"))
@@ -181,10 +184,10 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Retry")).toBeInTheDocument();
+			expect(screen.getByText("Reconnect")).toBeInTheDocument();
 		});
 
-		await userEvent.click(screen.getByText("Retry"));
+		await userEvent.click(screen.getByText("Reconnect"));
 
 		await waitFor(() => {
 			expect(window.api.filesystem.remoteConnect).toHaveBeenCalledTimes(2);
@@ -205,7 +208,7 @@ describe("FileBrowser", () => {
 		});
 	});
 
-	it("classifies auth failed errors", async () => {
+	it("shows auth failed error details", async () => {
 		mockApi.filesystem.remoteConnect = vi
 			.fn()
 			.mockRejectedValue(new Error("All configured authentication methods failed"));
@@ -219,11 +222,11 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Authentication failed")).toBeInTheDocument();
+			expect(screen.getByText("All configured authentication methods failed")).toBeInTheDocument();
 		});
 	});
 
-	it("classifies timeout errors", async () => {
+	it("shows timeout error details", async () => {
 		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("Timed out while waiting for handshake"));
 
 		vi.stubGlobal("api", mockApi);
@@ -235,11 +238,11 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Connection timed out")).toBeInTheDocument();
+			expect(screen.getByText("Timed out while waiting for handshake")).toBeInTheDocument();
 		});
 	});
 
-	it("classifies host unreachable errors", async () => {
+	it("shows host unreachable error details", async () => {
 		mockApi.filesystem.remoteConnect = vi.fn().mockRejectedValue(new Error("getaddrinfo ENOTFOUND nonexistenthost"));
 
 		vi.stubGlobal("api", mockApi);
@@ -251,7 +254,7 @@ describe("FileBrowser", () => {
 		);
 
 		await waitFor(() => {
-			expect(screen.getByText("Host unreachable")).toBeInTheDocument();
+			expect(screen.getByText("getaddrinfo ENOTFOUND nonexistenthost")).toBeInTheDocument();
 		});
 	});
 
