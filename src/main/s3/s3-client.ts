@@ -292,32 +292,28 @@ export class S3ConnectionManager {
 		const key = remotePath.replace(/^\/+/, "");
 		const readStream = createReadStream(localPath, { highWaterMark: 64 * 1024 });
 
-		const body = await new Promise<Buffer>((resolve, reject) => {
-			const chunks: Buffer[] = [];
-			let totalBytes = 0;
+		if (onProgress) {
+			let totalBytesRead = 0;
 			readStream.on("data", (chunk: Buffer) => {
-				chunks.push(chunk);
-				totalBytes += chunk.length;
-				if (onProgress) {
-					onProgress(totalBytes);
-				}
+				totalBytesRead += chunk.length;
+				onProgress(totalBytesRead);
 			});
-			readStream.on("end", () => {
-				resolve(Buffer.concat(chunks));
-			});
-			readStream.on("error", (err: Error) => {
-				reject(new Error(`Failed to read local file: ${err.message}`));
-			});
-		});
+		}
 
-		await session.client.send(
-			new PutObjectCommand({
-				Bucket: session.bucket,
-				Key: key,
-				Body: body,
-			}),
-			{ abortSignal: signal },
-		);
+		try {
+			await session.client.send(
+				new PutObjectCommand({
+					Bucket: session.bucket,
+					Key: key,
+					Body: readStream,
+				}),
+				{ abortSignal: signal },
+			);
+		} catch (err) {
+			readStream.destroy();
+			const message = err instanceof Error ? err.message : String(err);
+			throw new Error(`S3 upload error: ${message}`, { cause: err });
+		}
 	}
 
 	async downloadFile(
