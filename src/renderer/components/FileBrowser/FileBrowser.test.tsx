@@ -37,6 +37,7 @@ function createConnectedMockApi() {
 			rename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 			remoteConnect: vi.fn().mockResolvedValue("/home/testuser"),
 			remoteDisconnect: vi.fn().mockResolvedValue(undefined),
+			remoteIsConnected: vi.fn().mockResolvedValue(false),
 			remoteList: vi.fn().mockResolvedValue([]),
 			remoteHomeDir: vi.fn().mockResolvedValue("/"),
 			remoteRename: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),

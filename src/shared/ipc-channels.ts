@@ -18,6 +18,7 @@ export const IPC = {
 	FILE_WATCH_STOP: "file:watchStop",
 	REMOTE_CONNECT: "remote:connect",
 	REMOTE_DISCONNECT: "remote:disconnect",
+	REMOTE_IS_CONNECTED: "remote:isConnected",
 	REMOTE_LIST: "remote:list",
 	REMOTE_HOME_DIR: "remote:homeDir",
 	REMOTE_RENAME: "remote:rename",

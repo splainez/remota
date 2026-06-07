@@ -4,7 +4,7 @@ import { Button } from "@renderer/components/ui/button";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@renderer/components/ui/resizable";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
-import { useTransferProgress } from "@renderer/hooks/useTransferProgress";
+import { useActiveSessionsStore } from "@renderer/store/activeSessions";
 import { useFilePaneStore } from "@renderer/store/filePane";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -26,8 +26,6 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 	const { t } = useI18n();
 	const [localPath, setLocalPath] = useState<string>("");
 	const [ready, setReady] = useState(false);
-
-	useTransferProgress();
 
 	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
 		connection.id,
@@ -89,11 +87,15 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 	useEffect(() => {
 		if (ready && !startedConnect.current) {
 			startedConnect.current = true;
-			connect().catch((error: unknown) => {
-				logger.error("connect failed", { error });
-			});
+			connect()
+				.then(() => {
+					useActiveSessionsStore.getState().addSession(connection.id);
+				})
+				.catch((error: unknown) => {
+					logger.error("connect failed", { error });
+				});
 		}
-	}, [ready, connect]);
+	}, [ready, connect, connection.id]);
 
 	if (!ready) {
 		return <div className="flex flex-col h-full overflow-hidden" />;

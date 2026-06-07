@@ -82,6 +82,7 @@ export interface ElectronAPI {
 		rename: (oldPath: string, newName: string) => Promise<void>;
 		remoteConnect: (connectionId: number) => Promise<string>;
 		remoteDisconnect: (connectionId: number) => Promise<void>;
+		remoteIsConnected: (connectionId: number) => Promise<boolean>;
 		remoteList: (connectionId: number, path: string) => Promise<FileEntry[]>;
 		remoteHomeDir: (connectionId: number) => Promise<string>;
 		remoteRename: (connectionId: number, oldPath: string, newName: string) => Promise<void>;
