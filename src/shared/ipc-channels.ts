@@ -34,6 +34,7 @@ export const IPC = {
 	TRANSFER_JOB_DONE: "transfer:jobDone",
 	TRANSFER_CANCEL: "transfer:cancel",
 	TRANSFER_CANCEL_ALL: "transfer:cancelAll",
+	TRANSFER_CANCEL_BY_CONNECTION: "transfer:cancelByConnection",
 	TERMINAL_SPAWN: "terminal:spawn",
 	TERMINAL_WRITE: "terminal:write",
 	TERMINAL_RESIZE: "terminal:resize",

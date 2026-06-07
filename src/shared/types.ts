@@ -93,6 +93,7 @@ export interface ElectronAPI {
 		) => () => void;
 		cancelTransfer: (jobId: string, itemId: string) => Promise<void>;
 		cancelAllTransfers: () => Promise<void>;
+		cancelTransfersForConnection: (connectionId: number) => Promise<void>;
 	};
 	terminal: {
 		spawn: (sessionId: string, type: "local" | "remote", connectionId?: number) => Promise<void>;

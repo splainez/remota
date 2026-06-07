@@ -90,6 +90,8 @@ const api = {
 		cancelTransfer: (jobId: string, itemId: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.TRANSFER_CANCEL, jobId, itemId),
 		cancelAllTransfers: (): Promise<void> => ipcRenderer.invoke(IPC.TRANSFER_CANCEL_ALL),
+		cancelTransfersForConnection: (connectionId: number): Promise<void> =>
+			ipcRenderer.invoke(IPC.TRANSFER_CANCEL_BY_CONNECTION, connectionId),
 		startWatch: (watcherId: string, dirPath: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.FILE_WATCH_START, watcherId, dirPath),
 		stopWatch: (watcherId: string): Promise<void> => ipcRenderer.invoke(IPC.FILE_WATCH_STOP, watcherId),

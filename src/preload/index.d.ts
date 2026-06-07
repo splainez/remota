@@ -48,6 +48,7 @@ declare global {
 				) => () => void;
 				cancelTransfer: (jobId: string, itemId: string) => Promise<void>;
 				cancelAllTransfers: () => Promise<void>;
+				cancelTransfersForConnection: (connectionId: number) => Promise<void>;
 				startWatch: (watcherId: string, dirPath: string) => Promise<void>;
 				stopWatch: (watcherId: string) => Promise<void>;
 				onFileChanged: (callback: (watcherId: string) => void) => () => void;
