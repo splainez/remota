@@ -77,12 +77,7 @@ import { RemoteEditManager } from "./remote-edit-manager";
 
 interface SftpStub {
 	isConnected: (id: number) => boolean;
-	downloadFile: (
-		connectionId: number,
-		remotePath: string,
-		localPath: string,
-		onProgress?: (transferredBytes: number) => void,
-	) => Promise<void>;
+	downloadFile: ReturnType<typeof vi.fn>;
 	uploadFile: ReturnType<typeof vi.fn>;
 	getRemoteStat: (connectionId: number, remotePath: string) => Promise<{ size: number } | null>;
 }
@@ -134,7 +129,7 @@ function makeWebContents(): WebContentsStub {
 function makeSftp(connected: boolean): SftpStub {
 	return {
 		isConnected: () => connected,
-		downloadFile: () => Promise.resolve(),
+		downloadFile: vi.fn().mockResolvedValue(undefined),
 		uploadFile: vi.fn(
 			(
 				_connectionId: number,
@@ -367,6 +362,206 @@ describe("RemoteEditManager", () => {
 		});
 	});
 
+	describe("cancelDownload", () => {
+		it("aborts in-flight download and emits cancelled", async () => {
+			const sftp = makeSftp(true);
+			const { manager, wc } = makeManager({ sftp });
+
+			let downloadResolve: (() => void) | null = null;
+			sftp.downloadFile.mockImplementationOnce(
+				(
+					_connectionId: number,
+					_remotePath: string,
+					_localPath: string,
+					_onProgress?: (transferredBytes: number) => void,
+					signal?: AbortSignal,
+				) =>
+					new Promise<void>((resolve, reject) => {
+						if (signal?.aborted) {
+							reject(new DOMException("Aborted", "AbortError"));
+							return;
+						}
+						const onAbort = () => {
+							signal?.removeEventListener("abort", onAbort);
+							reject(new DOMException("Aborted", "AbortError"));
+						};
+						signal?.addEventListener("abort", onAbort, { once: true });
+						downloadResolve = resolve;
+					}),
+			);
+
+			const editPromise = manager.startEdit(1, "/remote/bigfile.bin");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
+			expect(downloadEvents).toHaveLength(1);
+			const downloadItemId = downloadEvents[0].id;
+
+			const cancelled = manager.cancelDownload(downloadItemId);
+			expect(cancelled).toBe(true);
+
+			downloadResolve?.();
+
+			await editPromise.catch(() => {});
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const cancelledDownload = wc.events.filter(
+				(e) => e.id === downloadItemId && e.status === "cancelled" && e.direction === "download",
+			);
+			expect(cancelledDownload).toHaveLength(1);
+		});
+
+		it("returns false for unknown itemId", () => {
+			const { manager } = makeManager();
+			expect(manager.cancelDownload("nonexistent")).toBe(false);
+		});
+
+		it("does not create session when download is cancelled", async () => {
+			const sftp = makeSftp(true);
+			const { manager, wc } = makeManager({ sftp });
+
+			sftp.downloadFile.mockImplementationOnce(
+				(
+					_connectionId: number,
+					_remotePath: string,
+					_localPath: string,
+					_onProgress?: (transferredBytes: number) => void,
+					signal?: AbortSignal,
+				) =>
+					new Promise<void>((_resolve, reject) => {
+						const onAbort = () => {
+							signal?.removeEventListener("abort", onAbort);
+							reject(new DOMException("Aborted", "AbortError"));
+						};
+						signal?.addEventListener("abort", onAbort, { once: true });
+					}),
+			);
+
+			const editPromise = manager.startEdit(1, "/remote/bigfile.bin");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
+			manager.cancelDownload(downloadEvents[0].id);
+
+			await editPromise.catch(() => {});
+
+			expect(mockWatchFn).not.toHaveBeenCalled();
+		});
+
+		it("does not open file when download is cancelled", async () => {
+			const sftp = makeSftp(true);
+			const { manager, wc } = makeManager({ sftp });
+
+			sftp.downloadFile.mockImplementationOnce(
+				(
+					_connectionId: number,
+					_remotePath: string,
+					_localPath: string,
+					_onProgress?: (transferredBytes: number) => void,
+					signal?: AbortSignal,
+				) =>
+					new Promise<void>((_resolve, reject) => {
+						const onAbort = () => {
+							signal?.removeEventListener("abort", onAbort);
+							reject(new DOMException("Aborted", "AbortError"));
+						};
+						signal?.addEventListener("abort", onAbort, { once: true });
+					}),
+			);
+
+			const editPromise = manager.startEdit(1, "/remote/bigfile.bin");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
+			manager.cancelDownload(downloadEvents[0].id);
+
+			await editPromise.catch(() => {});
+
+			expect(shell.openPath).not.toHaveBeenCalled();
+		});
+
+		it("allows starting new edit after download cancellation", async () => {
+			const sftp = makeSftp(true);
+			const { manager, wc } = makeManager({ sftp });
+
+			sftp.downloadFile.mockImplementationOnce(
+				(
+					_connectionId: number,
+					_remotePath: string,
+					_localPath: string,
+					_onProgress?: (transferredBytes: number) => void,
+					signal?: AbortSignal,
+				) =>
+					new Promise<void>((_resolve, reject) => {
+						const onAbort = () => {
+							signal?.removeEventListener("abort", onAbort);
+							reject(new DOMException("Aborted", "AbortError"));
+						};
+						signal?.addEventListener("abort", onAbort, { once: true });
+					}),
+			);
+
+			const editPromise = manager.startEdit(1, "/remote/bigfile.bin");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
+			manager.cancelDownload(downloadEvents[0].id);
+
+			await editPromise.catch(() => {});
+
+			const result = await manager.startEdit(1, "/remote/bigfile.bin");
+
+			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "bigfile.bin");
+			expect(result.tempPath).toBe(expectedPath);
+			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
+		});
+	});
+
+	describe("cancelAllDownloads", () => {
+		it("aborts all in-flight downloads and emits cancelled", async () => {
+			const sftp = makeSftp(true);
+			const { manager, wc } = makeManager({ sftp });
+
+			sftp.downloadFile.mockImplementation(
+				(
+					_connectionId: number,
+					_remotePath: string,
+					_localPath: string,
+					_onProgress?: (transferredBytes: number) => void,
+					signal?: AbortSignal,
+				) =>
+					new Promise<void>((_resolve, reject) => {
+						const onAbort = () => {
+							signal?.removeEventListener("abort", onAbort);
+							reject(new DOMException("Aborted", "AbortError"));
+						};
+						signal?.addEventListener("abort", onAbort, { once: true });
+					}),
+			);
+
+			const edit1 = manager.startEdit(1, "/remote/file1.bin");
+			const edit2 = manager.startEdit(2, "/remote/file2.bin");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			manager.cancelAllDownloads();
+
+			await Promise.allSettled([edit1, edit2]);
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const cancelledDownloads = wc.events.filter(
+				(e) => e.status === "cancelled" && e.direction === "download",
+			);
+			expect(cancelledDownloads).toHaveLength(2);
+		});
+	});
+
 	describe("startEdit", () => {
 		it("downloads the file and opens it with the OS editor", async () => {
 			const { manager } = makeManager();
@@ -390,14 +585,14 @@ describe("RemoteEditManager", () => {
 			expect(statuses).toContain("completed");
 		});
 
-		it("returns existing session tempPath on re-call", async () => {
+		it("re-downloads and re-opens on re-call for same file", async () => {
 			const { manager } = makeManager();
 
 			const first = await manager.startEdit(1, "/remote/file.txt");
 			const second = await manager.startEdit(1, "/remote/file.txt");
 
 			expect(second.tempPath).toBe(first.tempPath);
-			expect(shell.openPath).toHaveBeenCalledTimes(1);
+			expect(shell.openPath).toHaveBeenCalledTimes(2);
 		});
 
 		it("starts a file watcher", async () => {
@@ -407,6 +602,21 @@ describe("RemoteEditManager", () => {
 
 			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
 			expect(mockWatchFn).toHaveBeenCalledWith(expectedPath, expect.any(Function));
+		});
+
+		it("passes AbortSignal to download function", async () => {
+			const sftp = makeSftp(true);
+			const { manager } = makeManager({ sftp });
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			expect(sftp.downloadFile).toHaveBeenCalledWith(
+				1,
+				"/remote/file.txt",
+				expect.any(String),
+				expect.any(Function),
+				expect.any(AbortSignal),
+			);
 		});
 	});
 

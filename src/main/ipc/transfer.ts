@@ -56,11 +56,13 @@ export function registerTransferHandlers(
 	ipcMain.handle(IPC.TRANSFER_CANCEL, (_event, jobId: string, itemId: string) => {
 		service.cancelItem(jobId, itemId);
 		remoteEditManager.cancelUpload(itemId);
+		remoteEditManager.cancelDownload(itemId);
 	});
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL_ALL, () => {
 		service.cancelAll();
 		remoteEditManager.cancelAllUploads();
+		remoteEditManager.cancelAllDownloads();
 	});
 
 	ipcMain.handle(IPC.TRANSFER_CANCEL_BY_CONNECTION, (_event, connectionId: number) => {

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { watch, statSync, type FSWatcher } from "node:fs";
+import { watch, statSync, unlink, type FSWatcher } from "node:fs";
 import { join, resolve } from "node:path";
 
 import type { S3ConnectionManager } from "@main/s3/s3-client";
@@ -40,6 +40,7 @@ export class RemoteEditManager {
 	private readonly getWebContents: () => WebContents | null;
 	private readonly sessions = new Map<string, EditSession>();
 	private readonly uploadControllers = new Map<string, AbortController>();
+	private readonly downloadControllers = new Map<string, AbortController>();
 
 	constructor(opts: RemoteEditManagerOptions) {
 		this.sftp = opts.sftp;
@@ -53,7 +54,7 @@ export class RemoteEditManager {
 
 		const existing = this.sessions.get(key);
 		if (existing) {
-			return { tempPath: existing.tempPath };
+			this.stopEdit(connectionId, remotePath);
 		}
 
 		const tempPath = this.resolveTempPath(connectionId, remotePath);
@@ -66,49 +67,74 @@ export class RemoteEditManager {
 		const jobId = randomUUID();
 		const itemId = randomUUID();
 
-		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "queued", 0, size);
-		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "active", 0, size);
+		const downloadController = new AbortController();
+		this.downloadControllers.set(itemId, downloadController);
 
-		await downloader(connectionId, remotePath, tempPath, (transferredBytes) => {
-			this.emitProgress(
-				jobId,
-				itemId,
+		try {
+			this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "queued", 0, size);
+			this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "active", 0, size);
+
+			await downloader(
 				connectionId,
 				remotePath,
 				tempPath,
-				"download",
-				"active",
-				transferredBytes,
-				size,
+				(transferredBytes) => {
+					this.emitProgress(
+						jobId,
+						itemId,
+						connectionId,
+						remotePath,
+						tempPath,
+						"download",
+						"active",
+						transferredBytes,
+						size,
+					);
+				},
+				downloadController.signal,
 			);
-		});
 
-		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "completed", size, size);
+			this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "completed", size, size);
 
-		void shell.openPath(tempPath);
+			void shell.openPath(tempPath);
+		} catch (err: unknown) {
+			if (downloadController.signal.aborted) {
+				this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "cancelled", 0, 0);
+				unlink(tempPath, () => {});
+				return { tempPath };
+			}
+			throw err;
+		} finally {
+			this.downloadControllers.delete(itemId);
+		}
 
-		const watcher = watch(tempPath, () => {
-			this.onFileChange(key);
-		});
+		try {
+			const watcher = watch(tempPath, () => {
+				this.onFileChange(key);
+			});
 
-		watcher.on("error", (err) => {
-			logger.error("watcher error", { key, error: err.message });
-			this.stopEdit(connectionId, remotePath);
-		});
+			watcher.on("error", (err) => {
+				logger.error("watcher error", { key, error: err.message });
+				this.stopEdit(connectionId, remotePath);
+			});
 
-		const session: EditSession = {
-			connectionId,
-			remotePath,
-			tempPath,
-			watcher,
-			debounceTimer: null,
-			currentUploadController: null,
-			uploading: false,
-			uploadJobId: null,
-			uploadItemId: null,
-		};
+			const session: EditSession = {
+				connectionId,
+				remotePath,
+				tempPath,
+				watcher,
+				debounceTimer: null,
+				currentUploadController: null,
+				uploading: false,
+				uploadJobId: null,
+				uploadItemId: null,
+			};
 
-		this.sessions.set(key, session);
+			this.sessions.set(key, session);
+		} catch (err: unknown) {
+			unlink(tempPath, () => {});
+			throw err;
+		}
 
 		return { tempPath };
 	}
@@ -169,6 +195,19 @@ export class RemoteEditManager {
 
 	cancelAllUploads(): void {
 		for (const controller of this.uploadControllers.values()) {
+			controller.abort();
+		}
+	}
+
+	cancelDownload(itemId: string): boolean {
+		const controller = this.downloadControllers.get(itemId);
+		if (!controller) return false;
+		controller.abort();
+		return true;
+	}
+
+	cancelAllDownloads(): void {
+		for (const controller of this.downloadControllers.values()) {
 			controller.abort();
 		}
 	}
