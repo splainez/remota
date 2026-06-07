@@ -38,6 +38,7 @@ async function flattenEntries(entries: FileEntry[], connectionId: number, visite
 		const childList = await window.api.filesystem.remoteList(connectionId, subPath);
 		const sub = await flattenEntries(childList, connectionId, visited);
 		out.push(...sub);
+		out.push(entry);
 	}
 	return out;
 }
