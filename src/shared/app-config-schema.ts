@@ -83,12 +83,7 @@ export const SettingsSchema = z.object({
 		.min(MAX_PARALLEL_TRANSFERS_MIN)
 		.max(MAX_PARALLEL_TRANSFERS_MAX)
 		.default(MAX_PARALLEL_TRANSFERS_DEFAULT),
-	maxSessions: z
-		.number()
-		.int()
-		.min(MAX_SESSIONS_MIN)
-		.max(MAX_SESSIONS_MAX)
-		.default(MAX_SESSIONS_DEFAULT),
+	maxSessions: z.number().int().min(MAX_SESSIONS_MIN).max(MAX_SESSIONS_MAX).default(MAX_SESSIONS_DEFAULT),
 	retentionMs: z.number().int().min(RETENTION_MS_MIN).max(RETENTION_MS_MAX).optional(),
 });
 

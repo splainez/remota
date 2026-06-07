@@ -228,7 +228,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 						</div>
 					</section>
 
-				{/* Language Section */}
+					{/* Language Section */}
 					<section className="flex flex-col gap-3">
 						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
 							{t("settings.language")}

@@ -76,11 +76,7 @@ export function ServerSidebar({
 							className={`relative ${
 								collapsed ? "w-10 h-10 rounded-xl mx-auto px-0" : "w-full px-3 py-2 rounded-lg justify-start"
 							} text-xs font-semibold ${
-								isCurrentView && collapsed
-									? "ring-2 ring-primary"
-									: !isCurrentView && collapsed
-										? "opacity-50"
-										: ""
+								isCurrentView && collapsed ? "ring-2 ring-primary" : !isCurrentView && collapsed ? "opacity-50" : ""
 							}`}
 							title={conn.name}
 							onClick={() => {
