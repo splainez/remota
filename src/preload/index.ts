@@ -148,6 +148,11 @@ const api = {
 		set: (connectionId: number, update: { visible: boolean }): Promise<void> =>
 			ipcRenderer.invoke(IPC.TRANSFER_PANEL_SET, connectionId, update),
 	},
+	filePaneSize: {
+		getAll: (): Promise<Record<number, { localSize: number }>> => ipcRenderer.invoke(IPC.FILE_PANE_SIZE_GET_ALL),
+		set: (connectionId: number, update: { localSize: number }): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_PANE_SIZE_SET, connectionId, update),
+	},
 	app: {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),
 		getConfigError: (): Promise<{ message: string; filePath: string; issues: string[] } | null> =>

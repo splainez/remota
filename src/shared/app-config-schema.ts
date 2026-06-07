@@ -53,6 +53,15 @@ export const TransferPanelsSchema = z.record(z.string(), transferPanelEntry);
 export const TransferPanelUpdate = transferPanelEntry.partial();
 export type TransferPanelUpdate = z.infer<typeof TransferPanelUpdate>;
 
+const filePaneSizeEntry = z.object({
+	localSize: z.number().min(10).max(90),
+});
+
+export const FilePaneSizesSchema = z.record(z.string(), filePaneSizeEntry);
+
+export const FilePaneSizeUpdate = filePaneSizeEntry.partial();
+export type FilePaneSizeUpdate = z.infer<typeof FilePaneSizeUpdate>;
+
 export const MAX_PARALLEL_TRANSFERS_MIN = 1;
 export const MAX_PARALLEL_TRANSFERS_MAX = 20;
 export const MAX_PARALLEL_TRANSFERS_DEFAULT = 5;
@@ -88,6 +97,7 @@ export const AppConfigSchema = z
 		connections: z.array(ConnectionSchema).default([]),
 		lastPaths: LastPathsSchema.default({}),
 		transferPanels: TransferPanelsSchema.default({}),
+		filePaneSizes: FilePaneSizesSchema.default({}),
 		settings: SettingsSchema.default(defaultSettings),
 	})
 	.strict();

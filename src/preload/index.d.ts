@@ -1,3 +1,4 @@
+import type { Settings, SettingsUpdate } from "@shared/app-config-schema";
 import type {
 	Connection,
 	NewConnection,
@@ -62,6 +63,18 @@ declare global {
 				detectInstalled: () => Promise<TerminalAppId[]>;
 				onData: (sessionId: string, callback: (data: string) => void) => () => void;
 				onExit: (sessionId: string, callback: (code: number | null) => void) => () => void;
+			};
+			settings: {
+				getAll: () => Promise<Settings>;
+				set: (partial: SettingsUpdate) => Promise<Settings>;
+			};
+			transferPanel: {
+				getAll: () => Promise<Record<number, { visible: boolean }>>;
+				set: (connectionId: number, update: { visible: boolean }) => Promise<void>;
+			};
+			filePaneSize: {
+				getAll: () => Promise<Record<number, { localSize: number }>>;
+				set: (connectionId: number, update: { localSize: number }) => Promise<void>;
 			};
 			app: {
 				getConfigPath: () => Promise<string>;

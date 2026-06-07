@@ -5,15 +5,14 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@renderer/
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useRemoteConnection } from "@renderer/hooks/useRemoteConnection";
 import { useTransferProgress } from "@renderer/hooks/useTransferProgress";
+import { useFilePaneStore } from "@renderer/store/filePane";
 import { useTransferPanelStore } from "@renderer/store/transferPanel";
 import { LoggerFactory } from "@shared/lib/logger";
-import { getErrorI18nKey } from "@shared/sftp-error";
 import type { Connection } from "@shared/types";
 import { useEffect, useRef, useState } from "react";
 
 import { Breadcrumb } from "./Breadcrumb";
 import { FilePane } from "./FilePane";
-import { ToggleableError } from "./ToggleableError";
 
 const logger = LoggerFactory.init({ name: "renderer.FileBrowser" });
 
@@ -30,10 +29,14 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 
 	useTransferProgress();
 
-	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
-		connection.id,
-	);
+	const { remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(connection.id);
 	const isTransferPanelVisible = useTransferPanelStore((s) => s.isVisible(connection.id));
+	const localSize = useFilePaneStore((s) => s.getLocalSize(connection.id));
+	const setLocalSize = useFilePaneStore((s) => s.setLocalSize);
+
+	useEffect(() => {
+		void useFilePaneStore.getState().load();
+	}, []);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -97,8 +100,6 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 		return <div className="flex flex-col h-full overflow-hidden" />;
 	}
 
-	const errorMessage = remoteError ? t(getErrorI18nKey(remoteError.code)) : null;
-
 	return (
 		<div className="flex flex-col h-full overflow-hidden">
 			{/* Top App Bar / Breadcrumbs */}
@@ -144,15 +145,25 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 			{/* Dual Pane Explorer + optional Active Transfers panel */}
 			<ResizablePanelGroup orientation="vertical" className="flex-1 min-h-0">
 				<ResizablePanel id="file-panes" defaultSize={80} minSize={30}>
-					<main className="flex h-full min-h-0 relative">
-						<FilePane
-							type="local"
-							connectionId={connection.id}
-							initialPath={localPath}
-							peerLocalPath={localPath}
-							onPathChange={setLocalPath}
-						/>
-						{remoteStatus === "connected" ? (
+					<ResizablePanelGroup orientation="horizontal" className="h-full">
+						<ResizablePanel
+							id="local-pane"
+							defaultSize={localSize}
+							minSize={20}
+							onResize={(panelSize) => {
+								setLocalSize(connection.id, panelSize.asPercentage);
+							}}
+						>
+							<FilePane
+								type="local"
+								connectionId={connection.id}
+								initialPath={localPath}
+								peerLocalPath={localPath}
+								onPathChange={setLocalPath}
+							/>
+						</ResizablePanel>
+						<ResizableHandle withHandle />
+						<ResizablePanel id="remote-pane" defaultSize={100 - localSize} minSize={20}>
 							<FilePane
 								key={reconnectKey}
 								type="remote"
@@ -161,6 +172,7 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 								protocol={connection.protocol}
 								initialShowTerminal={initialShowTerminal}
 								peerLocalPath={localPath}
+								connectionError={remoteError}
 								onReconnect={() => {
 									connect().catch((error: unknown) => {
 										logger.error("reconnect failed", { error });
@@ -168,32 +180,8 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 								}}
 								onPathChange={setRemotePath}
 							/>
-						) : (
-							<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-surface-container-lowest border-l border-outline-variant">
-								{remoteStatus === "connecting" ? (
-									<ToggleableError message={t("remote.connecting")} />
-								) : (
-									<>
-										<ToggleableError
-											message={errorMessage ?? t("remote.connectionError")}
-											detail={remoteError?.technicalDetail}
-										/>
-										<Button
-											variant="default"
-											size="sm"
-											onClick={() => {
-												connect().catch((error: unknown) => {
-													logger.error("retry connect failed", { error });
-												});
-											}}
-										>
-											{t("remote.retry")}
-										</Button>
-									</>
-								)}
-							</div>
-						)}
-					</main>
+						</ResizablePanel>
+					</ResizablePanelGroup>
 				</ResizablePanel>
 
 				{isTransferPanelVisible && (

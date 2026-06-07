@@ -332,7 +332,7 @@ export function FilePane({
 		<div
 			ref={paneRef}
 			tabIndex={-1}
-			className="flex-1 flex flex-col overflow-hidden bg-surface-container-lowest border-r border-outline-variant min-w-0"
+			className="flex flex-col h-full overflow-hidden bg-surface-container-lowest min-w-0"
 			onMouseDown={handleMouseDown}
 			onKeyDown={handleKeyDown}
 		>

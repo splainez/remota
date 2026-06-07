@@ -113,6 +113,10 @@ export interface ElectronAPI {
 		getAll: () => Promise<Record<number, { visible: boolean }>>;
 		set: (connectionId: number, update: { visible: boolean }) => Promise<void>;
 	};
+	filePaneSize: {
+		getAll: () => Promise<Record<number, { localSize: number }>>;
+		set: (connectionId: number, update: { localSize: number }) => Promise<void>;
+	};
 	app: {
 		getConfigPath: () => Promise<string>;
 		getConfigError: () => Promise<{ message: string; filePath: string; issues: string[] } | null>;

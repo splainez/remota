@@ -6,6 +6,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
 import { registerConnectionHandlers } from "./ipc/connections";
+import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerSettingsHandlers } from "./ipc/settings";
@@ -85,6 +86,7 @@ void app.whenReady().then(() => {
 	registerConnectionHandlers(appStore);
 	registerRemoteFilesystemHandlers(sftp, s3, appStore);
 	registerTransferPanelHandlers(appStore);
+	registerFilePaneSizeHandlers(appStore);
 	createWindow();
 
 	if (!mainWindow) {

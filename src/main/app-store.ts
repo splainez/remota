@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { AppConfigSchema, MAX_PARALLEL_TRANSFERS_DEFAULT } from "@shared/app-config-schema";
 import type { AppConfig } from "@shared/app-config-schema";
-import type { Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
+import type { FilePaneSizeUpdate, Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
 
@@ -26,6 +26,7 @@ export class AppStore {
 		connections: [],
 		lastPaths: {},
 		transferPanels: {},
+		filePaneSizes: {},
 		settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
 	};
 	private nextId = 1;
@@ -46,6 +47,7 @@ export class AppStore {
 				connections: [],
 				lastPaths: {},
 				transferPanels: {},
+				filePaneSizes: {},
 				settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
 			};
 			this.save();
@@ -64,6 +66,7 @@ export class AppStore {
 					connections: [],
 					lastPaths: {},
 					transferPanels: {},
+					filePaneSizes: {},
 					settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
 				};
 				return;
@@ -79,6 +82,7 @@ export class AppStore {
 				connections: [],
 				lastPaths: {},
 				transferPanels: {},
+				filePaneSizes: {},
 				settings: { theme: "system", locale: "en", maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT },
 			};
 		}
@@ -218,6 +222,31 @@ export class AppStore {
 		const key = String(connectionId);
 		const current = this.data.transferPanels[key] ?? { visible: false };
 		this.data.transferPanels[key] = { ...current, ...update };
+		this.save();
+	}
+
+	// ── File Pane Sizes ────────────────────────────────
+
+	getFilePaneSize(connectionId: number): { localSize: number } | undefined {
+		const key = String(connectionId);
+		return this.data.filePaneSizes[key];
+	}
+
+	getAllFilePaneSizes(): Record<number, { localSize: number }> {
+		const result: Record<number, { localSize: number }> = {};
+		for (const [key, value] of Object.entries(this.data.filePaneSizes)) {
+			const id = Number(key);
+			if (Number.isFinite(id)) {
+				result[id] = value;
+			}
+		}
+		return result;
+	}
+
+	setFilePaneSize(connectionId: number, update: FilePaneSizeUpdate) {
+		const key = String(connectionId);
+		const current = this.data.filePaneSizes[key] ?? { localSize: 50 };
+		this.data.filePaneSizes[key] = { ...current, ...update };
 		this.save();
 	}
 
