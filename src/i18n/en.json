@@ -209,7 +209,6 @@
 	"transfer.duplicate.cancel": "Cancel",
 	"transfer.item.queued": "Queued",
 	"transfer.item.active": "Downloading",
-	"transfer.item.activeUpload": "Uploading",
 	"transfer.item.completed": "Completed",
 	"transfer.item.failed": "Failed",
 	"transfer.item.cancelled": "Cancelled",
