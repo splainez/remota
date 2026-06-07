@@ -115,6 +115,18 @@ export function FilePane({
 
 	useFileWatcher(currentPath, type, refreshSilently);
 
+	useEffect(() => {
+		const unsub = window.api.filesystem.onTransferJobDone((result) => {
+			const hasItems = Object.values(result.results).some((r) => r.status === "ok");
+			if (hasItems) {
+				refreshSilently().catch((error: unknown) => {
+					logger.error("refresh after transfer failed", { error });
+				});
+			}
+		});
+		return unsub;
+	}, [refreshSilently]);
+
 	const filteredEntries = useMemo(() => {
 		if (!filter.trim()) return entries;
 		return entries.filter((entry) => matchesWildcard(filter, entry.name));
