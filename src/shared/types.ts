@@ -117,6 +117,8 @@ export interface ElectronAPI {
 		getConfigPath: () => Promise<string>;
 		getConfigError: () => Promise<{ message: string; filePath: string; issues: string[] } | null>;
 		onConfigError: (callback: (data: { message: string; filePath: string; issues: string[] }) => void) => () => void;
+		onAppConfirmQuit: (callback: () => void) => () => void;
+		quitResponse: (proceed: boolean) => void;
 	};
 	platform: string;
 }
