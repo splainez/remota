@@ -8,11 +8,13 @@ import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
+import { registerRemoteEditHandlers } from "./ipc/remote-edit";
 import { registerRemoteFilesystemHandlers } from "./ipc/remote-filesystem";
 import { registerSettingsHandlers } from "./ipc/settings";
 import { registerTerminalHandlers } from "./ipc/terminal";
 import { registerTransferHandlers } from "./ipc/transfer";
 import { registerTransferPanelHandlers } from "./ipc/transfer-panel";
+import { RemoteEditManager } from "./remote-edit/remote-edit-manager";
 import { S3ConnectionManager } from "./s3/s3-client";
 import { SftpConnectionManager } from "./sftp/sftp-client";
 import { tempManager } from "./temp/temp-manager";
@@ -22,6 +24,7 @@ import { TransferService } from "./transfer/transfer-service";
 let mainWindow: BrowserWindow | null = null;
 let appStore: AppStore;
 let transferService: TransferService;
+let remoteEditManager: RemoteEditManager;
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -115,10 +118,19 @@ void app.whenReady().then(() => {
 	registerSettingsHandlers(appStore, transferService);
 	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null);
 
+	remoteEditManager = new RemoteEditManager({
+		sftp,
+		s3,
+		tempManager,
+		getWebContents: () => mainWindow?.webContents ?? null,
+	});
+	registerRemoteEditHandlers(remoteEditManager);
+
 	app.on("will-quit", () => {
 		fileWatcher.stopAll();
 		terminalManager.killAll();
 		transferService.cancelAll();
+		remoteEditManager.stopAll();
 		sftp.disconnectAll();
 		s3.disconnectAll();
 		void tempManager.removeAll();

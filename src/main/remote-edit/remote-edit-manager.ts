@@ -1,0 +1,367 @@
+import { randomUUID } from "node:crypto";
+import { watch, statSync, type FSWatcher } from "node:fs";
+import { join } from "node:path";
+
+import type { S3ConnectionManager } from "@main/s3/s3-client";
+import type { SftpConnectionManager } from "@main/sftp/sftp-client";
+import type { TempManager } from "@main/temp/temp-manager";
+import { IPC } from "@shared/ipc-channels";
+import { LoggerFactory } from "@shared/lib/logger";
+import type { TransferProgressEvent } from "@shared/transfer-types";
+import { shell, type WebContents } from "electron";
+
+const logger = LoggerFactory.init({ name: "main.remoteEdit" });
+
+const UPLOAD_DEBOUNCE_MS = 1000;
+
+interface EditSession {
+	connectionId: number;
+	remotePath: string;
+	tempPath: string;
+	watcher: FSWatcher | null;
+	debounceTimer: ReturnType<typeof setTimeout> | null;
+	currentUploadController: AbortController | null;
+	uploading: boolean;
+}
+
+export interface RemoteEditManagerOptions {
+	sftp: SftpConnectionManager;
+	s3: S3ConnectionManager;
+	tempManager: TempManager;
+	getWebContents: () => WebContents | null;
+}
+
+export class RemoteEditManager {
+	private readonly sftp: SftpConnectionManager;
+	private readonly s3: S3ConnectionManager;
+	private readonly tempManager: TempManager;
+	private readonly getWebContents: () => WebContents | null;
+	private readonly sessions = new Map<string, EditSession>();
+
+	constructor(opts: RemoteEditManagerOptions) {
+		this.sftp = opts.sftp;
+		this.s3 = opts.s3;
+		this.tempManager = opts.tempManager;
+		this.getWebContents = opts.getWebContents;
+	}
+
+	async startEdit(connectionId: number, remotePath: string): Promise<{ tempPath: string }> {
+		const key = this.sessionKey(connectionId, remotePath);
+
+		const existing = this.sessions.get(key);
+		if (existing) {
+			return { tempPath: existing.tempPath };
+		}
+
+		const tempPath = this.resolveTempPath(connectionId, remotePath);
+
+		const downloader = this.resolveDownloadFn(connectionId);
+
+		const stat = await this.getRemoteStat(connectionId, remotePath);
+		const size = stat?.size ?? 0;
+
+		const jobId = randomUUID();
+		const itemId = randomUUID();
+
+		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "queued", 0, size);
+		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "active", 0, size);
+
+		await downloader(connectionId, remotePath, tempPath, (transferredBytes) => {
+			this.emitProgress(
+				jobId,
+				itemId,
+				connectionId,
+				remotePath,
+				tempPath,
+				"download",
+				"active",
+				transferredBytes,
+				size,
+			);
+		});
+
+		this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "completed", size, size);
+
+		void shell.openPath(tempPath);
+
+		const watcher = watch(tempPath, () => {
+			this.onFileChange(key);
+		});
+
+		watcher.on("error", (err) => {
+			logger.error("watcher error", { key, error: err.message });
+			this.stopEdit(connectionId, remotePath);
+		});
+
+		const session: EditSession = {
+			connectionId,
+			remotePath,
+			tempPath,
+			watcher,
+			debounceTimer: null,
+			currentUploadController: null,
+			uploading: false,
+		};
+
+		this.sessions.set(key, session);
+
+		return { tempPath };
+	}
+
+	stopEdit(connectionId: number, remotePath: string): void {
+		const key = this.sessionKey(connectionId, remotePath);
+		const session = this.sessions.get(key);
+		if (!session) return;
+
+		if (session.watcher) {
+			session.watcher.close();
+			session.watcher = null;
+		}
+
+		if (session.debounceTimer) {
+			clearTimeout(session.debounceTimer);
+			session.debounceTimer = null;
+		}
+
+		if (session.currentUploadController) {
+			session.currentUploadController.abort();
+			session.currentUploadController = null;
+		}
+
+		session.uploading = false;
+
+		this.sessions.delete(key);
+	}
+
+	stopAllForConnection(connectionId: number): void {
+		const keys: string[] = [];
+		for (const [key, session] of this.sessions) {
+			if (session.connectionId === connectionId) {
+				keys.push(key);
+			}
+		}
+		for (const key of keys) {
+			const session = this.sessions.get(key);
+			if (session) {
+				this.stopEdit(session.connectionId, session.remotePath);
+			}
+		}
+	}
+
+	stopAll(): void {
+		const entries = [...this.sessions.values()];
+		for (const session of entries) {
+			this.stopEdit(session.connectionId, session.remotePath);
+		}
+	}
+
+	private onFileChange(key: string): void {
+		const session = this.sessions.get(key);
+		if (!session) return;
+
+		if (session.debounceTimer) {
+			clearTimeout(session.debounceTimer);
+		}
+
+		session.debounceTimer = setTimeout(() => {
+			session.debounceTimer = null;
+			void this.uploadFile(session);
+		}, UPLOAD_DEBOUNCE_MS);
+	}
+
+	private async uploadFile(session: EditSession): Promise<void> {
+		if (session.currentUploadController) {
+			session.currentUploadController.abort();
+			session.currentUploadController = null;
+		}
+
+		const controller = new AbortController();
+		session.currentUploadController = controller;
+		session.uploading = true;
+
+		const jobId = randomUUID();
+		const itemId = randomUUID();
+
+		try {
+			let size = 0;
+			try {
+				const stats = statSync(session.tempPath);
+				size = stats.size;
+			} catch {
+				// File may have been deleted
+			}
+
+			this.emitProgress(
+				jobId,
+				itemId,
+				session.connectionId,
+				session.remotePath,
+				session.tempPath,
+				"upload",
+				"active",
+				0,
+				size,
+			);
+
+			const uploader = this.resolveUploadFn(session.connectionId);
+			await uploader(
+				session.connectionId,
+				session.tempPath,
+				session.remotePath,
+				(transferredBytes) => {
+					if (!controller.signal.aborted) {
+						this.emitProgress(
+							jobId,
+							itemId,
+							session.connectionId,
+							session.remotePath,
+							session.tempPath,
+							"upload",
+							"active",
+							transferredBytes,
+							size,
+						);
+					}
+				},
+				controller.signal,
+			);
+
+			this.emitProgress(
+				jobId,
+				itemId,
+				session.connectionId,
+				session.remotePath,
+				session.tempPath,
+				"upload",
+				"completed",
+				size,
+				size,
+			);
+		} catch (err: unknown) {
+			if (controller.signal.aborted) {
+				this.emitProgress(
+					jobId,
+					itemId,
+					session.connectionId,
+					session.remotePath,
+					session.tempPath,
+					"upload",
+					"cancelled",
+					0,
+					0,
+				);
+				return;
+			}
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("upload failed", { key: this.sessionKey(session.connectionId, session.remotePath), error: message });
+			this.emitProgress(
+				jobId,
+				itemId,
+				session.connectionId,
+				session.remotePath,
+				session.tempPath,
+				"upload",
+				"failed",
+				0,
+				0,
+				message,
+			);
+		} finally {
+			if (session.currentUploadController === controller) {
+				session.currentUploadController = null;
+			}
+			session.uploading = false;
+		}
+	}
+
+	private resolveTempPath(connectionId: number, remotePath: string): string {
+		const tempRoot = this.tempManager.getTempPath(connectionId);
+		if (!tempRoot) {
+			throw new Error(`No temp dir for connection ${String(connectionId)}`);
+		}
+		const relativePath = remotePath.startsWith("/") ? remotePath.slice(1) : remotePath;
+		return join(tempRoot, relativePath);
+	}
+
+	private resolveDownloadFn(
+		connectionId: number,
+	): (
+		connId: number,
+		remotePath: string,
+		localPath: string,
+		onProgress?: (transferredBytes: number) => void,
+	) => Promise<void> {
+		if (this.sftp.isConnected(connectionId)) {
+			return (connId, rp, lp, onProgress) => this.sftp.downloadFile(connId, rp, lp, onProgress);
+		}
+		if (this.s3.isConnected(connectionId)) {
+			return (connId, rp, lp, onProgress) => this.s3.downloadFile(connId, rp, lp, onProgress);
+		}
+		throw new Error("Not connected to remote server");
+	}
+
+	private resolveUploadFn(
+		connectionId: number,
+	): (
+		connId: number,
+		localPath: string,
+		remotePath: string,
+		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
+	) => Promise<void> {
+		if (this.sftp.isConnected(connectionId)) {
+			return (connId, lp, rp, onProgress, signal) => this.sftp.uploadFile(connId, lp, rp, onProgress, signal);
+		}
+		if (this.s3.isConnected(connectionId)) {
+			return (connId, lp, rp, onProgress, signal) => this.s3.uploadFile(connId, lp, rp, onProgress, signal);
+		}
+		throw new Error("Not connected to remote server");
+	}
+
+	private async getRemoteStat(connectionId: number, remotePath: string): Promise<{ size: number } | null> {
+		if (this.sftp.isConnected(connectionId)) {
+			return this.sftp.getRemoteStat(connectionId, remotePath);
+		}
+		if (this.s3.isConnected(connectionId)) {
+			return this.s3.getRemoteStat(connectionId, remotePath);
+		}
+		return null;
+	}
+
+	private emitProgress(
+		jobId: string,
+		itemId: string,
+		connectionId: number,
+		remotePath: string,
+		localPath: string,
+		direction: "download" | "upload",
+		status: TransferProgressEvent["status"],
+		transferredBytes: number,
+		totalBytes: number,
+		error?: string,
+	): void {
+		const webContents = this.getWebContents();
+		if (!webContents || webContents.isDestroyed()) return;
+
+		const name = (remotePath.includes("/") ? remotePath.split("/") : remotePath.split("\\")).pop() ?? remotePath;
+		const event: TransferProgressEvent = {
+			jobId,
+			id: itemId,
+			connectionId,
+			name,
+			source: direction === "upload" ? localPath : remotePath,
+			target: direction === "upload" ? remotePath : localPath,
+			direction,
+			totalBytes,
+			transferredBytes,
+			status,
+			...(error !== undefined ? { error } : {}),
+		};
+
+		webContents.send(IPC.TRANSFER_PROGRESS, event);
+	}
+
+	private sessionKey(connectionId: number, remotePath: string): string {
+		return `${String(connectionId)}:${remotePath}`;
+	}
+}

@@ -251,6 +251,17 @@ export function FilePane({
 				download.startDownload(targets).catch((error: unknown) => {
 					logger.error("download failed", { error });
 				});
+			} else if (actionId === "edit" && type === "remote") {
+				window.api.remoteEdit
+					.start(connectionId, entry.fullPath)
+					.then(({ tempPath }) => window.api.filesystem.openPath(tempPath))
+					.then(() => {
+						toast.success(t("file.contextMenu.editStarted"));
+					})
+					.catch((error: unknown) => {
+						logger.error("edit failed", { error });
+						toast.error(t("file.contextMenu.editError"));
+					});
 			} else if (actionId === "upload" && type === "local") {
 				const useSelection = selectedNames.length > 1 && selectedNames.includes(entry.name);
 				const targets = useSelection ? filteredEntries.filter((e) => selectedNames.includes(e.name)) : [entry];

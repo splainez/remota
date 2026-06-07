@@ -131,6 +131,11 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			quitResponse: vi.fn(),
 			...overrides?.app,
 		},
+		remoteEdit: {
+			start: vi.fn().mockResolvedValue({ tempPath: "/tmp/test-file" }),
+			stop: vi.fn().mockResolvedValue(undefined),
+			...overrides?.remoteEdit,
+		},
 		platform: overrides?.platform ?? "linux",
 	};
 }

@@ -188,6 +188,12 @@ const api = {
 			ipcRenderer.send(IPC.APP_QUIT_RESPONSE, proceed);
 		},
 	},
+	remoteEdit: {
+		start: (connectionId: number, remotePath: string): Promise<{ tempPath: string }> =>
+			ipcRenderer.invoke(IPC.REMOTE_EDIT_START, connectionId, remotePath),
+		stop: (connectionId: number, remotePath: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.REMOTE_EDIT_STOP, connectionId, remotePath),
+	},
 	platform: process.platform,
 };
 

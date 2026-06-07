@@ -140,6 +140,10 @@ export interface ElectronAPI {
 		onAppConfirmQuit: (callback: () => void) => () => void;
 		quitResponse: (proceed: boolean) => void;
 	};
+	remoteEdit: {
+		start: (connectionId: number, remotePath: string) => Promise<{ tempPath: string }>;
+		stop: (connectionId: number, remotePath: string) => Promise<void>;
+	};
 	platform: string;
 }
 
