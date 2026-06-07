@@ -16,10 +16,9 @@ services:
       - -c
       - |
         corepack enable && corepack prepare pnpm@latest --activate
-        pnpm approve-builds --all
         pnpm install --frozen-lockfile
         pnpm build
-        pnpm run postinstall
+        npx @electron/rebuild -f -m node_modules/node-pty
         pnpm electron-builder --linux AppImage --config electron-builder.yml --publish never
 
   builder-win:
@@ -39,10 +38,9 @@ services:
       - -c
       - |
         corepack enable && corepack prepare pnpm@latest --activate
-        pnpm approve-builds --all
         pnpm install --frozen-lockfile
         pnpm build
-        pnpm run postinstall
+        npx @electron/rebuild -f -m node_modules/node-pty
         pnpm electron-builder --win portable --config electron-builder.yml --publish never
 
 volumes:

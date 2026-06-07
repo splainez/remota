@@ -3,6 +3,10 @@ productName: OpenSCP
 directories:
   output: release
 
+icon: build-resources/icons/icon.png
+
+npmRebuild: false
+
 files:
   - out/**/*
   - "!**/*.test.*"
@@ -28,7 +32,6 @@ linux:
         - x64
   category: Utility
   executableName: openscp
-  icon: build-resources/icons
 
 portable:
   artifactName: "OpenSCP-${version}-portable.${ext}"

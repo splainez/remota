@@ -1,6 +1,6 @@
 import pino, { type LevelWithSilentOrString } from "pino";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV !== "development";
 const defaultLevel = isProduction ? "info" : "debug";
 
 const renameComponentBinding = (bindings: Record<string, unknown>) => {
@@ -30,11 +30,11 @@ export const rootLogger = pino({
 	...(isProduction
 		? {}
 		: {
-				transport: {
-					target: "pino-pretty",
-					options: { colorize: true },
-				},
-			}),
+			transport: {
+				target: "pino-pretty",
+				options: { colorize: true },
+			},
+		}),
 });
 
 type LogFn = (msg: string, extra?: Record<string, unknown>) => void;
