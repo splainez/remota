@@ -204,10 +204,9 @@
 	"file.delete.descriptionMultiple": "\u00bfEst\u00e1s seguro de que quieres borrar \u201c{name}\u201d y {count} elementos m\u00e1s?",
 	"file.delete.yes": "S\u00ed",
 	"file.delete.yesToAll": "S\u00ed a todo",
-	"file.delete.noToAll": "No a todo",
 	"file.delete.cancel": "Cancelar",
 	"file.delete.success": "Archivo eliminado",
 	"file.delete.successMultiple": "Archivos eliminados",
-	"file.delete.cancelled": "Borrado cancelado",
+	"file.delete.partial": "No se pudieron eliminar {count} archivos",
 	"file.delete.error": "No se pudo eliminar el archivo"
 }

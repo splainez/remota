@@ -93,6 +93,7 @@ export function useDelete({ panelType, connectionId, refresh }: UseDeleteParams)
 
 				let bulkDecision: "delete" | null = null;
 				const state: { cancelled: boolean } = { cancelled: false };
+				let failedCount = 0;
 
 				for (let i = 0; i < flat.length; i++) {
 					const entry = flat[i];
@@ -118,20 +119,25 @@ export function useDelete({ panelType, connectionId, refresh }: UseDeleteParams)
 							await window.api.filesystem.delete(entry.fullPath);
 						}
 					} catch (err) {
+						failedCount++;
 						logger.error("delete failed", { path: entry.fullPath, error: err });
 						toast.error(t(getErrorI18nKey(classifyError(err).code)));
 					}
 				}
 
 				if (state.cancelled) {
-					toast.info(t("file.delete.cancelled"));
 					return;
 				}
 
-				if (flat.length === 1) {
-					toast.success(t("file.delete.success"));
-				} else {
-					toast.success(t("file.delete.successMultiple"));
+				const succeeded = flat.length - failedCount;
+				if (failedCount > 0 && succeeded > 0) {
+					toast.warning(t("file.delete.partial", { count: String(failedCount) }));
+				} else if (failedCount === 0) {
+					if (flat.length === 1) {
+						toast.success(t("file.delete.success"));
+					} else {
+						toast.success(t("file.delete.successMultiple"));
+					}
 				}
 
 				await refresh();

@@ -70,18 +70,6 @@ export function DeleteConfirmDialog({ open, itemName, remaining, onResolve }: De
 					>
 						{t("file.delete.cancel")}
 					</Button>
-					{showBulk && (
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() => {
-								onResolve("cancel");
-							}}
-						>
-							{t("file.delete.noToAll")}
-						</Button>
-					)}
 					<Button
 						type="button"
 						variant="destructive"

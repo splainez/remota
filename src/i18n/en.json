@@ -207,10 +207,9 @@
 	"file.delete.descriptionMultiple": "Are you sure you want to delete \"{name}\" and {count} other items?",
 	"file.delete.yes": "Yes",
 	"file.delete.yesToAll": "Yes to all",
-	"file.delete.noToAll": "No to all",
 	"file.delete.cancel": "Cancel",
 	"file.delete.success": "File deleted",
 	"file.delete.successMultiple": "Files deleted",
-	"file.delete.cancelled": "Delete cancelled",
+	"file.delete.partial": "{count} files could not be deleted",
 	"file.delete.error": "Could not delete file"
 }
