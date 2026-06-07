@@ -10,6 +10,7 @@ import { useLocalDrives } from "@renderer/hooks/useLocalDrives";
 import { usePaneNavigation } from "@renderer/hooks/usePaneNavigation";
 import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
 import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
+import { useUpload } from "@renderer/hooks/useUpload";
 import { matchesWildcard } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -36,6 +37,7 @@ interface FilePaneProps {
 	remoteStatus?: "connecting" | "connected" | "error";
 	initialShowTerminal?: boolean;
 	peerLocalPath?: string;
+	peerRemotePath?: string;
 	onReconnect?: () => void;
 	onPathChange?: (path: string) => void;
 }
@@ -49,6 +51,7 @@ export function FilePane({
 	remoteStatus,
 	initialShowTerminal = false,
 	peerLocalPath,
+	peerRemotePath,
 	onReconnect,
 	onPathChange,
 }: FilePaneProps) {
@@ -83,6 +86,12 @@ export function FilePane({
 		connectionId,
 		localBasePath: peerLocalPath ?? currentPath,
 		remoteBasePath: currentPath,
+	});
+
+	const upload = useUpload({
+		connectionId,
+		localBasePath: currentPath,
+		remoteBasePath: peerRemotePath ?? "/",
 	});
 
 	useEffect(() => {
@@ -230,6 +239,12 @@ export function FilePane({
 				download.startDownload(targets).catch((error: unknown) => {
 					logger.error("download failed", { error });
 				});
+			} else if (actionId === "upload" && type === "local") {
+				const useSelection = selectedNames.length > 1 && selectedNames.includes(entry.name);
+				const targets = useSelection ? filteredEntries.filter((e) => selectedNames.includes(e.name)) : [entry];
+				upload.startUpload(targets).catch((error: unknown) => {
+					logger.error("upload failed", { error });
+				});
 			} else if (actionId === "copyPath") {
 				navigator.clipboard
 					.writeText(entry.fullPath)
@@ -263,6 +278,7 @@ export function FilePane({
 		[
 			deleteOp,
 			download,
+			upload,
 			filteredEntries,
 			handleEnterDirectory,
 			handleOpenFile,
@@ -405,6 +421,7 @@ export function FilePane({
 				/>
 			)}
 			{download.dialog}
+			{upload.dialog}
 			{deleteOp.dialog}
 		</div>
 	);

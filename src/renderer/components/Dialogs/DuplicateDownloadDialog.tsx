@@ -15,11 +15,18 @@ export type DuplicateDecision = "restart" | "keep" | "cancel";
 export interface DuplicateDownloadDialogProps {
 	open: boolean;
 	fileName: string;
+	direction?: "download" | "upload";
 	onResolve: (decision: DuplicateDecision) => void;
 }
 
-export function DuplicateDownloadDialog({ open, fileName, onResolve }: DuplicateDownloadDialogProps) {
+export function DuplicateDownloadDialog({
+	open,
+	fileName,
+	direction = "download",
+	onResolve,
+}: DuplicateDownloadDialogProps) {
 	const { t } = useI18n();
+	const isUpload = direction === "upload";
 
 	useEffect(() => {
 		if (!open) return;
@@ -46,8 +53,12 @@ export function DuplicateDownloadDialog({ open, fileName, onResolve }: Duplicate
 		<Dialog open={open}>
 			<DialogContent showCloseButton={false} className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>{t("transfer.duplicate.title")}</DialogTitle>
-					<DialogDescription>{t("transfer.duplicate.description", { name: fileName })}</DialogDescription>
+					<DialogTitle>{isUpload ? t("transfer.duplicate.uploadTitle") : t("transfer.duplicate.title")}</DialogTitle>
+					<DialogDescription>
+						{isUpload
+							? t("transfer.duplicate.uploadDescription", { name: fileName })
+							: t("transfer.duplicate.description", { name: fileName })}
+					</DialogDescription>
 				</DialogHeader>
 
 				<DialogFooter className="sm:flex-wrap">

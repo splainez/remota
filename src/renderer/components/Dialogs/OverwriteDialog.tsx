@@ -23,6 +23,7 @@ export interface OverwriteDialogProps {
 	remoteSize: number;
 	remoteModified: string;
 	remaining: number;
+	direction?: "download" | "upload";
 	onResolve: (decision: OverwriteDecision) => void;
 }
 
@@ -43,9 +44,11 @@ export function OverwriteDialog({
 	remoteSize,
 	remoteModified,
 	remaining,
+	direction = "download",
 	onResolve,
 }: OverwriteDialogProps) {
 	const { t } = useI18n();
+	const isUpload = direction === "upload";
 
 	useEffect(() => {
 		if (!open) return;
@@ -87,16 +90,28 @@ export function OverwriteDialog({
 
 				<div className="grid grid-cols-3 gap-2 text-xs">
 					<div />
-					<div className="text-center font-semibold text-muted-foreground">{t("transfer.overwrite.local")}</div>
-					<div className="text-center font-semibold text-muted-foreground">{t("transfer.overwrite.remote")}</div>
+					<div className="text-center font-semibold text-muted-foreground">
+						{isUpload ? t("transfer.overwrite.local") : t("transfer.overwrite.remote")}
+					</div>
+					<div className="text-center font-semibold text-muted-foreground">
+						{isUpload ? t("transfer.overwrite.remote") : t("transfer.overwrite.local")}
+					</div>
 
 					<div className="text-muted-foreground">{t("transfer.overwrite.size")}</div>
-					<div className="text-center text-foreground">{localSize === null ? dash : formatSize(localSize)}</div>
-					<div className="text-center text-foreground">{formatSize(remoteSize)}</div>
+					<div className="text-center text-foreground">
+						{isUpload ? (localSize === null ? dash : formatSize(localSize)) : formatSize(remoteSize)}
+					</div>
+					<div className="text-center text-foreground">
+						{isUpload ? formatSize(remoteSize) : localSize === null ? dash : formatSize(localSize)}
+					</div>
 
 					<div className="text-muted-foreground">{t("transfer.overwrite.modified")}</div>
-					<div className="text-center text-foreground">{formatModified(localModified)}</div>
-					<div className="text-center text-foreground">{formatModified(remoteModified)}</div>
+					<div className="text-center text-foreground">
+						{isUpload ? formatModified(localModified) : formatModified(remoteModified)}
+					</div>
+					<div className="text-center text-foreground">
+						{isUpload ? formatModified(remoteModified) : formatModified(localModified)}
+					</div>
 
 					<div className="text-muted-foreground">Path</div>
 					<div className="col-span-2 truncate text-foreground" title={localPath}>

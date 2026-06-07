@@ -158,6 +158,7 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 								connectionId={connection.id}
 								initialPath={localPath}
 								peerLocalPath={localPath}
+								peerRemotePath={remotePath}
 								onPathChange={setLocalPath}
 							/>
 						</ResizablePanel>
