@@ -68,7 +68,10 @@ import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import type { TempManager } from "@main/temp/temp-manager";
 import type { WebContents } from "electron";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { shell } from "electron";
 
 import { RemoteEditManager } from "./remote-edit-manager";
 
@@ -157,8 +160,9 @@ function makeSftp(connected: boolean): SftpStub {
 }
 
 function makeTemp(): TempStub {
+	const root = join(tmpdir(), "openscp-test-1");
 	return {
-		getTempPath: () => "/tmp/connection-1",
+		getTempPath: () => root,
 	};
 }
 
@@ -360,6 +364,156 @@ describe("RemoteEditManager", () => {
 				);
 				expect(cancelledEvents.length).toBeGreaterThanOrEqual(1);
 			}
+		});
+	});
+
+	describe("startEdit", () => {
+		it("downloads the file and opens it with the OS editor", async () => {
+			const { manager } = makeManager();
+
+			const result = await manager.startEdit(1, "/remote/file.txt");
+
+			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
+			expect(result.tempPath).toBe(expectedPath);
+			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
+		});
+
+		it("emits download progress events", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			const downloadEvents = wc.events.filter((e) => e.direction === "download");
+			const statuses = downloadEvents.map((e) => e.status);
+			expect(statuses).toContain("queued");
+			expect(statuses).toContain("active");
+			expect(statuses).toContain("completed");
+		});
+
+		it("returns existing session tempPath on re-call", async () => {
+			const { manager } = makeManager();
+
+			const first = await manager.startEdit(1, "/remote/file.txt");
+			const second = await manager.startEdit(1, "/remote/file.txt");
+
+			expect(second.tempPath).toBe(first.tempPath);
+			expect(shell.openPath).toHaveBeenCalledTimes(1);
+		});
+
+		it("starts a file watcher", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
+			expect(mockWatchFn).toHaveBeenCalledWith(expectedPath, expect.any(Function));
+		});
+	});
+
+	describe("stopEdit", () => {
+		it("closes the file watcher", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+			manager.stopEdit(1, "/remote/file.txt");
+
+			expect(mockWatcher.close).toHaveBeenCalled();
+		});
+
+		it("clears the debounce timer", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+			triggerFileChange();
+			manager.stopEdit(1, "/remote/file.txt");
+
+			await vi.advanceTimersByTimeAsync(1000);
+
+			const uploadEvents = wc.events.filter((e) => e.direction === "upload");
+			expect(uploadEvents).toHaveLength(0);
+		});
+
+		it("aborts in-flight upload", async () => {
+			const { manager, wc } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			manager.stopEdit(1, "/remote/file.txt");
+
+			await vi.advanceTimersByTimeAsync(0);
+
+			const cancelledEvents = wc.events.filter((e) => e.status === "cancelled" && e.direction === "upload");
+			expect(cancelledEvents).toHaveLength(1);
+		});
+
+		it("is a no-op for unknown session", () => {
+			const { manager } = makeManager();
+			manager.stopEdit(1, "/nonexistent/file.txt");
+		});
+	});
+
+	describe("stopAllForConnection", () => {
+		it("stops all sessions for the given connection", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file1.txt");
+			await manager.startEdit(1, "/remote/file2.txt");
+
+			manager.stopAllForConnection(1);
+
+			expect(mockWatcher.close).toHaveBeenCalledTimes(2);
+		});
+
+		it("does not stop sessions for other connections", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt");
+			await manager.startEdit(2, "/remote/file.txt");
+
+			manager.stopAllForConnection(1);
+
+			expect(mockWatcher.close).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe("stopAll", () => {
+		it("stops all active sessions", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file1.txt");
+			await manager.startEdit(1, "/remote/file2.txt");
+
+			manager.stopAll();
+
+			expect(mockWatcher.close).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	describe("path traversal", () => {
+		it("rejects paths that escape the temp directory", async () => {
+			const { manager } = makeManager();
+
+			await expect(manager.startEdit(1, "/remote/../../etc/passwd")).rejects.toThrow("Path traversal detected");
+		});
+	});
+
+	describe("error handling", () => {
+		it("propagates download failure", async () => {
+			const sftp = makeSftp(true);
+			sftp.downloadFile = () => Promise.reject(new Error("download failed"));
+			const { manager } = makeManager({ sftp });
+
+			await expect(manager.startEdit(1, "/remote/file.txt")).rejects.toThrow("download failed");
+		});
+
+		it("propagates getRemoteStat failure", async () => {
+			const sftp = makeSftp(true);
+			sftp.getRemoteStat = () => Promise.reject(new Error("stat failed"));
+			const { manager } = makeManager({ sftp });
+
+			await expect(manager.startEdit(1, "/remote/file.txt")).rejects.toThrow("stat failed");
 		});
 	});
 });

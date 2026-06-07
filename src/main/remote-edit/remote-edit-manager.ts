@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { watch, statSync, type FSWatcher } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
@@ -322,7 +322,11 @@ export class RemoteEditManager {
 			throw new Error(`No temp dir for connection ${String(connectionId)}`);
 		}
 		const relativePath = remotePath.startsWith("/") ? remotePath.slice(1) : remotePath;
-		return join(tempRoot, relativePath);
+		const fullPath = resolve(tempRoot, relativePath);
+		if (!fullPath.startsWith(tempRoot)) {
+			throw new Error("Path traversal detected");
+		}
+		return fullPath;
 	}
 
 	private resolveDownloadFn(

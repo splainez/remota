@@ -251,13 +251,12 @@ export function FilePane({
 				download.startDownload(targets).catch((error: unknown) => {
 					logger.error("download failed", { error });
 				});
-			} else if (actionId === "edit" && type === "remote") {
-				window.api.remoteEdit
-					.start(connectionId, entry.fullPath)
-					.then(({ tempPath }) => window.api.filesystem.openPath(tempPath))
-					.then(() => {
-						toast.success(t("file.contextMenu.editStarted"));
-					})
+		} else if (actionId === "edit" && type === "remote") {
+			window.api.remoteEdit
+				.start(connectionId, entry.fullPath)
+				.then(() => {
+					toast.success(t("file.contextMenu.editStarted"));
+				})
 					.catch((error: unknown) => {
 						logger.error("edit failed", { error });
 						toast.error(t("file.contextMenu.editError"));
