@@ -46,7 +46,6 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 
 	const showTerminal = entry.isDirectory && (panelType === "local" || protocol !== "s3");
 	const showRename = panelType === "local" || protocol !== "s3";
-	const showEdit = panelType === "remote" && !entry.isDirectory;
 
 	const menuItems: MenuItem[] = [
 		{
@@ -60,12 +59,6 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 			icon: panelType === "local" ? "arrow-up" : "arrow-down",
 			label: panelType === "local" ? t("file.contextMenu.upload") : t("file.contextMenu.download"),
 			visible: true,
-		},
-		{
-			id: "edit",
-			icon: "edit",
-			label: t("file.contextMenu.edit"),
-			visible: showEdit,
 		},
 		{
 			id: "rename",

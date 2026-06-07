@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { watch, statSync, unlink, type FSWatcher } from "node:fs";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
@@ -375,12 +375,13 @@ export class RemoteEditManager {
 		remotePath: string,
 		localPath: string,
 		onProgress?: (transferredBytes: number) => void,
+		signal?: AbortSignal,
 	) => Promise<void> {
 		if (this.sftp.isConnected(connectionId)) {
-			return (connId, rp, lp, onProgress) => this.sftp.downloadFile(connId, rp, lp, onProgress);
+			return (connId, rp, lp, onProgress, signal) => this.sftp.downloadFile(connId, rp, lp, onProgress, signal);
 		}
 		if (this.s3.isConnected(connectionId)) {
-			return (connId, rp, lp, onProgress) => this.s3.downloadFile(connId, rp, lp, onProgress);
+			return (connId, rp, lp, onProgress, signal) => this.s3.downloadFile(connId, rp, lp, onProgress, signal);
 		}
 		throw new Error("Not connected to remote server");
 	}
