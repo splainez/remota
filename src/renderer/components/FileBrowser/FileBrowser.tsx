@@ -29,7 +29,9 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 
 	useTransferProgress();
 
-	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(connection.id);
+	const { remoteStatus, remoteError, remotePath, setRemotePath, reconnectKey, connect } = useRemoteConnection(
+		connection.id,
+	);
 	const isTransferPanelVisible = useTransferPanelStore((s) => s.isVisible(connection.id));
 	const localSize = useFilePaneStore((s) => s.getLocalSize(connection.id));
 	const setLocalSize = useFilePaneStore((s) => s.setLocalSize);
