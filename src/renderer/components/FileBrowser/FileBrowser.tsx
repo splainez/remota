@@ -85,6 +85,9 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 	// Connect after ready so the connecting placeholder shows while connect is in progress
 	const startedConnect = useRef(false);
 	useEffect(() => {
+		startedConnect.current = false;
+	}, [connection.id]);
+	useEffect(() => {
 		if (ready && !startedConnect.current) {
 			startedConnect.current = true;
 			connect()
