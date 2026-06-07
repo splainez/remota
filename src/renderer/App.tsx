@@ -11,6 +11,7 @@ import { ConnectionListView } from "./components/ConnectionManager/ConnectionLis
 import { DisconnectConfirmDialog } from "./components/FileBrowser/DisconnectConfirmDialog";
 import { FileBrowser } from "./components/FileBrowser/FileBrowser";
 import { Icon } from "./components/icons/Icon";
+import { QuitConfirmDialog } from "./components/QuitConfirmDialog";
 import { ServerSidebar } from "./components/ServerSidebar/ServerSidebar";
 import { SettingsView } from "./components/Settings/SettingsView";
 import { Button } from "./components/ui/button";
@@ -38,6 +39,14 @@ export function App() {
 
 	const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
 	const [pendingNavigation, setPendingNavigation] = useState<AppView | null>(null);
+	const [quitDialogOpen, setQuitDialogOpen] = useState(false);
+
+	useEffect(() => {
+		const unsub = window.api.app.onAppConfirmQuit(() => {
+			setQuitDialogOpen(true);
+		});
+		return unsub;
+	}, []);
 
 	const activeConnectionId = currentView.view === "fileBrowser" ? currentView.connection.id : null;
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
@@ -74,6 +83,18 @@ export function App() {
 		setPendingNavigation(null);
 		setView(target);
 	}, [activeConnectionId, pendingNavigation, setView]);
+
+	const handleConfirmQuit = useCallback(() => {
+		setQuitDialogOpen(false);
+		window.api.app.quitResponse(true);
+	}, []);
+
+	const handleQuitDialogOpenChange = useCallback((open: boolean) => {
+		setQuitDialogOpen(open);
+		if (!open) {
+			window.api.app.quitResponse(false);
+		}
+	}, []);
 
 	const handleToggleTransferPanel = () => {
 		if (activeConnectionId == null) return;
@@ -267,6 +288,11 @@ export function App() {
 				open={disconnectDialogOpen}
 				onOpenChange={setDisconnectDialogOpen}
 				onConfirmDisconnect={handleConfirmDisconnect}
+			/>
+			<QuitConfirmDialog
+				open={quitDialogOpen}
+				onOpenChange={handleQuitDialogOpenChange}
+				onConfirmQuit={handleConfirmQuit}
 			/>
 			<div className="flex h-screen overflow-hidden bg-background">
 				<Toaster position="bottom-right" richColors />
