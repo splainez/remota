@@ -64,14 +64,15 @@ vi.mock("node:fs", () => {
 	return { default: mod, ...mod };
 });
 
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import type { TempManager } from "@main/temp/temp-manager";
 import type { WebContents } from "electron";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { shell } from "electron";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RemoteEditManager } from "./remote-edit-manager";
 
@@ -367,15 +368,16 @@ describe("RemoteEditManager", () => {
 			const sftp = makeSftp(true);
 			const { manager, wc } = makeManager({ sftp });
 
-			let downloadResolve: (() => void) | null = null;
+			const holder: { fn: (() => void) | null } = { fn: null };
 			sftp.downloadFile.mockImplementationOnce(
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises -- async mock returning Promise<void> is correct
 				(
 					_connectionId: number,
 					_remotePath: string,
 					_localPath: string,
 					_onProgress?: (transferredBytes: number) => void,
 					signal?: AbortSignal,
-				) =>
+				): Promise<void> =>
 					new Promise<void>((resolve, reject) => {
 						if (signal?.aborted) {
 							reject(new DOMException("Aborted", "AbortError"));
@@ -386,7 +388,7 @@ describe("RemoteEditManager", () => {
 							reject(new DOMException("Aborted", "AbortError"));
 						};
 						signal?.addEventListener("abort", onAbort, { once: true });
-						downloadResolve = resolve;
+						holder.fn = resolve;
 					}),
 			);
 
@@ -401,9 +403,11 @@ describe("RemoteEditManager", () => {
 			const cancelled = manager.cancelDownload(downloadItemId);
 			expect(cancelled).toBe(true);
 
-			downloadResolve?.();
+			holder.fn?.();
 
-			await editPromise.catch(() => {});
+			await editPromise.catch(() => {
+				/* noop — expected rejection */
+			});
 
 			await vi.advanceTimersByTimeAsync(0);
 
@@ -423,13 +427,14 @@ describe("RemoteEditManager", () => {
 			const { manager, wc } = makeManager({ sftp });
 
 			sftp.downloadFile.mockImplementationOnce(
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises -- async mock returning Promise<void> is correct
 				(
 					_connectionId: number,
 					_remotePath: string,
 					_localPath: string,
 					_onProgress?: (transferredBytes: number) => void,
 					signal?: AbortSignal,
-				) =>
+				): Promise<void> =>
 					new Promise<void>((_resolve, reject) => {
 						const onAbort = () => {
 							signal?.removeEventListener("abort", onAbort);
@@ -446,7 +451,9 @@ describe("RemoteEditManager", () => {
 			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
 			manager.cancelDownload(downloadEvents[0].id);
 
-			await editPromise.catch(() => {});
+			await editPromise.catch(() => {
+				/* noop — expected rejection */
+			});
 
 			expect(mockWatchFn).not.toHaveBeenCalled();
 		});
@@ -456,13 +463,14 @@ describe("RemoteEditManager", () => {
 			const { manager, wc } = makeManager({ sftp });
 
 			sftp.downloadFile.mockImplementationOnce(
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises -- async mock returning Promise<void> is correct
 				(
 					_connectionId: number,
 					_remotePath: string,
 					_localPath: string,
 					_onProgress?: (transferredBytes: number) => void,
 					signal?: AbortSignal,
-				) =>
+				): Promise<void> =>
 					new Promise<void>((_resolve, reject) => {
 						const onAbort = () => {
 							signal?.removeEventListener("abort", onAbort);
@@ -479,8 +487,11 @@ describe("RemoteEditManager", () => {
 			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
 			manager.cancelDownload(downloadEvents[0].id);
 
-			await editPromise.catch(() => {});
+			await editPromise.catch(() => {
+				/* noop — expected rejection */
+			});
 
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).not.toHaveBeenCalled();
 		});
 
@@ -489,13 +500,14 @@ describe("RemoteEditManager", () => {
 			const { manager, wc } = makeManager({ sftp });
 
 			sftp.downloadFile.mockImplementationOnce(
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises -- async mock returning Promise<void> is correct
 				(
 					_connectionId: number,
 					_remotePath: string,
 					_localPath: string,
 					_onProgress?: (transferredBytes: number) => void,
 					signal?: AbortSignal,
-				) =>
+				): Promise<void> =>
 					new Promise<void>((_resolve, reject) => {
 						const onAbort = () => {
 							signal?.removeEventListener("abort", onAbort);
@@ -512,12 +524,15 @@ describe("RemoteEditManager", () => {
 			const downloadEvents = wc.events.filter((e) => e.direction === "download" && e.status === "active");
 			manager.cancelDownload(downloadEvents[0].id);
 
-			await editPromise.catch(() => {});
+			await editPromise.catch(() => {
+				/* noop — expected rejection */
+			});
 
 			const result = await manager.startEdit(1, "/remote/bigfile.bin");
 
 			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "bigfile.bin");
 			expect(result.tempPath).toBe(expectedPath);
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
 		});
 	});
@@ -528,13 +543,14 @@ describe("RemoteEditManager", () => {
 			const { manager, wc } = makeManager({ sftp });
 
 			sftp.downloadFile.mockImplementation(
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises -- async mock returning Promise<void> is correct
 				(
 					_connectionId: number,
 					_remotePath: string,
 					_localPath: string,
 					_onProgress?: (transferredBytes: number) => void,
 					signal?: AbortSignal,
-				) =>
+				): Promise<void> =>
 					new Promise<void>((_resolve, reject) => {
 						const onAbort = () => {
 							signal?.removeEventListener("abort", onAbort);
@@ -555,9 +571,7 @@ describe("RemoteEditManager", () => {
 
 			await vi.advanceTimersByTimeAsync(0);
 
-			const cancelledDownloads = wc.events.filter(
-				(e) => e.status === "cancelled" && e.direction === "download",
-			);
+			const cancelledDownloads = wc.events.filter((e) => e.status === "cancelled" && e.direction === "download");
 			expect(cancelledDownloads).toHaveLength(2);
 		});
 	});
@@ -570,6 +584,7 @@ describe("RemoteEditManager", () => {
 
 			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
 			expect(result.tempPath).toBe(expectedPath);
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
 		});
 
@@ -592,6 +607,7 @@ describe("RemoteEditManager", () => {
 			const second = await manager.startEdit(1, "/remote/file.txt");
 
 			expect(second.tempPath).toBe(first.tempPath);
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).toHaveBeenCalledTimes(2);
 		});
 
@@ -712,7 +728,7 @@ describe("RemoteEditManager", () => {
 	describe("error handling", () => {
 		it("propagates download failure", async () => {
 			const sftp = makeSftp(true);
-			sftp.downloadFile = () => Promise.reject(new Error("download failed"));
+			sftp.downloadFile.mockRejectedValue(new Error("download failed"));
 			const { manager } = makeManager({ sftp });
 
 			await expect(manager.startEdit(1, "/remote/file.txt")).rejects.toThrow("download failed");

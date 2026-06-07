@@ -1605,4 +1605,78 @@ describe("FilePane", () => {
 			expect(screen.getAllByTestId("rename-input")).toHaveLength(1);
 		});
 	});
+
+	it("calls remoteEdit.start when opening a remote file via context menu", async () => {
+		window.api.filesystem.remoteList = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "config.json", isDirectory: false, fullPath: "/etc/config.json", size: 256, modified: "" },
+			]);
+		window.api.remoteEdit.start = vi.fn().mockResolvedValue({ tempPath: "/tmp/config.json" });
+		const { toast } = await import("sonner");
+		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={3} initialPath="/etc" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("config.json");
+		await userEvent.click(screen.getByText("Open"));
+
+		await waitFor(() => {
+			expect(window.api.remoteEdit.start).toHaveBeenCalledWith(3, "/etc/config.json");
+		});
+		expect(toastSuccessSpy).toHaveBeenCalled();
+		toastSuccessSpy.mockRestore();
+	});
+
+	it("shows error toast when remoteEdit.start fails", async () => {
+		window.api.filesystem.remoteList = vi
+			.fn()
+			.mockResolvedValue([{ name: "data.csv", isDirectory: false, fullPath: "/data.csv", size: 1024, modified: "" }]);
+		window.api.remoteEdit.start = vi.fn().mockRejectedValue(new Error("download failed"));
+		const { toast } = await import("sonner");
+		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+
+		render(
+			<I18nWrapper>
+				<FilePane type="remote" connectionId={3} initialPath="/" protocol="sftp" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("data.csv");
+		await userEvent.click(screen.getByText("Open"));
+
+		await waitFor(() => {
+			expect(toastErrorSpy).toHaveBeenCalled();
+		});
+		toastErrorSpy.mockRestore();
+	});
+
+	it("calls openPath when opening a local file via context menu", async () => {
+		window.api.filesystem.list = vi
+			.fn()
+			.mockResolvedValue([
+				{ name: "notes.txt", isDirectory: false, fullPath: "/home/notes.txt", size: 64, modified: "" },
+			]);
+		window.api.filesystem.openPath = vi.fn().mockResolvedValue(undefined);
+
+		render(
+			<I18nWrapper>
+				<FilePane type="local" connectionId={1} initialPath="/home" />
+			</I18nWrapper>,
+		);
+		await waitForEntries();
+
+		await rightClickFile("notes.txt");
+		await userEvent.click(screen.getByText("Open"));
+
+		await waitFor(() => {
+			expect(window.api.filesystem.openPath).toHaveBeenCalledWith("/home/notes.txt");
+		});
+	});
 });

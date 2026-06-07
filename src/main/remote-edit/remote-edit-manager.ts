@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { watch, statSync, unlink, type FSWatcher } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, sep } from "node:path";
 
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
@@ -96,11 +96,15 @@ export class RemoteEditManager {
 
 			this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "completed", size, size);
 
-			void shell.openPath(tempPath);
+			shell.openPath(tempPath).catch((err: unknown) => {
+				logger.error("failed to open file with OS editor", { tempPath, error: String(err) });
+			});
 		} catch (err: unknown) {
 			if (downloadController.signal.aborted) {
 				this.emitProgress(jobId, itemId, connectionId, remotePath, tempPath, "download", "cancelled", 0, 0);
-				unlink(tempPath, () => {});
+				unlink(tempPath, () => {
+					/* noop — best-effort cleanup */
+				});
 				return { tempPath };
 			}
 			throw err;
@@ -132,7 +136,9 @@ export class RemoteEditManager {
 
 			this.sessions.set(key, session);
 		} catch (err: unknown) {
-			unlink(tempPath, () => {});
+			unlink(tempPath, () => {
+				/* noop — best-effort cleanup */
+			});
 			throw err;
 		}
 
@@ -316,7 +322,7 @@ export class RemoteEditManager {
 				size,
 			);
 
-			this.emitJobDone(session.connectionId, jobId, itemId);
+			this.emitJobDone(jobId, itemId);
 		} catch (err: unknown) {
 			if (controller.signal.aborted || session.currentUploadController !== controller) {
 				this.emitProgress(
@@ -362,7 +368,8 @@ export class RemoteEditManager {
 		}
 		const relativePath = remotePath.startsWith("/") ? remotePath.slice(1) : remotePath;
 		const fullPath = resolve(tempRoot, relativePath);
-		if (!fullPath.startsWith(tempRoot)) {
+		const normalizedRoot = tempRoot.endsWith(sep) ? tempRoot : tempRoot + sep;
+		if (!fullPath.startsWith(normalizedRoot)) {
 			throw new Error("Path traversal detected");
 		}
 		return fullPath;
@@ -414,9 +421,7 @@ export class RemoteEditManager {
 		return null;
 	}
 
-	private emitJobDone(connectionId: number, jobId: string, itemId: string): void {
-		if (!this.sftp.isConnected(connectionId) && !this.s3.isConnected(connectionId)) return;
-
+	private emitJobDone(jobId: string, itemId: string): void {
 		const webContents = this.getWebContents();
 		if (!webContents || webContents.isDestroyed()) return;
 
