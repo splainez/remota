@@ -199,11 +199,23 @@ export function FilePane({
 
 	const handleOpenFile = useCallback(
 		(entry: FileEntry) => {
-			void window.api.filesystem.openPath(entry.fullPath).catch(() => {
-				toast.error(t("file.contextMenu.openError"));
-			});
+			if (type === "remote") {
+				window.api.remoteEdit
+					.start(connectionId, entry.fullPath)
+					.then(() => {
+						toast.success(t("file.contextMenu.editStarted"));
+					})
+					.catch((error: unknown) => {
+						logger.error("edit failed", { error });
+						toast.error(t("file.contextMenu.editError"));
+					});
+			} else {
+				void window.api.filesystem.openPath(entry.fullPath).catch(() => {
+					toast.error(t("file.contextMenu.openError"));
+				});
+			}
 		},
-		[t],
+		[connectionId, type, t],
 	);
 
 	const openInTerminal = useCallback(
