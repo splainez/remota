@@ -634,4 +634,67 @@ describe("TransferService", () => {
 		expect(job.jobId).toBe(jobId);
 		expect(Object.keys(job.results)).toHaveLength(2);
 	});
+
+	it("hasActiveTransfers returns false when no jobs exist", () => {
+		const service = new TransferService({
+			sftp: makeSftp(true) as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		expect(service.hasActiveTransfers()).toBe(false);
+	});
+
+	it("hasActiveTransfers returns true when a job is in progress", () => {
+		const resolvers: (() => void)[] = [];
+		const blocker = new Promise<void>((resolve) => {
+			resolvers.push(resolve);
+		});
+		const service = new TransferService({
+			sftp: makeSftp(true, () => blocker) as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		const wc = makeWebContents();
+		service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+
+		expect(service.hasActiveTransfers()).toBe(true);
+
+		resolvers[0]();
+	});
+
+	it("hasActiveTransfers returns false after all jobs complete", async () => {
+		const wc = makeWebContents();
+		const service = new TransferService({
+			sftp: makeSftp(true) as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(service.hasActiveTransfers()).toBe(false);
+	});
+
+	it("hasActiveTransfers returns false after cancelAll", () => {
+		const resolvers: (() => void)[] = [];
+		const blocker = new Promise<void>((resolve) => {
+			resolvers.push(resolve);
+		});
+		const service = new TransferService({
+			sftp: makeSftp(true, () => blocker) as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		const wc = makeWebContents();
+		service.startDownload({ connectionId: 1, items: makeItems(1) }, wc as unknown as WebContents);
+		service.cancelAll();
+
+		expect(service.hasActiveTransfers()).toBe(false);
+
+		resolvers[0]();
+	});
 });

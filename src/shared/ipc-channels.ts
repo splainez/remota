@@ -47,6 +47,8 @@ export const IPC = {
 	SETTINGS_SET: "settings:set",
 	TRANSFER_PANEL_GET_ALL: "transferPanel:getAll",
 	TRANSFER_PANEL_SET: "transferPanel:set",
+	APP_CONFIRM_QUIT: "app:confirmQuit",
+	APP_QUIT_RESPONSE: "app:quitResponse",
 	FILE_PANE_SIZE_GET_ALL: "filePaneSize:getAll",
 	FILE_PANE_SIZE_SET: "filePaneSize:set",
 } as const;

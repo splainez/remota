@@ -93,6 +93,19 @@ void app.whenReady().then(() => {
 		throw new Error("Main window not created");
 	}
 
+	mainWindow.on("close", (event) => {
+		if (transferService.hasActiveTransfers()) {
+			event.preventDefault();
+			mainWindow?.webContents.send(IPC.APP_CONFIRM_QUIT);
+		}
+	});
+
+	ipcMain.on(IPC.APP_QUIT_RESPONSE, (_event, proceed: boolean) => {
+		if (proceed) {
+			mainWindow?.destroy();
+		}
+	});
+
 	const fileWatcher = new FileWatcherManager(mainWindow.webContents);
 	registerFilesystemHandlers(appStore, fileWatcher);
 	const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);

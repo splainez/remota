@@ -169,6 +169,18 @@ const api = {
 				ipcRenderer.removeListener("config-error", handler);
 			};
 		},
+		onAppConfirmQuit: (callback: () => void) => {
+			const handler = () => {
+				callback();
+			};
+			ipcRenderer.on(IPC.APP_CONFIRM_QUIT, handler);
+			return () => {
+				ipcRenderer.removeListener(IPC.APP_CONFIRM_QUIT, handler);
+			};
+		},
+		quitResponse: (proceed: boolean): void => {
+			ipcRenderer.send(IPC.APP_QUIT_RESPONSE, proceed);
+		},
 	},
 	platform: process.platform,
 };

@@ -79,9 +79,6 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 
 		return () => {
 			cancelled = true;
-			window.api.filesystem.remoteDisconnect(connection.id).catch((error: unknown) => {
-				logger.error("remoteDisconnect failed", { connectionId: connection.id, error });
-			});
 		};
 	}, [connection.id, setRemotePath]);
 

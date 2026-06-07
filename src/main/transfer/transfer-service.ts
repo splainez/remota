@@ -143,6 +143,13 @@ export class TransferService {
 		}
 	}
 
+	hasActiveTransfers(): boolean {
+		for (const job of this.jobs.values()) {
+			if (!job.cancelled) return true;
+		}
+		return false;
+	}
+
 	setConcurrency(value: number): void {
 		this.queue.concurrency = this.clampConcurrency(value);
 	}
