@@ -49,7 +49,12 @@ export class RemoteEditManager {
 		this.getWebContents = opts.getWebContents;
 	}
 
-	async startEdit(connectionId: number, remotePath: string): Promise<{ tempPath: string }> {
+	async startEdit(
+		connectionId: number,
+		remotePath: string,
+		options?: { watch?: boolean },
+	): Promise<{ tempPath: string }> {
+		const watchEnabled = options?.watch ?? true;
 		const key = this.sessionKey(connectionId, remotePath);
 
 		const existing = this.sessions.get(key);
@@ -112,34 +117,36 @@ export class RemoteEditManager {
 			this.downloadControllers.delete(itemId);
 		}
 
-		try {
-			const watcher = watch(tempPath, () => {
-				this.onFileChange(key);
-			});
+		if (watchEnabled) {
+			try {
+				const watcher = watch(tempPath, () => {
+					this.onFileChange(key);
+				});
 
-			watcher.on("error", (err) => {
-				logger.error("watcher error", { key, error: err.message });
-				this.stopEdit(connectionId, remotePath);
-			});
+				watcher.on("error", (err) => {
+					logger.error("watcher error", { key, error: err.message });
+					this.stopEdit(connectionId, remotePath);
+				});
 
-			const session: EditSession = {
-				connectionId,
-				remotePath,
-				tempPath,
-				watcher,
-				debounceTimer: null,
-				currentUploadController: null,
-				uploading: false,
-				uploadJobId: null,
-				uploadItemId: null,
-			};
+				const session: EditSession = {
+					connectionId,
+					remotePath,
+					tempPath,
+					watcher,
+					debounceTimer: null,
+					currentUploadController: null,
+					uploading: false,
+					uploadJobId: null,
+					uploadItemId: null,
+				};
 
-			this.sessions.set(key, session);
-		} catch (err: unknown) {
-			unlink(tempPath, () => {
-				/* noop — best-effort cleanup */
-			});
-			throw err;
+				this.sessions.set(key, session);
+			} catch (err: unknown) {
+				unlink(tempPath, () => {
+					/* noop — best-effort cleanup */
+				});
+				throw err;
+			}
 		}
 
 		return { tempPath };

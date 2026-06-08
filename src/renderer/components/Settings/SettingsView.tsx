@@ -13,7 +13,7 @@ import {
 	RETENTION_MS_MAX,
 	RETENTION_MS_MIN,
 } from "@shared/app-config-schema";
-import type { TerminalAppId } from "@shared/app-config-schema";
+import type { RemoteDoubleClickAction, TerminalAppId } from "@shared/app-config-schema";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -33,6 +33,11 @@ const languageOptions: { value: "en" | "es"; label: TranslationKey }[] = [
 ];
 
 type TerminalOptionValue = "none" | TerminalAppId;
+
+const remoteDoubleClickOptions: { value: RemoteDoubleClickAction; label: TranslationKey }[] = [
+	{ value: "open", label: "settings.remoteDoubleClickOpen" },
+	{ value: "edit", label: "settings.remoteDoubleClickEdit" },
+];
 
 const terminalOptions: { value: TerminalOptionValue; label: TranslationKey }[] = [
 	{ value: "none", label: "settings.terminalNone" },
@@ -63,6 +68,8 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 		setMaxSessions,
 		retentionMs,
 		setRetentionMs,
+		remoteDoubleClickAction,
+		setRemoteDoubleClickAction,
 	} = useSettingsStore();
 
 	const currentTerminal: TerminalOptionValue = externalTerminal ?? "none";
@@ -297,6 +304,47 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 									<Icon name="file" size={16} />
 									<span className="text-sm font-medium">{t("settings.importSshConfigFile")}</span>
 								</Button>
+							</div>
+						</div>
+					</section>
+
+					{/* File Behavior Section */}
+					<section className="flex flex-col gap-3">
+						<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+							{t("settings.fileBehavior")}
+						</h3>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.remoteDoubleClickAction")}</span>
+								<span className="text-xs text-muted-foreground">
+									{t("settings.remoteDoubleClickActionDescription")}
+								</span>
+							</div>
+							<div className="flex flex-col gap-2">
+								{remoteDoubleClickOptions.map((opt) => (
+									<Button
+										key={opt.value}
+										type="button"
+										variant={remoteDoubleClickAction === opt.value ? "selected" : "outline"}
+										size="default"
+										className="h-auto justify-start gap-3 p-3"
+										onClick={() => {
+											setRemoteDoubleClickAction(opt.value);
+										}}
+									>
+										<span
+											className={cn(
+												"w-3 h-3 rounded-full border-2 flex items-center justify-center",
+												remoteDoubleClickAction === opt.value ? "border-primary" : "border-outline-variant",
+											)}
+										>
+											{remoteDoubleClickAction === opt.value && (
+												<span className="w-1.5 h-1.5 rounded-full bg-primary" />
+											)}
+										</span>
+										<span className="text-sm font-medium">{t(opt.label)}</span>
+									</Button>
+								))}
 							</div>
 						</div>
 					</section>

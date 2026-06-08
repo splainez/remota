@@ -105,11 +105,15 @@ import {
 	VscWarning,
 } from "react-icons/vsc";
 
+import {
+	LuTextCursorInput
+} from "react-icons/lu"
+
 import type { IconName } from "./icon-names";
 
 const iconMap: Record<
 	IconName,
-	React.ComponentType<{ size?: number | string; className?: string; [key: string]: unknown }>
+	React.ComponentType<{ size?: number | string; className?: string;[key: string]: unknown }>
 > = {
 	account: VscAccount,
 	add: VscAdd,
@@ -208,6 +212,7 @@ const iconMap: Record<
 	table: VscTable,
 	tag: VscTag,
 	terminal: VscTerminal,
+	"text-cursor-input": LuTextCursorInput,
 	trash: VscTrash,
 	"triangle-down": VscTriangleDown,
 	"triangle-up": VscTriangleUp,

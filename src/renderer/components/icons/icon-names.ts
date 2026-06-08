@@ -96,6 +96,7 @@ export type IconName =
 	| "table"
 	| "tag"
 	| "terminal"
+	| "text-cursor-input"
 	| "trash"
 	| "triangle-down"
 	| "triangle-up"

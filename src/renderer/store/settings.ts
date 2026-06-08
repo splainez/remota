@@ -9,7 +9,7 @@ import {
 	RETENTION_MS_MIN,
 } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
-import type { Settings, TerminalAppId } from "@shared/types";
+import type { Settings, RemoteDoubleClickAction, TerminalAppId } from "@shared/types";
 import { create } from "zustand";
 
 const logger = LoggerFactory.init({ name: "renderer.store.settings" });
@@ -25,6 +25,7 @@ interface SettingsStore extends Settings {
 	setMaxParallelTransfers: (value: number) => void;
 	setMaxSessions: (value: number) => void;
 	setRetentionMs: (ms: number | undefined) => void;
+	setRemoteDoubleClickAction: (action: RemoteDoubleClickAction) => void;
 	clearPendingRecoveryToast: () => void;
 }
 
@@ -57,6 +58,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 	maxSessions: MAX_SESSIONS_DEFAULT,
 	retentionMs: undefined,
+	remoteDoubleClickAction: "open",
 	loaded: false,
 	availableTerminals: [],
 	pendingRecoveryToast: null,
@@ -88,6 +90,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 				maxParallelTransfers: clampParallel(settings.maxParallelTransfers),
 				maxSessions: clampSessions(settings.maxSessions),
 				retentionMs: clampRetention(settings.retentionMs),
+				remoteDoubleClickAction: settings.remoteDoubleClickAction,
 				availableTerminals: available,
 				pendingRecoveryToast: recoveredId,
 				loaded: true,
@@ -140,6 +143,13 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 		set({ retentionMs: clamped });
 		window.api.settings.set({ retentionMs: clamped }).catch((error: unknown) => {
 			logger.error("setRetentionMs error", { error });
+		});
+	},
+
+	setRemoteDoubleClickAction: (action) => {
+		set({ remoteDoubleClickAction: action });
+		window.api.settings.set({ remoteDoubleClickAction: action }).catch((error: unknown) => {
+			logger.error("setRemoteDoubleClickAction error", { error });
 		});
 	},
 

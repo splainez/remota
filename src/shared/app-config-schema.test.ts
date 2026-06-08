@@ -70,6 +70,7 @@ describe("AppConfigSchema", () => {
 				maxParallelTransfers: 5,
 				maxSessions: 10,
 				retentionMs: 5000,
+				remoteDoubleClickAction: "open",
 			});
 		}
 	});

@@ -19,7 +19,15 @@ export function registerRemoteEditHandlers(manager: RemoteEditManager): void {
 		if (!parsed.success) {
 			throw new Error(`Invalid remote edit params: ${parsed.error.message}`);
 		}
-		return manager.startEdit(parsed.data.connectionId, parsed.data.remotePath);
+		return manager.startEdit(parsed.data.connectionId, parsed.data.remotePath, { watch: true });
+	});
+
+	ipcMain.handle(IPC.REMOTE_FILE_OPEN, async (_event, connectionId: number, remotePath: string) => {
+		const parsed = startParamsSchema.safeParse({ connectionId, remotePath });
+		if (!parsed.success) {
+			throw new Error(`Invalid remote file open params: ${parsed.error.message}`);
+		}
+		return manager.startEdit(parsed.data.connectionId, parsed.data.remotePath, { watch: false });
 	});
 
 	ipcMain.handle(IPC.REMOTE_EDIT_STOP, (_event, connectionId: number, remotePath: string) => {

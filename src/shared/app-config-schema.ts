@@ -73,6 +73,9 @@ export const MAX_SESSIONS_DEFAULT = 10;
 export const RETENTION_MS_MIN = 5_000;
 export const RETENTION_MS_MAX = 300_000;
 
+export const REMOTE_DOUBLE_CLICK_ACTIONS = ["open", "edit"] as const;
+export type RemoteDoubleClickAction = (typeof REMOTE_DOUBLE_CLICK_ACTIONS)[number];
+
 export const SettingsSchema = z.object({
 	theme: z.enum(["dark", "light", "system"]),
 	locale: z.enum(["en", "es"]),
@@ -85,6 +88,7 @@ export const SettingsSchema = z.object({
 		.default(MAX_PARALLEL_TRANSFERS_DEFAULT),
 	maxSessions: z.number().int().min(MAX_SESSIONS_MIN).max(MAX_SESSIONS_MAX).default(MAX_SESSIONS_DEFAULT),
 	retentionMs: z.number().int().min(RETENTION_MS_MIN).max(RETENTION_MS_MAX).optional(),
+	remoteDoubleClickAction: z.enum(REMOTE_DOUBLE_CLICK_ACTIONS).default("open"),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -96,6 +100,7 @@ const defaultSettings: Settings = {
 	maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 	maxSessions: MAX_SESSIONS_DEFAULT,
 	retentionMs: RETENTION_MS_MIN,
+	remoteDoubleClickAction: "open",
 };
 
 export const AppConfigSchema = z

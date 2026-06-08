@@ -1,5 +1,5 @@
 import type { Settings, SettingsUpdate } from "./app-config-schema";
-import type { TerminalAppId } from "./app-config-schema";
+import type { RemoteDoubleClickAction, TerminalAppId } from "./app-config-schema";
 import type {
 	DownloadRequest,
 	DownloadResult,
@@ -10,7 +10,7 @@ import type {
 	UploadResult,
 } from "./transfer-types";
 
-export type { Settings, SettingsUpdate, TerminalAppId };
+export type { Settings, SettingsUpdate, RemoteDoubleClickAction, TerminalAppId };
 export type {
 	DownloadRequest,
 	DownloadItem,
@@ -145,6 +145,7 @@ export interface ElectronAPI {
 	};
 	remoteEdit: {
 		start: (connectionId: number, remotePath: string) => Promise<{ tempPath: string }>;
+		open: (connectionId: number, remotePath: string) => Promise<{ tempPath: string }>;
 		stop: (connectionId: number, remotePath: string) => Promise<void>;
 	};
 	platform: string;

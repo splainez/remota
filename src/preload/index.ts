@@ -197,6 +197,8 @@ const api = {
 	remoteEdit: {
 		start: (connectionId: number, remotePath: string): Promise<{ tempPath: string }> =>
 			ipcRenderer.invoke(IPC.REMOTE_EDIT_START, connectionId, remotePath),
+		open: (connectionId: number, remotePath: string): Promise<{ tempPath: string }> =>
+			ipcRenderer.invoke(IPC.REMOTE_FILE_OPEN, connectionId, remotePath),
 		stop: (connectionId: number, remotePath: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.REMOTE_EDIT_STOP, connectionId, remotePath),
 	},

@@ -49,7 +49,7 @@ describe("remote edit IPC handlers", () => {
 
 			const result = (await handler({}, 1, "/remote/file.txt")) as { tempPath: string };
 			// eslint-disable-next-line @typescript-eslint/unbound-method -- manager is a mock
-			expect(manager.startEdit).toHaveBeenCalledWith(1, "/remote/file.txt");
+			expect(manager.startEdit).toHaveBeenCalledWith(1, "/remote/file.txt", { watch: true });
 			expect(result).toEqual({ tempPath: "/tmp/file" });
 		});
 
