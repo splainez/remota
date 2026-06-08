@@ -32,6 +32,7 @@ export class AppStore {
 			locale: "en",
 			maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 			maxSessions: MAX_SESSIONS_DEFAULT,
+			remoteDoubleClickAction: "open",
 		},
 	};
 	private nextId = 1;
@@ -58,6 +59,7 @@ export class AppStore {
 					locale: "en",
 					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 					maxSessions: MAX_SESSIONS_DEFAULT,
+					remoteDoubleClickAction: "open",
 				},
 			};
 			this.save();
@@ -82,6 +84,7 @@ export class AppStore {
 						locale: "en",
 						maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 						maxSessions: MAX_SESSIONS_DEFAULT,
+						remoteDoubleClickAction: "open",
 					},
 				};
 				return;
@@ -103,6 +106,7 @@ export class AppStore {
 					locale: "en",
 					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 					maxSessions: MAX_SESSIONS_DEFAULT,
+					remoteDoubleClickAction: "open",
 				},
 			};
 		}
