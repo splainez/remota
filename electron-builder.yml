@@ -3,7 +3,7 @@ productName: OpenSCP
 directories:
   output: release
 
-icon: build-resources/icons/icon.png
+icon: assets/icons/icon.png
 
 npmRebuild: false
 
