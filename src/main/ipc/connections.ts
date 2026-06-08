@@ -76,7 +76,11 @@ export function registerConnectionHandlers(store: AppStore) {
 				store.create(conn);
 				imported++;
 			} catch (err) {
-				errors.push(`Failed to import "${conn.name}": ${(err as Error).message}`);
+				if (err instanceof Error) {
+					errors.push(`Failed to import ${conn.name}: ${err.message}`);
+				} else {
+					errors.push(`Failed to import ${conn.name}: ${String(err)}`);
+				}
 			}
 		}
 
@@ -114,7 +118,11 @@ export function registerConnectionHandlers(store: AppStore) {
 				store.create(conn);
 				imported++;
 			} catch (err) {
-				errors.push(`Failed to import "${conn.name}": ${(err as Error).message}`);
+				if (err instanceof Error) {
+					errors.push(`Failed to import ${conn.name}: ${err.message}`);
+				} else {
+					errors.push(`Failed to import ${conn.name}: ${String(err)}`);
+				}
 			}
 		}
 
