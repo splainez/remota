@@ -1,4 +1,5 @@
 import type { SVGAttributes } from "react";
+import { LuTextCursorInput } from "react-icons/lu";
 import {
 	VscAccount,
 	VscAdd,
@@ -105,15 +106,11 @@ import {
 	VscWarning,
 } from "react-icons/vsc";
 
-import {
-	LuTextCursorInput
-} from "react-icons/lu"
-
 import type { IconName } from "./icon-names";
 
 const iconMap: Record<
 	IconName,
-	React.ComponentType<{ size?: number | string; className?: string;[key: string]: unknown }>
+	React.ComponentType<{ size?: number | string; className?: string; [key: string]: unknown }>
 > = {
 	account: VscAccount,
 	add: VscAdd,
