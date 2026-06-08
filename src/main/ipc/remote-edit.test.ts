@@ -32,13 +32,14 @@ describe("remote edit IPC handlers", () => {
 		vi.clearAllMocks();
 	});
 
-	it("registers both remote edit handlers", () => {
+	it("registers all remote edit handlers", () => {
 		const manager = makeManager();
 		registerRemoteEditHandlers(manager);
 		const calls = (ipcMain.handle as ReturnType<typeof vi.fn>).mock.calls as [string, unknown][];
 		const channels = calls.map((c) => c[0]);
 		expect(channels).toContain(IPC.REMOTE_EDIT_START);
 		expect(channels).toContain(IPC.REMOTE_EDIT_STOP);
+		expect(channels).toContain(IPC.REMOTE_FILE_OPEN);
 	});
 
 	describe("REMOTE_EDIT_START", () => {
@@ -95,6 +96,35 @@ describe("remote edit IPC handlers", () => {
 			const handler = getHandler(IPC.REMOTE_EDIT_STOP);
 
 			expect(() => handler({}, 1, "")).toThrow("Invalid remote edit params");
+		});
+	});
+
+	describe("REMOTE_FILE_OPEN", () => {
+		it("calls manager.startEdit with watch=false", async () => {
+			const manager = makeManager();
+			registerRemoteEditHandlers(manager);
+			const handler = getHandler(IPC.REMOTE_FILE_OPEN);
+
+			const result = (await handler({}, 1, "/remote/file.txt")) as { tempPath: string };
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- manager is a mock
+			expect(manager.startEdit).toHaveBeenCalledWith(1, "/remote/file.txt", { watch: false });
+			expect(result).toEqual({ tempPath: "/tmp/file" });
+		});
+
+		it("throws on missing connectionId", async () => {
+			const manager = makeManager();
+			registerRemoteEditHandlers(manager);
+			const handler = getHandler(IPC.REMOTE_FILE_OPEN);
+
+			await expect(handler({}, undefined, "/file")).rejects.toThrow("Invalid remote file open params");
+		});
+
+		it("throws on empty remotePath", async () => {
+			const manager = makeManager();
+			registerRemoteEditHandlers(manager);
+			const handler = getHandler(IPC.REMOTE_FILE_OPEN);
+
+			await expect(handler({}, 1, "")).rejects.toThrow("Invalid remote file open params");
 		});
 	});
 });
