@@ -149,15 +149,14 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 			{/* Dual Pane Explorer + optional Active Transfers panel */}
 			<ResizablePanelGroup orientation="vertical" className="flex-1 min-h-0">
 				<ResizablePanel id="file-panes" defaultSize={80} minSize={30}>
-					<ResizablePanelGroup orientation="horizontal" className="h-full">
-						<ResizablePanel
-							id="local-pane"
-							defaultSize={localSize}
-							minSize={20}
-							onResize={(panelSize) => {
-								setLocalSize(connection.id, panelSize.asPercentage);
-							}}
-						>
+					<ResizablePanelGroup
+						orientation="horizontal"
+						className="h-full"
+						onLayoutChanged={(panelSize) => {
+							setLocalSize(connection.id, panelSize["local-pane"] ?? 50);
+						}}
+					>
+						<ResizablePanel id="local-pane" defaultSize={localSize} minSize={20}>
 							<FilePane
 								type="local"
 								connectionId={connection.id}
