@@ -59,6 +59,8 @@ describe("ConnectionManager", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
+				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -88,6 +90,8 @@ describe("ConnectionManager", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
+				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -132,6 +136,8 @@ describe("ConnectionManager", () => {
 				}),
 				update: vi.fn(),
 				delete: vi.fn(),
+				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
+				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
