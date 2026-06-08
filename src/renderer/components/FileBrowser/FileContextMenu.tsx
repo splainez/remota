@@ -46,13 +46,20 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 
 	const showTerminal = entry.isDirectory && (panelType === "local" || protocol !== "s3");
 	const showRename = panelType === "local" || protocol !== "s3";
+	const showEdit = panelType === "remote" && !entry.isDirectory;
 
 	const menuItems: MenuItem[] = [
 		{
 			id: "open",
-			icon: "play",
+			icon: "link-external",
 			label: t("file.contextMenu.open"),
 			visible: true,
+		},
+		{
+			id: "edit",
+			icon: "edit",
+			label: t("file.contextMenu.edit"),
+			visible: showEdit,
 		},
 		{
 			id: panelType === "local" ? "upload" : "download",
@@ -62,7 +69,7 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 		},
 		{
 			id: "rename",
-			icon: "edit",
+			icon: "text-cursor-input",
 			label: t("file.contextMenu.rename"),
 			visible: showRename,
 		},
@@ -142,11 +149,10 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 						ref={(el) => {
 							if (el) itemsRef.current[index] = el;
 						}}
-						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
-							item.variant === "destructive"
+						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${item.variant === "destructive"
 								? "hover:bg-destructive/10 text-destructive"
 								: "hover:bg-surface-container-high text-popover-foreground"
-						}`}
+							}`}
 						role="menuitem"
 						onClick={() => {
 							handleAction(item.id);

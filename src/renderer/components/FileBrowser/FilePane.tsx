@@ -200,15 +200,21 @@ export function FilePane({
 	const handleOpenFile = useCallback(
 		(entry: FileEntry) => {
 			if (type === "remote") {
-				window.api.remoteEdit
-					.start(connectionId, entry.fullPath)
-					.then(() => {
-						toast.success(t("file.contextMenu.editStarted"));
-					})
-					.catch((error: unknown) => {
-						logger.error("edit failed", { error });
-						toast.error(t("file.contextMenu.editError"));
-					});
+				const { remoteDoubleClickAction } = useSettingsStore.getState();
+				const fn =
+					remoteDoubleClickAction === "edit"
+						? window.api.remoteEdit.start(connectionId, entry.fullPath)
+						: window.api.remoteEdit.open(connectionId, entry.fullPath);
+				fn.then(() => {
+					toast.success(
+						remoteDoubleClickAction === "edit" ? t("file.contextMenu.editStarted") : t("file.contextMenu.openStarted"),
+					);
+				}).catch((error: unknown) => {
+					logger.error("open failed", { error });
+					toast.error(
+						remoteDoubleClickAction === "edit" ? t("file.contextMenu.editError") : t("file.contextMenu.openError"),
+					);
+				});
 			} else {
 				void window.api.filesystem.openPath(entry.fullPath).catch(() => {
 					toast.error(t("file.contextMenu.openError"));
@@ -259,6 +265,20 @@ export function FilePane({
 					handleEnterDirectory(entry.name);
 				} else if (type === "remote") {
 					window.api.remoteEdit
+						.open(connectionId, entry.fullPath)
+						.then(() => {
+							toast.success(t("file.contextMenu.openStarted"));
+						})
+						.catch((error: unknown) => {
+							logger.error("open failed", { error });
+							toast.error(t("file.contextMenu.openError"));
+						});
+				} else {
+					handleOpenFile(entry);
+				}
+			} else if (actionId === "edit") {
+				if (type === "remote") {
+					window.api.remoteEdit
 						.start(connectionId, entry.fullPath)
 						.then(() => {
 							toast.success(t("file.contextMenu.editStarted"));
@@ -267,8 +287,6 @@ export function FilePane({
 							logger.error("edit failed", { error });
 							toast.error(t("file.contextMenu.editError"));
 						});
-				} else {
-					handleOpenFile(entry);
 				}
 			} else if (actionId === "openInTerminal") {
 				handleOpenInTerminal(entry).catch((error: unknown) => {
