@@ -117,9 +117,11 @@ export class RemoteEditManager {
 			this.downloadControllers.delete(itemId);
 		}
 
+		let watcher: import("node:fs").FSWatcher | null = null;
+
 		if (watchEnabled) {
 			try {
-				const watcher = watch(tempPath, () => {
+				watcher = watch(tempPath, () => {
 					this.onFileChange(key);
 				});
 
@@ -127,20 +129,6 @@ export class RemoteEditManager {
 					logger.error("watcher error", { key, error: err.message });
 					this.stopEdit(connectionId, remotePath);
 				});
-
-				const session: EditSession = {
-					connectionId,
-					remotePath,
-					tempPath,
-					watcher,
-					debounceTimer: null,
-					currentUploadController: null,
-					uploading: false,
-					uploadJobId: null,
-					uploadItemId: null,
-				};
-
-				this.sessions.set(key, session);
 			} catch (err: unknown) {
 				unlink(tempPath, () => {
 					/* noop — best-effort cleanup */
@@ -148,6 +136,20 @@ export class RemoteEditManager {
 				throw err;
 			}
 		}
+
+		const session: EditSession = {
+			connectionId,
+			remotePath,
+			tempPath,
+			watcher,
+			debounceTimer: null,
+			currentUploadController: null,
+			uploading: false,
+			uploadJobId: null,
+			uploadItemId: null,
+		};
+
+		this.sessions.set(key, session);
 
 		return { tempPath };
 	}
