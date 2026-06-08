@@ -19,7 +19,7 @@ services:
         pnpm install --frozen-lockfile
         pnpm build
         npx @electron/rebuild -f -m node_modules/node-pty
-        pnpm electron-builder --linux AppImage --config electron-builder.yml --publish never
+        pnpm electron-builder --linux AppImage --config electron-builder.json --publish never
 
   builder-win:
     image: electronuserland/builder:wine
@@ -41,7 +41,7 @@ services:
         pnpm install --frozen-lockfile
         pnpm build
         npx @electron/rebuild -f -m node_modules/node-pty
-        pnpm electron-builder --win portable --config electron-builder.yml --publish never
+        pnpm electron-builder --win portable --config electron-builder.json --publish never
 
 volumes:
   builder_node_modules:

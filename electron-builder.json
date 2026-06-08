@@ -1,0 +1,52 @@
+{
+	"$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+	"appId": "com.openscp.app",
+	"productName": "OpenSCP",
+	"directories": {
+		"output": "release"
+	},
+	"icon": "assets/icons/icon.png",
+	"npmRebuild": false,
+	"files": [
+		{
+			"from": "out",
+			"to": "/**/*"
+		},
+		"!**/*.test.*",
+		"!**/*.test.ts",
+		"!**/*.test.tsx",
+		"!**/*.spec.*",
+		"!**/*.spec.ts",
+		"!**/*.spec.tsx"
+	],
+	"asar": true,
+	"win": {
+		"target": [
+			{
+				"target": "portable",
+				"arch": [
+					"x64"
+				]
+			}
+		],
+		"executableName": "OpenSCP"
+	},
+	"linux": {
+		"target": [
+			{
+				"target": "AppImage",
+				"arch": [
+					"x64"
+				]
+			}
+		],
+		"category": "Utility",
+		"executableName": "OpenSCP"
+	},
+	"portable": {
+		"artifactName": "OpenSCP-${version}-portable.${ext}"
+	},
+	"appImage": {
+		"artifactName": "OpenSCP-${version}.${ext}"
+	}
+}
