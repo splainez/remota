@@ -231,4 +231,134 @@ describe("SettingsView", () => {
 
 		warningSpy.mockRestore();
 	});
+
+	// --- SSH config import ---
+
+	it("renders SSH Config Import section with two buttons", () => {
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Import SSH Config")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /Import from default/ })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /Import from file/ })).toBeInTheDocument();
+	});
+
+	it("calls importSshConfig when clicking default import button", async () => {
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+		expect(window.api.connections.importSshConfig).toHaveBeenCalledOnce();
+	});
+
+	it("calls importSshConfigFile when clicking file import button", async () => {
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from file/ }));
+		expect(window.api.connections.importSshConfigFile).toHaveBeenCalledOnce();
+	});
+
+	it("shows success toast after importing connections", async () => {
+		const { toast } = await import("sonner");
+		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+		(window.api.connections.importSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({ imported: 3, errors: [] });
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+
+		await waitFor(() => {
+			expect(successSpy).toHaveBeenCalledOnce();
+		});
+		expect(successSpy.mock.calls[0][0]).toContain("3");
+
+		successSpy.mockRestore();
+	});
+
+	it("shows warning toast when import has partial errors", async () => {
+		const { toast } = await import("sonner");
+		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
+		(window.api.connections.importSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
+			imported: 2,
+			errors: ["Failed to import bad-host"],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+
+		await waitFor(() => {
+			expect(warningSpy).toHaveBeenCalledOnce();
+		});
+
+		warningSpy.mockRestore();
+	});
+
+	it("shows error toast when import fails completely", async () => {
+		const { toast } = await import("sonner");
+		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+		(window.api.connections.importSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
+			imported: 0,
+			errors: ["Could not read file"],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledOnce();
+		});
+
+		errorSpy.mockRestore();
+	});
+
+	it("shows no toast when import is cancelled (empty result)", async () => {
+		const { toast } = await import("sonner");
+		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
+		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+		(window.api.connections.importSshConfigFile as ReturnType<typeof vi.fn>).mockResolvedValue({
+			imported: 0,
+			errors: [],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Import from file/ }));
+
+		await new Promise((r) => setTimeout(r, 50));
+		expect(successSpy).not.toHaveBeenCalled();
+		expect(warningSpy).not.toHaveBeenCalled();
+		expect(errorSpy).not.toHaveBeenCalled();
+
+		successSpy.mockRestore();
+		warningSpy.mockRestore();
+		errorSpy.mockRestore();
+	});
 });
