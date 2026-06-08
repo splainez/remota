@@ -30,11 +30,11 @@ export const rootLogger = pino({
 	...(isProduction
 		? {}
 		: {
-			transport: {
-				target: "pino-pretty",
-				options: { colorize: true },
-			},
-		}),
+				transport: {
+					target: "pino-pretty",
+					options: { colorize: true },
+				},
+			}),
 });
 
 type LogFn = (msg: string, extra?: Record<string, unknown>) => void;
