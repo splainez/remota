@@ -106,6 +106,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				maxParallelTransfers: 5,
 				maxSessions: 10,
 				retentionMs: undefined,
+				remoteDoubleClickAction: "open",
 			}),
 			set: vi.fn<(partial: SettingsUpdate) => Promise<Settings>>().mockResolvedValue({
 				theme: "system",
@@ -113,6 +114,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				maxParallelTransfers: 5,
 				maxSessions: 10,
 				retentionMs: undefined,
+				remoteDoubleClickAction: "open",
 			}),
 			...overrides?.settings,
 		},
@@ -136,6 +138,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 		},
 		remoteEdit: {
 			start: vi.fn().mockResolvedValue({ tempPath: "/tmp/test-file" }),
+			open: vi.fn().mockResolvedValue({ tempPath: "/tmp/test-file" }),
 			stop: vi.fn().mockResolvedValue(undefined),
 			...overrides?.remoteEdit,
 		},

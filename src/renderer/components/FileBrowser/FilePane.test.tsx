@@ -1610,13 +1610,13 @@ describe("FilePane", () => {
 		});
 	});
 
-	it("calls remoteEdit.start when opening a remote file via context menu", async () => {
+	it("calls remoteEdit.open when opening a remote file via context menu", async () => {
 		window.api.filesystem.remoteList = vi
 			.fn()
 			.mockResolvedValue([
 				{ name: "config.json", isDirectory: false, fullPath: "/etc/config.json", size: 256, modified: "" },
 			]);
-		window.api.remoteEdit.start = vi.fn().mockResolvedValue({ tempPath: "/tmp/config.json" });
+		window.api.remoteEdit.open = vi.fn().mockResolvedValue({ tempPath: "/tmp/config.json" });
 		const { toast } = await import("sonner");
 		const toastSuccessSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
 
@@ -1631,17 +1631,17 @@ describe("FilePane", () => {
 		await userEvent.click(screen.getByText("Open"));
 
 		await waitFor(() => {
-			expect(window.api.remoteEdit.start).toHaveBeenCalledWith(3, "/etc/config.json");
+			expect(window.api.remoteEdit.open).toHaveBeenCalledWith(3, "/etc/config.json");
 		});
 		expect(toastSuccessSpy).toHaveBeenCalled();
 		toastSuccessSpy.mockRestore();
 	});
 
-	it("shows error toast when remoteEdit.start fails", async () => {
+	it("shows error toast when remoteEdit.open fails", async () => {
 		window.api.filesystem.remoteList = vi
 			.fn()
 			.mockResolvedValue([{ name: "data.csv", isDirectory: false, fullPath: "/data.csv", size: 1024, modified: "" }]);
-		window.api.remoteEdit.start = vi.fn().mockRejectedValue(new Error("download failed"));
+		window.api.remoteEdit.open = vi.fn().mockRejectedValue(new Error("download failed"));
 		const { toast } = await import("sonner");
 		const toastErrorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
 
