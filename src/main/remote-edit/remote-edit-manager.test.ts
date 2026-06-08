@@ -620,6 +620,23 @@ describe("RemoteEditManager", () => {
 			expect(mockWatchFn).toHaveBeenCalledWith(expectedPath, expect.any(Function));
 		});
 
+		it("does not start a file watcher when watch=false", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt", { watch: false });
+
+			expect(mockWatchFn).not.toHaveBeenCalled();
+		});
+
+		it("tracks session even when watch=false for cleanup", async () => {
+			const { manager } = makeManager();
+
+			await manager.startEdit(1, "/remote/file.txt", { watch: false });
+
+			manager.stopEdit(1, "/remote/file.txt");
+			// Should not throw — session existed and was cleaned up
+		});
+
 		it("passes AbortSignal to download function", async () => {
 			const sftp = makeSftp(true);
 			const { manager } = makeManager({ sftp });

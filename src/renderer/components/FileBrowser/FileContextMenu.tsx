@@ -149,10 +149,11 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 						ref={(el) => {
 							if (el) itemsRef.current[index] = el;
 						}}
-						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${item.variant === "destructive"
+						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
+							item.variant === "destructive"
 								? "hover:bg-destructive/10 text-destructive"
 								: "hover:bg-surface-container-high text-popover-foreground"
-							}`}
+						}`}
 						role="menuitem"
 						onClick={() => {
 							handleAction(item.id);
