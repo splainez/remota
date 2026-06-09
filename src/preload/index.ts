@@ -24,6 +24,8 @@ const api = {
 		create: (data: NewConnection): Promise<Connection> => ipcRenderer.invoke(IPC.CONNECTION_CREATE, data),
 		update: (data: ConnectionUpdate): Promise<Connection | null> => ipcRenderer.invoke(IPC.CONNECTION_UPDATE, data),
 		delete: (id: number): Promise<boolean> => ipcRenderer.invoke(IPC.CONNECTION_DELETE, id),
+		getRecent: (): Promise<number[]> => ipcRenderer.invoke(IPC.CONNECTION_GET_RECENT),
+		markRecent: (id: number): Promise<void> => ipcRenderer.invoke(IPC.CONNECTION_MARK_RECENT, id),
 		importSshConfig: (): Promise<{ imported: number; errors: string[] }> =>
 			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG),
 		exportSshConfig: (): Promise<{ exported: number; errors: string[] }> =>

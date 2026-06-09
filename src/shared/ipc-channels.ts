@@ -4,6 +4,8 @@ export const IPC = {
 	CONNECTION_CREATE: "connection:create",
 	CONNECTION_UPDATE: "connection:update",
 	CONNECTION_DELETE: "connection:delete",
+	CONNECTION_GET_RECENT: "connection:getRecent",
+	CONNECTION_MARK_RECENT: "connection:markRecent",
 	FILE_LIST: "file:list",
 	FILE_LIST_DRIVES: "file:listDrives",
 	FILE_HOME_DIR: "file:homeDir",

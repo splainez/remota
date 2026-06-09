@@ -44,6 +44,7 @@
 	"connection.group": "Group",
 	"connection.groupPlaceholder": "e.g. Work Servers",
 	"connection.uncategorized": "Uncategorized",
+	"connection.recent": "Recent",
 	"connection.namePlaceholder": "e.g. Production Web Server",
 	"sidebar.collapse": "Collapse sidebar",
 	"sidebar.expand": "Expand sidebar",

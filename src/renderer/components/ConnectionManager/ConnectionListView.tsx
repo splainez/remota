@@ -4,7 +4,7 @@ import { useConnectionFilters } from "@renderer/hooks/useConnectionFilters";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useI18n } from "@renderer/hooks/useI18n";
 import type { Connection } from "@shared/types";
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 import { ConnectionContextMenu } from "./ConnectionContextMenu";
 import { ConnectionGroupHeader } from "./ConnectionGroupHeader";
@@ -12,6 +12,7 @@ import { ConnectionItem } from "./ConnectionItem";
 
 interface ConnectionListViewProps {
 	connections: Connection[];
+	recentConnections: Connection[];
 	selectedId: number | null;
 	activeConnectionId: number | null;
 	onSelect: (id: number) => void;
@@ -24,6 +25,7 @@ interface ConnectionListViewProps {
 
 export function ConnectionListView({
 	connections,
+	recentConnections,
 	selectedId,
 	activeConnectionId,
 	onSelect,
@@ -36,12 +38,20 @@ export function ConnectionListView({
 	const { t } = useI18n();
 	const { search, setSearch, collapsedGroups, groups, toggleGroup, filtered } = useConnectionFilters(connections);
 	const { menu, open, close } = useContextMenu<number>();
+	const [recentCollapsed, setRecentCollapsed] = useState(false);
 
 	const activeSet = useMemo(() => {
 		const set = new Set<number>();
 		if (activeConnectionId != null) set.add(activeConnectionId);
 		return set;
 	}, [activeConnectionId]);
+
+	const hasRecent = recentConnections.length > 0;
+	const showRecent = hasRecent && !search.trim();
+
+	const toggleRecent = useCallback(() => {
+		setRecentCollapsed((prev) => !prev);
+	}, []);
 
 	return (
 		<div className="flex-1 flex flex-col bg-surface overflow-auto" onClick={close}>
@@ -68,11 +78,50 @@ export function ConnectionListView({
 			</div>
 
 			<div className="flex-1 overflow-y-auto px-6 py-4">
-				{filtered.length === 0 && (
+				{filtered.length === 0 && !showRecent && (
 					<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
 						<Icon name="server" size={48} className="mb-3 opacity-40" />
 						<div className="text-base mb-1">{t("connection.noSelection")}</div>
 						<div className="text-xs">{t("connection.add")}</div>
+					</div>
+				)}
+
+				{showRecent && (
+					<div className="mb-4">
+						<ConnectionGroupHeader
+							name={t("connection.recent")}
+							count={recentConnections.length}
+							collapsed={recentCollapsed}
+							onToggle={toggleRecent}
+						/>
+
+						{!recentCollapsed && (
+							<div className="flex flex-col gap-0.5 ml-1">
+								{recentConnections.map((conn) => (
+									<ConnectionItem
+										key={`recent-${String(conn.id)}`}
+										connection={conn}
+										isSelected={conn.id === selectedId}
+										isActive={activeSet.has(conn.id)}
+										onClick={() => {
+											onSelect(conn.id);
+										}}
+										onDoubleClick={() => {
+											onDoubleClick(conn.id);
+										}}
+										onContextMenu={(e) => {
+											open(e, conn.id);
+										}}
+										onOpen={() => {
+											onOpen(conn.id);
+										}}
+										onOpenTerminal={() => {
+											onOpenTerminal(conn.id);
+										}}
+									/>
+								))}
+							</div>
+						)}
 					</div>
 				)}
 

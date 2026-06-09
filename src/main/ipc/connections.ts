@@ -53,6 +53,14 @@ export function registerConnectionHandlers(store: AppStore) {
 		return store.delete(id);
 	});
 
+	ipcMain.handle(IPC.CONNECTION_GET_RECENT, () => {
+		return store.getRecentConnections();
+	});
+
+	ipcMain.handle(IPC.CONNECTION_MARK_RECENT, (_event, id: number) => {
+		store.markRecent(id);
+	});
+
 	ipcMain.handle(IPC.CONNECTION_IMPORT_SSH_CONFIG, async () => {
 		const result = await dialog.showOpenDialog({
 			title: "Import SSH Config",

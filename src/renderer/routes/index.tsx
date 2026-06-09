@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- route config + component co-location is Tanstack Router convention */
 import { ConnectionListView } from "@renderer/components/ConnectionManager/ConnectionListView";
 import { useConnections } from "@renderer/hooks/useConnections";
+import { useRecentConnections } from "@renderer/hooks/useRecentConnections";
 import { LoggerFactory } from "@shared/lib/logger";
 import { createRoute, useRouter } from "@tanstack/react-router";
 
@@ -17,6 +18,7 @@ export const indexRoute = createRoute({
 function ConnectionsIndex() {
 	const router = useRouter();
 	const { connections, selected, select, remove } = useConnections();
+	const { recentConnections } = useRecentConnections(connections);
 
 	const handleSelect = (id: number) => {
 		select(id);
@@ -49,6 +51,7 @@ function ConnectionsIndex() {
 	return (
 		<ConnectionListView
 			connections={connections}
+			recentConnections={recentConnections}
 			selectedId={selected?.id ?? null}
 			activeConnectionId={null}
 			onSelect={handleSelect}

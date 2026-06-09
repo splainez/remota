@@ -66,6 +66,9 @@ describe("connection IPC handlers", () => {
 		expect(channels).toContain(IPC.CONNECTION_CREATE);
 		expect(channels).toContain(IPC.CONNECTION_UPDATE);
 		expect(channels).toContain(IPC.CONNECTION_DELETE);
+		expect(channels).toContain(IPC.CONNECTION_GET_RECENT);
+		expect(channels).toContain(IPC.CONNECTION_MARK_RECENT);
+		expect(calls.length).toBe(7);
 		expect(channels).toContain(IPC.CONNECTION_IMPORT_SSH_CONFIG);
 		expect(channels).toContain(IPC.CONNECTION_EXPORT_SSH_CONFIG);
 		expect(calls.length).toBe(7);

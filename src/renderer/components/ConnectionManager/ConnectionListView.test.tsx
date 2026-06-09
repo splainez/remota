@@ -40,6 +40,7 @@ const connections: Connection[] = [
 
 const defaultProps = {
 	connections,
+	recentConnections: [] as Connection[],
 	selectedId: null as number | null,
 	activeConnectionId: null as number | null,
 	onSelect: vi.fn(),
