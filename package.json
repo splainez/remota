@@ -30,7 +30,7 @@
 		"build:docker:win": "docker compose -f docker-compose.build.yml run --rm builder-win",
 		"build:docker:linux": "docker compose -f docker-compose.build.yml run --rm builder-linux",
 		"build:docker:all": "docker compose -f docker-compose.build.yml run --rm builder-linux && docker compose -f docker-compose.build.yml run --rm builder-win",
-		"postinstall": "electron-builder install-app-deps"
+		"install-electron": "node node_modules/electron/install.js"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.1063.0",
