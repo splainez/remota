@@ -54,7 +54,7 @@ describe("SidebarFooter", () => {
 		expect(onToggleCollapse).toHaveBeenCalledOnce();
 	});
 
-	it("shows settings button and avatar when expanded", () => {
+	it("shows theme and settings when expanded", () => {
 		render(
 			<I18nWrapper>
 				<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
@@ -64,13 +64,13 @@ describe("SidebarFooter", () => {
 		expect(buttons.length).toBe(3); // collapse + theme + settings
 	});
 
-	it("hides settings and avatar when collapsed", () => {
+	it("shows settings and hides theme when collapsed", () => {
 		render(
 			<I18nWrapper>
 				<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
 			</I18nWrapper>,
 		);
 		const buttons = screen.getAllByRole("button");
-		expect(buttons.length).toBe(2); // collapse + theme only
+		expect(buttons.length).toBe(2); // collapse + settings
 	});
 });

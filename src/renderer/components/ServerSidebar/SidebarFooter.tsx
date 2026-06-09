@@ -34,24 +34,17 @@ export function SidebarFooter({ collapsed, onToggleCollapse, onSettings }: Sideb
 				<Icon name={collapsed ? "arrow-right" : "arrow-left"} size={16} />
 			</Button>
 			<div className={cn("flex items-center gap-2", collapsed ? "flex-col" : "flex-row")}>
-				<ThemeSelect />
-				{!collapsed && (
-					<Button
-						variant="ghost"
-						size="icon"
-						className="rounded-full hover:rounded-xl text-on-surface-variant hover:text-primary"
-						aria-label={t("navigation.settings")}
-						title={t("navigation.settings")}
-						onClick={onSettings}
-					>
-						<Icon name="settings" size={16} />
-					</Button>
-				)}
-				{!collapsed && (
-					<div className="w-10 h-10 rounded-full overflow-hidden hover:rounded-xl transition-all duration-300 ring-2 ring-transparent hover:ring-primary flex items-center justify-center bg-surface-container-highest">
-						<Icon name="person" size={16} className="text-on-surface-variant" />
-					</div>
-				)}
+				{!collapsed && <ThemeSelect />}
+				<Button
+					variant="ghost"
+					size="icon"
+					className="rounded-full hover:rounded-xl text-on-surface-variant hover:text-primary"
+					aria-label={t("navigation.settings")}
+					title={t("navigation.settings")}
+					onClick={onSettings}
+				>
+					<Icon name="settings" size={16} />
+				</Button>
 			</div>
 		</div>
 	);
