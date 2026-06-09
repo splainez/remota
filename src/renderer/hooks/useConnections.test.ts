@@ -51,9 +51,7 @@ describe("useConnections", () => {
 				update: vi.fn(),
 				delete: vi.fn(),
 				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
-				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
-				exportSshConfigFile: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -78,9 +76,7 @@ describe("useConnections", () => {
 				update: vi.fn(),
 				delete: vi.fn(),
 				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
-				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
-				exportSshConfigFile: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -126,9 +122,7 @@ describe("useConnections", () => {
 				update: vi.fn(),
 				delete: vi.fn(),
 				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
-				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
-				exportSshConfigFile: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -172,9 +166,7 @@ describe("useConnections", () => {
 				update: vi.fn(),
 				delete: vi.fn().mockResolvedValue(true),
 				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
-				importSshConfigFile: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
-				exportSshConfigFile: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
 			},
 		});
 		vi.stubGlobal("api", mockApi);

@@ -69,10 +69,8 @@ export interface ElectronAPI {
 		create: (data: NewConnection) => Promise<Connection>;
 		update: (data: ConnectionUpdate) => Promise<Connection | null>;
 		delete: (id: number) => Promise<boolean>;
-		importSshConfig: (filePath?: string) => Promise<{ imported: number; errors: string[] }>;
-		importSshConfigFile: () => Promise<{ imported: number; errors: string[] }>;
-		exportSshConfig: (filePath?: string) => Promise<{ exported: number; errors: string[] }>;
-		exportSshConfigFile: () => Promise<{ exported: number; errors: string[] }>;
+		importSshConfig: () => Promise<{ imported: number; errors: string[] }>;
+		exportSshConfig: () => Promise<{ exported: number; errors: string[] }>;
 	};
 	filesystem: {
 		list: (path: string) => Promise<FileEntry[]>;

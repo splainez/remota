@@ -117,7 +117,7 @@ export class RemoteEditManager {
 			this.downloadControllers.delete(itemId);
 		}
 
-		let watcher: import("node:fs").FSWatcher | null = null;
+		let watcher: FSWatcher | null = null;
 
 		if (watchEnabled) {
 			try {

@@ -89,7 +89,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 
 	const notFoundLabel = t("settings.terminalNotFound");
 
-	const handleImportDefault = () => {
+	const handleImportSshConfig = () => {
 		setImporting(true);
 		window.api.connections
 			.importSshConfig()
@@ -110,52 +110,10 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 			});
 	};
 
-	const handleImportFile = () => {
-		setImporting(true);
-		window.api.connections
-			.importSshConfigFile()
-			.then((result) => {
-				if (result.imported > 0 && result.errors.length === 0) {
-					toast.success(t("settings.importSshConfigSuccess", { count: String(result.imported) }));
-				} else if (result.imported > 0) {
-					toast.warning(t("settings.importSshConfigPartial", { count: String(result.imported) }));
-				} else if (result.errors.length > 0) {
-					toast.error(t("settings.importSshConfigFailed", { error: result.errors[0] }));
-				}
-			})
-			.catch((err: unknown) => {
-				toast.error(t("settings.importSshConfigFailed", { error: (err as Error).message }));
-			})
-			.finally(() => {
-				setImporting(false);
-			});
-	};
-
-	const handleExportDefault = () => {
+	const handleExportSshConfig = () => {
 		setExporting(true);
 		window.api.connections
 			.exportSshConfig()
-			.then((result) => {
-				if (result.exported > 0 && result.errors.length === 0) {
-					toast.success(t("settings.exportSshConfigSuccess", { count: String(result.exported) }));
-				} else if (result.exported > 0) {
-					toast.warning(t("settings.exportSshConfigPartial", { count: String(result.exported) }));
-				} else if (result.errors.length > 0) {
-					toast.error(t("settings.exportSshConfigFailed", { error: result.errors[0] }));
-				}
-			})
-			.catch((err: unknown) => {
-				toast.error(t("settings.exportSshConfigFailed", { error: (err as Error).message }));
-			})
-			.finally(() => {
-				setExporting(false);
-			});
-	};
-
-	const handleExportFile = () => {
-		setExporting(true);
-		window.api.connections
-			.exportSshConfigFile()
 			.then((result) => {
 				if (result.exported > 0 && result.errors.length === 0) {
 					toast.success(t("settings.exportSshConfigSuccess", { count: String(result.exported) }));
@@ -324,60 +282,34 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								<span className="text-sm font-medium text-foreground">{t("settings.importSshConfig")}</span>
 								<span className="text-xs text-muted-foreground">{t("settings.importSshConfigDescription")}</span>
 							</div>
-							<div className="flex flex-col gap-2">
-								<Button
-									type="button"
-									variant="outline"
-									size="default"
-									className="h-auto justify-start gap-3 p-3"
-									onClick={handleImportDefault}
-									disabled={importing}
-								>
-									<Icon name="key" size={16} />
-									<span className="text-sm font-medium">{t("settings.importSshConfigDefault")}</span>
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									size="default"
-									className="h-auto justify-start gap-3 p-3"
-									onClick={handleImportFile}
-									disabled={importing}
-								>
-									<Icon name="file" size={16} />
-									<span className="text-sm font-medium">{t("settings.importSshConfigFile")}</span>
-								</Button>
-							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="default"
+								className="h-auto justify-start gap-3 p-3"
+								onClick={handleImportSshConfig}
+								disabled={importing}
+							>
+								<Icon name="file" size={16} />
+								<span className="text-sm font-medium">{t("settings.importSshConfigFile")}</span>
+							</Button>
 						</div>
 						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
 							<div className="flex flex-col gap-1 mb-3">
 								<span className="text-sm font-medium text-foreground">{t("settings.exportSshConfig")}</span>
 								<span className="text-xs text-muted-foreground">{t("settings.exportSshConfigDescription")}</span>
 							</div>
-							<div className="flex flex-col gap-2">
-								<Button
-									type="button"
-									variant="outline"
-									size="default"
-									className="h-auto justify-start gap-3 p-3"
-									onClick={handleExportDefault}
-									disabled={exporting}
-								>
-									<Icon name="save" size={16} />
-									<span className="text-sm font-medium">{t("settings.exportSshConfigDefault")}</span>
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									size="default"
-									className="h-auto justify-start gap-3 p-3"
-									onClick={handleExportFile}
-									disabled={exporting}
-								>
-									<Icon name="file" size={16} />
-									<span className="text-sm font-medium">{t("settings.exportSshConfigFile")}</span>
-								</Button>
-							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="default"
+								className="h-auto justify-start gap-3 p-3"
+								onClick={handleExportSshConfig}
+								disabled={exporting}
+							>
+								<Icon name="file" size={16} />
+								<span className="text-sm font-medium">{t("settings.exportSshConfigFile")}</span>
+							</Button>
 						</div>
 					</section>
 

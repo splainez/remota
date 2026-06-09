@@ -234,29 +234,17 @@ describe("SettingsView", () => {
 
 	// --- SSH config import ---
 
-	it("renders SSH Config Import section with two buttons", () => {
+	it("renders SSH Config Import section with a button", () => {
 		render(
 			<I18nWrapper>
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("Import SSH Config")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /Import from default/ })).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: /Import from file/ })).toBeInTheDocument();
 	});
 
-	it("calls importSshConfig when clicking default import button", async () => {
-		const user = userEvent.setup();
-		render(
-			<I18nWrapper>
-				<SettingsView onBack={vi.fn()} />
-			</I18nWrapper>,
-		);
-		await user.click(screen.getByRole("button", { name: /Import from default/ }));
-		expect(window.api.connections.importSshConfig).toHaveBeenCalledOnce();
-	});
-
-	it("calls importSshConfigFile when clicking file import button", async () => {
+	it("calls importSshConfig when clicking the import button", async () => {
 		const user = userEvent.setup();
 		render(
 			<I18nWrapper>
@@ -264,7 +252,7 @@ describe("SettingsView", () => {
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByRole("button", { name: /Import from file/ }));
-		expect(window.api.connections.importSshConfigFile).toHaveBeenCalledOnce();
+		expect(window.api.connections.importSshConfig).toHaveBeenCalledOnce();
 	});
 
 	it("shows success toast after importing connections", async () => {
@@ -278,7 +266,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+		await user.click(screen.getByRole("button", { name: /Import from file/ }));
 
 		await waitFor(() => {
 			expect(successSpy).toHaveBeenCalledOnce();
@@ -302,7 +290,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+		await user.click(screen.getByRole("button", { name: /Import from file/ }));
 
 		await waitFor(() => {
 			expect(warningSpy).toHaveBeenCalledOnce();
@@ -325,7 +313,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Import from default/ }));
+		await user.click(screen.getByRole("button", { name: /Import from file/ }));
 
 		await waitFor(() => {
 			expect(errorSpy).toHaveBeenCalledOnce();
@@ -339,7 +327,7 @@ describe("SettingsView", () => {
 		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
 		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
 		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
-		(window.api.connections.importSshConfigFile as ReturnType<typeof vi.fn>).mockResolvedValue({
+		(window.api.connections.importSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
 			imported: 0,
 			errors: [],
 		});
@@ -364,29 +352,17 @@ describe("SettingsView", () => {
 
 	// --- SSH config export ---
 
-	it("renders SSH Config Export section with two buttons", () => {
+	it("renders SSH Config Export section with a button", () => {
 		render(
 			<I18nWrapper>
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("Export SSH Config")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /Export to default/ })).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: /Export to file/ })).toBeInTheDocument();
 	});
 
-	it("calls exportSshConfig when clicking default export button", async () => {
-		const user = userEvent.setup();
-		render(
-			<I18nWrapper>
-				<SettingsView onBack={vi.fn()} />
-			</I18nWrapper>,
-		);
-		await user.click(screen.getByRole("button", { name: /Export to default/ }));
-		expect(window.api.connections.exportSshConfig).toHaveBeenCalledOnce();
-	});
-
-	it("calls exportSshConfigFile when clicking file export button", async () => {
+	it("calls exportSshConfig when clicking the export button", async () => {
 		const user = userEvent.setup();
 		render(
 			<I18nWrapper>
@@ -394,7 +370,7 @@ describe("SettingsView", () => {
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByRole("button", { name: /Export to file/ }));
-		expect(window.api.connections.exportSshConfigFile).toHaveBeenCalledOnce();
+		expect(window.api.connections.exportSshConfig).toHaveBeenCalledOnce();
 	});
 
 	it("shows success toast after exporting connections", async () => {
@@ -408,7 +384,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+		await user.click(screen.getByRole("button", { name: /Export to file/ }));
 
 		await waitFor(() => {
 			expect(successSpy).toHaveBeenCalledOnce();
@@ -432,7 +408,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+		await user.click(screen.getByRole("button", { name: /Export to file/ }));
 
 		await waitFor(() => {
 			expect(warningSpy).toHaveBeenCalledOnce();
@@ -455,7 +431,7 @@ describe("SettingsView", () => {
 				<SettingsView onBack={vi.fn()} />
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+		await user.click(screen.getByRole("button", { name: /Export to file/ }));
 
 		await waitFor(() => {
 			expect(errorSpy).toHaveBeenCalledOnce();
@@ -469,7 +445,7 @@ describe("SettingsView", () => {
 		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
 		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
 		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
-		(window.api.connections.exportSshConfigFile as ReturnType<typeof vi.fn>).mockResolvedValue({
+		(window.api.connections.exportSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
 			exported: 0,
 			errors: [],
 		});

@@ -24,14 +24,10 @@ const api = {
 		create: (data: NewConnection): Promise<Connection> => ipcRenderer.invoke(IPC.CONNECTION_CREATE, data),
 		update: (data: ConnectionUpdate): Promise<Connection | null> => ipcRenderer.invoke(IPC.CONNECTION_UPDATE, data),
 		delete: (id: number): Promise<boolean> => ipcRenderer.invoke(IPC.CONNECTION_DELETE, id),
-		importSshConfig: (filePath?: string): Promise<{ imported: number; errors: string[] }> =>
-			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG, filePath),
-		importSshConfigFile: (): Promise<{ imported: number; errors: string[] }> =>
-			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG_FILE),
-		exportSshConfig: (filePath?: string): Promise<{ exported: number; errors: string[] }> =>
-			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG, filePath),
-		exportSshConfigFile: (): Promise<{ exported: number; errors: string[] }> =>
-			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG_FILE),
+		importSshConfig: (): Promise<{ imported: number; errors: string[] }> =>
+			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG),
+		exportSshConfig: (): Promise<{ exported: number; errors: string[] }> =>
+			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG),
 	},
 	filesystem: {
 		list: (path: string): Promise<FileEntry[]> => ipcRenderer.invoke(IPC.FILE_LIST, path),

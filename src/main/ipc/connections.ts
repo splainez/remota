@@ -53,53 +53,7 @@ export function registerConnectionHandlers(store: AppStore) {
 		return store.delete(id);
 	});
 
-	ipcMain.handle(IPC.CONNECTION_IMPORT_SSH_CONFIG, async (_event, filePath?: string) => {
-		let resolvedPath = filePath;
-
-		if (!resolvedPath) {
-			const result = await dialog.showOpenDialog({
-				title: "Import SSH Config",
-				properties: ["openFile"],
-				filters: [
-					{ name: "SSH Config", extensions: ["config", ""] },
-					{ name: "All Files", extensions: ["*"] },
-				],
-				defaultPath: join(homedir(), ".ssh", "config"),
-			});
-			if (result.canceled || result.filePaths.length === 0) {
-				return { imported: 0, errors: [] };
-			}
-			resolvedPath = result.filePaths[0];
-		}
-
-		let content: string;
-		try {
-			content = readFileSync(resolvedPath, "utf-8");
-		} catch {
-			return { imported: 0, errors: [`Could not read file: ${resolvedPath}`] };
-		}
-
-		const parseResult = parseSshConfigToConnections(content);
-		const errors = [...parseResult.errors];
-		let imported = 0;
-
-		for (const conn of parseResult.connections) {
-			try {
-				store.create(conn);
-				imported++;
-			} catch (err) {
-				if (err instanceof Error) {
-					errors.push(`Failed to import ${conn.name}: ${err.message}`);
-				} else {
-					errors.push(`Failed to import ${conn.name}: ${String(err)}`);
-				}
-			}
-		}
-
-		return { imported, errors };
-	});
-
-	ipcMain.handle(IPC.CONNECTION_IMPORT_SSH_CONFIG_FILE, async () => {
+	ipcMain.handle(IPC.CONNECTION_IMPORT_SSH_CONFIG, async () => {
 		const result = await dialog.showOpenDialog({
 			title: "Import SSH Config",
 			properties: ["openFile"],
@@ -141,7 +95,7 @@ export function registerConnectionHandlers(store: AppStore) {
 		return { imported, errors };
 	});
 
-	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG, async (_event, filePath?: string) => {
+	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG, async () => {
 		const connections = store.list();
 		const configText = connectionsToSshConfig(connections);
 
@@ -149,42 +103,7 @@ export function registerConnectionHandlers(store: AppStore) {
 			return { exported: 0, errors: [] };
 		}
 
-		let resolvedPath = filePath;
-
-		if (!resolvedPath) {
-			const result = await dialog.showSaveDialog({
-				title: "Export SSH Config",
-				defaultPath: getDefaultExportPath(),
-				filters: [
-					{ name: "SSH Config", extensions: ["config"] },
-					{ name: "All Files", extensions: ["*"] },
-				],
-			});
-			if (result.canceled || !result.filePath) {
-				return { exported: 0, errors: [] };
-			}
-			resolvedPath = result.filePath;
-		}
-
-		try {
-			writeFileSync(resolvedPath, configText, "utf-8");
-		} catch (err) {
-			return { exported: 0, errors: [`Could not write file: ${(err as Error).message}`] };
-		}
-
-		const sshCount = connections.filter((c) => c.protocol === "sftp" || c.protocol === "scp").length;
-		return { exported: sshCount, errors: [] };
-	});
-
-	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG_FILE, async () => {
-		const connections = store.list();
-		const configText = connectionsToSshConfig(connections);
-
-		if (!configText) {
-			return { exported: 0, errors: [] };
-		}
-
-		const result = await dialog.showSaveDialog({
+		const saveResult = await dialog.showSaveDialog({
 			title: "Export SSH Config",
 			defaultPath: getDefaultExportPath(),
 			filters: [
@@ -192,12 +111,12 @@ export function registerConnectionHandlers(store: AppStore) {
 				{ name: "All Files", extensions: ["*"] },
 			],
 		});
-		if (result.canceled || !result.filePath) {
+		if (saveResult.canceled || !saveResult.filePath) {
 			return { exported: 0, errors: [] };
 		}
 
 		try {
-			writeFileSync(result.filePath, configText, "utf-8");
+			writeFileSync(saveResult.filePath, configText, "utf-8");
 		} catch (err) {
 			return { exported: 0, errors: [`Could not write file: ${(err as Error).message}`] };
 		}

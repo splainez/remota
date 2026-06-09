@@ -47,15 +47,9 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				.mockImplementation((data) => Promise.resolve(makeConnection(data as Partial<Connection>))),
 			delete: vi.fn<(id: number) => Promise<boolean>>().mockResolvedValue(true),
 			importSshConfig: vi
-				.fn<(filePath?: string) => Promise<{ imported: number; errors: string[] }>>()
-				.mockResolvedValue({ imported: 0, errors: [] }),
-			importSshConfigFile: vi
 				.fn<() => Promise<{ imported: number; errors: string[] }>>()
 				.mockResolvedValue({ imported: 0, errors: [] }),
 			exportSshConfig: vi
-				.fn<(filePath?: string) => Promise<{ exported: number; errors: string[] }>>()
-				.mockResolvedValue({ exported: 0, errors: [] }),
-			exportSshConfigFile: vi
 				.fn<() => Promise<{ exported: number; errors: string[] }>>()
 				.mockResolvedValue({ exported: 0, errors: [] }),
 			...overrides?.connections,
