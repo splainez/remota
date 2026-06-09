@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -8,7 +8,19 @@ import type { NewConnection, ConnectionUpdate } from "@shared/types";
 import { connectionFormSchema, connectionBaseSchema } from "@shared/validation";
 import { dialog, ipcMain } from "electron";
 
+import { connectionsToSshConfig } from "./ssh-config-export";
 import { parseSshConfigToConnections } from "./ssh-config-import";
+
+function getDefaultExportPath(): string {
+	const now = new Date();
+	const parts = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(
+		now,
+	);
+	const year = parts.find((p) => p.type === "year")?.value ?? "";
+	const month = parts.find((p) => p.type === "month")?.value ?? "";
+	const day = parts.find((p) => p.type === "day")?.value ?? "";
+	return join(homedir(), ".ssh", `config_${year}${month}${day}`);
+}
 
 export function registerConnectionHandlers(store: AppStore) {
 	ipcMain.handle(IPC.CONNECTION_LIST, () => {
@@ -127,5 +139,70 @@ export function registerConnectionHandlers(store: AppStore) {
 		}
 
 		return { imported, errors };
+	});
+
+	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG, async (_event, filePath?: string) => {
+		const connections = store.list();
+		const configText = connectionsToSshConfig(connections);
+
+		if (!configText) {
+			return { exported: 0, errors: [] };
+		}
+
+		let resolvedPath = filePath;
+
+		if (!resolvedPath) {
+			const result = await dialog.showSaveDialog({
+				title: "Export SSH Config",
+				defaultPath: getDefaultExportPath(),
+				filters: [
+					{ name: "SSH Config", extensions: ["config"] },
+					{ name: "All Files", extensions: ["*"] },
+				],
+			});
+			if (result.canceled || !result.filePath) {
+				return { exported: 0, errors: [] };
+			}
+			resolvedPath = result.filePath;
+		}
+
+		try {
+			writeFileSync(resolvedPath, configText, "utf-8");
+		} catch (err) {
+			return { exported: 0, errors: [`Could not write file: ${(err as Error).message}`] };
+		}
+
+		const sshCount = connections.filter((c) => c.protocol === "sftp" || c.protocol === "scp").length;
+		return { exported: sshCount, errors: [] };
+	});
+
+	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG_FILE, async () => {
+		const connections = store.list();
+		const configText = connectionsToSshConfig(connections);
+
+		if (!configText) {
+			return { exported: 0, errors: [] };
+		}
+
+		const result = await dialog.showSaveDialog({
+			title: "Export SSH Config",
+			defaultPath: getDefaultExportPath(),
+			filters: [
+				{ name: "SSH Config", extensions: ["config"] },
+				{ name: "All Files", extensions: ["*"] },
+			],
+		});
+		if (result.canceled || !result.filePath) {
+			return { exported: 0, errors: [] };
+		}
+
+		try {
+			writeFileSync(result.filePath, configText, "utf-8");
+		} catch (err) {
+			return { exported: 0, errors: [`Could not write file: ${(err as Error).message}`] };
+		}
+
+		const sshCount = connections.filter((c) => c.protocol === "sftp" || c.protocol === "scp").length;
+		return { exported: sshCount, errors: [] };
 	});
 }

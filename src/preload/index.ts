@@ -28,6 +28,10 @@ const api = {
 			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG, filePath),
 		importSshConfigFile: (): Promise<{ imported: number; errors: string[] }> =>
 			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG_FILE),
+		exportSshConfig: (filePath?: string): Promise<{ exported: number; errors: string[] }> =>
+			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG, filePath),
+		exportSshConfigFile: (): Promise<{ exported: number; errors: string[] }> =>
+			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG_FILE),
 	},
 	filesystem: {
 		list: (path: string): Promise<FileEntry[]> => ipcRenderer.invoke(IPC.FILE_LIST, path),
