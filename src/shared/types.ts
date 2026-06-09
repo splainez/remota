@@ -69,6 +69,8 @@ export interface ElectronAPI {
 		create: (data: NewConnection) => Promise<Connection>;
 		update: (data: ConnectionUpdate) => Promise<Connection | null>;
 		delete: (id: number) => Promise<boolean>;
+		getRecent: () => Promise<number[]>;
+		markRecent: (id: number) => Promise<void>;
 	};
 	filesystem: {
 		list: (path: string) => Promise<FileEntry[]>;
