@@ -34,4 +34,12 @@ export function registerConnectionHandlers(store: AppStore) {
 	ipcMain.handle(IPC.CONNECTION_DELETE, (_event, id: number) => {
 		return store.delete(id);
 	});
+
+	ipcMain.handle(IPC.CONNECTION_GET_RECENT, () => {
+		return store.getRecentConnections();
+	});
+
+	ipcMain.handle(IPC.CONNECTION_MARK_RECENT, (_event, id: number) => {
+		store.markRecent(id);
+	});
 }

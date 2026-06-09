@@ -24,6 +24,7 @@ export class AppStore {
 	private filePath: string;
 	private data: AppConfig = {
 		connections: [],
+		recentConnectionIds: [],
 		lastPaths: {},
 		transferPanels: {},
 		filePaneSizes: {},
@@ -51,6 +52,7 @@ export class AppStore {
 		if (!existsSync(this.filePath)) {
 			this.data = {
 				connections: [],
+				recentConnectionIds: [],
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
@@ -76,6 +78,7 @@ export class AppStore {
 				this.loadError = new ConfigValidationError("Invalid configuration file", this.filePath, issues);
 				this.data = {
 					connections: [],
+					recentConnectionIds: [],
 					lastPaths: {},
 					transferPanels: {},
 					filePaneSizes: {},
@@ -98,6 +101,7 @@ export class AppStore {
 			]);
 			this.data = {
 				connections: [],
+				recentConnectionIds: [],
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
@@ -186,8 +190,26 @@ export class AppStore {
 		const idx = this.data.connections.findIndex((c) => c.id === id);
 		if (idx === -1) return false;
 		this.data.connections.splice(idx, 1);
+		this.data.recentConnectionIds = this.data.recentConnectionIds.filter((rid) => rid !== id);
 		this.save();
 		return true;
+	}
+
+	// ── Recent Connections ──────────────────────────────
+
+	private static readonly MAX_RECENT = 5;
+
+	getRecentConnections(): number[] {
+		return this.data.recentConnectionIds;
+	}
+
+	markRecent(id: number) {
+		this.data.recentConnectionIds = this.data.recentConnectionIds.filter((rid) => rid !== id);
+		this.data.recentConnectionIds.unshift(id);
+		if (this.data.recentConnectionIds.length > AppStore.MAX_RECENT) {
+			this.data.recentConnectionIds = this.data.recentConnectionIds.slice(0, AppStore.MAX_RECENT);
+		}
+		this.save();
 	}
 
 	// ── Last Paths ───────────────────────────────────────

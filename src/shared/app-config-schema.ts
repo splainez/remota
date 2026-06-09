@@ -106,6 +106,7 @@ const defaultSettings: Settings = {
 export const AppConfigSchema = z
 	.object({
 		connections: z.array(ConnectionSchema).default([]),
+		recentConnectionIds: z.array(z.number()).default([]),
 		lastPaths: LastPathsSchema.default({}),
 		transferPanels: TransferPanelsSchema.default({}),
 		filePaneSizes: FilePaneSizesSchema.default({}),
