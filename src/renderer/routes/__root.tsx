@@ -3,6 +3,7 @@ import { DisconnectConfirmDialog } from "@renderer/components/FileBrowser/Discon
 import { Icon } from "@renderer/components/icons/Icon";
 import { QuitConfirmDialog } from "@renderer/components/QuitConfirmDialog";
 import { ServerSidebar } from "@renderer/components/ServerSidebar/ServerSidebar";
+import { TitleBar } from "@renderer/components/TitleBar/TitleBar";
 import { Button } from "@renderer/components/ui/button";
 import { useConnections } from "@renderer/hooks/useConnections";
 import { useI18n } from "@renderer/hooks/useI18n";
@@ -139,10 +140,13 @@ function RootLayout() {
 
 	if (loading) {
 		return (
-			<div className="flex h-screen overflow-hidden bg-background">
-				<div className="w-20 bg-surface-container-low border-r border-outline-variant shrink-0" />
-				<div className="flex-1 flex items-center justify-center">
-					<div className="text-muted-foreground">{t("file.loading")}</div>
+			<div className="flex h-screen overflow-hidden bg-background flex-col">
+				<TitleBar />
+				<div className="flex flex-1 min-h-0">
+					<div className="w-20 bg-surface-container-low border-r border-outline-variant shrink-0" />
+					<div className="flex-1 flex items-center justify-center">
+						<div className="text-muted-foreground">{t("file.loading")}</div>
+					</div>
 				</div>
 			</div>
 		);
@@ -160,45 +164,48 @@ function RootLayout() {
 				onOpenChange={handleQuitDialogOpenChange}
 				onConfirmQuit={handleConfirmQuit}
 			/>
-			<div className="flex h-screen overflow-hidden bg-background">
+			<div className="flex h-screen overflow-hidden bg-background flex-col">
 				<Toaster position="bottom-right" richColors />
-				<ServerSidebar
-					connections={connections}
-					activeConnectionId={activeConnectionId}
-					activeSessions={sessions}
-					onSelect={handleSelect}
-					onAdd={handleAdd}
-					onDoubleClick={handleOpenFileBrowser}
-					onViewAll={() => {
-						void router.navigate({ to: "/" });
-					}}
-					onDisconnect={disconnectConnection}
-					onSettings={handleSettings}
-				/>
+				<TitleBar />
+				<div className="flex flex-1 min-h-0">
+					<ServerSidebar
+						connections={connections}
+						activeConnectionId={activeConnectionId}
+						activeSessions={sessions}
+						onSelect={handleSelect}
+						onAdd={handleAdd}
+						onDoubleClick={handleOpenFileBrowser}
+						onViewAll={() => {
+							void router.navigate({ to: "/" });
+						}}
+						onDisconnect={disconnectConnection}
+						onSettings={handleSettings}
+					/>
 
-				<div className="flex-1 flex flex-col min-w-0">
-					<Outlet />
+					<div className="flex-1 flex flex-col min-w-0">
+						<Outlet />
 
-					<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
-						<div className="flex items-center gap-2">
-							<span className="w-2 h-2 rounded-full bg-primary" />
-							<span>{t("app.ready")}</span>
-						</div>
-						<div className="flex items-center gap-3">
-							{activeConnectionId != null && !isTransferPanelVisible && (
-								<Button
-									variant="link"
-									size="sm"
-									className="h-auto p-0 text-xs gap-1"
-									onClick={handleToggleTransferPanel}
-								>
-									<Icon name="sync" size={14} />
-									{t("transfer.active")}
-								</Button>
-							)}
-							<span>{t("app.version")}</span>
-						</div>
-					</footer>
+						<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
+							<div className="flex items-center gap-2">
+								<span className="w-2 h-2 rounded-full bg-primary" />
+								<span>{t("app.ready")}</span>
+							</div>
+							<div className="flex items-center gap-3">
+								{activeConnectionId != null && !isTransferPanelVisible && (
+									<Button
+										variant="link"
+										size="sm"
+										className="h-auto p-0 text-xs gap-1"
+										onClick={handleToggleTransferPanel}
+									>
+										<Icon name="sync" size={14} />
+										{t("transfer.active")}
+									</Button>
+								)}
+								<span>{t("app.version")}</span>
+							</div>
+						</footer>
+					</div>
 				</div>
 			</div>
 		</>
