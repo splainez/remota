@@ -41,6 +41,8 @@ function createWindow() {
 		},
 	});
 
+	mainWindow.maximize();
+
 	if (process.env.NODE_ENV === "development" || process.env.ELECTRON_RENDERER_URL) {
 		void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL ?? "");
 		mainWindow.webContents.openDevTools();
