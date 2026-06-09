@@ -150,6 +150,14 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			stop: vi.fn().mockResolvedValue(undefined),
 			...overrides?.remoteEdit,
 		},
+		windowControls: {
+			minimize: vi.fn().mockResolvedValue(undefined),
+			maximize: vi.fn().mockResolvedValue(undefined),
+			close: vi.fn().mockResolvedValue(undefined),
+			isMaximized: vi.fn().mockResolvedValue(false),
+			onMaximizeChange: vi.fn().mockReturnValue(vi.fn()),
+			...overrides?.windowControls,
+		},
 		platform: overrides?.platform ?? "linux",
 	};
 }
