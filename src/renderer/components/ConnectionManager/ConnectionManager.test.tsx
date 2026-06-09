@@ -59,6 +59,8 @@ describe("ConnectionManager", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -88,6 +90,8 @@ describe("ConnectionManager", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -132,6 +136,8 @@ describe("ConnectionManager", () => {
 				}),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
