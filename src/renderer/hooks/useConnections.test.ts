@@ -50,6 +50,8 @@ describe("useConnections", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -73,6 +75,8 @@ describe("useConnections", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -117,6 +121,8 @@ describe("useConnections", () => {
 				}),
 				update: vi.fn(),
 				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);
@@ -159,6 +165,8 @@ describe("useConnections", () => {
 				create: vi.fn(),
 				update: vi.fn(),
 				delete: vi.fn().mockResolvedValue(true),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
 			},
 		});
 		vi.stubGlobal("api", mockApi);

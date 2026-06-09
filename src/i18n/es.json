@@ -41,6 +41,7 @@
 	"connection.group": "Grupo",
 	"connection.groupPlaceholder": "ej. Servidores de Trabajo",
 	"connection.uncategorized": "Sin categoría",
+	"connection.recent": "Recientes",
 	"connection.namePlaceholder": "ej. Servidor Web de Producción",
 	"sidebar.collapse": "Colapsar barra lateral",
 	"sidebar.expand": "Expandir barra lateral",

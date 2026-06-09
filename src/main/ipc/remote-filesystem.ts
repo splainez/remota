@@ -17,8 +17,9 @@ export function registerRemoteFilesystemHandlers(
 			throw new Error(`Connection with id ${String(connectionId)} not found`);
 		}
 
+		let result: string;
 		if (conn.protocol === "s3") {
-			return s3.connect(connectionId, {
+			result = await s3.connect(connectionId, {
 				accessKey: conn.accessKey,
 				secretKey: conn.secretKey,
 				region: conn.region,
@@ -28,18 +29,20 @@ export function registerRemoteFilesystemHandlers(
 				endpoint: conn.endpoint || undefined,
 				useHttps: conn.useHttps,
 			});
+		} else {
+			const validAuthType = conn.authType;
+			result = await sftp.connect(connectionId, {
+				host: conn.host,
+				port: conn.port,
+				username: conn.username,
+				authType: validAuthType,
+				password: conn.password,
+				privateKeyPath: conn.privateKeyPath || undefined,
+			});
 		}
 
-		const validAuthType = conn.authType;
-
-		return sftp.connect(connectionId, {
-			host: conn.host,
-			port: conn.port,
-			username: conn.username,
-			authType: validAuthType,
-			password: conn.password,
-			privateKeyPath: conn.privateKeyPath || undefined,
-		});
+		store.markRecent(connectionId);
+		return result;
 	});
 
 	ipcMain.handle(IPC.REMOTE_DISCONNECT, async (_event, connectionId: number) => {

@@ -46,6 +46,8 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				.fn<(data: ConnectionUpdate) => Promise<Connection | null>>()
 				.mockImplementation((data) => Promise.resolve(makeConnection(data as Partial<Connection>))),
 			delete: vi.fn<(id: number) => Promise<boolean>>().mockResolvedValue(true),
+			getRecent: vi.fn<() => Promise<number[]>>().mockResolvedValue([]),
+			markRecent: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
 			...overrides?.connections,
 		},
 		filesystem: {
