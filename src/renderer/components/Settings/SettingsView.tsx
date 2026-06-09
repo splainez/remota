@@ -77,6 +77,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 	const retentionSeconds = retentionMs !== undefined ? Math.round(retentionMs / 1000) : 30;
 	const [retentionInput, setRetentionInput] = useState(String(retentionSeconds));
 	const [importing, setImporting] = useState(false);
+	const [exporting, setExporting] = useState(false);
 
 	useEffect(() => {
 		if (!pendingRecoveryToast) return;
@@ -127,6 +128,48 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 			})
 			.finally(() => {
 				setImporting(false);
+			});
+	};
+
+	const handleExportDefault = () => {
+		setExporting(true);
+		window.api.connections
+			.exportSshConfig()
+			.then((result) => {
+				if (result.exported > 0 && result.errors.length === 0) {
+					toast.success(t("settings.exportSshConfigSuccess", { count: String(result.exported) }));
+				} else if (result.exported > 0) {
+					toast.warning(t("settings.exportSshConfigPartial", { count: String(result.exported) }));
+				} else if (result.errors.length > 0) {
+					toast.error(t("settings.exportSshConfigFailed", { error: result.errors[0] }));
+				}
+			})
+			.catch((err: unknown) => {
+				toast.error(t("settings.exportSshConfigFailed", { error: (err as Error).message }));
+			})
+			.finally(() => {
+				setExporting(false);
+			});
+	};
+
+	const handleExportFile = () => {
+		setExporting(true);
+		window.api.connections
+			.exportSshConfigFile()
+			.then((result) => {
+				if (result.exported > 0 && result.errors.length === 0) {
+					toast.success(t("settings.exportSshConfigSuccess", { count: String(result.exported) }));
+				} else if (result.exported > 0) {
+					toast.warning(t("settings.exportSshConfigPartial", { count: String(result.exported) }));
+				} else if (result.errors.length > 0) {
+					toast.error(t("settings.exportSshConfigFailed", { error: result.errors[0] }));
+				}
+			})
+			.catch((err: unknown) => {
+				toast.error(t("settings.exportSshConfigFailed", { error: (err as Error).message }));
+			})
+			.finally(() => {
+				setExporting(false);
 			});
 	};
 
@@ -303,6 +346,36 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 								>
 									<Icon name="file" size={16} />
 									<span className="text-sm font-medium">{t("settings.importSshConfigFile")}</span>
+								</Button>
+							</div>
+						</div>
+						<div className="bg-surface-container rounded-xl border border-outline-variant p-4">
+							<div className="flex flex-col gap-1 mb-3">
+								<span className="text-sm font-medium text-foreground">{t("settings.exportSshConfig")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.exportSshConfigDescription")}</span>
+							</div>
+							<div className="flex flex-col gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									size="default"
+									className="h-auto justify-start gap-3 p-3"
+									onClick={handleExportDefault}
+									disabled={exporting}
+								>
+									<Icon name="save" size={16} />
+									<span className="text-sm font-medium">{t("settings.exportSshConfigDefault")}</span>
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="default"
+									className="h-auto justify-start gap-3 p-3"
+									onClick={handleExportFile}
+									disabled={exporting}
+								>
+									<Icon name="file" size={16} />
+									<span className="text-sm font-medium">{t("settings.exportSshConfigFile")}</span>
 								</Button>
 							</div>
 						</div>

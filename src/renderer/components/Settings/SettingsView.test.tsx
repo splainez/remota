@@ -361,4 +361,134 @@ describe("SettingsView", () => {
 		warningSpy.mockRestore();
 		errorSpy.mockRestore();
 	});
+
+	// --- SSH config export ---
+
+	it("renders SSH Config Export section with two buttons", () => {
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Export SSH Config")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /Export to default/ })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /Export to file/ })).toBeInTheDocument();
+	});
+
+	it("calls exportSshConfig when clicking default export button", async () => {
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+		expect(window.api.connections.exportSshConfig).toHaveBeenCalledOnce();
+	});
+
+	it("calls exportSshConfigFile when clicking file export button", async () => {
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to file/ }));
+		expect(window.api.connections.exportSshConfigFile).toHaveBeenCalledOnce();
+	});
+
+	it("shows success toast after exporting connections", async () => {
+		const { toast } = await import("sonner");
+		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+		(window.api.connections.exportSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({ exported: 5, errors: [] });
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+
+		await waitFor(() => {
+			expect(successSpy).toHaveBeenCalledOnce();
+		});
+		expect(successSpy.mock.calls[0][0]).toContain("5");
+
+		successSpy.mockRestore();
+	});
+
+	it("shows warning toast when export has partial errors", async () => {
+		const { toast } = await import("sonner");
+		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
+		(window.api.connections.exportSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
+			exported: 2,
+			errors: ["Could not write file"],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+
+		await waitFor(() => {
+			expect(warningSpy).toHaveBeenCalledOnce();
+		});
+
+		warningSpy.mockRestore();
+	});
+
+	it("shows error toast when export fails completely", async () => {
+		const { toast } = await import("sonner");
+		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+		(window.api.connections.exportSshConfig as ReturnType<typeof vi.fn>).mockResolvedValue({
+			exported: 0,
+			errors: ["Permission denied"],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to default/ }));
+
+		await waitFor(() => {
+			expect(errorSpy).toHaveBeenCalledOnce();
+		});
+
+		errorSpy.mockRestore();
+	});
+
+	it("shows no toast when export is cancelled (empty result)", async () => {
+		const { toast } = await import("sonner");
+		const successSpy = vi.spyOn(toast, "success").mockImplementation(() => "");
+		const warningSpy = vi.spyOn(toast, "warning").mockImplementation(() => "");
+		const errorSpy = vi.spyOn(toast, "error").mockImplementation(() => "");
+		(window.api.connections.exportSshConfigFile as ReturnType<typeof vi.fn>).mockResolvedValue({
+			exported: 0,
+			errors: [],
+		});
+
+		const user = userEvent.setup();
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		await user.click(screen.getByRole("button", { name: /Export to file/ }));
+
+		await new Promise((r) => setTimeout(r, 50));
+		expect(successSpy).not.toHaveBeenCalled();
+		expect(warningSpy).not.toHaveBeenCalled();
+		expect(errorSpy).not.toHaveBeenCalled();
+
+		successSpy.mockRestore();
+		warningSpy.mockRestore();
+		errorSpy.mockRestore();
+	});
 });
