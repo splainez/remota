@@ -34,7 +34,6 @@ function createWindow() {
 		minHeight: 600,
 		title: "OpenSCP",
 		frame: false,
-		titleBarStyle: "hidden",
 		webPreferences: {
 			preload: join(__dirname, "../preload/index.mjs"),
 			contextIsolation: true,
