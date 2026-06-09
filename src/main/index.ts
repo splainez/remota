@@ -1,7 +1,7 @@
 import { join } from "node:path";
 
 import { IPC } from "@shared/ipc-channels";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
@@ -33,6 +33,8 @@ function createWindow() {
 		minWidth: 900,
 		minHeight: 600,
 		title: "OpenSCP",
+		frame: false,
+		titleBarStyle: "hidden",
 		webPreferences: {
 			preload: join(__dirname, "../preload/index.mjs"),
 			contextIsolation: true,
@@ -67,6 +69,8 @@ function createWindow() {
 }
 
 void app.whenReady().then(() => {
+	Menu.setApplicationMenu(null);
+
 	const userDataPath = app.getPath("userData");
 
 	appStore = new AppStore(userDataPath);
@@ -97,6 +101,33 @@ void app.whenReady().then(() => {
 	if (!mainWindow) {
 		throw new Error("Main window not created");
 	}
+
+	ipcMain.handle(IPC.WINDOW_MINIMIZE, () => {
+		mainWindow?.minimize();
+	});
+
+	ipcMain.handle(IPC.WINDOW_MAXIMIZE, () => {
+		if (mainWindow?.isMaximized()) {
+			mainWindow.unmaximize();
+		} else {
+			mainWindow?.maximize();
+		}
+	});
+
+	ipcMain.handle(IPC.WINDOW_CLOSE, () => {
+		mainWindow?.close();
+	});
+
+	ipcMain.handle(IPC.WINDOW_IS_MAXIMIZED, () => {
+		return mainWindow?.isMaximized() ?? false;
+	});
+
+	const sendMaximizeState = () => {
+		mainWindow?.webContents.send(IPC.WINDOW_MAXIMIZE_CHANGE, mainWindow.isMaximized());
+	};
+
+	mainWindow.on("maximize", sendMaximizeState);
+	mainWindow.on("unmaximize", sendMaximizeState);
 
 	mainWindow.on("close", (event) => {
 		if (transferService.hasActiveTransfers()) {

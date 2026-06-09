@@ -150,6 +150,13 @@ export interface ElectronAPI {
 		open: (connectionId: number, remotePath: string) => Promise<{ tempPath: string }>;
 		stop: (connectionId: number, remotePath: string) => Promise<void>;
 	};
+	windowControls: {
+		minimize: () => Promise<void>;
+		maximize: () => Promise<void>;
+		close: () => Promise<void>;
+		isMaximized: () => Promise<boolean>;
+		onMaximizeChange: (callback: (maximized: boolean) => void) => () => void;
+	};
 	platform: string;
 }
 

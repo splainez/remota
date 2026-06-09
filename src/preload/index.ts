@@ -204,6 +204,21 @@ const api = {
 		stop: (connectionId: number, remotePath: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.REMOTE_EDIT_STOP, connectionId, remotePath),
 	},
+	windowControls: {
+		minimize: (): Promise<void> => ipcRenderer.invoke(IPC.WINDOW_MINIMIZE),
+		maximize: (): Promise<void> => ipcRenderer.invoke(IPC.WINDOW_MAXIMIZE),
+		close: (): Promise<void> => ipcRenderer.invoke(IPC.WINDOW_CLOSE),
+		isMaximized: (): Promise<boolean> => ipcRenderer.invoke(IPC.WINDOW_IS_MAXIMIZED),
+		onMaximizeChange: (callback: (maximized: boolean) => void) => {
+			const handler = (_event: Electron.IpcRendererEvent, maximized: boolean) => {
+				callback(maximized);
+			};
+			ipcRenderer.on(IPC.WINDOW_MAXIMIZE_CHANGE, handler);
+			return () => {
+				ipcRenderer.removeListener(IPC.WINDOW_MAXIMIZE_CHANGE, handler);
+			};
+		},
+	},
 	platform: process.platform,
 };
 

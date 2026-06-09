@@ -61,4 +61,9 @@ export const IPC = {
 	REMOTE_FILE_OPEN: "remote:file:open",
 	CONNECTION_IMPORT_SSH_CONFIG: "connection:importSshConfig",
 	CONNECTION_EXPORT_SSH_CONFIG: "connection:exportSshConfig",
+	WINDOW_MINIMIZE: "window:minimize",
+	WINDOW_MAXIMIZE: "window:maximize",
+	WINDOW_CLOSE: "window:close",
+	WINDOW_IS_MAXIMIZED: "window:isMaximized",
+	WINDOW_MAXIMIZE_CHANGE: "window:maximizeChange",
 } as const;
