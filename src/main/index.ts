@@ -26,6 +26,10 @@ let appStore: AppStore;
 let transferService: TransferService;
 let remoteEditManager: RemoteEditManager;
 
+const isMac = process.platform === 'darwin';
+const isWindows = process.platform === 'win32';
+const isLinux = process.platform === 'linux';
+
 function createWindow() {
 	mainWindow = new BrowserWindow({
 		width: 1200,
@@ -33,7 +37,9 @@ function createWindow() {
 		minWidth: 900,
 		minHeight: 600,
 		title: "OpenSCP",
-		frame: false,
+		frame: isLinux ? false : true,
+		trafficLightPosition: isMac ? { x: 12, y: 10 } : undefined,
+		titleBarStyle: isMac ? 'hiddenInset' : isWindows ? 'hidden' : undefined,
 		webPreferences: {
 			preload: join(__dirname, "../preload/index.mjs"),
 			contextIsolation: true,
@@ -42,7 +48,9 @@ function createWindow() {
 		},
 	});
 
+	// if (maximized) {
 	mainWindow.maximize();
+	// }
 
 	if (process.env.NODE_ENV === "development" || process.env.ELECTRON_RENDERER_URL) {
 		void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL ?? "");
