@@ -396,7 +396,7 @@ describe("S3 Navigation", () => {
 		expect(entries.length).toBe(0);
 	});
 
-	it("throws when listing a non-existent path (empty result)", async () => {
+	it("returns empty array for non-existent prefix", async () => {
 		await s3.connect(connectionId, {
 			host: "localhost",
 			port: 9000,
@@ -548,9 +548,7 @@ describe("S3 Navigation", () => {
 			useHttps: false,
 		});
 
-		await expect(
-			s3.uploadFile(connectionId, "/nonexistent/local/file.txt", "/remote.txt"),
-		).rejects.toThrow();
+		await expect(s3.uploadFile(connectionId, "/nonexistent/local/file.txt", "/remote.txt")).rejects.toThrow();
 	});
 
 	it("throws when downloading non-existent remote file", async () => {
@@ -566,9 +564,7 @@ describe("S3 Navigation", () => {
 		});
 
 		const downloadedFile = join(tempDir, "should-not-exist.txt");
-		await expect(
-			s3.downloadFile(connectionId, "/nonexistent-remote.txt", downloadedFile),
-		).rejects.toThrow();
+		await expect(s3.downloadFile(connectionId, "/nonexistent-remote.txt", downloadedFile)).rejects.toThrow();
 	});
 
 	it("deletePath on root throws", async () => {

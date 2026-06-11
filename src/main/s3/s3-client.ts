@@ -328,7 +328,8 @@ export class S3ConnectionManager {
 				{ abortSignal: signal },
 			);
 		} catch (err) {
-			body.destroy();
+			readStream.destroy();
+			if (body !== readStream) body.destroy();
 			const message = err instanceof Error ? err.message : String(err);
 			throw new Error(`S3 upload error: ${message}`, { cause: err });
 		}

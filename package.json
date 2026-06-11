@@ -24,7 +24,7 @@
 		"test:e2e:ui": "playwright test --ui",
 		"test:integration": "vitest run --config vitest.integration.config.ts",
 		"test:integration:watch": "vitest --config vitest.integration.config.ts",
-		"check": "pnpm run fmt:check && pnpm run lint --quiet && pnpm run typecheck && pnpm run test --silent && pnpm run build ",
+		"check": "pnpm run fmt:check && pnpm run lint --quiet && pnpm run typecheck && pnpm run test --silent && pnpm run test:integration --silent && pnpm run build ",
 		"build:win": "electron-builder --win portable --config electron-builder.json",
 		"build:linux": "electron-builder --linux AppImage --config electron-builder.json",
 		"build:docker:win": "docker compose -f docker-compose.build.yml run --rm builder-win",

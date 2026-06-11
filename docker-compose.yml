@@ -10,7 +10,6 @@ services:
     volumes:
       - ssh_data:/data
 
-
   # RustFS main service
   rustfs:
     image: rustfs/rustfs:latest
