@@ -1,7 +1,8 @@
-import { createWriteStream, createReadStream } from "node:fs";
+import { createWriteStream, createReadStream, statSync } from "node:fs";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { Transform } from "node:stream";
+import type { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
 import {
@@ -291,13 +292,21 @@ export class S3ConnectionManager {
 
 		const key = remotePath.replace(/^\/+/, "");
 		const readStream = createReadStream(localPath, { highWaterMark: 64 * 1024 });
+		const contentLength = statSync(localPath).size;
 
+		let body: Readable;
 		if (onProgress) {
 			let totalBytesRead = 0;
-			readStream.on("data", (chunk: Buffer) => {
-				totalBytesRead += chunk.length;
-				onProgress(totalBytesRead);
+			const progress = new Transform({
+				transform(chunk: Buffer, _enc, callback) {
+					totalBytesRead += chunk.length;
+					onProgress(totalBytesRead);
+					callback(null, chunk);
+				},
 			});
+			body = readStream.pipe(progress);
+		} else {
+			body = readStream;
 		}
 
 		try {
@@ -305,12 +314,13 @@ export class S3ConnectionManager {
 				new PutObjectCommand({
 					Bucket: session.bucket,
 					Key: key,
-					Body: readStream,
+					Body: body,
+					ContentLength: contentLength,
 				}),
 				{ abortSignal: signal },
 			);
 		} catch (err) {
-			readStream.destroy();
+			body.destroy();
 			const message = err instanceof Error ? err.message : String(err);
 			throw new Error(`S3 upload error: ${message}`, { cause: err });
 		}
