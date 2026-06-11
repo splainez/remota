@@ -35,13 +35,3 @@ export function buildFileTreeCommands(basePath: string): string[] {
 		`chmod 644 "${basePath}/readable/hello.txt" "${basePath}/nested/sub/deep.txt"`,
 	];
 }
-
-export function buildS3FixtureCommands(tmpDir: string): string[] {
-	return [
-		`mkdir -p "${tmpDir}/readable" "${tmpDir}/writable" "${tmpDir}/nested/sub"`,
-		`echo "Hello World" > "${tmpDir}/readable/hello.txt"`,
-		`echo "deep file" > "${tmpDir}/nested/sub/deep.txt"`,
-		`dd if=/dev/urandom of="${tmpDir}/binary.bin" bs=1024 count=1 2>/dev/null`,
-		`dd if=/dev/urandom of="${tmpDir}/large.bin" bs=1024 count=1024 2>/dev/null`,
-	];
-}

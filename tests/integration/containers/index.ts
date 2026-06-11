@@ -96,8 +96,8 @@ export function getS3Connection(): S3ConnectionInfo {
 	if (process.env.TEST_USE_EXTERNAL === "true") {
 		return {
 			endpoint: process.env.TEST_S3_ENDPOINT ?? "http://localhost:9000",
-			accessKey: process.env.TEST_S3_ACCESS_KEY ?? "minioadmin",
-			secretKey: process.env.TEST_S3_SECRET_KEY ?? "minioadmin",
+			accessKey: process.env.TEST_S3_ACCESS_KEY ?? "rustfsadmin",
+			secretKey: process.env.TEST_S3_SECRET_KEY ?? "rustfsadmin",
 			bucket: process.env.TEST_S3_BUCKET ?? "test-bucket",
 			region: process.env.TEST_S3_REGION ?? "us-east-1",
 		};
