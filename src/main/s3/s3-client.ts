@@ -291,8 +291,16 @@ export class S3ConnectionManager {
 		}
 
 		const key = remotePath.replace(/^\/+/, "");
+		let contentLength: number;
+
+		try {
+			contentLength = statSync(localPath).size;
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			throw new Error(`S3 upload error: ${message}`, { cause: err });
+		}
+
 		const readStream = createReadStream(localPath, { highWaterMark: 64 * 1024 });
-		const contentLength = statSync(localPath).size;
 
 		let body: Readable;
 		if (onProgress) {
