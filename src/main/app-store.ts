@@ -308,6 +308,17 @@ export class AppStore {
 		return this.data.settings;
 	}
 
+	// ── Exe Path ───────────────────────────────────────
+
+	getExePath(): string | undefined {
+		return this.data.exePath;
+	}
+
+	setExePath(exePath: string) {
+		this.data.exePath = exePath;
+		this.save();
+	}
+
 	// ── Persistence ──────────────────────────────────────
 
 	/** Force immediate write. */

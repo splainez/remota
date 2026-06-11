@@ -171,6 +171,16 @@ const api = {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),
 		getConfigError: (): Promise<{ message: string; filePath: string; issues: string[] } | null> =>
 			ipcRenderer.invoke(IPC.APP_GET_CONFIG_ERROR),
+		onOpenConnection: (callback: (connectionId: number) => void) => {
+			const handler = (_event: Electron.IpcRendererEvent, connectionId: number) => {
+				callback(connectionId);
+			};
+			ipcRenderer.on(IPC.APP_OPEN_CONNECTION, handler);
+			return () => {
+				ipcRenderer.removeListener(IPC.APP_OPEN_CONNECTION, handler);
+			};
+		},
+		getPendingConnection: (): Promise<number | null> => ipcRenderer.invoke(IPC.APP_GET_PENDING_CONNECTION),
 		onConfigError: (callback: (data: { message: string; filePath: string; issues: string[] }) => void) => {
 			const handler = (
 				_event: Electron.IpcRendererEvent,

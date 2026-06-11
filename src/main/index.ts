@@ -1,10 +1,12 @@
-import { join } from "node:path";
+import { existsSync } from "node:fs";
+import { extname, join, resolve } from "node:path";
 
 import { IPC } from "@shared/ipc-channels";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
+import { updateJumpList } from "./jump-list";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
@@ -25,6 +27,31 @@ let mainWindow: BrowserWindow | null = null;
 let appStore: AppStore;
 let transferService: TransferService;
 let remoteEditManager: RemoteEditManager;
+
+let pendingConnectionId: number | null = null;
+
+function resolveRealExePath(): string {
+	const argv0 = process.argv[0];
+	if (argv0 && !argv0.includes(".asar") && extname(argv0.toLowerCase()) === ".exe" && existsSync(argv0)) {
+		return argv0;
+	}
+	const cwd = process.cwd();
+	const cwdExe = resolve(cwd, "OpenSCP.exe");
+	if (extname(cwd.toLowerCase()) !== ".tmp" && existsSync(cwdExe)) {
+		return cwdExe;
+	}
+	const saved = appStore.getExePath();
+	if (saved && existsSync(saved)) return saved;
+	return argv0;
+}
+
+function parseConnectArgv(argv: string[]): number | null {
+	for (const arg of argv) {
+		const match = /^--connect=(\d+)$/.exec(arg);
+		if (match) return Number(match[1]);
+	}
+	return null;
+}
 
 const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
@@ -75,114 +102,152 @@ function createWindow() {
 	});
 }
 
-void app.whenReady().then(() => {
-	Menu.setApplicationMenu(null);
-
-	const userDataPath = app.getPath("userData");
-
-	appStore = new AppStore(userDataPath);
-
-	ipcMain.handle(IPC.APP_GET_CONFIG_PATH, () => {
-		return appStore.getFilePath();
-	});
-
-	ipcMain.handle(IPC.APP_GET_CONFIG_ERROR, () => {
-		appStore.reload();
-		const err = appStore.getLoadError();
-		if (!err) return null;
-		return {
-			message: err.message,
-			filePath: err.filePath,
-			issues: err.issues,
-		};
-	});
-
-	const sftp = new SftpConnectionManager();
-	const s3 = new S3ConnectionManager();
-	registerConnectionHandlers(appStore);
-	registerRemoteFilesystemHandlers(sftp, s3, appStore);
-	registerTransferPanelHandlers(appStore);
-	registerFilePaneSizeHandlers(appStore);
-	createWindow();
-
-	if (!mainWindow) {
-		throw new Error("Main window not created");
+function sendOpenConnection(connectionId: number) {
+	if (mainWindow) {
+		if (mainWindow.isMinimized()) mainWindow.restore();
+		mainWindow.focus();
+		mainWindow.webContents.send(IPC.APP_OPEN_CONNECTION, connectionId);
 	}
+}
 
-	ipcMain.handle(IPC.WINDOW_MINIMIZE, () => {
-		mainWindow?.minimize();
-	});
+const gotTheLock = app.requestSingleInstanceLock();
 
-	ipcMain.handle(IPC.WINDOW_MAXIMIZE, () => {
-		if (mainWindow?.isMaximized()) {
-			mainWindow.unmaximize();
-		} else {
-			mainWindow?.maximize();
+if (!gotTheLock) {
+	app.quit();
+} else {
+	app.on("second-instance", (_event, commandLine) => {
+		const id = parseConnectArgv(commandLine);
+		if (id != null) {
+			sendOpenConnection(id);
 		}
 	});
 
-	ipcMain.handle(IPC.WINDOW_CLOSE, () => {
-		mainWindow?.close();
-	});
+	void app.whenReady().then(() => {
+		Menu.setApplicationMenu(null);
 
-	ipcMain.handle(IPC.WINDOW_IS_MAXIMIZED, () => {
-		return mainWindow?.isMaximized() ?? false;
-	});
+		const userDataPath = app.getPath("userData");
 
-	const sendMaximizeState = () => {
-		mainWindow?.webContents.send(IPC.WINDOW_MAXIMIZE_CHANGE, mainWindow.isMaximized());
-	};
+		appStore = new AppStore(userDataPath);
 
-	mainWindow.on("maximize", sendMaximizeState);
-	mainWindow.on("unmaximize", sendMaximizeState);
-
-	mainWindow.on("close", (event) => {
-		if (transferService.hasActiveTransfers()) {
-			event.preventDefault();
-			mainWindow?.webContents.send(IPC.APP_CONFIRM_QUIT);
+		if (!appStore.getExePath()) {
+			appStore.setExePath(resolveRealExePath());
 		}
-	});
 
-	ipcMain.on(IPC.APP_QUIT_RESPONSE, (_event, proceed: boolean) => {
-		if (proceed) {
-			mainWindow?.destroy();
+		updateJumpList(appStore);
+
+		ipcMain.handle(IPC.APP_GET_CONFIG_PATH, () => {
+			return appStore.getFilePath();
+		});
+
+		ipcMain.handle(IPC.APP_GET_PENDING_CONNECTION, () => {
+			const id = pendingConnectionId;
+			pendingConnectionId = null;
+			return id;
+		});
+
+		ipcMain.handle(IPC.APP_GET_CONFIG_ERROR, () => {
+			appStore.reload();
+			const err = appStore.getLoadError();
+			if (!err) return null;
+			return {
+				message: err.message,
+				filePath: err.filePath,
+				issues: err.issues,
+			};
+		});
+
+		const sftp = new SftpConnectionManager();
+		const s3 = new S3ConnectionManager();
+		registerConnectionHandlers(appStore);
+		registerRemoteFilesystemHandlers(sftp, s3, appStore);
+		registerTransferPanelHandlers(appStore);
+		registerFilePaneSizeHandlers(appStore);
+		createWindow();
+
+		if (!mainWindow) {
+			throw new Error("Main window not created");
 		}
-	});
 
-	const fileWatcher = new FileWatcherManager(mainWindow.webContents);
-	registerFilesystemHandlers(appStore, fileWatcher);
-	const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);
-	registerTerminalHandlers(terminalManager);
-
-	transferService = new TransferService({ sftp, s3, store: appStore });
-	registerSettingsHandlers(appStore, transferService);
-
-	remoteEditManager = new RemoteEditManager({
-		sftp,
-		s3,
-		tempManager,
-		getWebContents: () => mainWindow?.webContents ?? null,
-	});
-	registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null, remoteEditManager);
-	registerRemoteEditHandlers(remoteEditManager);
-
-	app.on("will-quit", () => {
-		fileWatcher.stopAll();
-		terminalManager.killAll();
-		transferService.cancelAll();
-		remoteEditManager.stopAll();
-		sftp.disconnectAll();
-		s3.disconnectAll();
-		void tempManager.removeAll();
-		appStore.flush();
-	});
-
-	app.on("activate", () => {
-		if (BrowserWindow.getAllWindows().length === 0) {
-			createWindow();
+		const initialConnectId = parseConnectArgv(process.argv);
+		if (initialConnectId != null) {
+			pendingConnectionId = initialConnectId;
 		}
+
+		ipcMain.handle(IPC.WINDOW_MINIMIZE, () => {
+			mainWindow?.minimize();
+		});
+
+		ipcMain.handle(IPC.WINDOW_MAXIMIZE, () => {
+			if (mainWindow?.isMaximized()) {
+				mainWindow.unmaximize();
+			} else {
+				mainWindow?.maximize();
+			}
+		});
+
+		ipcMain.handle(IPC.WINDOW_CLOSE, () => {
+			mainWindow?.close();
+		});
+
+		ipcMain.handle(IPC.WINDOW_IS_MAXIMIZED, () => {
+			return mainWindow?.isMaximized() ?? false;
+		});
+
+		const sendMaximizeState = () => {
+			mainWindow?.webContents.send(IPC.WINDOW_MAXIMIZE_CHANGE, mainWindow.isMaximized());
+		};
+
+		mainWindow.on("maximize", sendMaximizeState);
+		mainWindow.on("unmaximize", sendMaximizeState);
+
+		mainWindow.on("close", (event) => {
+			if (transferService.hasActiveTransfers()) {
+				event.preventDefault();
+				mainWindow?.webContents.send(IPC.APP_CONFIRM_QUIT);
+			}
+		});
+
+		ipcMain.on(IPC.APP_QUIT_RESPONSE, (_event, proceed: boolean) => {
+			if (proceed) {
+				mainWindow?.destroy();
+			}
+		});
+
+		const fileWatcher = new FileWatcherManager(mainWindow.webContents);
+		registerFilesystemHandlers(appStore, fileWatcher);
+		const terminalManager = new TerminalManager(sftp, appStore, mainWindow.webContents);
+		registerTerminalHandlers(terminalManager);
+
+		transferService = new TransferService({ sftp, s3, store: appStore });
+		registerSettingsHandlers(appStore, transferService);
+
+		remoteEditManager = new RemoteEditManager({
+			sftp,
+			s3,
+			tempManager,
+			getWebContents: () => mainWindow?.webContents ?? null,
+		});
+		registerTransferHandlers(transferService, () => mainWindow?.webContents ?? null, remoteEditManager);
+		registerRemoteEditHandlers(remoteEditManager);
+
+		app.on("will-quit", () => {
+			fileWatcher.stopAll();
+			terminalManager.killAll();
+			transferService.cancelAll();
+			remoteEditManager.stopAll();
+			sftp.disconnectAll();
+			s3.disconnectAll();
+			void tempManager.removeAll();
+			appStore.flush();
+		});
+
+		app.on("activate", () => {
+			if (BrowserWindow.getAllWindows().length === 0) {
+				createWindow();
+			}
+		});
 	});
-});
+}
 
 app.on("window-all-closed", () => {
 	if (process.platform !== "darwin") {
