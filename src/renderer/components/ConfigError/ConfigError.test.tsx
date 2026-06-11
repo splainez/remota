@@ -11,6 +11,8 @@ function createMockApiWithError(overrides?: Partial<ElectronAPI>): ElectronAPI {
 		app: {
 			getConfigPath: vi.fn<() => Promise<string>>().mockResolvedValue("/tmp/app-config.json"),
 			getConfigError: vi.fn<() => Promise<{ message: string; filePath: string; issues: string[] } | null>>(),
+			onOpenConnection: vi.fn().mockReturnValue(vi.fn()),
+			getPendingConnection: vi.fn<() => Promise<null>>().mockResolvedValue(null),
 			onConfigError: vi.fn().mockReturnValue(vi.fn()),
 			onAppConfirmQuit: vi.fn().mockReturnValue(vi.fn()),
 			quitResponse: vi.fn(),

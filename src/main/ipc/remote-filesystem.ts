@@ -1,4 +1,5 @@
 import type { AppStore } from "@main/app-store";
+import { updateJumpList } from "@main/jump-list";
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import { IPC } from "@shared/ipc-channels";
@@ -42,6 +43,7 @@ export function registerRemoteFilesystemHandlers(
 		}
 
 		store.markRecent(connectionId);
+		updateJumpList(store);
 		return result;
 	});
 

@@ -1,10 +1,12 @@
-import { join } from "node:path";
+import { existsSync } from "node:fs";
+import { extname, join, resolve } from "node:path";
 
 import { IPC } from "@shared/ipc-channels";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
+import { updateJumpList } from "./jump-list";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
@@ -25,6 +27,31 @@ let mainWindow: BrowserWindow | null = null;
 let appStore: AppStore;
 let transferService: TransferService;
 let remoteEditManager: RemoteEditManager;
+
+let pendingConnectionId: number | null = null;
+
+function resolveRealExePath(): string {
+	const argv0 = process.argv[0];
+	if (argv0 && !argv0.includes(".asar") && extname(argv0.toLowerCase()) === ".exe" && existsSync(argv0)) {
+		return argv0;
+	}
+	const cwd = process.cwd();
+	const cwdExe = resolve(cwd, "OpenSCP.exe");
+	if (extname(cwd.toLowerCase()) !== ".tmp" && existsSync(cwdExe)) {
+		return cwdExe;
+	}
+	const saved = appStore.getExePath();
+	if (saved && existsSync(saved)) return saved;
+	return argv0;
+}
+
+function parseConnectArgv(argv: string[]): number | null {
+	for (const arg of argv) {
+		const match = /^--connect=(\d+)$/.exec(arg);
+		if (match) return Number(match[1]);
+	}
+	return null;
+}
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -67,15 +94,47 @@ function createWindow() {
 	});
 }
 
-void app.whenReady().then(() => {
+function sendOpenConnection(connectionId: number) {
+	if (mainWindow) {
+		if (mainWindow.isMinimized()) mainWindow.restore();
+		mainWindow.focus();
+		mainWindow.webContents.send(IPC.APP_OPEN_CONNECTION, connectionId);
+	}
+}
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+	app.quit();
+} else {
+	app.on("second-instance", (_event, commandLine) => {
+		const id = parseConnectArgv(commandLine);
+		if (id != null) {
+			sendOpenConnection(id);
+		}
+	});
+
+	void app.whenReady().then(() => {
 	Menu.setApplicationMenu(null);
 
 	const userDataPath = app.getPath("userData");
 
 	appStore = new AppStore(userDataPath);
 
+	if (!appStore.getExePath()) {
+		appStore.setExePath(resolveRealExePath());
+	}
+
+	updateJumpList(appStore);
+
 	ipcMain.handle(IPC.APP_GET_CONFIG_PATH, () => {
 		return appStore.getFilePath();
+	});
+
+	ipcMain.handle(IPC.APP_GET_PENDING_CONNECTION, () => {
+		const id = pendingConnectionId;
+		pendingConnectionId = null;
+		return id;
 	});
 
 	ipcMain.handle(IPC.APP_GET_CONFIG_ERROR, () => {
@@ -99,6 +158,11 @@ void app.whenReady().then(() => {
 
 	if (!mainWindow) {
 		throw new Error("Main window not created");
+	}
+
+	const initialConnectId = parseConnectArgv(process.argv);
+	if (initialConnectId != null) {
+		pendingConnectionId = initialConnectId;
 	}
 
 	ipcMain.handle(IPC.WINDOW_MINIMIZE, () => {
@@ -174,7 +238,8 @@ void app.whenReady().then(() => {
 			createWindow();
 		}
 	});
-});
+	});
+}
 
 app.on("window-all-closed", () => {
 	if (process.platform !== "darwin") {

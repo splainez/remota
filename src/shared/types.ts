@@ -141,6 +141,8 @@ export interface ElectronAPI {
 	app: {
 		getConfigPath: () => Promise<string>;
 		getConfigError: () => Promise<{ message: string; filePath: string; issues: string[] } | null>;
+		onOpenConnection: (callback: (connectionId: number) => void) => () => void;
+		getPendingConnection: () => Promise<number | null>;
 		onConfigError: (callback: (data: { message: string; filePath: string; issues: string[] }) => void) => () => void;
 		onAppConfirmQuit: (callback: () => void) => () => void;
 		quitResponse: (proceed: boolean) => void;

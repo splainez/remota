@@ -111,6 +111,7 @@ export const AppConfigSchema = z
 		transferPanels: TransferPanelsSchema.default({}),
 		filePaneSizes: FilePaneSizesSchema.default({}),
 		settings: SettingsSchema.default(defaultSettings),
+		exePath: z.string().optional(),
 	})
 	.strict();
 

@@ -58,6 +58,21 @@ function RootLayout() {
 		return unsub;
 	}, []);
 
+	useEffect(() => {
+		const unsub = window.api.app.onOpenConnection((connectionId) => {
+			void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
+		});
+		return unsub;
+	}, [router]);
+
+	useEffect(() => {
+		void window.api.app.getPendingConnection().then((connectionId) => {
+			if (connectionId != null) {
+				void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
+			}
+		});
+	}, [router]);
+
 	const activeConnectionId = useActiveConnectionId();
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
 		activeConnectionId == null ? false : s.isVisible(activeConnectionId),

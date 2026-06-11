@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 import type { AppStore } from "@main/app-store";
+import { updateJumpList } from "@main/jump-list";
 import { IPC } from "@shared/ipc-channels";
 import type { NewConnection, ConnectionUpdate } from "@shared/types";
 import { connectionFormSchema, connectionBaseSchema } from "@shared/validation";
@@ -59,6 +60,7 @@ export function registerConnectionHandlers(store: AppStore) {
 
 	ipcMain.handle(IPC.CONNECTION_MARK_RECENT, (_event, id: number) => {
 		store.markRecent(id);
+		updateJumpList(store);
 	});
 
 	ipcMain.handle(IPC.CONNECTION_IMPORT_SSH_CONFIG, async () => {
