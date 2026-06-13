@@ -78,6 +78,6 @@ describe("ServerSidebarFooter", () => {
 			</I18nWrapper>,
 		);
 		const buttons = screen.getAllByRole("button");
-		expect(buttons.length).toBe(2); // expand + settings
+		expect(buttons.length).toBe(1); // expand only (settings hidden when collapsed)
 	});
 });

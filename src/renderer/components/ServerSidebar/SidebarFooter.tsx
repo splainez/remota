@@ -22,7 +22,7 @@ export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 				collapsed ? "items-center" : "",
 			)}
 		>
-			<div className="flex flex-row content-between">
+			<div className="flex flex-col content-between">
 				<Button
 					variant="ghost"
 					size="icon"

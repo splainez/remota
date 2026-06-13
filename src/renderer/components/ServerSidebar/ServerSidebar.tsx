@@ -71,11 +71,9 @@ export function ServerSidebar({
 		<Sidebar
 			collapsible="icon"
 		>
-			<SidebarHeader>
+			<SidebarHeader className="border-b border-sidebar-border">
 				<BrandButton onViewAll={onViewAll} />
 			</SidebarHeader>
-
-			<SidebarSeparator />
 
 			<SidebarContent>
 				<SidebarGroup>
@@ -164,7 +162,7 @@ export function ServerSidebar({
 				</SidebarGroup>
 			</SidebarContent>
 
-			<SidebarFooter>
+			<SidebarFooter className="border-t border-sidebar-border">
 				<ServerSidebarFooter onSettings={onSettings} />
 			</SidebarFooter>
 		</Sidebar>
