@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { extname, join, resolve } from "node:path";
+import { extname, join } from "node:path";
 
 import { IPC } from "@shared/ipc-channels";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
@@ -34,11 +34,6 @@ function resolveRealExePath(): string {
 	const argv0 = process.argv[0];
 	if (argv0 && !argv0.includes(".asar") && extname(argv0.toLowerCase()) === ".exe" && existsSync(argv0)) {
 		return argv0;
-	}
-	const cwd = process.cwd();
-	const cwdExe = resolve(cwd, "OpenSCP.exe");
-	if (extname(cwd.toLowerCase()) !== ".tmp" && existsSync(cwdExe)) {
-		return cwdExe;
 	}
 	const saved = appStore.getExePath();
 	if (saved && existsSync(saved)) return saved;
@@ -121,9 +116,7 @@ if (!gotTheLock) {
 
 	appStore = new AppStore(userDataPath);
 
-	if (!appStore.getExePath()) {
-		appStore.setExePath(resolveRealExePath());
-	}
+	appStore.setExePath(resolveRealExePath());
 
 	updateJumpList(appStore);
 
