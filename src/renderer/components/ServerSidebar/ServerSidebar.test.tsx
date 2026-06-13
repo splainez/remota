@@ -1,4 +1,5 @@
 import { ThemeProvider } from "@renderer/components/theme-provider";
+import { SidebarProvider } from "@renderer/components/ui/sidebar";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import type { Connection } from "@shared/types";
 import { render, screen } from "@testing-library/react";
@@ -43,17 +44,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -66,17 +69,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={null}
-						activeSessions={[]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={null}
+							activeSessions={[]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -90,17 +95,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={onSelect}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={onSelect}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -115,17 +122,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={onAdd}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={onAdd}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -139,17 +148,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -167,17 +178,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -194,17 +207,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={onViewAll}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={onViewAll}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -219,17 +234,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={onViewAll}
-						onDisconnect={vi.fn()}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={onViewAll}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);
@@ -244,17 +261,19 @@ describe("ServerSidebar", () => {
 		render(
 			<I18nWrapper>
 				<ThemeProvider defaultTheme="dark">
-					<ServerSidebar
-						connections={connections}
-						activeConnectionId={1}
-						activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
-						onSelect={vi.fn()}
-						onAdd={vi.fn()}
-						onDoubleClick={vi.fn()}
-						onViewAll={vi.fn()}
-						onDisconnect={onDisconnect}
-						onSettings={vi.fn()}
-					/>
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={onDisconnect}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
 				</ThemeProvider>
 			</I18nWrapper>,
 		);

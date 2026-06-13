@@ -1,3 +1,4 @@
+import { SidebarProvider } from "@renderer/components/ui/sidebar";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -6,10 +7,12 @@ import { describe, it, expect, vi } from "vitest";
 import { BrandButton } from "./BrandButton";
 
 describe("BrandButton", () => {
-	it("renders the app title when not collapsed", () => {
+	it("renders the app title when expanded", () => {
 		render(
 			<I18nWrapper>
-				<BrandButton collapsed={false} onViewAll={vi.fn()} />
+				<SidebarProvider>
+					<BrandButton onViewAll={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		expect(screen.getByText("OpenSCP")).toBeInTheDocument();
@@ -18,7 +21,9 @@ describe("BrandButton", () => {
 	it("hides text content when collapsed", () => {
 		render(
 			<I18nWrapper>
-				<BrandButton collapsed={true} onViewAll={vi.fn()} />
+				<SidebarProvider defaultOpen={false}>
+					<BrandButton onViewAll={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		expect(screen.queryByText("OpenSCP")).not.toBeInTheDocument();
@@ -29,7 +34,9 @@ describe("BrandButton", () => {
 		const onViewAll = vi.fn();
 		render(
 			<I18nWrapper>
-				<BrandButton collapsed={false} onViewAll={onViewAll} />
+				<SidebarProvider>
+					<BrandButton onViewAll={onViewAll} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByTitle("OpenSCP"));
@@ -41,7 +48,9 @@ describe("BrandButton", () => {
 		const onViewAll = vi.fn();
 		render(
 			<I18nWrapper>
-				<BrandButton collapsed={false} onViewAll={onViewAll} />
+				<SidebarProvider>
+					<BrandButton onViewAll={onViewAll} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		const brandButton = screen.getByTitle("OpenSCP");
@@ -55,7 +64,9 @@ describe("BrandButton", () => {
 		const onViewAll = vi.fn();
 		render(
 			<I18nWrapper>
-				<BrandButton collapsed={false} onViewAll={onViewAll} />
+				<SidebarProvider>
+					<BrandButton onViewAll={onViewAll} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		const brandButton = screen.getByTitle("OpenSCP");

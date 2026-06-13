@@ -1,9 +1,10 @@
+import { SidebarProvider } from "@renderer/components/ui/sidebar";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { SidebarFooter } from "./SidebarFooter";
+import { ServerSidebarFooter } from "./SidebarFooter";
 
 vi.mock("../../hooks/useTheme", () => ({
 	useTheme: () => ({
@@ -12,7 +13,7 @@ vi.mock("../../hooks/useTheme", () => ({
 	}),
 }));
 
-describe("SidebarFooter", () => {
+describe("ServerSidebarFooter", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
@@ -20,44 +21,48 @@ describe("SidebarFooter", () => {
 	it("renders collapse button with arrow-left when expanded", () => {
 		render(
 			<I18nWrapper>
-				<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
+				<SidebarProvider>
+					<ServerSidebarFooter onSettings={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		const buttons = screen.getAllByRole("button");
-		const collapseBtn =
-			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
+		const collapseBtn = screen.getByRole("button", { name: "Collapse sidebar" });
 		expect(collapseBtn).toBeInTheDocument();
 	});
 
 	it("renders collapse button with arrow-right when collapsed", () => {
 		render(
 			<I18nWrapper>
-				<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
+				<SidebarProvider defaultOpen={false}>
+					<ServerSidebarFooter onSettings={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		const buttons = screen.getAllByRole("button");
-		expect(buttons.length).toBeGreaterThanOrEqual(1);
+		const expandBtn = screen.getByRole("button", { name: "Expand sidebar" });
+		expect(expandBtn).toBeInTheDocument();
 	});
 
-	it("calls onToggleCollapse on click", async () => {
+	it("calls toggleSidebar on collapse click", async () => {
 		const user = userEvent.setup();
-		const onToggleCollapse = vi.fn();
 		render(
 			<I18nWrapper>
-				<SidebarFooter collapsed={false} onToggleCollapse={onToggleCollapse} onSettings={vi.fn()} />
+				<SidebarProvider>
+					<ServerSidebarFooter onSettings={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		const buttons = screen.getAllByRole("button");
-		const collapseBtn =
-			buttons.find((b) => b.className.includes("rounded-full") && b.className.includes("self-start")) ?? buttons[0];
+		const collapseBtn = screen.getByRole("button", { name: "Collapse sidebar" });
 		await user.click(collapseBtn);
-		expect(onToggleCollapse).toHaveBeenCalledOnce();
+		const expandBtn = screen.getByRole("button", { name: "Expand sidebar" });
+		expect(expandBtn).toBeInTheDocument();
 	});
 
 	it("shows theme and settings when expanded", () => {
 		render(
 			<I18nWrapper>
-				<SidebarFooter collapsed={false} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
+				<SidebarProvider>
+					<ServerSidebarFooter onSettings={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		const buttons = screen.getAllByRole("button");
@@ -67,10 +72,12 @@ describe("SidebarFooter", () => {
 	it("shows settings and hides theme when collapsed", () => {
 		render(
 			<I18nWrapper>
-				<SidebarFooter collapsed={true} onToggleCollapse={vi.fn()} onSettings={vi.fn()} />
+				<SidebarProvider defaultOpen={false}>
+					<ServerSidebarFooter onSettings={vi.fn()} />
+				</SidebarProvider>
 			</I18nWrapper>,
 		);
 		const buttons = screen.getAllByRole("button");
-		expect(buttons.length).toBe(2); // collapse + settings
+		expect(buttons.length).toBe(2); // expand + settings
 	});
 });

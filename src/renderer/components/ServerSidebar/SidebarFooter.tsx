@@ -1,50 +1,55 @@
 import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { useSidebar } from "@renderer/hooks/useSidbar";
 import { cn } from "@renderer/lib/utils";
 
 import { ThemeSelect } from "./ThemeSelect";
 
-interface SidebarFooterProps {
-	collapsed: boolean;
-	onToggleCollapse: () => void;
+interface ServerSidebarFooterProps {
 	onSettings: () => void;
 }
 
-export function SidebarFooter({ collapsed, onToggleCollapse, onSettings }: SidebarFooterProps) {
+export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 	const { t } = useI18n();
+	const { state, toggleSidebar } = useSidebar();
+	const collapsed = state === "collapsed";
+
 	return (
 		<div
 			className={cn(
-				"flex flex-col gap-2 w-full mt-auto pt-3 border-t border-outline-variant",
+				"flex flex-col gap-2 w-full mt-auto pt-3 border-t border-sidebar-border",
 				collapsed ? "items-center" : "",
 			)}
 		>
-			<Button
-				variant="ghost"
-				size="icon"
-				className={cn(
-					"rounded-full hover:rounded-xl text-on-surface-variant hover:text-primary",
-					!collapsed && "self-start",
-				)}
-				aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
-				title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
-				onClick={onToggleCollapse}
-			>
-				<Icon name={collapsed ? "arrow-right" : "arrow-left"} size={16} />
-			</Button>
-			<div className={cn("flex items-center gap-2", collapsed ? "flex-col" : "flex-row")}>
-				{!collapsed && <ThemeSelect />}
+			<div className="flex flex-row content-between">
 				<Button
 					variant="ghost"
 					size="icon"
-					className="rounded-full hover:rounded-xl text-on-surface-variant hover:text-primary"
-					aria-label={t("navigation.settings")}
-					title={t("navigation.settings")}
-					onClick={onSettings}
+					className={cn(
+						"rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary",
+					)}
+					aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+					title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+					onClick={toggleSidebar}
 				>
-					<Icon name="settings" size={16} />
+					<Icon name={collapsed ? "arrow-right" : "arrow-left"} size={16} />
 				</Button>
+				{!collapsed && <>
+					<Button
+						variant="ghost"
+						size="icon"
+						className={cn(
+							"rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary",
+						)}
+						aria-label={t("navigation.settings")}
+						title={t("navigation.settings")}
+						onClick={onSettings}
+					>
+						<Icon name="settings" size={16} />
+					</Button>
+					<ThemeSelect />
+				</>}
 			</div>
 		</div>
 	);

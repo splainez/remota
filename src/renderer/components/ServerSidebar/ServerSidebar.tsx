@@ -1,12 +1,26 @@
 import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarSeparator,
+} from "@renderer/components/ui/sidebar";
 import { useI18n } from "@renderer/hooks/useI18n";
+import { useSidebar } from "@renderer/hooks/useSidbar";
+import { cn } from "@renderer/lib/utils";
 import type { ActiveSession } from "@renderer/store/activeSessions";
 import type { Connection } from "@shared/types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { BrandButton } from "./BrandButton";
-import { SidebarFooter } from "./SidebarFooter";
+import { ServerSidebarFooter } from "./SidebarFooter";
 
 interface ServerSidebarProps {
 	connections: Connection[];
@@ -45,7 +59,8 @@ export function ServerSidebar({
 	onSettings,
 }: ServerSidebarProps) {
 	const { t } = useI18n();
-	const [collapsed, setCollapsed] = useState(false);
+	const { state } = useSidebar();
+	const collapsed = state === "collapsed";
 
 	const visibleConnections = useMemo(
 		() => getVisibleConnections(connections, activeSessions),
@@ -53,113 +68,105 @@ export function ServerSidebar({
 	);
 
 	return (
-		<nav
-			className={`bg-surface-container-low border-r border-outline-variant flex flex-col py-3 gap-3 z-40 shrink-0 transition-all duration-300 ${collapsed ? "w-16 items-center" : "w-60 px-3"}`}
+		<Sidebar
+			collapsible="icon"
 		>
-			<BrandButton collapsed={collapsed} onViewAll={onViewAll} />
+			<SidebarHeader>
+				<BrandButton onViewAll={onViewAll} />
+			</SidebarHeader>
 
-			<div className={`h-[2px] bg-outline-variant rounded-full ${collapsed ? "w-6" : "w-full"}`} />
+			<SidebarSeparator />
 
-			{/* Server List — active connections only */}
-			<div className="flex flex-col gap-1 w-full flex-1 overflow-y-auto no-scrollbar">
-				{visibleConnections.length === 0 && !collapsed && (
-					<div className="text-muted-foreground text-xs text-center py-4">{t("connection.noActive")}</div>
-				)}
+			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupContent>
+						<SidebarMenu className="gap-1">
+							{visibleConnections.length === 0 && !collapsed && (
+								<div className="text-muted-foreground text-xs text-center py-4">{t("connection.noActive")}</div>
+							)}
 
-				{visibleConnections.map((conn) => {
-					const isCurrentView = conn.id === activeConnectionId;
-					return (
-						<Button
-							key={conn.id}
-							variant={isCurrentView ? "selected" : "ghost"}
-							size="default"
-							className={`relative ${
-								collapsed ? "w-10 h-10 rounded-xl mx-auto px-0" : "w-full px-3 py-2 rounded-lg justify-start"
-							} text-xs font-semibold ${
-								isCurrentView && collapsed ? "ring-2 ring-primary" : !isCurrentView && collapsed ? "opacity-50" : ""
-							}`}
-							title={conn.name}
-							onClick={() => {
-								onSelect(conn.id);
-							}}
-							onDoubleClick={() => {
-								onDoubleClick(conn.id);
-							}}
-						>
-							{isCurrentView && collapsed && (
-								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary rounded-r-full" />
-							)}
-							{isCurrentView && !collapsed && (
-								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
-							)}
-							{!isCurrentView && !collapsed && (
-								<span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-outline-variant rounded-r-full" />
-							)}
-							<span
-								className={
-									collapsed
-										? isCurrentView
-											? "text-on-surface-variant"
-											: "text-muted-foreground"
-										: "truncate text-left flex-1"
-								}
-							>
-								{collapsed ? getInitials(conn.name) : conn.name}
-							</span>
-							{!collapsed && (
+							{visibleConnections.map((conn) => {
+								const isCurrentView = conn.id === activeConnectionId;
+								return (
+									<SidebarMenuItem key={conn.id}>
+										<SidebarMenuButton
+											isActive={isCurrentView}
+											tooltip={conn.name}
+											onClick={() => {
+												onSelect(conn.id);
+											}}
+											onDoubleClick={() => {
+												onDoubleClick(conn.id);
+											}}
+										>
+											<span
+												className={cn(
+													"flex size-8 items-center justify-center rounded-lg text-xs font-semibold shrink-0",
+													isCurrentView
+														? "bg-sidebar-primary/10 text-sidebar-primary"
+														: "bg-sidebar-accent text-muted-foreground",
+												)}
+											>
+												{getInitials(conn.name)}
+											</span>
+											{!collapsed && <span className="flex-1 truncate text-left">{conn.name}</span>}
+										</SidebarMenuButton>
+										{!collapsed && (
+											<Button
+												variant="ghost"
+												size="icon-xs"
+												className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded"
+												aria-label={t("connection.disconnect")}
+												title={t("connection.disconnect")}
+												onClick={(e) => {
+													e.stopPropagation();
+													onDisconnect(conn.id);
+												}}
+											>
+												<Icon name="close" size={12} />
+											</Button>
+										)}
+									</SidebarMenuItem>
+								);
+							})}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+				<SidebarGroup>
+					<SidebarGroupContent>
+						<SidebarMenuItem>
+							{collapsed ? (
 								<Button
-									variant="ghost"
-									size="icon-xs"
-									className="ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded"
-									aria-label={t("connection.disconnect")}
-									title={t("connection.disconnect")}
-									onClick={(e) => {
-										e.stopPropagation();
-										onDisconnect(conn.id);
-									}}
+									variant="outline"
+									size="icon"
+									className="size-8 rounded-lg border-dashed text-on-surface-variant hover:text-primary hover:border-primary"
+									aria-label={t("connection.add")}
+									title={t("connection.add")}
+									onClick={onAdd}
 								>
-									<Icon name="close" size={12} />
+									<Icon name="add" size={16} />
+								</Button>
+							) : (
+								<Button
+									variant="outline"
+									size="default"
+									className="w-full py-2 border-dashed text-on-surface-variant hover:text-primary hover:border-primary justify-center"
+									aria-label={t("connection.add")}
+									title={t("connection.add")}
+									onClick={onAdd}
+								>
+									<Icon name="add" size={16} />
+									<span className="text-xs">{t("connection.add")}</span>
 								</Button>
 							)}
-						</Button>
-					);
-				})}
+						</SidebarMenuItem>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
 
-				{/* Add button */}
-				{!collapsed && (
-					<Button
-						variant="outline"
-						size="default"
-						className="w-full py-2 border-dashed text-on-surface-variant hover:text-primary hover:border-primary justify-center"
-						aria-label={t("connection.add")}
-						title={t("connection.add")}
-						onClick={onAdd}
-					>
-						<Icon name="add" size={16} />
-						<span className="text-xs">{t("connection.add")}</span>
-					</Button>
-				)}
-				{collapsed && (
-					<Button
-						variant="outline"
-						size="icon"
-						className="w-10 h-10 rounded-full border-dashed text-on-surface-variant hover:text-primary hover:border-primary mx-auto"
-						aria-label={t("connection.add")}
-						title={t("connection.add")}
-						onClick={onAdd}
-					>
-						<Icon name="add" size={16} />
-					</Button>
-				)}
-			</div>
-
-			<SidebarFooter
-				collapsed={collapsed}
-				onToggleCollapse={() => {
-					setCollapsed((v) => !v);
-				}}
-				onSettings={onSettings}
-			/>
-		</nav>
+			<SidebarFooter>
+				<ServerSidebarFooter onSettings={onSettings} />
+			</SidebarFooter>
+		</Sidebar>
 	);
 }
