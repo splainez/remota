@@ -10,7 +10,6 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-	SidebarSeparator,
 } from "@renderer/components/ui/sidebar";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useSidebar } from "@renderer/hooks/useSidbar";
@@ -68,9 +67,7 @@ export function ServerSidebar({
 	);
 
 	return (
-		<Sidebar
-			collapsible="icon"
-		>
+		<Sidebar collapsible="icon">
 			<SidebarHeader className="border-b border-sidebar-border">
 				<BrandButton onViewAll={onViewAll} />
 			</SidebarHeader>
@@ -96,17 +93,27 @@ export function ServerSidebar({
 											onDoubleClick={() => {
 												onDoubleClick(conn.id);
 											}}
+											className={cn(isCurrentView && "outline outline-primary")}
 										>
-											<span
-												className={cn(
-													"flex size-8 items-center justify-center rounded-lg text-xs font-semibold shrink-0",
-													isCurrentView
-														? "bg-sidebar-primary/10 text-sidebar-primary"
-														: "bg-sidebar-accent text-muted-foreground",
-												)}
-											>
-												{getInitials(conn.name)}
-											</span>
+											{collapsed ? (
+												<span
+													className={cn(
+														"flex items-center justify-center rounded-lg text-xs font-semibold shrink-0",
+														isCurrentView
+															? "bg-sidebar-primary/10 text-sidebar-primary"
+															: "bg-sidebar-accent text-muted-foreground",
+													)}
+												>
+													{getInitials(conn.name)}
+												</span>
+											) : (
+												<span
+													className={cn(
+														"size-2 rounded-full shrink-0",
+														isCurrentView ? "bg-sidebar-primary" : "bg-muted-foreground/40",
+													)}
+												/>
+											)}
 											{!collapsed && <span className="flex-1 truncate text-left">{conn.name}</span>}
 										</SidebarMenuButton>
 										{!collapsed && (

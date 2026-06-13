@@ -16,32 +16,23 @@ export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 	const collapsed = state === "collapsed";
 
 	return (
-		<div
-			className={cn(
-				"flex flex-col gap-2 w-full mt-auto pt-3 border-t border-sidebar-border",
-				collapsed ? "items-center" : "",
-			)}
-		>
-			<div className="flex flex-col content-between">
-				<Button
-					variant="ghost"
-					size="icon"
-					className={cn(
-						"rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary",
-					)}
-					aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
-					title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
-					onClick={toggleSidebar}
-				>
-					<Icon name={collapsed ? "arrow-right" : "arrow-left"} size={16} />
-				</Button>
-				{!collapsed && <>
+		<div className={cn("flex flex-row gap-2 w-full mt-auto pt-3", collapsed ? "items-center" : "")}>
+			<Button
+				variant="ghost"
+				size="icon"
+				className={cn("rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary")}
+				aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+				title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+				onClick={toggleSidebar}
+			>
+				<Icon name={collapsed ? "arrow-right" : "arrow-left"} size={16} />
+			</Button>
+			{!collapsed && (
+				<>
 					<Button
 						variant="ghost"
 						size="icon"
-						className={cn(
-							"rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary",
-						)}
+						className={cn("rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary")}
 						aria-label={t("navigation.settings")}
 						title={t("navigation.settings")}
 						onClick={onSettings}
@@ -49,8 +40,8 @@ export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 						<Icon name="settings" size={16} />
 					</Button>
 					<ThemeSelect />
-				</>}
-			</div>
+				</>
+			)}
 		</div>
 	);
 }
