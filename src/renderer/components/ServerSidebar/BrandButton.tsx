@@ -24,13 +24,13 @@ export function BrandButton({ onViewAll }: BrandButtonProps) {
 			onClick={onViewAll}
 			title={t("app.title")}
 		>
-			<span className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+			<span className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
 				<Icon name="server" size={20} />
 			</span>
 			{!collapsed && (
 				<span className="flex-1 min-w-0 text-left">
 					<span className="block text-sm font-semibold text-sidebar-foreground truncate">{t("app.title")}</span>
-					<span className="text-[10px] text-sidebar-foreground/70 flex items-center gap-1">
+					<span className="text-xs text-sidebar-foreground/70 flex items-center gap-1">
 						<span className="w-1.5 h-1.5 rounded-full bg-primary" />
 						{t("app.ready")}
 					</span>
