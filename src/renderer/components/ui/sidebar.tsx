@@ -111,7 +111,7 @@ function SidebarProvider({
 						...style,
 					} as React.CSSProperties
 				}
-				className={cn("group/sidebar-wrapper flex flex-1 w-full has-data-[variant=inset]:bg-sidebar", className)}
+				className={cn("group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar", className)}
 				{...props}
 			>
 				{children}
@@ -175,7 +175,7 @@ function Sidebar({
 
 	return (
 		<div
-			className="hidden flex-col group peer text-sidebar-foreground md:flex"
+			className="group peer hidden text-sidebar-foreground md:block"
 			data-state={state}
 			data-collapsible={state === "collapsed" ? collapsible : ""}
 			data-variant={variant}
@@ -198,7 +198,7 @@ function Sidebar({
 				data-slot="sidebar-container"
 				data-side={side}
 				className={cn(
-					"flex grow flex-col z-10 w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
+					"fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
 					// Adjust the padding for floating and inset variants.
 					variant === "floating" || variant === "inset"
 						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
@@ -317,7 +317,7 @@ function SidebarSeparator({ className, ...props }: React.ComponentProps<typeof S
 		<Separator
 			data-slot="sidebar-separator"
 			data-sidebar="separator"
-			className={cn("w-auto bg-sidebar-border", className)}
+			className={cn("mx-2 w-auto bg-sidebar-border", className)}
 			{...props}
 		/>
 	);
