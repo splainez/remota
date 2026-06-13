@@ -1,6 +1,7 @@
-import type { AppStore } from "./app-store";
 import { LoggerFactory } from "@shared/lib/logger";
 import { app } from "electron";
+
+import type { AppStore } from "./app-store";
 
 const log = LoggerFactory.init({ name: "jump-list" });
 

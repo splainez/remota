@@ -6,7 +6,6 @@ import { app, BrowserWindow, ipcMain, Menu } from "electron";
 
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
-import { updateJumpList } from "./jump-list";
 import { registerConnectionHandlers } from "./ipc/connections";
 import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
@@ -16,6 +15,7 @@ import { registerSettingsHandlers } from "./ipc/settings";
 import { registerTerminalHandlers } from "./ipc/terminal";
 import { registerTransferHandlers } from "./ipc/transfer";
 import { registerTransferPanelHandlers } from "./ipc/transfer-panel";
+import { updateJumpList } from "./jump-list";
 import { RemoteEditManager } from "./remote-edit/remote-edit-manager";
 import { S3ConnectionManager } from "./s3/s3-client";
 import { SftpConnectionManager } from "./sftp/sftp-client";
@@ -48,9 +48,9 @@ function parseConnectArgv(argv: string[]): number | null {
 	return null;
 }
 
-const isMac = process.platform === 'darwin';
-const isWindows = process.platform === 'win32';
-const isLinux = process.platform === 'linux';
+const isMac = process.platform === "darwin";
+const isWindows = process.platform === "win32";
+const isLinux = process.platform === "linux";
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -61,7 +61,7 @@ function createWindow() {
 		title: "OpenSCP",
 		frame: isLinux ? false : true,
 		trafficLightPosition: isMac ? { x: 12, y: 10 } : undefined,
-		titleBarStyle: isMac ? 'hiddenInset' : isWindows ? 'hidden' : undefined,
+		titleBarStyle: isMac ? "hiddenInset" : isWindows ? "hidden" : undefined,
 		webPreferences: {
 			preload: join(__dirname, "../preload/index.mjs"),
 			contextIsolation: true,
