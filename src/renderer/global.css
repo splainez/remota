@@ -81,6 +81,7 @@
 }
 
 :root {
+	--titlebar-height: 30px;
 	--background: #f8f9fa;
 	--foreground: #191c1d;
 	--card: #ffffff;
@@ -255,7 +256,7 @@ body,
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 30px;
+	height: var(--titlebar-height);
 	background: var(--surface-container-low);
 	border-bottom: 1px solid var(--outline-variant);
 	flex-shrink: 0;
