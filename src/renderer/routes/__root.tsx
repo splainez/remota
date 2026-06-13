@@ -5,6 +5,7 @@ import { QuitConfirmDialog } from "@renderer/components/QuitConfirmDialog";
 import { ServerSidebar } from "@renderer/components/ServerSidebar/ServerSidebar";
 import { TitleBar } from "@renderer/components/TitleBar/TitleBar";
 import { Button } from "@renderer/components/ui/button";
+import { SidebarProvider } from "@renderer/components/ui/sidebar";
 import { useConnections } from "@renderer/hooks/useConnections";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useTransferProgress } from "@renderer/hooks/useTransferProgress";
@@ -196,7 +197,7 @@ function RootLayout() {
 			<div className="flex h-screen overflow-hidden bg-background flex-col">
 				<Toaster position="bottom-right" richColors />
 				<TitleBar />
-				<div className="flex flex-1 min-h-0">
+				<SidebarProvider>
 					<ServerSidebar
 						connections={connections}
 						activeConnectionId={activeConnectionId}
@@ -235,7 +236,8 @@ function RootLayout() {
 							</div>
 						</footer>
 					</div>
-				</div>
+					{/* </div> */}
+				</SidebarProvider>
 			</div>
 		</>
 	);
