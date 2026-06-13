@@ -58,20 +58,34 @@ function RootLayout() {
 		return unsub;
 	}, []);
 
-	useEffect(() => {
-		const unsub = window.api.app.onOpenConnection((connectionId) => {
-			void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
-		});
-		return unsub;
-	}, [router]);
+	const [pendingConnectionId, setPendingConnectionId] = useState<number | null>(null);
 
 	useEffect(() => {
-		void window.api.app.getPendingConnection().then((connectionId) => {
-			if (connectionId != null) {
+		void window.api.app.getPendingConnection().then((id) => {
+			if (id != null) {
+				setPendingConnectionId(id);
+			}
+		});
+	}, []);
+
+	useEffect(() => {
+		if (pendingConnectionId != null && !loading && connections.some((c) => c.id === pendingConnectionId)) {
+			void router.navigate({
+				to: "/browse/$connectionId",
+				params: { connectionId: String(pendingConnectionId) },
+			});
+			setPendingConnectionId(null);
+		}
+	}, [pendingConnectionId, loading, connections, router]);
+
+	useEffect(() => {
+		const unsub = window.api.app.onOpenConnection((connectionId) => {
+			if (connections.some((c) => c.id === connectionId)) {
 				void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
 			}
 		});
-	}, [router]);
+		return unsub;
+	}, [connections, router]);
 
 	const activeConnectionId = useActiveConnectionId();
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
