@@ -1,3 +1,4 @@
+import { useConnectionsStore } from "@renderer/store/connections";
 import { createMockApi } from "@renderer/test/setup";
 import type { Connection } from "@shared/types";
 import { renderHook, waitFor, act } from "@testing-library/react";
@@ -30,6 +31,7 @@ function makeConn(count: number): Connection[] {
 
 describe("useConnections", () => {
 	beforeEach(() => {
+		useConnectionsStore.setState({ connections: [], selectedId: null, loading: true });
 		const mockApi = createMockApi();
 		vi.stubGlobal("api", mockApi);
 	});
@@ -194,5 +196,80 @@ describe("useConnections", () => {
 		});
 
 		expect(mockApi.connections.delete).toHaveBeenCalledWith(1);
+	});
+
+	it("new connection created in one instance is visible in another (sidebar regression)", async () => {
+		const existing = makeConn(1);
+		const newConn = {
+			id: 2,
+			name: "New Server",
+			protocol: "sftp" as const,
+			host: "new.com",
+			port: 22,
+			username: "",
+			authType: "password" as const,
+			password: "",
+			privateKeyPath: "",
+			accessKey: "",
+			secretKey: "",
+			region: "us-east-1",
+			bucket: "",
+			endpoint: "",
+			useHttps: true,
+			createdAt: "",
+			updatedAt: "",
+		};
+		const listFn = vi
+			.fn()
+			.mockResolvedValueOnce(existing)
+			.mockResolvedValueOnce([...existing, newConn]);
+		const mockApi = createMockApi({
+			connections: {
+				list: listFn,
+				get: vi.fn(),
+				create: vi.fn().mockResolvedValue(newConn),
+				update: vi.fn(),
+				delete: vi.fn(),
+				getRecent: vi.fn().mockResolvedValue([]),
+				markRecent: vi.fn(),
+				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
+				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
+			},
+		});
+		vi.stubGlobal("api", mockApi);
+
+		const { result: rootInstance } = renderHook(() => useConnections());
+		await waitFor(() => {
+			expect(rootInstance.current.loading).toBe(false);
+		});
+		expect(rootInstance.current.connections).toHaveLength(1);
+
+		const { result: newConnInstance } = renderHook(() => useConnections());
+		await waitFor(() => {
+			expect(newConnInstance.current.loading).toBe(false);
+		});
+
+		await act(async () => {
+			await newConnInstance.current.create({
+				name: "New Server",
+				protocol: "sftp",
+				host: "new.com",
+				port: 22,
+				username: "",
+				authType: "password",
+				password: "",
+				privateKeyPath: "",
+				accessKey: "",
+				secretKey: "",
+				region: "us-east-1",
+				bucket: "",
+				endpoint: "",
+				useHttps: true,
+				groupName: "",
+			});
+		});
+
+		expect(rootInstance.current.connections).toHaveLength(2);
+		expect(rootInstance.current.connections[1].name).toBe("New Server");
 	});
 });

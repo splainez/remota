@@ -1,3 +1,4 @@
+import { useConnectionsStore } from "@renderer/store/connections";
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
 import { createMockApi } from "@renderer/test/setup";
 import type { Connection } from "@shared/types";
@@ -32,6 +33,7 @@ function mockConnections(overrides: Partial<Connection>[] = []) {
 
 describe("ConnectionManager", () => {
 	beforeEach(() => {
+		useConnectionsStore.setState({ connections: [], selectedId: null, loading: true });
 		const mockApi = createMockApi();
 		vi.stubGlobal("api", mockApi);
 	});
