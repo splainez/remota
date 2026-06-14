@@ -57,9 +57,7 @@ export function ConnectionDetail({
 							<h3 className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
 								{t("connection.details")}
 							</h3>
-							<div
-								className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-xl border border-outline-variant bg-surface-container p-4"
-							>
+							<div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-xl border border-outline-variant bg-surface-container p-4">
 								<div>
 									<div className="mb-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
 										{t("connection.name")}

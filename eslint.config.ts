@@ -55,6 +55,7 @@ export default defineConfig(
 					tabWidth: 2,
 					lineBreakStyle: "unix",
 					preferSingleLine: true,
+					strictness: "loose",
 				},
 			],
 		},

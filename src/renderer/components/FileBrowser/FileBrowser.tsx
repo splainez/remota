@@ -108,9 +108,7 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 	return (
 		<div className="flex h-full flex-col overflow-hidden">
 			{/* Top App Bar / Breadcrumbs */}
-			<header
-				className="flex h-12 w-full shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-4"
-			>
+			<header className="flex h-12 w-full shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-4">
 				{/* Local Path */}
 				<div className="flex min-w-0 flex-1 items-center gap-2 pr-4">
 					<Icon name="server" size={16} className="shrink-0 text-on-surface-variant" />

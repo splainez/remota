@@ -72,9 +72,7 @@ export function ConnectionItem({
 			{isSelected && <div className="absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary" />}
 			<div
 				className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${
-					isSelected
-						? "bg-primary/20"
-						: `bg-surface-container-highest`
+					isSelected ? "bg-primary/20" : `bg-surface-container-highest`
 				}`}
 			>
 				<Icon

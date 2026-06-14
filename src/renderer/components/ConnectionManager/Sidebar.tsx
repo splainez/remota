@@ -28,9 +28,7 @@ function protocolIcon(protocol: string): IconName {
 export function Sidebar({ connections, selectedId, onSelect, onAdd, onDoubleClick }: SidebarProps) {
 	const { t } = useI18n();
 	return (
-		<div
-			className="flex w-60 min-w-[200px] flex-col overflow-hidden border-r border-outline-variant bg-surface-container-low"
-		>
+		<div className="flex w-60 min-w-50 flex-col overflow-hidden border-r border-outline-variant bg-surface-container-low">
 			<div className="shrink-0 border-b border-outline-variant px-4 py-3 text-base font-semibold text-on-surface">
 				{t("connection.manager")}
 			</div>
