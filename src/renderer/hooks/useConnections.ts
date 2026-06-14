@@ -1,58 +1,41 @@
+import { getSelectedConnection, useConnectionsStore } from "@renderer/store/connections";
 import { LoggerFactory } from "@shared/lib/logger";
-import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
-import { useCallback, useEffect, useState } from "react";
+import type { NewConnection, ConnectionUpdate } from "@shared/types";
+import { useCallback, useEffect } from "react";
 
 const logger = LoggerFactory.init({ name: "renderer.useConnections" });
 
 export function useConnections() {
-	const [connections, setConnections] = useState<Connection[]>([]);
-	const [selectedId, setSelectedId] = useState<number | null>(null);
-	const [loading, setLoading] = useState(true);
-
-	const loadConnections = useCallback(async () => {
-		const list = await window.api.connections.list();
-		setConnections(list);
-		setLoading(false);
-	}, []);
+	const connections = useConnectionsStore((s) => s.connections);
+	const selectedId = useConnectionsStore((s) => s.selectedId);
+	const loading = useConnectionsStore((s) => s.loading);
+	const selected = useConnectionsStore(getSelectedConnection);
 
 	useEffect(() => {
-		loadConnections().catch((error: unknown) => {
-			logger.error("loadConnections failed", { error });
-		});
-	}, [loadConnections]);
-
-	const selected = connections.find((c) => c.id === selectedId) ?? null;
-
-	const select = useCallback((id: number | null) => {
-		setSelectedId(id);
+		useConnectionsStore
+			.getState()
+			.load()
+			.catch((error: unknown) => {
+				logger.error("loadConnections failed", { error });
+			});
 	}, []);
 
-	const create = useCallback(
-		async (data: NewConnection) => {
-			const created = await window.api.connections.create(data);
-			await loadConnections();
-			setSelectedId(created.id);
-			return created;
-		},
-		[loadConnections],
-	);
+	const select = useCallback((id: number | null) => {
+		useConnectionsStore.getState().select(id);
+	}, []);
 
-	const update = useCallback(
-		async (data: ConnectionUpdate) => {
-			await window.api.connections.update(data);
-			await loadConnections();
-		},
-		[loadConnections],
-	);
+	const create = useCallback(async (data: NewConnection) => {
+		const created = await useConnectionsStore.getState().create(data);
+		return created;
+	}, []);
 
-	const remove = useCallback(
-		async (id: number) => {
-			await window.api.connections.delete(id);
-			if (selectedId === id) setSelectedId(null);
-			await loadConnections();
-		},
-		[loadConnections, selectedId],
-	);
+	const update = useCallback(async (data: ConnectionUpdate) => {
+		await useConnectionsStore.getState().update(data);
+	}, []);
+
+	const remove = useCallback(async (id: number) => {
+		await useConnectionsStore.getState().remove(id);
+	}, []);
 
 	return {
 		connections,
