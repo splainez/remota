@@ -31,7 +31,7 @@ function makeConn(count: number): Connection[] {
 
 describe("useConnections", () => {
 	beforeEach(() => {
-		useConnectionsStore.setState({ connections: [], selectedId: null, loading: true });
+		useConnectionsStore.setState({ connections: [], selectedId: null, loaded: false });
 		const mockApi = createMockApi();
 		vi.stubGlobal("api", mockApi);
 	});

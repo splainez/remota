@@ -68,15 +68,15 @@ function createApi(
 
 describe("useConnectionsStore", () => {
 	beforeEach(() => {
-		useConnectionsStore.setState({ connections: [], selectedId: null, loading: true });
+		useConnectionsStore.setState({ connections: [], selectedId: null, loaded: false });
 		vi.clearAllMocks();
 	});
 
-	it("starts with empty connections and loading true", () => {
+	it("starts with empty connections and loaded false", () => {
 		const state = useConnectionsStore.getState();
 		expect(state.connections).toEqual([]);
 		expect(state.selectedId).toBeNull();
-		expect(state.loading).toBe(true);
+		expect(state.loaded).toBe(false);
 	});
 
 	it("load() fetches connections from IPC", async () => {
@@ -91,7 +91,7 @@ describe("useConnectionsStore", () => {
 		const state = useConnectionsStore.getState();
 		expect(state.connections).toHaveLength(2);
 		expect(state.connections[0].name).toBe("Server 1");
-		expect(state.loading).toBe(false);
+		expect(state.loaded).toBe(true);
 	});
 
 	it("load() is a no-op when already loaded (StrictMode guard)", async () => {
@@ -107,6 +107,27 @@ describe("useConnectionsStore", () => {
 			await useConnectionsStore.getState().load();
 		});
 		expect(list).toHaveBeenCalledOnce();
+	});
+
+	it("load() retries after failure", async () => {
+		const listFn = vi
+			.fn()
+			.mockRejectedValueOnce(new Error("network"))
+			.mockResolvedValueOnce([makeConn({ id: 1 })]);
+		createApi({ list: listFn });
+
+		await act(async () => {
+			await useConnectionsStore.getState().load();
+		});
+		expect(useConnectionsStore.getState().loaded).toBe(false);
+		expect(useConnectionsStore.getState().connections).toHaveLength(0);
+
+		await act(async () => {
+			await useConnectionsStore.getState().load();
+		});
+		expect(useConnectionsStore.getState().loaded).toBe(true);
+		expect(useConnectionsStore.getState().connections).toHaveLength(1);
+		expect(listFn).toHaveBeenCalledTimes(2);
 	});
 
 	it("create() calls IPC and refreshes list", async () => {
@@ -150,6 +171,40 @@ describe("useConnectionsStore", () => {
 		expect(useConnectionsStore.getState().connections[1].id).toBe(2);
 	});
 
+	it("create() falls back to optimistic update if list() fails", async () => {
+		const created = makeConn({ id: 2, name: "New Server" });
+		const { list, create } = createApi({
+			list: vi.fn().mockRejectedValueOnce(new Error("network")),
+			create: vi.fn().mockResolvedValue(created),
+		});
+
+		await act(async () => {
+			await useConnectionsStore.getState().create({
+				name: "New Server",
+				protocol: "sftp",
+				host: "new.com",
+				port: 22,
+				username: "",
+				authType: "password",
+				password: "",
+				privateKeyPath: "",
+				accessKey: "",
+				secretKey: "",
+				region: "us-east-1",
+				bucket: "",
+				endpoint: "",
+				useHttps: true,
+				groupName: "",
+			});
+		});
+
+		expect(create).toHaveBeenCalledOnce();
+		expect(list).toHaveBeenCalledOnce();
+		expect(useConnectionsStore.getState().connections).toHaveLength(1);
+		expect(useConnectionsStore.getState().connections[0].id).toBe(2);
+		expect(useConnectionsStore.getState().selectedId).toBe(2);
+	});
+
 	it("update() calls IPC and refreshes list", async () => {
 		const existing = [makeConn({ id: 1, name: "Server 1" })];
 		const { list, update } = createApi({
@@ -167,6 +222,25 @@ describe("useConnectionsStore", () => {
 
 		expect(update).toHaveBeenCalledOnce();
 		expect(list).toHaveBeenCalledTimes(2);
+	});
+
+	it("update() falls back to optimistic update if list() fails", async () => {
+		const existing = [makeConn({ id: 1, name: "Server 1" })];
+		createApi({
+			list: vi.fn().mockResolvedValueOnce(existing).mockRejectedValueOnce(new Error("network")),
+			update: vi.fn().mockResolvedValue(makeConn({ id: 1, name: "Updated" })),
+		});
+
+		await act(async () => {
+			await useConnectionsStore.getState().load();
+		});
+
+		await act(async () => {
+			await useConnectionsStore.getState().update({ id: 1, name: "Updated" });
+		});
+
+		const conn = useConnectionsStore.getState().connections.find((c) => c.id === 1);
+		expect(conn?.name).toBe("Updated");
 	});
 
 	it("remove() calls IPC, refreshes list, and clears selection if removed id was selected", async () => {
@@ -210,6 +284,24 @@ describe("useConnectionsStore", () => {
 		});
 
 		expect(useConnectionsStore.getState().selectedId).toBe(1);
+	});
+
+	it("remove() falls back to optimistic update if list() fails", async () => {
+		const existing = [makeConn({ id: 1, name: "Server 1" }), makeConn({ id: 2, name: "Server 2" })];
+		createApi({
+			list: vi.fn().mockResolvedValueOnce(existing).mockRejectedValueOnce(new Error("network")),
+		});
+
+		await act(async () => {
+			await useConnectionsStore.getState().load();
+		});
+
+		await act(async () => {
+			await useConnectionsStore.getState().remove(1);
+		});
+
+		expect(useConnectionsStore.getState().connections).toHaveLength(1);
+		expect(useConnectionsStore.getState().connections[0].id).toBe(2);
 	});
 
 	it("select() sets selectedId", () => {
