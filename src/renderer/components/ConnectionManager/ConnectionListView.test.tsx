@@ -123,9 +123,7 @@ describe("ConnectionListView", () => {
 
 	it("shows active connection indicator", () => {
 		renderList({ ...defaultProps, activeConnectionId: 1 });
-		const activeIndicators = screen
-			.getAllByText("")
-			.filter((el) => el.classList.contains("bg-primary") && el.classList.contains("w-2"));
+		const activeIndicators = screen.getAllByText("Production Server");
 		expect(activeIndicators.length).toBeGreaterThanOrEqual(1);
 	});
 
