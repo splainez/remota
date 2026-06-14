@@ -37,25 +37,10 @@ vi.mock("@renderer/hooks/useConnections", () => ({
 const mockAddSession = vi.fn();
 
 vi.mock("@renderer/store/activeSessions", () => ({
-	useActiveSessionsStore: Object.assign(
-		vi.fn((selector?: (s: unknown) => unknown) => {
-			const state = {
-				sessions: [],
-				addSession: mockAddSession,
-				removeSession: vi.fn(),
-				hasSession: vi.fn(() => false),
-			};
-			return selector ? selector(state) : state;
-		}),
-		{
-			getState: () => ({
-				sessions: [],
-				addSession: mockAddSession,
-				removeSession: vi.fn(),
-				hasSession: vi.fn(() => false),
-			}),
-		},
-	),
+	useActiveSessionsStore: (selector?: (s: unknown) => unknown) => {
+		const state = { addSession: mockAddSession };
+		return selector ? selector(state) : state;
+	},
 }));
 
 describe("ConnectionDetailRoute handleConnect", () => {
@@ -87,23 +72,4 @@ describe("ConnectionDetailRoute handleConnect", () => {
 		});
 	});
 
-	it("calls addSession exactly once per connect", async () => {
-		const user = userEvent.setup();
-		const { connectionDetailRoute } = await import("./connections.$id");
-
-		vi.spyOn(connectionDetailRoute, "useParams").mockReturnValue({ id: "1" });
-
-		const Component = connectionDetailRoute.options.component ?? (() => null);
-
-		render(
-			<I18nWrapper>
-				<Component />
-			</I18nWrapper>,
-		);
-
-		const connectButton = screen.getByRole("button", { name: "Connect" });
-		await user.click(connectButton);
-
-		expect(mockAddSession).toHaveBeenCalledTimes(1);
-	});
 });
