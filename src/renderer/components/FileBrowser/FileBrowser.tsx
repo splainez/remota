@@ -92,9 +92,10 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 			startedConnect.current = true;
 			connect()
 				.then(() => {
-					useActiveSessionsStore.getState().addSession(connection.id);
+					useActiveSessionsStore.getState().updateSessionStatus(connection.id, "connected");
 				})
 				.catch((error: unknown) => {
+					useActiveSessionsStore.getState().removeSession(connection.id);
 					logger.error("connect failed", { error });
 				});
 		}

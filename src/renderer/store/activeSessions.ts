@@ -10,11 +10,13 @@ const logger = LoggerFactory.init({ name: "renderer.store.activeSessions" });
 export interface ActiveSession {
 	connectionId: number;
 	connectedAt: number;
+	status: "connecting" | "connected";
 }
 
 interface ActiveSessionsState {
 	sessions: ActiveSession[];
-	addSession: (connectionId: number) => void;
+	addSession: (connectionId: number, status?: "connecting" | "connected") => void;
+	updateSessionStatus: (connectionId: number, status: "connecting" | "connected") => void;
 	removeSession: (connectionId: number) => void;
 	hasSession: (connectionId: number) => boolean;
 }
@@ -22,7 +24,7 @@ interface ActiveSessionsState {
 export const useActiveSessionsStore = create<ActiveSessionsState>((set, get) => ({
 	sessions: [],
 
-	addSession: (connectionId) => {
+	addSession: (connectionId, status = "connecting") => {
 		const { sessions } = get();
 		if (sessions.some((s) => s.connectionId === connectionId)) return;
 
@@ -34,7 +36,13 @@ export const useActiveSessionsStore = create<ActiveSessionsState>((set, get) => 
 			return;
 		}
 
-		set({ sessions: [...sessions, { connectionId, connectedAt: Date.now() }] });
+		set({ sessions: [...sessions, { connectionId, connectedAt: Date.now(), status }] });
+	},
+
+	updateSessionStatus: (connectionId, status) => {
+		set((state) => ({
+			sessions: state.sessions.map((s) => (s.connectionId === connectionId ? { ...s, status } : s)),
+		}));
 	},
 
 	removeSession: (connectionId) => {

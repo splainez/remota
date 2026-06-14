@@ -48,7 +48,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -99,7 +99,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={onSelect}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -126,7 +126,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={onAdd}
 							onDoubleClick={vi.fn()}
@@ -152,7 +152,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -182,7 +182,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -211,7 +211,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -238,7 +238,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}
@@ -255,6 +255,56 @@ describe("ServerSidebar", () => {
 		expect(onViewAll).toHaveBeenCalledOnce();
 	});
 
+	it("shows pulsing dot for connecting session", () => {
+		render(
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connecting" }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
+				</ThemeProvider>
+			</I18nWrapper>,
+		);
+
+		const li = screen.getByText("Production Server").closest("li");
+		expect(li?.querySelector(".animate-pulse")).toBeInTheDocument();
+	});
+
+	it("shows solid dot for connected session", () => {
+		render(
+			<I18nWrapper>
+				<ThemeProvider defaultTheme="dark">
+					<SidebarProvider>
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={1}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
+							onSelect={vi.fn()}
+							onAdd={vi.fn()}
+							onDoubleClick={vi.fn()}
+							onViewAll={vi.fn()}
+							onDisconnect={vi.fn()}
+							onSettings={vi.fn()}
+						/>
+					</SidebarProvider>
+				</ThemeProvider>
+			</I18nWrapper>,
+		);
+
+		const li = screen.getByText("Production Server").closest("li");
+		expect(li?.querySelector(".animate-pulse")).not.toBeInTheDocument();
+	});
+
 	it("calls onDisconnect when disconnect button is clicked", async () => {
 		const user = userEvent.setup();
 		const onDisconnect = vi.fn();
@@ -265,7 +315,7 @@ describe("ServerSidebar", () => {
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={1}
-							activeSessions={[{ connectionId: 1, connectedAt: Date.now() }]}
+							activeSessions={[{ connectionId: 1, connectedAt: Date.now(), status: "connected" }]}
 							onSelect={vi.fn()}
 							onAdd={vi.fn()}
 							onDoubleClick={vi.fn()}

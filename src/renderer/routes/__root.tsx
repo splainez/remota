@@ -37,6 +37,7 @@ function RootLayout() {
 	const router = useRouter();
 	const { connections, loading, select } = useConnections();
 	const sessions = useActiveSessionsStore((s) => s.sessions);
+	const addSession = useActiveSessionsStore((s) => s.addSession);
 	const removeSession = useActiveSessionsStore((s) => s.removeSession);
 
 	useTransferProgress();
@@ -71,22 +72,24 @@ function RootLayout() {
 
 	useEffect(() => {
 		if (pendingConnectionId != null && !loading && connections.some((c) => c.id === pendingConnectionId)) {
+			addSession(pendingConnectionId);
 			void router.navigate({
 				to: "/browse/$connectionId",
 				params: { connectionId: String(pendingConnectionId) },
 			});
 			setPendingConnectionId(null);
 		}
-	}, [pendingConnectionId, loading, connections, router]);
+	}, [pendingConnectionId, loading, connections, router, addSession]);
 
 	useEffect(() => {
 		const unsub = window.api.app.onOpenConnection((connectionId) => {
 			if (connections.some((c) => c.id === connectionId)) {
+				addSession(connectionId);
 				void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
 			}
 		});
 		return unsub;
-	}, [connections, router]);
+	}, [connections, router, addSession]);
 
 	const activeConnectionId = useActiveConnectionId();
 	const isTransferPanelVisible = useTransferPanelStore((s) =>
@@ -160,6 +163,7 @@ function RootLayout() {
 	const handleOpenFileBrowser = (id: number) => {
 		const conn = connections.find((c) => c.id === id);
 		if (conn) {
+			addSession(conn.id);
 			void router.navigate({ to: `/browse/${String(conn.id)}` });
 		}
 	};

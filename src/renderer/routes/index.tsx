@@ -2,6 +2,7 @@
 import { ConnectionListView } from "@renderer/components/ConnectionManager/ConnectionListView";
 import { useConnections } from "@renderer/hooks/useConnections";
 import { useRecentConnections } from "@renderer/hooks/useRecentConnections";
+import { useActiveSessionsStore } from "@renderer/store/activeSessions";
 import { LoggerFactory } from "@shared/lib/logger";
 import { createRoute, useRouter } from "@tanstack/react-router";
 
@@ -33,6 +34,7 @@ function ConnectionsIndex() {
 	const handleOpenFileBrowser = (id: number) => {
 		const conn = connections.find((c) => c.id === id);
 		if (conn) {
+			useActiveSessionsStore.getState().addSession(conn.id);
 			void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(conn.id) } });
 		}
 	};

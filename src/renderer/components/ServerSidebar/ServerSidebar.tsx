@@ -82,6 +82,7 @@ export function ServerSidebar({
 
 							{visibleConnections.map((conn) => {
 								const isCurrentView = conn.id === activeConnectionId;
+								const isConnecting = activeSessions.find((s) => s.connectionId === conn.id)?.status === "connecting";
 								return (
 									<SidebarMenuItem key={conn.id}>
 										<SidebarMenuButton
@@ -111,6 +112,7 @@ export function ServerSidebar({
 													className={cn(
 														"size-2 rounded-full shrink-0",
 														isCurrentView ? "bg-sidebar-primary" : "bg-muted-foreground/40",
+														isConnecting && "animate-pulse",
 													)}
 												/>
 											)}
