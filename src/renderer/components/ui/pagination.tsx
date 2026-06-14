@@ -1,6 +1,6 @@
 import { cn } from "@renderer/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
-import React from "react";
+import type React from "react";
 
 import { Button } from "./button";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@renderer/lib/utils";
-import React from "react";
+import type React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {

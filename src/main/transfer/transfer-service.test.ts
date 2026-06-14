@@ -316,7 +316,6 @@ describe("TransferService", () => {
 			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
 				downloadStarted();
 				await new Promise<void>((_resolve, reject) => {
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
 					if (signal?.aborted) {
 						reject(new DOMException("Aborted", "AbortError"));
 						return;
@@ -395,7 +394,6 @@ describe("TransferService", () => {
 			isConnected: () => true,
 			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
 				await new Promise<void>((_resolve, reject) => {
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
 					if (signal?.aborted) {
 						reject(new DOMException("Aborted", "AbortError"));
 						return;
@@ -450,7 +448,6 @@ describe("TransferService", () => {
 			isConnected: () => true,
 			downloadFile: async (_cid, _rp, _lp, _onProgress, signal) => {
 				await new Promise<void>((_resolve, reject) => {
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- signal.aborted changes during async execution
 					if (signal?.aborted) {
 						reject(new DOMException("Aborted", "AbortError"));
 						return;

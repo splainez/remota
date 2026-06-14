@@ -2,7 +2,7 @@
 
 import { cn } from "@renderer/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import React from "react";
+import type React from "react";
 
 import { Button } from "./button";
 import { Input } from "./input";

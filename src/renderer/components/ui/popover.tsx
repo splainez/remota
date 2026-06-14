@@ -1,6 +1,6 @@
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import { cn } from "@renderer/lib/utils";
-import React from "react";
+import type React from "react";
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
 	return <PopoverPrimitive.Root data-slot="popover" {...props} />;
