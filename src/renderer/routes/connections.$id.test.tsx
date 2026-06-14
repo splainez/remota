@@ -71,5 +71,4 @@ describe("ConnectionDetailRoute handleConnect", () => {
 			params: { connectionId: "1" },
 		});
 	});
-
 });
