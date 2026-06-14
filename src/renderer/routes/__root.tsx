@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components -- route config + component co-location is Tanstack Router convention */
 import { DisconnectConfirmDialog } from "@renderer/components/FileBrowser/DisconnectConfirmDialog";
-import { Icon } from "@renderer/components/icons/Icon";
 import { QuitConfirmDialog } from "@renderer/components/QuitConfirmDialog";
 import { ServerSidebar } from "@renderer/components/ServerSidebar/ServerSidebar";
+import { StatusBar } from "@renderer/components/StatusBar/StatusBar";
 import { TitleBar } from "@renderer/components/TitleBar/TitleBar";
-import { Button } from "@renderer/components/ui/button";
 import { SidebarProvider } from "@renderer/components/ui/sidebar";
 import { useConnections } from "@renderer/hooks/useConnections";
 import { useI18n } from "@renderer/hooks/useI18n";
@@ -198,50 +197,33 @@ function RootLayout() {
 				onOpenChange={handleQuitDialogOpenChange}
 				onConfirmQuit={handleConfirmQuit}
 			/>
-			<div className="flex h-screen overflow-hidden bg-background flex-col">
+			<div className="grid h-screen overflow-hidden bg-background grid-rows-[auto_1fr]">
 				<Toaster position="bottom-right" richColors />
-				<SidebarProvider>
-					<div className="flex flex-1 flex-col max-w-full">
-						<TitleBar />
-						<div className="flex flex-1 flex-row max-w-full">
-							<ServerSidebar
-								connections={connections}
+				<SidebarProvider className="flex-1 flex-col max-w-full min-h-0">
+					<TitleBar />
+					<div className="flex flex-1 flex-row max-w-full min-h-0">
+						<ServerSidebar
+							connections={connections}
+							activeConnectionId={activeConnectionId}
+							activeSessions={sessions}
+							onSelect={handleSelect}
+							onAdd={handleAdd}
+							onDoubleClick={handleOpenFileBrowser}
+							onViewAll={() => {
+								void router.navigate({ to: "/" });
+							}}
+							onDisconnect={disconnectConnection}
+							onSettings={handleSettings}
+						/>
+
+						<div className="flex-1 grid grid-rows-[1fr_auto] min-w-0 min-h-0">
+							<Outlet />
+
+							<StatusBar
 								activeConnectionId={activeConnectionId}
-								activeSessions={sessions}
-								onSelect={handleSelect}
-								onAdd={handleAdd}
-								onDoubleClick={handleOpenFileBrowser}
-								onViewAll={() => {
-									void router.navigate({ to: "/" });
-								}}
-								onDisconnect={disconnectConnection}
-								onSettings={handleSettings}
+								isTransferPanelVisible={isTransferPanelVisible}
+								onToggleTransferPanel={handleToggleTransferPanel}
 							/>
-
-							<div className="flex-1 flex flex-col min-w-0 max-w-full">
-								<Outlet />
-
-								<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
-									<div className="flex items-center gap-2">
-										<span className="w-2 h-2 rounded-full bg-primary" />
-										<span>{t("app.ready")}</span>
-									</div>
-									<div className="flex items-center gap-3">
-										{activeConnectionId != null && !isTransferPanelVisible && (
-											<Button
-												variant="link"
-												size="sm"
-												className="h-auto p-0 text-xs gap-1"
-												onClick={handleToggleTransferPanel}
-											>
-												<Icon name="sync" size={14} />
-												{t("transfer.active")}
-											</Button>
-										)}
-										<span>{t("app.version")}</span>
-									</div>
-								</footer>
-							</div>
 						</div>
 					</div>
 				</SidebarProvider>
