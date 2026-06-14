@@ -63,6 +63,9 @@ export function ConnectionDetail({
 					<div className="bg-card border border-outline-variant rounded-xl overflow-hidden">
 						{/* Header */}
 						<div className="border-b border-outline-variant bg-surface-container px-6 py-5 flex items-center gap-4">
+							<Button variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onCancel}>
+								<Icon name="arrow-left" size={18} />
+							</Button>
 							<div className="w-12 h-12 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center text-primary shrink-0">
 								<Icon name="globe" size={24} />
 							</div>

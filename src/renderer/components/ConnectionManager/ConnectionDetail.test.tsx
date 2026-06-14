@@ -161,6 +161,28 @@ describe("ConnectionDetail", () => {
 		expect(onDelete).toHaveBeenCalledWith(1);
 	});
 
+	it("calls onCancel when back button is clicked in detail view", async () => {
+		const user = userEvent.setup();
+		const onCancel = vi.fn();
+		render(
+			<I18nWrapper>
+				<ConnectionDetail
+					connection={sampleConnection}
+					isNew={false}
+					isEditing={false}
+					onEdit={vi.fn()}
+					onCancel={onCancel}
+					onConnect={vi.fn()}
+					onSave={vi.fn()}
+					onDelete={vi.fn()}
+				/>
+			</I18nWrapper>,
+		);
+
+		await user.click(screen.getByRole("button", { name: "Back" }));
+		expect(onCancel).toHaveBeenCalledOnce();
+	});
+
 	it("calls onConnect when connect button is clicked", async () => {
 		const user = userEvent.setup();
 		const onConnect = vi.fn();
