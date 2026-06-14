@@ -26,20 +26,27 @@ export function TitleBar() {
 	}, []);
 
 	return (
-		<div className="titlebar">
-			<div className="titlebar-drag-region">
-				<span className="titlebar-icon">
+		<div className="flex shrink-0 z-50 items-center justify-between h-(--titlebar-height) bg-surface-container-low border-b border-outline-variant">
+			<div className="titlebar-drag-region flex flex-1 items-center gap-2 h-full pl-3 min-w-0 drag">
+				<span className="flex shrink-0 items-center text-primary">
 					<Icon name="server" size={14} />
 				</span>
-				<span className="titlebar-title">{t("app.title")}</span>
+				<span className="text-xs text-on-surface-variant text-center overflow-hidden text-ellipsis whitespace-nowrap">
+					{t("app.title")}
+				</span>
 			</div>
-			<div className="titlebar-controls">
-				<button type="button" className="titlebar-button" aria-label="Minimize" onClick={handleMinimize}>
+			<div className="titlebar-no-drag-region flex shrink-0 h-full">
+				<button
+					type="button"
+					className="hover:bg-surface-container-high hover:text-on-surface flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
+					aria-label="Minimize"
+					onClick={handleMinimize}
+				>
 					<VscChromeMinimize size={12} />
 				</button>
 				<button
 					type="button"
-					className="titlebar-button"
+					className="hover:bg-surface-container-high hover:text-on-surface flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
 					aria-label={maximized ? "Restore" : "Maximize"}
 					onClick={handleMaximize}
 				>
@@ -47,7 +54,7 @@ export function TitleBar() {
 				</button>
 				<button
 					type="button"
-					className="titlebar-button titlebar-button-close"
+					className="hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
 					aria-label="Close"
 					onClick={handleClose}
 				>
