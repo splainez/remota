@@ -53,7 +53,7 @@ function BrowseRoute() {
 
 	if (connection == null) {
 		return (
-			<div className="flex-1 flex items-center justify-center bg-surface overflow-auto">
+			<div className="flex flex-1 items-center justify-center overflow-auto bg-surface">
 				<div className="text-muted-foreground">Connection not found</div>
 			</div>
 		);

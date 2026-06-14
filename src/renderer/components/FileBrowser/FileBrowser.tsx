@@ -102,21 +102,23 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 	}, [ready, connect, connection.id]);
 
 	if (!ready) {
-		return <div className="flex flex-col h-full overflow-hidden" />;
+		return <div className="flex h-full flex-col overflow-hidden" />;
 	}
 
 	return (
-		<div className="flex flex-col h-full overflow-hidden">
+		<div className="flex h-full flex-col overflow-hidden">
 			{/* Top App Bar / Breadcrumbs */}
-			<header className="h-12 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-4 shrink-0">
+			<header
+				className="flex h-12 w-full shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-4"
+			>
 				{/* Local Path */}
-				<div className="flex items-center flex-1 min-w-0 pr-4 gap-2">
-					<Icon name="server" size={16} className="text-on-surface-variant shrink-0" />
-					<Breadcrumb path={localPath} onNavigate={setLocalPath} className="bg-transparent border-none p-0 h-auto" />
+				<div className="flex min-w-0 flex-1 items-center gap-2 pr-4">
+					<Icon name="server" size={16} className="shrink-0 text-on-surface-variant" />
+					<Breadcrumb path={localPath} onNavigate={setLocalPath} className="h-auto border-none bg-transparent p-0" />
 				</div>
 
 				{/* Transfer Action */}
-				<div className="flex items-center justify-center px-4 shrink-0">
+				<div className="flex shrink-0 items-center justify-center px-4">
 					<Button
 						variant="default"
 						size="sm"
@@ -131,13 +133,13 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 				</div>
 
 				{/* Remote Path + Disconnect */}
-				<div className="flex items-center flex-1 min-w-0 pl-4 justify-end gap-2">
-					<Breadcrumb path={remotePath} onNavigate={setRemotePath} className="bg-transparent border-none p-0 h-auto" />
-					<Icon name="globe" size={16} className="text-on-surface-variant shrink-0" />
+				<div className="flex min-w-0 flex-1 items-center justify-end gap-2 pl-4">
+					<Breadcrumb path={remotePath} onNavigate={setRemotePath} className="h-auto border-none bg-transparent p-0" />
+					<Icon name="globe" size={16} className="shrink-0 text-on-surface-variant" />
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+						className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
 						aria-label={t("connection.disconnect")}
 						title={t("connection.disconnect")}
 						onClick={onDisconnect}
@@ -148,7 +150,7 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 			</header>
 
 			{/* Dual Pane Explorer + optional Active Transfers panel */}
-			<ResizablePanelGroup orientation="vertical" className="flex-1 min-h-0">
+			<ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1">
 				<ResizablePanel id="file-panes" defaultSize={80} minSize={30}>
 					<ResizablePanelGroup
 						orientation="horizontal"

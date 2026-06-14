@@ -27,12 +27,12 @@ function MenuItem({
 			data-variant={variant}
 			data-selected={selected ? "" : undefined}
 			className={cn(
-				"w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors",
+				"flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors",
 				variant === "destructive"
-					? "hover:bg-destructive/10 text-destructive"
+					? "text-destructive hover:bg-destructive/10"
 					: selected
-						? "hover:bg-surface-container-high text-primary bg-primary/10"
-						: "hover:bg-surface-container-high text-popover-foreground",
+						? "bg-primary/10 text-primary hover:bg-surface-container-high"
+						: "text-popover-foreground hover:bg-surface-container-high",
 				className,
 			)}
 			{...props}
@@ -48,7 +48,7 @@ function MenuItemSeparator({ className, ...props }: HTMLAttributes<HTMLDivElemen
 		<div
 			role="separator"
 			data-slot="menu-item-separator"
-			className={cn("h-px bg-outline-variant my-1", className)}
+			className={cn("my-1 h-px bg-outline-variant", className)}
 			{...props}
 		/>
 	);

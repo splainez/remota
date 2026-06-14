@@ -67,6 +67,7 @@ describe("MenuItem", () => {
 	});
 
 	it("merges custom className", () => {
+		// eslint-disable-next-line better-tailwindcss/no-unknown-classes
 		render(<MenuItem className="custom-class">Custom</MenuItem>);
 		expect(screen.getByRole("menuitem").className).toContain("custom-class");
 	});

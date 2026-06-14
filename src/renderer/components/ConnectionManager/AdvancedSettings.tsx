@@ -28,7 +28,7 @@ export function AdvancedSettings({ form, visible, onToggle }: AdvancedSettingsPr
 				type="button"
 				variant="link"
 				size="sm"
-				className="h-auto p-0 text-sm text-primary hover:text-primary-foreground transition-colors"
+				className="h-auto p-0 text-sm text-primary transition-colors hover:text-primary-foreground"
 				onClick={onToggle}
 			>
 				<Icon name={visible ? "arrow-up" : "arrow-down"} size={14} />

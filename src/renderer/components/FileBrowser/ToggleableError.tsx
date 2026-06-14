@@ -12,14 +12,14 @@ export function ToggleableError({ message, detail }: ToggleableErrorProps) {
 	const [showDetail, setShowDetail] = useState(false);
 
 	return (
-		<div className="flex-1 flex flex-col items-center justify-center text-muted-foreground text-sm gap-1 p-4">
+		<div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-sm text-muted-foreground">
 			<span>{message}</span>
 			{detail && (
 				<>
 					<Button
 						variant="link"
 						size="sm"
-						className="h-auto p-0 mt-1 text-xs"
+						className="mt-1 h-auto p-0 text-xs"
 						onClick={() => {
 							setShowDetail((v) => !v);
 						}}
@@ -27,7 +27,12 @@ export function ToggleableError({ message, detail }: ToggleableErrorProps) {
 						{showDetail ? t("remote.hideDetails") : t("remote.showDetails")}
 					</Button>
 					{showDetail && (
-						<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+						<pre
+							className="
+								mt-1 max-w-full overflow-auto rounded-sm bg-surface-container p-2 text-xs break-all whitespace-pre-wrap
+								text-muted-foreground
+							"
+						>
 							{detail}
 						</pre>
 					)}

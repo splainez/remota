@@ -20,12 +20,17 @@ interface TransferHeaderProps {
 function TransferHeader({ pendingCount, onClearCompleted, onCancelAll, onClose }: TransferHeaderProps) {
 	const { t } = useI18n();
 	return (
-		<div className="h-10 px-4 flex justify-between items-center border-b border-outline-variant bg-surface-container-highest shrink-0">
+		<div
+			className="
+				flex h-10 shrink-0 items-center justify-between border-b border-outline-variant bg-surface-container-highest
+				px-4
+			"
+		>
 			<div className="flex items-center gap-2">
 				<Icon name="sync" size={16} className="text-primary" />
 				<h2 className="text-sm font-semibold text-on-surface">{t("transfer.active")}</h2>
 				{pendingCount > 0 && (
-					<span className="bg-primary-fixed text-primary px-1.5 py-0.5 rounded text-xs ml-1">{pendingCount}</span>
+					<span className="ml-1 rounded-sm bg-primary-fixed px-1.5 py-0.5 text-xs text-primary">{pendingCount}</span>
 				)}
 			</div>
 			<div className="flex gap-1">
@@ -66,10 +71,10 @@ function TransferHeader({ pendingCount, onClearCompleted, onCancelAll, onClose }
 function EmptyState() {
 	const { t } = useI18n();
 	return (
-		<div className="flex-1 flex flex-col items-center justify-center gap-2 p-6 text-on-surface-variant">
+		<div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-on-surface-variant">
 			<Icon name="sync" size={32} className="opacity-40" />
 			<div className="text-sm font-medium">{t("transfer.empty")}</div>
-			<div className="text-xs opacity-80 text-center max-w-xs">{t("transfer.emptyHint")}</div>
+			<div className="max-w-xs text-center text-xs opacity-80">{t("transfer.emptyHint")}</div>
 		</div>
 	);
 }
@@ -129,7 +134,7 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 	}, [items]);
 
 	return (
-		<section className="h-full flex flex-col bg-surface-container min-h-0">
+		<section className="flex h-full min-h-0 flex-col bg-surface-container">
 			<TransferHeader
 				pendingCount={pendingCount}
 				onClearCompleted={pendingCount === 0 ? handleClearAll : handleClearCompleted}
@@ -137,11 +142,11 @@ export function ActiveTransfers({ connectionId }: ActiveTransfersProps) {
 				onClose={handleClose}
 			/>
 			{sorted.length === 0 ? (
-				<div className="flex-1 overflow-y-auto p-3 min-h-0" aria-label={t("transfer.active")}>
+				<div className="min-h-0 flex-1 overflow-y-auto p-3" aria-label={t("transfer.active")}>
 					<EmptyState />
 				</div>
 			) : (
-				<div className="flex-1 overflow-y-auto p-3 min-h-0" aria-label={t("transfer.active")}>
+				<div className="min-h-0 flex-1 overflow-y-auto p-3" aria-label={t("transfer.active")}>
 					<ul className="flex flex-col gap-2">
 						{sorted.map((item) => (
 							<li key={item.id}>

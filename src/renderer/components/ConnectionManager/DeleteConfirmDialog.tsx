@@ -12,9 +12,9 @@ export function DeleteConfirmDialog({ title, description, onConfirm, onCancel }:
 	const { t } = useI18n();
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-			<div className="bg-card border border-outline-variant rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-				<h3 className="text-base font-semibold text-card-foreground mb-2">{title}</h3>
-				<p className="text-sm text-muted-foreground mb-5">{description}</p>
+			<div className="mx-4 w-full max-w-sm rounded-xl border border-outline-variant bg-card p-6 shadow-xl">
+				<h3 className="mb-2 text-base font-semibold text-card-foreground">{title}</h3>
+				<p className="mb-5 text-sm text-muted-foreground">{description}</p>
 				<div className="flex items-center justify-end gap-2">
 					<Button variant="outline" onClick={onCancel}>
 						{t("connection.cancel")}

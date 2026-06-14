@@ -77,7 +77,7 @@ export function ServerSidebar({
 					<SidebarGroupContent>
 						<SidebarMenu className="gap-1">
 							{visibleConnections.length === 0 && !collapsed && (
-								<div className="text-muted-foreground text-xs text-center py-4">{t("connection.noActive")}</div>
+								<div className="py-4 text-center text-xs text-muted-foreground">{t("connection.noActive")}</div>
 							)}
 
 							{visibleConnections.map((conn) => {
@@ -99,7 +99,7 @@ export function ServerSidebar({
 											{collapsed ? (
 												<span
 													className={cn(
-														"flex items-center justify-center rounded-lg text-xs font-semibold shrink-0",
+														"flex shrink-0 items-center justify-center rounded-lg text-xs font-semibold",
 														isCurrentView
 															? "bg-sidebar-primary/10 text-sidebar-primary"
 															: "bg-sidebar-accent text-muted-foreground",
@@ -110,7 +110,7 @@ export function ServerSidebar({
 											) : (
 												<span
 													className={cn(
-														"size-2 rounded-full shrink-0",
+														"size-2 shrink-0 rounded-full",
 														isCurrentView ? "bg-sidebar-primary" : "bg-muted-foreground/40",
 														isConnecting && "animate-pulse",
 													)}
@@ -122,7 +122,10 @@ export function ServerSidebar({
 											<Button
 												variant="ghost"
 												size="icon-xs"
-												className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded"
+												className="
+													absolute top-1/2 right-1 -translate-y-1/2 rounded-sm text-muted-foreground
+													hover:bg-destructive/10 hover:text-destructive
+												"
 												aria-label={t("connection.disconnect")}
 												title={t("connection.disconnect")}
 												onClick={(e) => {
@@ -146,7 +149,7 @@ export function ServerSidebar({
 								<Button
 									variant="outline"
 									size="icon"
-									className="size-8 rounded-lg border-dashed text-on-surface-variant hover:text-primary hover:border-primary"
+									className="size-8 rounded-lg border-dashed text-on-surface-variant hover:border-primary hover:text-primary"
 									aria-label={t("connection.add")}
 									title={t("connection.add")}
 									onClick={onAdd}
@@ -157,7 +160,10 @@ export function ServerSidebar({
 								<Button
 									variant="outline"
 									size="default"
-									className="w-full py-2 border-dashed text-on-surface-variant hover:text-primary hover:border-primary justify-center"
+									className="
+										w-full justify-center border-dashed py-2 text-on-surface-variant
+										hover:border-primary hover:text-primary
+									"
 									aria-label={t("connection.add")}
 									title={t("connection.add")}
 									onClick={onAdd}

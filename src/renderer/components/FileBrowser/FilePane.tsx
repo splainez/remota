@@ -412,7 +412,7 @@ export function FilePane({
 		<div
 			ref={paneRef}
 			tabIndex={-1}
-			className="flex flex-col h-full overflow-hidden bg-surface-container-lowest min-w-0"
+			className="flex h-full min-w-0 flex-col overflow-hidden bg-surface-container-lowest"
 			onMouseDown={handleMouseDown}
 			onKeyDown={handleKeyDown}
 		>
@@ -439,7 +439,7 @@ export function FilePane({
 			{isConnectionDead ? (
 				<ConnectionErrorView technicalDetail={deadError.technicalDetail} onReconnect={onReconnect} />
 			) : remoteStatus === "connecting" ? (
-				<div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+				<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 					{t("remote.connecting")}
 				</div>
 			) : (

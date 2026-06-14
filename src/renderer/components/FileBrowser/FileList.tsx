@@ -71,7 +71,7 @@ export function FileList({
 
 	if (loading && entries.length === 0) {
 		return (
-			<div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">{t("file.loading")}</div>
+			<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">{t("file.loading")}</div>
 		);
 	}
 
@@ -81,14 +81,14 @@ export function FileList({
 
 	if (sorted.length === 0) {
 		return (
-			<div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">{t("file.empty")}</div>
+			<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">{t("file.empty")}</div>
 		);
 	}
 
 	const sortedNames = sorted.map((s) => s.name);
 
 	return (
-		<div className="flex-1 flex flex-col overflow-hidden">
+		<div className="flex flex-1 flex-col overflow-hidden">
 			<FileListHeader onSort={handleSort} sortKey={config.key} sortDir={config.direction} />
 			<div className="flex-1 overflow-y-auto" ref={scrollContainerRef}>
 				{sorted.map((entry) => (

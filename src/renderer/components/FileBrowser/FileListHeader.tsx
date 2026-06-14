@@ -22,12 +22,17 @@ export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps
 	};
 
 	return (
-		<div className="flex px-3 py-1.5 border-b border-outline-variant bg-surface-container-lowest text-xs text-on-surface-variant select-none shrink-0">
+		<div
+			className="
+				flex shrink-0 border-b border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-xs
+				text-on-surface-variant select-none
+			"
+		>
 			<div className="w-7" />
 			<Button
 				variant="ghost"
 				size="sm"
-				className={cn("flex-1 justify-start text-on-surface-variant font-semibold hover:text-on-surface px-2")}
+				className={cn("flex-1 justify-start px-2 font-semibold text-on-surface-variant hover:text-on-surface")}
 				onClick={() => {
 					onSort("name");
 				}}
@@ -38,7 +43,7 @@ export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps
 			<Button
 				variant="ghost"
 				size="sm"
-				className="w-20 justify-end text-on-surface-variant font-semibold hover:text-on-surface px-2"
+				className="w-20 justify-end px-2 font-semibold text-on-surface-variant hover:text-on-surface"
 				onClick={() => {
 					onSort("size");
 				}}
@@ -49,7 +54,7 @@ export function FileListHeader({ onSort, sortDir, sortKey }: FileListHeaderProps
 			<Button
 				variant="ghost"
 				size="sm"
-				className="w-28 justify-end text-on-surface-variant font-semibold hover:text-on-surface px-2 hidden xl:flex"
+				className="hidden w-28 justify-end px-2 font-semibold text-on-surface-variant hover:text-on-surface xl:flex"
 				onClick={() => {
 					onSort("modified");
 				}}

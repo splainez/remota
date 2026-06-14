@@ -135,7 +135,9 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 
 	return (
 		<div
-			className="fixed z-50 bg-popover border border-outline-variant rounded-lg shadow-lg overflow-hidden py-1 min-w-[180px]"
+			className="
+				fixed z-50 min-w-[180px] overflow-hidden rounded-lg border border-outline-variant bg-popover py-1 shadow-lg
+			"
 			style={{ left: position.left, top: position.top }}
 			onClick={(e) => {
 				e.stopPropagation();
@@ -144,15 +146,15 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 		>
 			{visibleItems.map((item, index) => (
 				<React.Fragment key={item.id}>
-					{item.separator && <div className="h-px bg-outline-variant my-1" />}
+					{item.separator && <div className="my-1 h-px bg-outline-variant" />}
 					<button
 						ref={(el) => {
 							if (el) itemsRef.current[index] = el;
 						}}
-						className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
+						className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
 							item.variant === "destructive"
-								? "hover:bg-destructive/10 text-destructive"
-								: "hover:bg-surface-container-high text-popover-foreground"
+								? "text-destructive hover:bg-destructive/10"
+								: "text-popover-foreground hover:bg-surface-container-high"
 						}`}
 						role="menuitem"
 						onClick={() => {

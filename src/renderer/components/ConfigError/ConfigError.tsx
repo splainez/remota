@@ -46,25 +46,25 @@ export function ConfigError() {
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-background p-8">
 			<div className="w-full max-w-lg text-center">
-				<Icon name="warning" size={48} className="mb-4 mx-auto text-destructive opacity-80" />
+				<Icon name="warning" size={48} className="mx-auto mb-4 text-destructive opacity-80" />
 
-				<h1 className="text-headline-lg font-bold text-foreground mb-2">{t("config.error.title")}</h1>
+				<h1 className="mb-2 font-bold text-foreground">{t("config.error.title")}</h1>
 
-				<p className="text-body-lg text-muted-foreground mb-6">{t("config.error.message")}</p>
+				<p className="mb-6 text-muted-foreground">{t("config.error.message")}</p>
 
-				<p className="text-body-md text-muted-foreground mb-6">{t("config.error.resolution")}</p>
+				<p className="mb-6 text-muted-foreground">{t("config.error.resolution")}</p>
 
-				<div className="bg-surface-container-low rounded-lg p-4 mb-6 text-left">
-					<p className="text-label-md text-muted-foreground mb-1">{t("config.error.filePath")}</p>
-					<code className="text-mono-sm text-foreground break-all select-all">{error.filePath}</code>
+				<div className="mb-6 rounded-lg bg-surface-container-low p-4 text-left">
+					<p className="mb-1 text-muted-foreground">{t("config.error.filePath")}</p>
+					<code className="break-all text-foreground select-all">{error.filePath}</code>
 				</div>
 
 				{error.issues.length > 0 && (
-					<div className="bg-surface-container rounded-lg p-4 mb-6 text-left max-h-40 overflow-y-auto">
-						<p className="text-label-md text-muted-foreground mb-2">{t("config.error.details")}</p>
+					<div className="mb-6 max-h-40 overflow-y-auto rounded-lg bg-surface-container p-4 text-left">
+						<p className="mb-2 text-muted-foreground">{t("config.error.details")}</p>
 						<ul className="space-y-1">
 							{error.issues.map((issue, i) => (
-								<li key={i} className="text-body-md text-muted-foreground">
+								<li key={i} className="text-muted-foreground">
 									• {issue}
 								</li>
 							))}
@@ -72,7 +72,7 @@ export function ConfigError() {
 					</div>
 				)}
 
-				<div className="flex gap-3 justify-center">
+				<div className="flex justify-center gap-3">
 					<Button variant="default" size="default" onClick={handleRetry}>
 						{t("config.error.retry")}
 					</Button>

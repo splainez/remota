@@ -158,7 +158,7 @@ export function SftpFields({ form }: SftpFieldsProps) {
 								)}
 								{authType === "agent" && (
 									<FormField label={t("connection.password")}>
-										<div className={`${inputClass} text-muted-foreground text-sm flex items-center gap-2`}>
+										<div className={`${inputClass} flex items-center gap-2 text-sm text-muted-foreground`}>
 											<Icon name="shield" size={14} />
 											{t("connection.authAgent")}
 										</div>
@@ -183,7 +183,7 @@ export function SftpFields({ form }: SftpFieldsProps) {
 								return (
 									<label
 										key={at}
-										className="flex items-center gap-1.5 cursor-pointer text-sm text-foreground [&_input]:accent-primary"
+										className="flex cursor-pointer items-center gap-1.5 text-sm text-foreground [&_input]:accent-primary"
 									>
 										<input
 											type="radio"

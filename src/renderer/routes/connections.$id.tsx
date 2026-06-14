@@ -49,7 +49,7 @@ function ConnectionDetailRoute() {
 	};
 
 	return (
-		<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
+		<div className="flex flex-1 items-start justify-center overflow-auto bg-surface">
 			<div className="w-full max-w-2xl p-6 md:p-10">
 				<ConnectionDetail
 					connection={connection}

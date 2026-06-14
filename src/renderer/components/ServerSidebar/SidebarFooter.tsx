@@ -16,11 +16,11 @@ export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 	const collapsed = state === "collapsed";
 
 	return (
-		<div className={cn("flex flex-row gap-2 w-full mt-auto pt-3", collapsed ? "items-center" : "")}>
+		<div className={cn("mt-auto flex w-full flex-row gap-2 pt-3", collapsed ? "items-center" : "")}>
 			<Button
 				variant="ghost"
 				size="icon"
-				className={cn("rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary")}
+				className={cn("rounded-full text-sidebar-foreground/70 hover:rounded-xl hover:text-sidebar-primary")}
 				aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
 				title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
 				onClick={toggleSidebar}
@@ -32,7 +32,7 @@ export function ServerSidebarFooter({ onSettings }: ServerSidebarFooterProps) {
 					<Button
 						variant="ghost"
 						size="icon"
-						className={cn("rounded-full hover:rounded-xl text-sidebar-foreground/70 hover:text-sidebar-primary")}
+						className={cn("rounded-full text-sidebar-foreground/70 hover:rounded-xl hover:text-sidebar-primary")}
 						aria-label={t("navigation.settings")}
 						title={t("navigation.settings")}
 						onClick={onSettings}

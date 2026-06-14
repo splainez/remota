@@ -133,7 +133,7 @@ export function S3Fields({ form }: S3FieldsProps) {
 								field.handleChange(e.target.checked);
 							}}
 						/>
-						<label className="text-sm text-foreground cursor-pointer select-none" htmlFor="conn-usehttps">
+						<label className="cursor-pointer text-sm text-foreground select-none" htmlFor="conn-usehttps">
 							{t("connection.useHttps")}
 						</label>
 					</div>

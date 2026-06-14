@@ -35,7 +35,7 @@ export function ThemeSelect() {
 			<Button
 				variant="ghost"
 				size="icon"
-				className="rounded-full hover:rounded-xl text-on-surface-variant hover:text-primary"
+				className="rounded-full text-on-surface-variant hover:rounded-xl hover:text-primary"
 				aria-label={t("theme.change")}
 				title={t("theme.change")}
 				aria-haspopup="menu"
@@ -49,7 +49,10 @@ export function ThemeSelect() {
 			{open && (
 				<div
 					role="menu"
-					className="absolute bottom-full left-0 mb-1 w-36 bg-popover border border-outline-variant rounded-lg shadow-lg overflow-hidden z-50"
+					className="
+						absolute bottom-full left-0 z-50 mb-1 w-36 overflow-hidden rounded-lg border border-outline-variant
+						bg-popover shadow-lg
+					"
 				>
 					{options.map((opt) => (
 						<MenuItem
@@ -62,8 +65,8 @@ export function ThemeSelect() {
 						>
 							<span
 								className={cn(
-									"w-2 h-2 rounded-full",
-									theme === opt.value ? "bg-primary" : "bg-transparent border border-outline-variant",
+									"size-2 rounded-full",
+									theme === opt.value ? "bg-primary" : "border border-outline-variant bg-transparent",
 								)}
 							/>
 							{opt.label}

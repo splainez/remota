@@ -14,5 +14,5 @@ export function Terminal({ sessionId, type, connectionId }: TerminalProps) {
 
 	useXTerm({ sessionId, type, connectionId, containerRef });
 
-	return <div ref={containerRef} className="h-full w-full" />;
+	return <div ref={containerRef} className="size-full" />;
 }

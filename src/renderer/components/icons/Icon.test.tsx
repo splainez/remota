@@ -131,6 +131,7 @@ describe("Icon", () => {
 	});
 
 	it("renders with custom className", () => {
+		// eslint-disable-next-line better-tailwindcss/no-unknown-classes
 		render(<Icon name="folder" className="my-custom" data-testid="icon" />);
 		const el = screen.getByTestId("icon");
 		expect(el.getAttribute("class")).toContain("my-custom");

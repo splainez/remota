@@ -13,12 +13,12 @@ export function ConnectionGroupHeader({ name, count, collapsed, onToggle }: Conn
 		<Button
 			variant="ghost"
 			size="sm"
-			className="w-full justify-start h-auto py-1.5 px-1 gap-2 text-muted-foreground"
+			className="h-auto w-full justify-start gap-2 px-1 py-1.5 text-muted-foreground"
 			onClick={onToggle}
 		>
 			<Icon name={collapsed ? "triangle-down" : "folder-opened"} size={12} />
-			<span className="text-[11px] font-semibold uppercase tracking-wider">{name}</span>
-			<span className="text-[10px] text-muted-foreground/60 ml-auto">{count}</span>
+			<span className="text-[11px] font-semibold tracking-wider uppercase">{name}</span>
+			<span className="ml-auto text-[10px] text-muted-foreground/60">{count}</span>
 		</Button>
 	);
 }

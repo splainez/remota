@@ -74,14 +74,14 @@ export function TransferRow({ item, totalLabel, speed, onCancel }: TransferRowPr
 	}, [onCancel, item.jobId, item.id]);
 
 	return (
-		<div className="bg-surface-container-low rounded-md border border-outline-variant p-2 flex flex-col gap-1">
-			<div className="flex items-center gap-2 min-w-0">
+		<div className="flex flex-col gap-1 rounded-md border border-outline-variant bg-surface-container-low p-2">
+			<div className="flex min-w-0 items-center gap-2">
 				<Icon
 					name={statusIcon(item.status)}
 					size={14}
 					className={`${statusTone(item.status)} ${statusIsSpinning(item.status) ? "animate-spin" : ""} shrink-0`}
 				/>
-				<span className={`text-sm font-medium truncate ${statusTone(item.status)}`} title={item.name}>
+				<span className={`truncate text-sm font-medium ${statusTone(item.status)}`} title={item.name}>
 					{item.name}
 				</span>
 				{canCancel && (
@@ -91,21 +91,21 @@ export function TransferRow({ item, totalLabel, speed, onCancel }: TransferRowPr
 						aria-label={t("transfer.cancel")}
 						title={t("transfer.cancel")}
 						onClick={handleCancel}
-						className="shrink-0 ml-auto"
+						className="ml-auto shrink-0"
 					>
 						<Icon name="close" size={14} />
 					</Button>
 				)}
 				{!canCancel && (
-					<span className="text-xs text-on-surface-variant ml-auto shrink-0">{t(statusLabelKey(item.status))}</span>
+					<span className="ml-auto shrink-0 text-xs text-on-surface-variant">{t(statusLabelKey(item.status))}</span>
 				)}
 			</div>
 			{item.error !== undefined && (
-				<div className="text-xs text-destructive truncate" title={item.error}>
+				<div className="truncate text-xs text-destructive" title={item.error}>
 					{item.error}
 				</div>
 			)}
-			<div className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+			<div className="h-1 w-full overflow-hidden rounded-full bg-surface-container-highest">
 				<div
 					className="h-full bg-primary transition-all"
 					style={{ width: `${String(percent)}%` }}
@@ -119,7 +119,7 @@ export function TransferRow({ item, totalLabel, speed, onCancel }: TransferRowPr
 				<span className="truncate" title={item.target}>
 					{item.target}
 				</span>
-				<span className="shrink-0 ml-2">
+				<span className="ml-2 shrink-0">
 					{item.status === "active" || item.status === "completed" ? (
 						<>
 							<span>{t("transfer.item.bytes", { transferred: transferredLabel, total: totalLabel })}</span>

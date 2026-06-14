@@ -24,7 +24,9 @@ export function ConnectionContextMenu({
 
 	return (
 		<div
-			className="fixed z-50 bg-popover border border-outline-variant rounded-lg shadow-lg overflow-hidden py-1 min-w-[140px]"
+			className="
+				fixed z-50 min-w-[140px] overflow-hidden rounded-lg border border-outline-variant bg-popover py-1 shadow-lg
+			"
 			style={{ left: x, top: y }}
 			onClick={(e) => {
 				e.stopPropagation();

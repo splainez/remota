@@ -54,9 +54,9 @@ export function ConnectionListView({
 	}, []);
 
 	return (
-		<div className="flex-1 flex flex-col bg-surface overflow-auto" onClick={close}>
+		<div className="flex flex-1 flex-col overflow-auto bg-surface" onClick={close}>
 			<div className="shrink-0 border-b border-outline-variant bg-surface-container-low px-6 py-4">
-				<div className="flex items-center justify-between mb-3">
+				<div className="mb-3 flex items-center justify-between">
 					<h1 className="text-lg font-semibold text-on-surface">{t("connection.manager")}</h1>
 					<Button variant="default" size="sm" onClick={onAdd}>
 						<Icon name="add" size={14} />
@@ -64,7 +64,7 @@ export function ConnectionListView({
 					</Button>
 				</div>
 				<div className="relative">
-					<Icon name="search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+					<Icon name="search" size={14} className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
 					<input
 						type="text"
 						placeholder={t("file.filter")}
@@ -72,7 +72,12 @@ export function ConnectionListView({
 						onChange={(e) => {
 							setSearch(e.target.value);
 						}}
-						className="w-full pl-9 pr-3 py-2 rounded-lg bg-surface border border-outline-variant text-sm text-on-surface placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+						className="
+							w-full rounded-lg border border-outline-variant bg-surface py-2 pr-3 pl-9 text-sm text-on-surface
+							transition-all
+							placeholder:text-muted-foreground
+							focus:border-primary focus:ring-2 focus:ring-primary/40 focus:outline-none
+						"
 					/>
 				</div>
 			</div>
@@ -81,7 +86,7 @@ export function ConnectionListView({
 				{filtered.length === 0 && !showRecent && (
 					<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
 						<Icon name="server" size={48} className="mb-3 opacity-40" />
-						<div className="text-base mb-1">{t("connection.noSelection")}</div>
+						<div className="mb-1 text-base">{t("connection.noSelection")}</div>
 						<div className="text-xs">{t("connection.add")}</div>
 					</div>
 				)}
@@ -96,7 +101,7 @@ export function ConnectionListView({
 						/>
 
 						{!recentCollapsed && (
-							<div className="flex flex-col gap-0.5 ml-1">
+							<div className="ml-1 flex flex-col gap-0.5">
 								{recentConnections.map((conn) => (
 									<ConnectionItem
 										key={`recent-${String(conn.id)}`}
@@ -137,7 +142,7 @@ export function ConnectionListView({
 						/>
 
 						{!collapsedGroups.has(groupName) && (
-							<div className="flex flex-col gap-0.5 ml-1">
+							<div className="ml-1 flex flex-col gap-0.5">
 								{conns.map((conn) => (
 									<ConnectionItem
 										key={conn.id}

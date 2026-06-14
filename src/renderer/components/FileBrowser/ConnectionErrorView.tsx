@@ -9,14 +9,19 @@ interface ConnectionErrorViewProps {
 export function ConnectionErrorView({ technicalDetail, onReconnect }: ConnectionErrorViewProps) {
 	const { t } = useI18n();
 	return (
-		<div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
+		<div className="flex flex-1 flex-col items-center justify-center gap-3 p-4 text-muted-foreground">
 			<span className="text-sm font-semibold">{t("remote.connectionLost")}</span>
 			{onReconnect && (
 				<Button variant="default" size="sm" onClick={onReconnect}>
 					{t("remote.reconnect")}
 				</Button>
 			)}
-			<pre className="text-xs text-muted-foreground bg-surface-container p-2 rounded mt-1 max-w-full overflow-auto whitespace-pre-wrap break-all">
+			<pre
+				className="
+					mt-1 max-w-full overflow-auto rounded-sm bg-surface-container p-2 text-xs break-all whitespace-pre-wrap
+					text-muted-foreground
+				"
+			>
 				{technicalDetail}
 			</pre>
 		</div>

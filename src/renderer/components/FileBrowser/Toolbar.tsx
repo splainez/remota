@@ -48,7 +48,7 @@ export function Toolbar({
 	);
 
 	return (
-		<div className="h-9 border-b border-outline-variant bg-surface flex items-center px-3 justify-between shrink-0">
+		<div className="flex h-9 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-3">
 			<div className="flex items-center gap-1">
 				<Button
 					variant="ghost"
@@ -95,7 +95,11 @@ export function Toolbar({
 				</Button>
 				{drives.length > 0 && (
 					<select
-						className="h-6 px-1.5 border border-outline-variant rounded bg-surface-container-lowest text-on-surface text-xs min-w-[60px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+						className="
+							h-6 min-w-[60px] rounded-sm border border-outline-variant bg-surface-container-lowest px-1.5 text-xs
+							text-on-surface transition-all
+							focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none
+						"
 						value={selectedDrive ?? ""}
 						onChange={handleDriveChange}
 						title={t("file.selectDrive")}
@@ -112,9 +116,13 @@ export function Toolbar({
 				)}
 			</div>
 			<div className="relative">
-				<Icon name="search" size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+				<Icon name="search" size={14} className="absolute top-1/2 left-2 -translate-y-1/2 text-on-surface-variant" />
 				<input
-					className="pl-7 pr-6 py-0.5 h-6 text-sm bg-surface-container-lowest border border-outline-variant rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-40"
+					className="
+						h-6 w-40 rounded-sm border border-outline-variant bg-surface-container-lowest py-0.5 pr-6 pl-7 text-sm
+						transition-all
+						focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none
+					"
 					placeholder={t("file.filter")}
 					type="text"
 					value={filter}
@@ -126,7 +134,7 @@ export function Toolbar({
 					<Button
 						variant="ghost"
 						size="icon-xs"
-						className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full"
+						className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full"
 						onClick={() => {
 							onFilterChange("");
 						}}

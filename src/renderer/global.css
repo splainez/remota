@@ -251,11 +251,3 @@ body,
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--outline);
 }
-
-.titlebar-drag-region {
-	-webkit-app-region: drag;
-}
-
-.titlebar-no-drag-region {
-	-webkit-app-region: no-drag;
-}

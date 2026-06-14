@@ -26,19 +26,26 @@ export function TitleBar() {
 	}, []);
 
 	return (
-		<div className="flex w-full shrink-0 z-50 items-center justify-between h-(--titlebar-height) bg-surface-container-low border-b border-outline-variant">
-			<div className="titlebar-drag-region flex flex-1 items-center gap-2 h-full pl-3 min-w-0 drag">
+		<div
+			className="
+				z-50 flex h-(--titlebar-height) w-full shrink-0 items-center justify-between border-b border-outline-variant
+				bg-surface-container-low
+			"
+		>
+			<div className="flex h-full min-w-0 flex-1 items-center gap-2 pl-3">
 				<span className="flex shrink-0 items-center text-primary">
 					<Icon name="app-icon" size={14} />
 				</span>
-				<span className="text-xs text-on-surface-variant text-center overflow-hidden text-ellipsis whitespace-nowrap">
-					{t("app.title")}
-				</span>
+				<span className="truncate text-center text-xs text-on-surface-variant">{t("app.title")}</span>
 			</div>
-			<div className="titlebar-no-drag-region flex shrink-0 h-full">
+			<div className="flex h-full shrink-0">
 				<button
 					type="button"
-					className="hover:bg-surface-container-high hover:text-on-surface flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
+					className="
+						flex h-full w-11 cursor-pointer items-center justify-center border-none bg-transparent
+						text-on-surface-variant transition-colors
+						hover:bg-surface-container-high hover:text-on-surface
+					"
 					aria-label="Minimize"
 					onClick={handleMinimize}
 				>
@@ -46,7 +53,11 @@ export function TitleBar() {
 				</button>
 				<button
 					type="button"
-					className="hover:bg-surface-container-high hover:text-on-surface flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
+					className="
+						flex h-full w-11 cursor-pointer items-center justify-center border-none bg-transparent
+						text-on-surface-variant transition-colors
+						hover:bg-surface-container-high hover:text-on-surface
+					"
 					aria-label={maximized ? "Restore" : "Maximize"}
 					onClick={handleMaximize}
 				>
@@ -54,7 +65,11 @@ export function TitleBar() {
 				</button>
 				<button
 					type="button"
-					className="hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center w-11 h-full border-none bg-transparent text-on-surface-variant cursor-pointer transition-colors"
+					className="
+						flex h-full w-11 cursor-pointer items-center justify-center border-none bg-transparent
+						text-on-surface-variant transition-colors
+						hover:bg-destructive hover:text-destructive-foreground
+					"
 					aria-label="Close"
 					onClick={handleClose}
 				>

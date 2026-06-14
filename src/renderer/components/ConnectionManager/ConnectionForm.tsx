@@ -96,7 +96,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 				});
 			}}
 		>
-			<div className="flex items-center gap-3 mb-1">
+			<div className="mb-1 flex items-center gap-3">
 				<Button type="button" variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onCancel}>
 					<Icon name="arrow-left" size={18} />
 				</Button>
@@ -110,7 +110,10 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 					{(field) => (
 						<div className="flex flex-col gap-1">
 							<label
-								className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground after:content-['_*'] after:text-destructive after:ml-0.5"
+								className="
+									text-[11px] font-semibold tracking-wider text-muted-foreground uppercase
+									after:ml-0.5 after:text-destructive after:content-['_*']
+								"
 								htmlFor="conn-name"
 							>
 								{t("connection.name")}
@@ -130,7 +133,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 								const msg =
 									err !== null && typeof err === "object" && "message" in err ? String(err.message) : String(err);
 								return (
-									<span key={i} className="text-xs text-destructive mt-0.5">
+									<span key={i} className="mt-0.5 text-xs text-destructive">
 										{t(msg as TranslationKey)}
 									</span>
 								);
@@ -143,7 +146,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 					{(field) => (
 						<div className="flex flex-col gap-1">
 							<label
-								className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+								className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
 								htmlFor="conn-protocol"
 							>
 								{t("connection.protocol")}

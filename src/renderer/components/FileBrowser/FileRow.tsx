@@ -80,7 +80,7 @@ export function FileRow({
 			onDoubleClick={isEditing ? undefined : onDoubleClick}
 			onContextMenu={isEditing ? undefined : onContextMenu}
 		>
-			<div className="w-7 flex items-center justify-center">
+			<div className="flex w-7 items-center justify-center">
 				{entry.isDirectory ? (
 					<FolderIcon path={entry.name} size={16} className="shrink-0 text-primary" />
 				) : (
@@ -92,7 +92,7 @@ export function FileRow({
 					ref={inputRef}
 					data-testid="rename-input"
 					value={draftName}
-					className="flex-1 h-6 text-sm px-1.5 py-0 mr-3"
+					className="mr-3 h-6 flex-1 px-1.5 py-0 text-sm"
 					onChange={(e) => {
 						setDraftName(e.target.value);
 					}}
@@ -106,12 +106,12 @@ export function FileRow({
 					}}
 				/>
 			) : (
-				<div className="flex-1 text-sm text-on-surface truncate pr-3">{entry.name}</div>
+				<div className="flex-1 truncate pr-3 text-sm text-on-surface">{entry.name}</div>
 			)}
 			<div className="w-20 text-right text-xs text-on-surface-variant">
 				{entry.isDirectory ? "--" : formatSize(entry.size)}
 			</div>
-			<div className="w-28 text-right text-xs text-on-surface-variant hidden xl:block">
+			<div className="hidden w-28 text-right text-xs text-on-surface-variant xl:block">
 				{formatDate(entry.modified)}
 			</div>
 		</div>

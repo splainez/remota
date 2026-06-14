@@ -173,11 +173,11 @@ function RootLayout() {
 
 	if (loading) {
 		return (
-			<div className="flex h-screen overflow-hidden bg-background flex-col">
+			<div className="flex h-screen flex-col overflow-hidden bg-background">
 				<TitleBar />
-				<div className="flex flex-1 min-h-0">
-					<div className="w-20 bg-surface-container-low border-r border-outline-variant shrink-0" />
-					<div className="flex-1 flex items-center justify-center">
+				<div className="flex min-h-0 flex-1">
+					<div className="w-20 shrink-0 border-r border-outline-variant bg-surface-container-low" />
+					<div className="flex flex-1 items-center justify-center">
 						<div className="text-muted-foreground">{t("file.loading")}</div>
 					</div>
 				</div>
@@ -197,11 +197,11 @@ function RootLayout() {
 				onOpenChange={handleQuitDialogOpenChange}
 				onConfirmQuit={handleConfirmQuit}
 			/>
-			<div className="grid h-screen overflow-hidden bg-background grid-rows-[auto_1fr]">
+			<div className="grid h-screen grid-rows-[auto_1fr] overflow-hidden bg-background">
 				<Toaster position="bottom-right" richColors />
-				<SidebarProvider className="flex-1 flex-col max-w-full min-h-0">
+				<SidebarProvider className="min-h-0 max-w-full flex-1 flex-col">
 					<TitleBar />
-					<div className="flex flex-1 flex-row max-w-full min-h-0">
+					<div className="flex min-h-0 max-w-full flex-1 flex-row">
 						<ServerSidebar
 							connections={connections}
 							activeConnectionId={activeConnectionId}
@@ -216,7 +216,7 @@ function RootLayout() {
 							onSettings={handleSettings}
 						/>
 
-						<div className="flex-1 grid grid-rows-[1fr_auto] min-w-0 min-h-0">
+						<div className="grid min-h-0 min-w-0 flex-1 grid-rows-[1fr_auto]">
 							<Outlet />
 
 							<StatusBar
