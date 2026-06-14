@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- route config + component co-location is Tanstack Router convention */
 import { ConnectionDetail } from "@renderer/components/ConnectionManager/ConnectionDetail";
 import { useConnections } from "@renderer/hooks/useConnections";
+import { useActiveSessionsStore } from "@renderer/store/activeSessions";
 import type { Connection, NewConnection } from "@shared/types";
 import { createRoute, useNavigate } from "@tanstack/react-router";
 
@@ -16,6 +17,7 @@ function ConnectionDetailRoute() {
 	const { id } = connectionDetailRoute.useParams();
 	const navigate = useNavigate();
 	const { connections, selected, update, remove } = useConnections();
+	const addSession = useActiveSessionsStore((s) => s.addSession);
 
 	const connectionId = Number(id);
 	const connection = connections.find((c) => c.id === connectionId) ?? null;
@@ -30,6 +32,7 @@ function ConnectionDetailRoute() {
 
 	const handleConnect = () => {
 		if (connection) {
+			addSession(connection.id);
 			void navigate({ to: "/browse/$connectionId", params: { connectionId: String(connection.id) } });
 		}
 	};
