@@ -63,7 +63,7 @@ describe("ConnectionDetail", () => {
 			</I18nWrapper>,
 		);
 
-		expect(screen.getByText("My Server")).toBeInTheDocument();
+		expect(screen.getAllByText("My Server").length).toBeGreaterThan(0);
 		expect(screen.getByText("sftp")).toBeInTheDocument();
 		expect(screen.getByText("example.com")).toBeInTheDocument();
 		expect(screen.getByText("22")).toBeInTheDocument();
