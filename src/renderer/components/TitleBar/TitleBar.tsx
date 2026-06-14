@@ -26,7 +26,7 @@ export function TitleBar() {
 	}, []);
 
 	return (
-		<div className="flex shrink-0 z-50 items-center justify-between h-(--titlebar-height) bg-surface-container-low border-b border-outline-variant">
+		<div className="flex w-full shrink-0 z-50 items-center justify-between h-(--titlebar-height) bg-surface-container-low border-b border-outline-variant">
 			<div className="titlebar-drag-region flex flex-1 items-center gap-2 h-full pl-3 min-w-0 drag">
 				<span className="flex shrink-0 items-center text-primary">
 					<Icon name="server" size={14} />
