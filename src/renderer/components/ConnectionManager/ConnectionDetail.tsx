@@ -35,22 +35,7 @@ export function ConnectionDetail({
 		return (
 			<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 				<div className="w-full max-w-2xl p-6 md:p-10">
-					<div className="bg-card border border-outline-variant rounded-xl overflow-hidden">
-						<div className="border-b border-outline-variant bg-surface-container px-6 py-5 flex items-center gap-4">
-							<div className="w-12 h-12 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center text-primary shrink-0">
-								<Icon name="globe" size={24} />
-							</div>
-							<div>
-								<h2 className="text-lg font-semibold text-card-foreground">
-									{isNew ? t("connection.new") : t("connection.edit")}
-								</h2>
-								<p className="text-sm text-muted-foreground mt-0.5">{t("connection.configureDescription")}</p>
-							</div>
-						</div>
-						<div className="p-6">
-							<ConnectionForm initial={connection} onSave={onSave} onCancel={onCancel} onConnect={onConnect} />
-						</div>
-					</div>
+					<ConnectionForm initial={connection} onSave={onSave} onCancel={onCancel} onConnect={onConnect} />
 				</div>
 			</div>
 		);
@@ -60,57 +45,65 @@ export function ConnectionDetail({
 		return (
 			<div className="flex-1 flex items-start justify-center bg-surface overflow-auto">
 				<div className="w-full max-w-2xl p-6 md:p-10">
-					<div className="bg-card border border-outline-variant rounded-xl overflow-hidden">
-						{/* Header */}
-						<div className="border-b border-outline-variant bg-surface-container px-6 py-5 flex items-center gap-4">
-							<Button variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onCancel}>
-								<Icon name="arrow-left" size={18} />
-							</Button>
-							<div className="w-12 h-12 rounded-full bg-surface-container-highest border border-outline flex items-center justify-center text-primary shrink-0">
-								<Icon name="globe" size={24} />
-							</div>
-							<div className="flex-1 min-w-0">
-								<h2 className="text-lg font-semibold text-card-foreground truncate">{connection.name}</h2>
-								<p className="text-sm text-muted-foreground mt-0.5 uppercase tracking-wide">{connection.protocol}</p>
-							</div>
-						</div>
+					<div className="flex items-center gap-3 mb-6">
+						<Button variant="ghost" size="icon" aria-label={t("connection.back")} onClick={onCancel}>
+							<Icon name="arrow-left" size={18} />
+						</Button>
+						<h2 className="text-lg font-semibold text-foreground truncate">{connection.name}</h2>
+					</div>
 
-						{/* Body */}
-						<div className="p-6 grid grid-cols-2 gap-x-6 gap-y-5">
-							<div>
-								<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-									{t("connection.host")}
+					<div className="flex flex-col gap-8">
+						<section className="flex flex-col gap-3">
+							<h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+								{t("connection.details")}
+							</h3>
+							<div className="bg-surface-container rounded-xl border border-outline-variant p-4 grid grid-cols-2 gap-x-6 gap-y-5">
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.name")}
+									</div>
+									<div className="text-sm text-foreground font-medium truncate">{connection.name}</div>
 								</div>
-								<div className="text-sm text-foreground font-medium">{connection.host}</div>
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.protocol")}
+									</div>
+									<div className="text-sm text-foreground font-medium uppercase">{connection.protocol}</div>
+								</div>
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.host")}
+									</div>
+									<div className="text-sm text-foreground font-medium">{connection.host}</div>
+								</div>
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.port")}
+									</div>
+									<div className="text-sm text-foreground font-medium">{connection.port}</div>
+								</div>
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.username")}
+									</div>
+									<div className="text-sm text-foreground font-medium">{connection.username || "\u2014"}</div>
+								</div>
+								<div>
+									<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+										{t("connection.authType")}
+									</div>
+									<div className="text-sm text-foreground font-medium">
+										{connection.authType === "password"
+											? t("connection.authPassword")
+											: connection.authType === "key"
+												? t("connection.authKey")
+												: t("connection.authAgent")}
+									</div>
+								</div>
 							</div>
-							<div>
-								<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-									{t("connection.port")}
-								</div>
-								<div className="text-sm text-foreground font-medium">{connection.port}</div>
-							</div>
-							<div>
-								<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-									{t("connection.username")}
-								</div>
-								<div className="text-sm text-foreground font-medium">{connection.username || "\u2014"}</div>
-							</div>
-							<div>
-								<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-									{t("connection.authType")}
-								</div>
-								<div className="text-sm text-foreground font-medium">
-									{connection.authType === "password"
-										? t("connection.authPassword")
-										: connection.authType === "key"
-											? t("connection.authKey")
-											: t("connection.authAgent")}
-								</div>
-							</div>
-						</div>
+						</section>
 
-						{/* Footer */}
-						<div className="px-6 py-4 bg-surface-container border-t border-outline-variant flex items-center justify-end gap-3">
+						<div className="flex items-center justify-end gap-2 pt-2">
 							<Button variant="secondary" onClick={onEdit}>
 								<Icon name="edit" size={14} className="mr-1.5" />
 								{t("connection.edit")}

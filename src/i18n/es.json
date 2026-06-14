@@ -37,6 +37,7 @@
 	"connection.noActive": "Sin conexión activa",
 	"connection.add": "Añadir Conexión",
 	"connection.configureDescription": "Configura los detalles para establecer un enlace seguro de transferencia de archivos.",
+	"connection.details": "Detalles de Conexión",
 	"connection.advancedSettings": "Ajustes Avanzados (Claves SSH, Proxy...)",
 	"connection.group": "Grupo",
 	"connection.groupPlaceholder": "ej. Servidores de Trabajo",

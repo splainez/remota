@@ -37,6 +37,7 @@
 	"connection.noActive": "No active connection",
 	"connection.add": "Add Connection",
 	"connection.configureDescription": "Configure details to establish a secure file transfer link.",
+	"connection.details": "Connection Details",
 	"connection.advancedSettings": "Advanced Settings (SSH Keys, Proxy...)",
 	"connection.group": "Group",
 	"connection.groupPlaceholder": "e.g. Work Servers",
