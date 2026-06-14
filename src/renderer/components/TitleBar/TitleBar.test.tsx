@@ -17,7 +17,7 @@ describe("TitleBar", () => {
 				<TitleBar />
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("OpenSCP")).toBeInTheDocument();
+		expect(screen.getByText("Remota")).toBeInTheDocument();
 	});
 
 	it("renders minimize, maximize, and close buttons", () => {

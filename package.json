@@ -1,7 +1,7 @@
 {
-	"name": "openscp",
+	"name": "remota",
 	"version": "0.1.0",
-	"description": "A modular WinSCP replacement with dual-pane file manager",
+	"description": "A dual-pane file manager",
 	"keywords": [],
 	"license": "MIT",
 	"author": "",

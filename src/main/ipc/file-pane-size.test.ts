@@ -30,7 +30,7 @@ describe("file pane size IPC handlers", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		tmpDir = mkdtempSync(join(tmpdir(), "openscp-fps-ipc-"));
+		tmpDir = mkdtempSync(join(tmpdir(), "remota-fps-ipc-"));
 		store = new AppStore(tmpDir);
 		registerFilePaneSizeHandlers(store);
 	});

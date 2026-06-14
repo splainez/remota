@@ -156,7 +156,7 @@ function makeSftp(connected: boolean): SftpStub {
 }
 
 function makeTemp(): TempStub {
-	const root = join(tmpdir(), "openscp-test-1");
+	const root = join(tmpdir(), "remota-test-1");
 	return {
 		getTempPath: () => root,
 	};
@@ -530,7 +530,7 @@ describe("RemoteEditManager", () => {
 
 			const result = await manager.startEdit(1, "/remote/bigfile.bin");
 
-			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "bigfile.bin");
+			const expectedPath = join(tmpdir(), "remota-test-1", "remote", "bigfile.bin");
 			expect(result.tempPath).toBe(expectedPath);
 			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
@@ -582,7 +582,7 @@ describe("RemoteEditManager", () => {
 
 			const result = await manager.startEdit(1, "/remote/file.txt");
 
-			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
+			const expectedPath = join(tmpdir(), "remota-test-1", "remote", "file.txt");
 			expect(result.tempPath).toBe(expectedPath);
 			// eslint-disable-next-line @typescript-eslint/unbound-method -- shell.openPath is mocked
 			expect(shell.openPath).toHaveBeenCalledWith(expectedPath);
@@ -616,7 +616,7 @@ describe("RemoteEditManager", () => {
 
 			await manager.startEdit(1, "/remote/file.txt");
 
-			const expectedPath = join(tmpdir(), "openscp-test-1", "remote", "file.txt");
+			const expectedPath = join(tmpdir(), "remota-test-1", "remote", "file.txt");
 			expect(mockWatchFn).toHaveBeenCalledWith(expectedPath, expect.any(Function));
 		});
 

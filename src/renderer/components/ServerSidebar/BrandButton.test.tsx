@@ -15,7 +15,7 @@ describe("BrandButton", () => {
 				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		expect(screen.getByText("OpenSCP")).toBeInTheDocument();
+		expect(screen.getByText("Remota")).toBeInTheDocument();
 	});
 
 	it("hides text content when collapsed", () => {
@@ -26,7 +26,7 @@ describe("BrandButton", () => {
 				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		expect(screen.queryByText("OpenSCP")).not.toBeInTheDocument();
+		expect(screen.queryByText("Remota")).not.toBeInTheDocument();
 	});
 
 	it("calls onViewAll on click", async () => {
@@ -39,7 +39,7 @@ describe("BrandButton", () => {
 				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		await user.click(screen.getByTitle("OpenSCP"));
+		await user.click(screen.getByTitle("Remota"));
 		expect(onViewAll).toHaveBeenCalledOnce();
 	});
 
@@ -53,7 +53,7 @@ describe("BrandButton", () => {
 				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		const brandButton = screen.getByTitle("OpenSCP");
+		const brandButton = screen.getByTitle("Remota");
 		brandButton.focus();
 		await user.keyboard("{Enter}");
 		expect(onViewAll).toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe("BrandButton", () => {
 				</SidebarProvider>
 			</I18nWrapper>,
 		);
-		const brandButton = screen.getByTitle("OpenSCP");
+		const brandButton = screen.getByTitle("Remota");
 		brandButton.focus();
 		await user.keyboard(" ");
 		expect(onViewAll).toHaveBeenCalled();

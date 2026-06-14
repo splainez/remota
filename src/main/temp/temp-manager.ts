@@ -11,7 +11,7 @@ export class TempManager {
 			return existing;
 		}
 
-		const dir = await mkdtemp(join(tmpdir(), `openscp-${String(connectionId)}-`));
+		const dir = await mkdtemp(join(tmpdir(), `remota-${String(connectionId)}-`));
 		this.tempDirs.set(connectionId, dir);
 		return dir;
 	}

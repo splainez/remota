@@ -224,7 +224,7 @@ describe("ServerSidebar", () => {
 			</I18nWrapper>,
 		);
 
-		await user.click(screen.getByTitle("OpenSCP"));
+		await user.click(screen.getByTitle("Remota"));
 		expect(onViewAll).toHaveBeenCalledOnce();
 	});
 
@@ -251,7 +251,7 @@ describe("ServerSidebar", () => {
 			</I18nWrapper>,
 		);
 
-		await user.click(screen.getByText("OpenSCP"));
+		await user.click(screen.getByText("Remota"));
 		expect(onViewAll).toHaveBeenCalledOnce();
 	});
 

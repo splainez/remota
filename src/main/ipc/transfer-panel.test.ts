@@ -30,7 +30,7 @@ describe("transfer panel IPC handlers", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		tmpDir = mkdtempSync(join(tmpdir(), "openscp-tp-ipc-"));
+		tmpDir = mkdtempSync(join(tmpdir(), "remota-tp-ipc-"));
 		store = new AppStore(tmpDir);
 		registerTransferPanelHandlers(store);
 	});

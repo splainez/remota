@@ -58,7 +58,7 @@ function createWindow() {
 		height: 800,
 		minWidth: 900,
 		minHeight: 600,
-		title: "OpenSCP",
+		title: "Remota",
 		frame: isLinux ? false : true,
 		trafficLightPosition: isMac ? { x: 12, y: 10 } : undefined,
 		titleBarStyle: isMac ? "hiddenInset" : isWindows ? "hidden" : undefined,

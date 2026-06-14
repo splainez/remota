@@ -1,7 +1,7 @@
 services:
   builder-linux:
     image: electronuserland/builder
-    container_name: openscp-builder-linux
+    container_name: remota-builder-linux
     working_dir: /project
     volumes:
       - .:/project
@@ -23,7 +23,7 @@ services:
 
   builder-win:
     image: electronuserland/builder:wine
-    container_name: openscp-builder-win
+    container_name: remota-builder-win
     working_dir: /project
     volumes:
       - .:/project

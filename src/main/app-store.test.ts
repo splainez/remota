@@ -33,7 +33,7 @@ describe("AppStore", () => {
 	let store: AppStore;
 
 	beforeEach(() => {
-		tmpDir = mkdtempSync(join(tmpdir(), "openscp-store-"));
+		tmpDir = mkdtempSync(join(tmpdir(), "remota-store-"));
 		store = new AppStore(tmpDir);
 	});
 
@@ -160,7 +160,7 @@ describe("AppStore with pre-existing data", () => {
 	let store: AppStore;
 
 	beforeEach(() => {
-		tmpDir = mkdtempSync(join(tmpdir(), "openscp-store-"));
+		tmpDir = mkdtempSync(join(tmpdir(), "remota-store-"));
 		store = new AppStore(tmpDir);
 	});
 
@@ -186,7 +186,7 @@ describe("AppStore with pre-existing data", () => {
 	});
 
 	it("isolates stores with different directories", () => {
-		const tmpDir2 = mkdtempSync(join(tmpdir(), "openscp-store-"));
+		const tmpDir2 = mkdtempSync(join(tmpdir(), "remota-store-"));
 		const store2 = new AppStore(tmpDir2);
 
 		store.create(makeNewConnection());

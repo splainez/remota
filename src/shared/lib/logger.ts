@@ -14,7 +14,7 @@ const renameComponentBinding = (bindings: Record<string, unknown>) => {
 };
 
 export const rootLogger = pino({
-	name: "OpenSCP",
+	name: "Remota",
 	level: defaultLevel,
 	formatters: {
 		log(obj) {

@@ -1,4 +1,4 @@
-# AGENTS.md — OpenSCP
+# AGENTS.md — Remota
 
 ## 1. Stack
 
@@ -110,7 +110,7 @@ Beyond passing checks: every change must leave codebase **more maintainable** th
 ## 16. Gotchas
 
 - **Context isolation ON.** Renderer NEVER imports Node/native. All OS/db/network → `window.api`.
-- **Settings path:** Win `%APPDATA%\openscp`, macOS `~/Library/Application Support/openscp`, Linux `~/.config/openscp`.
+- **Settings path:** Win `%APPDATA%\remota`, macOS `~/Library/Application Support/remota`, Linux `~/.config/remota`.
 - **IPC chs = `IPC.*` only** from `src/shared/ipc-channels.ts`. Never hardcode `"connection:list"` etc.
 - **No comments in code.** Project policy. If unclear → rename or split.
 - **No `as` casts.** Validate w/ Zod.

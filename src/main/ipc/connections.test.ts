@@ -49,7 +49,7 @@ describe("connection IPC handlers", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		tmpDir = mkdtempSync(join(tmpdir(), "openscp-ipc-"));
+		tmpDir = mkdtempSync(join(tmpdir(), "remota-ipc-"));
 		store = new AppStore(tmpDir);
 		registerConnectionHandlers(store);
 	});

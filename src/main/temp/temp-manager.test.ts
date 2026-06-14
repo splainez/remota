@@ -17,9 +17,9 @@ describe("TempManager", () => {
 	});
 
 	describe("createTempDir", () => {
-		it("creates a temp directory with openscp prefix", async () => {
+		it("creates a temp directory with remota prefix", async () => {
 			const dir = await manager.createTempDir(1);
-			expect(dir).toContain("openscp-1-");
+			expect(dir).toContain("remota-1-");
 			expect(existsSync(dir)).toBe(true);
 		});
 

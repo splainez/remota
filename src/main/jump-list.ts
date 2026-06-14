@@ -44,7 +44,7 @@ export function updateJumpList(store: AppStore) {
 			items: [
 				{
 					type: "task",
-					title: "OpenSCP",
+					title: "Remota",
 					program: exePath,
 					iconPath: exePath,
 					iconIndex: 0,
