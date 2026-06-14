@@ -8,7 +8,7 @@ const logger = LoggerFactory.init({ name: "renderer.useConnections" });
 export function useConnections() {
 	const connections = useConnectionsStore((s) => s.connections);
 	const selectedId = useConnectionsStore((s) => s.selectedId);
-	const loading = useConnectionsStore((s) => s.loading);
+	const loading = useConnectionsStore((s) => !s.loaded);
 	const selected = useConnectionsStore(getSelectedConnection);
 
 	useEffect(() => {
