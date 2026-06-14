@@ -4,6 +4,7 @@ import type {
 	ConnectionUpdate,
 	DownloadRequest,
 	DownloadResult,
+	ElectronAPI,
 	FileEntry,
 	LocalStat,
 	NewConnection,
@@ -17,7 +18,7 @@ import type {
 } from "@shared/types";
 import { contextBridge, ipcRenderer } from "electron";
 
-const api = {
+const api: ElectronAPI = {
 	connections: {
 		list: (): Promise<Connection[]> => ipcRenderer.invoke(IPC.CONNECTION_LIST),
 		get: (id: number): Promise<Connection | null> => ipcRenderer.invoke(IPC.CONNECTION_GET, id),
