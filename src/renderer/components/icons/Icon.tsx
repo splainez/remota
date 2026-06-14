@@ -106,6 +106,7 @@ import {
 	VscWarning,
 } from "react-icons/vsc";
 
+import { AppIcon } from "./AppIcon";
 import type { IconName } from "./icon-names";
 
 const iconMap: Record<
@@ -114,6 +115,7 @@ const iconMap: Record<
 > = {
 	account: VscAccount,
 	add: VscAdd,
+	"app-icon": AppIcon,
 	"arrow-down": VscArrowDown,
 	"arrow-left": VscArrowLeft,
 	"arrow-right": VscArrowRight,

@@ -1,6 +1,7 @@
 export type IconName =
 	| "account"
 	| "add"
+	| "app-icon"
 	| "arrow-down"
 	| "arrow-left"
 	| "arrow-right"
