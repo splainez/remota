@@ -201,9 +201,9 @@ function RootLayout() {
 			<div className="flex h-screen overflow-hidden bg-background flex-col">
 				<Toaster position="bottom-right" richColors />
 				<SidebarProvider>
-					<div className="flex flex-1 flex-col">
+					<div className="flex flex-1 flex-col max-w-full">
 						<TitleBar />
-						<div className="flex flex-1 flex-row">
+						<div className="flex flex-1 flex-row max-w-full">
 							<ServerSidebar
 								connections={connections}
 								activeConnectionId={activeConnectionId}
@@ -218,7 +218,7 @@ function RootLayout() {
 								onSettings={handleSettings}
 							/>
 
-							<div className="flex-1 flex flex-col min-w-0">
+							<div className="flex-1 flex flex-col min-w-0 max-w-full">
 								<Outlet />
 
 								<footer className="h-8 w-full bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between px-4 shrink-0 text-xs text-muted-foreground z-10">
