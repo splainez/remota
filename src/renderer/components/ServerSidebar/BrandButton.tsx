@@ -25,7 +25,7 @@ export function BrandButton({ onViewAll }: BrandButtonProps) {
 			title={t("app.title")}
 		>
 			<span className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
-				<Icon name="server" size={20} />
+				<Icon name="app-icon" size={20} />
 			</span>
 			{!collapsed && (
 				<span className="flex-1 min-w-0 text-left">
