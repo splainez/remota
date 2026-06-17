@@ -2,6 +2,7 @@ import { LoggerFactory } from "@shared/lib/logger";
 import { app } from "electron";
 
 import type { AppStore } from "./app-store";
+import appIconIco from "./assets/icon.ico";
 
 const log = LoggerFactory.init({ name: "jump-list" });
 
@@ -24,7 +25,7 @@ export function updateJumpList(store: AppStore) {
 			title: conn.name,
 			program: exePath,
 			args: `--connect=${String(conn.id)}`,
-			iconPath: exePath,
+			iconPath: appIconIco,
 			iconIndex: 0,
 		});
 	}
@@ -42,13 +43,13 @@ export function updateJumpList(store: AppStore) {
 		{
 			type: "tasks",
 			items: [
-				{
-					type: "task",
-					title: "Remota",
-					program: exePath,
-					iconPath: exePath,
-					iconIndex: 0,
-				},
+			{
+				type: "task",
+				title: "Remota",
+				program: exePath,
+				iconPath: appIconIco,
+				iconIndex: 0,
+			},
 			],
 		},
 	];
