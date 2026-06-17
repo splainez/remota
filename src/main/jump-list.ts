@@ -55,7 +55,7 @@ export function updateJumpList(store: AppStore) {
 					type: "task",
 					title: "Remota",
 					program: exePath,
-			iconPath: getIconPath(),
+					iconPath: getIconPath(),
 					iconIndex: 0,
 				},
 			],
