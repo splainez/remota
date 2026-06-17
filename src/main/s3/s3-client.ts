@@ -250,6 +250,36 @@ export class S3ConnectionManager {
 		}
 	}
 
+	async mkdir(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const key = remotePath.replace(/^\/+/, "").replace(/\/?$/, "/");
+		try {
+			await session.client.send(new PutObjectCommand({ Bucket: session.bucket, Key: key, Body: "" }));
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			throw new Error(`S3 mkdir error: ${message}`, { cause: err });
+		}
+	}
+
+	async createFile(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		const key = remotePath.replace(/^\/+/, "");
+		try {
+			await session.client.send(new PutObjectCommand({ Bucket: session.bucket, Key: key, Body: "" }));
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			throw new Error(`S3 createFile error: ${message}`, { cause: err });
+		}
+	}
+
 	homeDir(): string {
 		return "/";
 	}
