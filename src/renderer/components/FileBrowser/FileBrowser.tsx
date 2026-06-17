@@ -115,21 +115,6 @@ export function FileBrowser({ connection, initialShowTerminal = false, onDisconn
 					<Breadcrumb path={localPath} onNavigate={setLocalPath} className="h-auto border-none bg-transparent p-0" />
 				</div>
 
-				{/* Transfer Action */}
-				<div className="flex shrink-0 items-center justify-center px-4">
-					<Button
-						variant="default"
-						size="sm"
-						className="shadow-sm hover:bg-surface-tint"
-						onClick={() => {
-							/* Sync folders - no-op for now */
-						}}
-					>
-						<Icon name="sync" size={14} />
-						{t("file.syncFolders")}
-					</Button>
-				</div>
-
 				{/* Remote Path + Disconnect */}
 				<div className="flex min-w-0 flex-1 items-center justify-end gap-2 pl-4">
 					<Breadcrumb path={remotePath} onNavigate={setRemotePath} className="h-auto border-none bg-transparent p-0" />
