@@ -43,13 +43,13 @@ export function updateJumpList(store: AppStore) {
 		{
 			type: "tasks",
 			items: [
-			{
-				type: "task",
-				title: "Remota",
-				program: exePath,
-				iconPath: appIconIco,
-				iconIndex: 0,
-			},
+				{
+					type: "task",
+					title: "Remota",
+					program: exePath,
+					iconPath: appIconIco,
+					iconIndex: 0,
+				},
 			],
 		},
 	];
