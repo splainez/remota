@@ -6,6 +6,8 @@ import { useTheme } from "@renderer/hooks/useTheme";
 import { cn } from "@renderer/lib/utils";
 import { useSettingsStore } from "@renderer/store/settings";
 import {
+	FONT_SIZE_MAX,
+	FONT_SIZE_MIN,
 	MAX_PARALLEL_TRANSFERS_MAX,
 	MAX_PARALLEL_TRANSFERS_MIN,
 	MAX_SESSIONS_MAX,
@@ -70,6 +72,8 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 		setRetentionMs,
 		remoteDoubleClickAction,
 		setRemoteDoubleClickAction,
+		fontSize,
+		setFontSize,
 	} = useSettingsStore();
 
 	const currentTerminal: TerminalOptionValue = externalTerminal ?? "none";
@@ -169,6 +173,29 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 									</Button>
 								))}
 							</div>
+						</div>
+						<div className="rounded-xl border border-outline-variant bg-surface-container p-4">
+							<div className="mb-3 flex flex-col gap-1">
+								<span className="text-sm font-medium text-foreground">{t("settings.fontSize")}</span>
+								<span className="text-xs text-muted-foreground">{t("settings.fontSizeDescription")}</span>
+							</div>
+							<select
+								value={fontSize}
+								aria-label={t("settings.fontSize")}
+								onChange={(e) => {
+									setFontSize(Number(e.target.value));
+								}}
+								className="
+									h-8 w-20 rounded-md border border-outline-variant bg-surface px-2 text-sm text-on-surface
+									focus:ring-2 focus:ring-primary focus:outline-none
+								"
+							>
+								{Array.from({ length: FONT_SIZE_MAX - FONT_SIZE_MIN + 1 }, (_, i) => FONT_SIZE_MIN + i).map((size) => (
+									<option key={size} value={size}>
+										{size}px
+									</option>
+								))}
+							</select>
 						</div>
 					</section>
 

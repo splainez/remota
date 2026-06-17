@@ -10,7 +10,7 @@ import { ThemeProvider } from "./theme-provider";
 const logger = LoggerFactory.init({ name: "renderer.AppBootstrap" });
 
 export function AppBootstrap() {
-	const { theme, load, setTheme } = useSettingsStore();
+	const { theme, fontSize, load, setTheme } = useSettingsStore();
 	const [ready, setReady] = useState(false);
 
 	useEffect(() => {
@@ -22,6 +22,10 @@ export function AppBootstrap() {
 				logger.error("load failed", { error });
 			});
 	}, [load]);
+
+	useEffect(() => {
+		document.documentElement.style.fontSize = `${String(fontSize)}px`;
+	}, [fontSize]);
 
 	if (!ready) {
 		return (

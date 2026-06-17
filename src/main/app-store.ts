@@ -1,7 +1,12 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { AppConfigSchema, MAX_PARALLEL_TRANSFERS_DEFAULT, MAX_SESSIONS_DEFAULT } from "@shared/app-config-schema";
+import {
+	AppConfigSchema,
+	FONT_SIZE_DEFAULT,
+	MAX_PARALLEL_TRANSFERS_DEFAULT,
+	MAX_SESSIONS_DEFAULT,
+} from "@shared/app-config-schema";
 import type { AppConfig } from "@shared/app-config-schema";
 import type { FilePaneSizeUpdate, Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
@@ -34,6 +39,7 @@ export class AppStore {
 			maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 			maxSessions: MAX_SESSIONS_DEFAULT,
 			remoteDoubleClickAction: "open",
+			fontSize: FONT_SIZE_DEFAULT,
 		},
 	};
 	private nextId = 1;
@@ -62,6 +68,7 @@ export class AppStore {
 					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 					maxSessions: MAX_SESSIONS_DEFAULT,
 					remoteDoubleClickAction: "open",
+					fontSize: FONT_SIZE_DEFAULT,
 				},
 			};
 			this.save();
@@ -88,6 +95,7 @@ export class AppStore {
 						maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 						maxSessions: MAX_SESSIONS_DEFAULT,
 						remoteDoubleClickAction: "open",
+						fontSize: FONT_SIZE_DEFAULT,
 					},
 				};
 				return;
@@ -111,6 +119,7 @@ export class AppStore {
 					maxParallelTransfers: MAX_PARALLEL_TRANSFERS_DEFAULT,
 					maxSessions: MAX_SESSIONS_DEFAULT,
 					remoteDoubleClickAction: "open",
+					fontSize: FONT_SIZE_DEFAULT,
 				},
 			};
 		}

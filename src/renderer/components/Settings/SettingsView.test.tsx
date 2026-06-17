@@ -42,6 +42,28 @@ describe("SettingsView", () => {
 		expect(screen.getByText("Terminal")).toBeInTheDocument();
 	});
 
+	it("renders font size select with default value", () => {
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		expect(screen.getByText("Interface font size")).toBeInTheDocument();
+		const select = screen.getByRole("combobox", { name: /interface font size/i });
+		expect(select).toHaveValue("13");
+	});
+
+	it("setFontSize updates the select value", () => {
+		useSettingsStore.setState({ fontSize: 16 });
+		render(
+			<I18nWrapper>
+				<SettingsView onBack={vi.fn()} />
+			</I18nWrapper>,
+		);
+		const select = screen.getByRole("combobox", { name: /interface font size/i });
+		expect(select).toHaveValue("16");
+	});
+
 	it("renders all terminal options including 'None'", () => {
 		render(
 			<I18nWrapper>

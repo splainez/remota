@@ -1,4 +1,7 @@
 import {
+	FONT_SIZE_DEFAULT,
+	FONT_SIZE_MAX,
+	FONT_SIZE_MIN,
 	MAX_PARALLEL_TRANSFERS_DEFAULT,
 	MAX_PARALLEL_TRANSFERS_MAX,
 	MAX_PARALLEL_TRANSFERS_MIN,
@@ -26,6 +29,7 @@ interface SettingsStore extends Settings {
 	setMaxSessions: (value: number) => void;
 	setRetentionMs: (ms: number | undefined) => void;
 	setRemoteDoubleClickAction: (action: RemoteDoubleClickAction) => void;
+	setFontSize: (value: number) => void;
 	clearPendingRecoveryToast: () => void;
 }
 
@@ -51,6 +55,13 @@ function clampRetention(value: number | undefined): number | undefined {
 	return Math.floor(value);
 }
 
+function clampFontSize(value: number): number {
+	if (!Number.isFinite(value)) return FONT_SIZE_DEFAULT;
+	if (value < FONT_SIZE_MIN) return FONT_SIZE_MIN;
+	if (value > FONT_SIZE_MAX) return FONT_SIZE_MAX;
+	return Math.floor(value);
+}
+
 export const useSettingsStore = create<SettingsStore>((set) => ({
 	theme: "system",
 	locale: "en",
@@ -59,6 +70,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 	maxSessions: MAX_SESSIONS_DEFAULT,
 	retentionMs: undefined,
 	remoteDoubleClickAction: "open",
+	fontSize: FONT_SIZE_DEFAULT,
 	loaded: false,
 	availableTerminals: [],
 	pendingRecoveryToast: null,
@@ -91,6 +103,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 				maxSessions: clampSessions(settings.maxSessions),
 				retentionMs: clampRetention(settings.retentionMs),
 				remoteDoubleClickAction: settings.remoteDoubleClickAction,
+				fontSize: clampFontSize(settings.fontSize),
 				availableTerminals: available,
 				pendingRecoveryToast: recoveredId,
 				loaded: true,
@@ -150,6 +163,14 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
 		set({ remoteDoubleClickAction: action });
 		window.api.settings.set({ remoteDoubleClickAction: action }).catch((error: unknown) => {
 			logger.error("setRemoteDoubleClickAction error", { error });
+		});
+	},
+
+	setFontSize: (value) => {
+		const clamped = clampFontSize(value);
+		set({ fontSize: clamped });
+		window.api.settings.set({ fontSize: clamped }).catch((error: unknown) => {
+			logger.error("setFontSize error", { error });
 		});
 	},
 

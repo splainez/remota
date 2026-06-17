@@ -219,7 +219,6 @@
 	}
 	html {
 		@apply font-sans;
-		font-size: 14px;
 	}
 	input,
 	textarea,

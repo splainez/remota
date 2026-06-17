@@ -159,6 +159,8 @@
 	"settings.terminal": "Terminal",
 	"settings.theme": "Tema",
 	"settings.themeDescription": "Elige tu esquema de color preferido",
+	"settings.fontSize": "Tamaño de fuente de la interfaz",
+	"settings.fontSizeDescription": "Ajusta el tamaño de fuente base. Todos los elementos de la interfaz se escalan proporcionalmente.",
 	"settings.languageDescription": "Selecciona el idioma de la interfaz",
 	"settings.externalTerminal": "Terminal Externo",
 	"settings.externalTerminalDescription": "Abrir una aplicaci\u00f3n de terminal externa en lugar de la integrada. Elige \"Ninguno\" para usar siempre la terminal integrada.",

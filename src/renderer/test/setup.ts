@@ -115,6 +115,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				maxSessions: 10,
 				retentionMs: undefined,
 				remoteDoubleClickAction: "open",
+				fontSize: 13,
 			}),
 			set: vi.fn<(partial: SettingsUpdate) => Promise<Settings>>().mockResolvedValue({
 				theme: "system",
@@ -123,6 +124,7 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 				maxSessions: 10,
 				retentionMs: undefined,
 				remoteDoubleClickAction: "open",
+				fontSize: 13,
 			}),
 			...overrides?.settings,
 		},

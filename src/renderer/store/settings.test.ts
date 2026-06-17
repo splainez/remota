@@ -224,4 +224,45 @@ describe("useSettingsStore setters", () => {
 		useSettingsStore.getState().setRetentionMs(NaN);
 		expect(useSettingsStore.getState().retentionMs).toBeUndefined();
 	});
+
+	it("setFontSize updates state and calls settings.set", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setFontSize(14);
+		expect(useSettingsStore.getState().fontSize).toBe(14);
+		expect(setSpy).toHaveBeenCalledWith({ fontSize: 14 });
+	});
+
+	it("setFontSize clamps value below minimum to 8", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setFontSize(4);
+		expect(useSettingsStore.getState().fontSize).toBe(8);
+	});
+
+	it("setFontSize clamps value above maximum to 18", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setFontSize(25);
+		expect(useSettingsStore.getState().fontSize).toBe(18);
+	});
+
+	it("setFontSize floors decimal values", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setFontSize(13.7);
+		expect(useSettingsStore.getState().fontSize).toBe(13);
+	});
+
+	it("setFontSize uses default for non-finite values", () => {
+		const setSpy = vi.fn().mockResolvedValue({ theme: "system", locale: "en" });
+		window.api.settings.set = setSpy;
+
+		useSettingsStore.getState().setFontSize(NaN);
+		expect(useSettingsStore.getState().fontSize).toBe(13);
+	});
 });

@@ -159,6 +159,8 @@
 	"settings.terminal": "Terminal",
 	"settings.theme": "Theme",
 	"settings.themeDescription": "Choose your preferred color scheme",
+	"settings.fontSize": "Interface font size",
+	"settings.fontSizeDescription": "Adjust the base font size. All interface elements scale proportionally.",
 	"settings.languageDescription": "Select the display language",
 	"settings.externalTerminal": "External Terminal",
 	"settings.externalTerminalDescription": "Open an external terminal app instead of the integrated one. Choose \"None\" to always use the integrated terminal.",

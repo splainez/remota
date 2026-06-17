@@ -71,6 +71,7 @@ describe("AppConfigSchema", () => {
 				maxSessions: 10,
 				retentionMs: 5000,
 				remoteDoubleClickAction: "open",
+				fontSize: 13,
 			});
 		}
 	});
