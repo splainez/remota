@@ -106,25 +106,25 @@ export function ConnectionItem({
 						{t("connection.open")}
 					</Button>
 				)}
-				{onOpenTerminal && (
-					<Button
-						variant="primary"
-						size="sm"
-						aria-label={t(isTerminalDisabled ? "connection.terminalDisabledS3" : "connection.openTerminal")}
-						title={t(isTerminalDisabled ? "connection.terminalDisabledS3" : "connection.openTerminal")}
-						disabled={isTerminalDisabled}
-						onClick={(e) => {
-							stopRowMouse(e);
-							if (!isTerminalDisabled) onOpenTerminal();
-						}}
-						onDoubleClick={stopRowMouse}
-						onContextMenu={stopRowMouse}
-						onKeyDown={stopRowKey}
-					>
-						<Icon name="terminal" />
-						{t(isTerminalDisabled ? "connection.terminalDisabledS3" : "connection.openTerminal")}
-					</Button>
-				)}
+			{onOpenTerminal && (
+				<Button
+					variant="primary"
+					size="sm"
+					aria-label={t(isTerminalDisabled ? "connection.terminalDisabledS3" : "connection.openTerminal")}
+					title={isTerminalDisabled ? t("connection.terminalDisabledS3") : undefined}
+					disabled={isTerminalDisabled}
+					onClick={(e) => {
+						stopRowMouse(e);
+						if (!isTerminalDisabled) onOpenTerminal();
+					}}
+					onDoubleClick={stopRowMouse}
+					onContextMenu={stopRowMouse}
+					onKeyDown={stopRowKey}
+				>
+					<Icon name="terminal" />
+					{t("connection.openTerminal")}
+				</Button>
+			)}
 				{isActive && <span className="ml-1 size-2 shrink-0 rounded-full bg-primary" />}
 			</div>
 		</div>
