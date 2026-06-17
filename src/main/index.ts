@@ -4,8 +4,6 @@ import { extname, join } from "node:path";
 import { IPC } from "@shared/ipc-channels";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 
-import appIcon from "./assets/icon.png";
-
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
 import { registerConnectionHandlers } from "./ipc/connections";
@@ -42,6 +40,13 @@ function resolveRealExePath(): string {
 	return argv0;
 }
 
+function getAppIconPath(): string {
+	if (app.isPackaged) {
+		return join(process.resourcesPath, "icon.ico");
+	}
+	return join(__dirname, "../src/main/assets/icon.ico");
+}
+
 function parseConnectArgv(argv: string[]): number | null {
 	for (const arg of argv) {
 		const match = /^--connect=(\d+)$/.exec(arg);
@@ -61,7 +66,7 @@ function createWindow() {
 		minWidth: 900,
 		minHeight: 600,
 		title: "Remota",
-		icon: appIcon,
+		icon: getAppIconPath(),
 		frame: isLinux ? false : true,
 		trafficLightPosition: isMac ? { x: 12, y: 10 } : undefined,
 		titleBarStyle: isMac ? "hiddenInset" : isWindows ? "hidden" : undefined,
