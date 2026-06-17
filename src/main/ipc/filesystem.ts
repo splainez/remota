@@ -1,4 +1,4 @@
-import { readdirSync, renameSync, statSync, existsSync, rmSync } from "node:fs";
+import { readdirSync, renameSync, statSync, existsSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, sep } from "node:path";
 
@@ -8,7 +8,7 @@ import { tempManager } from "@main/temp/temp-manager";
 import { IPC } from "@shared/ipc-channels";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { FileEntry } from "@shared/types";
-import { deleteParamsSchema, renameParamsSchema } from "@shared/validation";
+import { deleteParamsSchema, renameParamsSchema, createParamsSchema } from "@shared/validation";
 import { app, ipcMain, shell } from "electron";
 
 const logger = LoggerFactory.init({ name: "main.ipc.filesystem" });
@@ -139,6 +139,36 @@ export function registerFilesystemHandlers(store: AppStore, fileWatcher: FileWat
 			const message = err instanceof Error ? err.message : String(err);
 			logger.error("delete failed", { path: parsed.data.filePath, error: message });
 			throw new Error(`Delete failed: ${message}`, { cause: err });
+		}
+	});
+
+	ipcMain.handle(IPC.FILE_MKDIR, (_event, parentPath: string, name: string) => {
+		const parsed = createParamsSchema.safeParse({ parentPath, name });
+		if (!parsed.success) {
+			throw new Error(`Invalid mkdir params: ${parsed.error.message}`);
+		}
+		const fullPath = join(parsed.data.parentPath, parsed.data.name);
+		try {
+			mkdirSync(fullPath, { recursive: true });
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("mkdir failed", { path: fullPath, error: message });
+			throw new Error(`Mkdir failed: ${message}`, { cause: err });
+		}
+	});
+
+	ipcMain.handle(IPC.FILE_CREATE_FILE, (_event, parentPath: string, name: string) => {
+		const parsed = createParamsSchema.safeParse({ parentPath, name });
+		if (!parsed.success) {
+			throw new Error(`Invalid createFile params: ${parsed.error.message}`);
+		}
+		const fullPath = join(parsed.data.parentPath, parsed.data.name);
+		try {
+			writeFileSync(fullPath, "");
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("createFile failed", { path: fullPath, error: message });
+			throw new Error(`CreateFile failed: ${message}`, { cause: err });
 		}
 	});
 

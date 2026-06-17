@@ -36,6 +36,8 @@ describe("Toolbar", () => {
 		selectedDrive: null as string | null,
 		filter: "",
 		onFilterChange: vi.fn(),
+		onCreateFolder: vi.fn(),
+		onCreateFile: vi.fn(),
 	};
 
 	beforeEach(() => {

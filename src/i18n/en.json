@@ -79,6 +79,7 @@
 	"file.filter": "Filter...",
 	"file.clearFilter": "Clear filter",
 	"file.newFolder": "New Folder",
+	"file.newFile": "New File",
 	"file.selectDrive": "Select drive",
 	"file.navigateBack": "Back",
 	"file.navigateForward": "Forward",
@@ -251,5 +252,9 @@
 	"file.delete.success": "File deleted",
 	"file.delete.successMultiple": "Files deleted",
 	"file.delete.partial": "{count} files could not be deleted",
-	"file.delete.error": "Could not delete file"
+	"file.delete.error": "Could not delete file",
+	"file.createFolder.error": "Could not create folder",
+	"file.createFolder.duplicate": "A folder with that name already exists",
+	"file.createFile.error": "Could not create file",
+	"file.createFile.duplicate": "A file with that name already exists"
 }

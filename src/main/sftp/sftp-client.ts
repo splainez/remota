@@ -260,6 +260,46 @@ export class SftpConnectionManager {
 		}
 	}
 
+	async mkdir(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		return new Promise<void>((resolve, reject) => {
+			session.sftp.mkdir(remotePath, (err: Error | null | undefined) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+				resolve();
+			});
+		});
+	}
+
+	async createFile(connectionId: number, remotePath: string): Promise<void> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+
+		return new Promise<void>((resolve, reject) => {
+			session.sftp.open(remotePath, "w", (err: Error | null | undefined, handle: unknown) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+				session.sftp.close(handle as never, (closeErr: Error | null | undefined) => {
+					if (closeErr) {
+						reject(closeErr);
+						return;
+					}
+					resolve();
+				});
+			});
+		});
+	}
+
 	async uploadFile(
 		connectionId: number,
 		localPath: string,

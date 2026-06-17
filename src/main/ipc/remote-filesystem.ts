@@ -3,7 +3,7 @@ import { updateJumpList } from "@main/jump-list";
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import { IPC } from "@shared/ipc-channels";
-import { remoteDeleteParamsSchema } from "@shared/validation";
+import { remoteDeleteParamsSchema, remoteCreateParamsSchema } from "@shared/validation";
 import { ipcMain } from "electron";
 
 export function registerRemoteFilesystemHandlers(
@@ -90,6 +90,40 @@ export function registerRemoteFilesystemHandlers(
 		}
 		if (s3.isConnected(parsed.data.connectionId)) {
 			await s3.deletePath(parsed.data.connectionId, parsed.data.remotePath);
+			return;
+		}
+		throw new Error("Not connected to remote server");
+	});
+
+	ipcMain.handle(IPC.REMOTE_MKDIR, async (_event, connectionId: number, parentPath: string, name: string) => {
+		const parsed = remoteCreateParamsSchema.safeParse({ connectionId, parentPath, name });
+		if (!parsed.success) {
+			throw new Error(`Invalid remote mkdir params: ${parsed.error.message}`);
+		}
+		const remotePath = `${parsed.data.parentPath}/${parsed.data.name}`;
+		if (sftp.isConnected(parsed.data.connectionId)) {
+			await sftp.mkdir(parsed.data.connectionId, remotePath);
+			return;
+		}
+		if (s3.isConnected(parsed.data.connectionId)) {
+			await s3.mkdir(parsed.data.connectionId, remotePath);
+			return;
+		}
+		throw new Error("Not connected to remote server");
+	});
+
+	ipcMain.handle(IPC.REMOTE_CREATE_FILE, async (_event, connectionId: number, parentPath: string, name: string) => {
+		const parsed = remoteCreateParamsSchema.safeParse({ connectionId, parentPath, name });
+		if (!parsed.success) {
+			throw new Error(`Invalid remote createFile params: ${parsed.error.message}`);
+		}
+		const remotePath = `${parsed.data.parentPath}/${parsed.data.name}`;
+		if (sftp.isConnected(parsed.data.connectionId)) {
+			await sftp.createFile(parsed.data.connectionId, remotePath);
+			return;
+		}
+		if (s3.isConnected(parsed.data.connectionId)) {
+			await s3.createFile(parsed.data.connectionId, remotePath);
 			return;
 		}
 		throw new Error("Not connected to remote server");
