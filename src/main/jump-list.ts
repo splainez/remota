@@ -1,10 +1,18 @@
+import { join } from "node:path";
+
 import { LoggerFactory } from "@shared/lib/logger";
 import { app } from "electron";
 
 import type { AppStore } from "./app-store";
-import appIconIco from "./assets/icon.ico";
 
 const log = LoggerFactory.init({ name: "jump-list" });
+
+function getIconPath(): string {
+	if (app.isPackaged) {
+		return join(process.resourcesPath, "icon.ico");
+	}
+	return join(__dirname, "../src/main/assets/icon.ico");
+}
 
 export function updateJumpList(store: AppStore) {
 	if (process.platform !== "win32") return;
@@ -25,7 +33,7 @@ export function updateJumpList(store: AppStore) {
 			title: conn.name,
 			program: exePath,
 			args: `--connect=${String(conn.id)}`,
-			iconPath: appIconIco,
+			iconPath: getIconPath(),
 			iconIndex: 0,
 		});
 	}
@@ -47,7 +55,7 @@ export function updateJumpList(store: AppStore) {
 					type: "task",
 					title: "Remota",
 					program: exePath,
-					iconPath: appIconIco,
+			iconPath: getIconPath(),
 					iconIndex: 0,
 				},
 			],
