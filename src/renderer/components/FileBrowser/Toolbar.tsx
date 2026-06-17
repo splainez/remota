@@ -19,6 +19,8 @@ interface ToolbarProps {
 	selectedDrive: string | null;
 	filter: string;
 	onFilterChange: (value: string) => void;
+	onCreateFolder: () => void;
+	onCreateFile: () => void;
 }
 
 export function Toolbar({
@@ -32,6 +34,8 @@ export function Toolbar({
 	selectedDrive,
 	filter,
 	onFilterChange,
+	onCreateFolder,
+	onCreateFile,
 }: ToolbarProps) {
 	const { t } = useI18n();
 	const upDisabled = !canGoUp(currentPath);
@@ -85,13 +89,20 @@ export function Toolbar({
 				<Button
 					variant="ghost"
 					size="icon-sm"
-					onClick={() => {
-						/* New folder - no-op for now */
-					}}
+					onClick={onCreateFolder}
 					aria-label={t("file.newFolder")}
 					title={t("file.newFolder")}
 				>
 					<Icon name="new-folder" size={16} />
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onCreateFile}
+					aria-label={t("file.newFile")}
+					title={t("file.newFile")}
+				>
+					<Icon name="new-file" size={16} />
 				</Button>
 				{drives.length > 0 && (
 					<select

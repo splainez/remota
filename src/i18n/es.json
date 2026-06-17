@@ -79,6 +79,7 @@
 	"file.filter": "Filtrar...",
 	"file.clearFilter": "Limpiar filtro",
 	"file.newFolder": "Nueva Carpeta",
+	"file.newFile": "Nuevo Fichero",
 	"file.selectDrive": "Seleccionar unidad",
 	"file.navigateBack": "Atrás",
 	"file.navigateForward": "Adelante",
@@ -251,5 +252,9 @@
 	"file.delete.success": "Archivo eliminado",
 	"file.delete.successMultiple": "Archivos eliminados",
 	"file.delete.partial": "No se pudieron eliminar {count} archivos",
-	"file.delete.error": "No se pudo eliminar el archivo"
+	"file.delete.error": "No se pudo eliminar el archivo",
+	"file.createFolder.error": "No se pudo crear la carpeta",
+	"file.createFolder.duplicate": "Ya existe una carpeta con ese nombre",
+	"file.createFile.error": "No se pudo crear el fichero",
+	"file.createFile.duplicate": "Ya existe un fichero con ese nombre"
 }

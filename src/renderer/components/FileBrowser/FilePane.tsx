@@ -1,5 +1,6 @@
 import { Terminal } from "@renderer/components/Terminal/Terminal";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
+import { useCreateItem } from "@renderer/hooks/useCreateItem";
 import { useDelete } from "@renderer/hooks/useDelete";
 import { useDownload } from "@renderer/hooks/useDownload";
 import { useFileList } from "@renderer/hooks/useFileList";
@@ -110,6 +111,14 @@ export function FilePane({
 	const deleteOp = useDelete({
 		panelType: type,
 		connectionId,
+		refresh,
+	});
+
+	const createItem = useCreateItem({
+		panelType: type,
+		connectionId,
+		currentPath,
+		entries,
 		refresh,
 	});
 
@@ -435,6 +444,12 @@ export function FilePane({
 				selectedDrive={currentDrive}
 				filter={filter}
 				onFilterChange={setFilter}
+				onCreateFolder={() => {
+					createItem.startCreate("folder");
+				}}
+				onCreateFile={() => {
+					createItem.startCreate("file");
+				}}
 			/>
 			{isConnectionDead ? (
 				<ConnectionErrorView technicalDetail={deadError.technicalDetail} onReconnect={onReconnect} />
@@ -462,6 +477,11 @@ export function FilePane({
 						void handleRenameCommit(entry, newName);
 					}}
 					onCancelRename={handleRenameCancel}
+					creatingType={createItem.creatingType}
+					onCommitCreate={(name) => {
+						createItem.commitCreate(name);
+					}}
+					onCancelCreate={createItem.cancelCreate}
 				/>
 			)}
 			{showTerminal && (
