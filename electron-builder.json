@@ -5,7 +5,7 @@
 	"directories": {
 		"output": "release"
 	},
-	"icon": "assets/icons/icon.png",
+	"icon": "src/main/assets/icon",
 	"npmRebuild": false,
 	"files": [
 		{
@@ -27,7 +27,12 @@
 				"arch": ["x64"]
 			}
 		],
-		"executableName": "Remota"
+		"executableName": "Remota",
+		"icon": "src/main/assets/icon.ico"
+	},
+	"mac": {
+		"icon": "src/main/assets/icon.icns",
+		"target": ["dmg", "zip"]
 	},
 	"linux": {
 		"target": [
@@ -37,7 +42,8 @@
 			}
 		],
 		"category": "Utility",
-		"executableName": "Remota"
+		"executableName": "Remota",
+		"icon": "src/main/assets/icon.png"
 	},
 	"portable": {
 		"artifactName": "Remota-${version}-portable.${ext}"
