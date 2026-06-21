@@ -70,8 +70,5 @@
 	},
 	"dmg": {
 		"artifactName": "Remota-${version}.${ext}"
-	},
-	"macOsZip": {
-		"artifactName": "Remota-${version}-${arch}.${ext}"
 	}
 }
