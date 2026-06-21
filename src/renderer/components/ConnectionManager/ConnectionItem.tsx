@@ -90,9 +90,7 @@ export function ConnectionItem({
 			</div>
 			<div className="min-w-0 flex-1">
 				<div className="truncate text-sm font-medium">{connection.name}</div>
-				<div className="truncate text-xs text-muted-foreground">
-					{connectionSubtitle(connection)}
-				</div>
+				<div className="truncate text-xs text-muted-foreground">{connectionSubtitle(connection)}</div>
 			</div>
 			<div className="flex shrink-0 items-center gap-1.5">
 				{onOpen && (
