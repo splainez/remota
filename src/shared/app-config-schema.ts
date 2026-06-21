@@ -62,6 +62,18 @@ export const FilePaneSizesSchema = z.record(z.string(), filePaneSizeEntry);
 export const FilePaneSizeUpdate = filePaneSizeEntry.partial();
 export type FilePaneSizeUpdate = z.infer<typeof FilePaneSizeUpdate>;
 
+export const FILE_COLUMN_IDS = ["name", "size", "modified", "permissions", "owner", "group"] as const;
+export type FileColumnId = (typeof FILE_COLUMN_IDS)[number];
+
+export const DEFAULT_VISIBLE_COLUMNS: FileColumnId[] = ["name", "size", "modified"];
+
+export const FileColumnsSchema = z.object({
+	visibleColumns: z.array(z.enum(FILE_COLUMN_IDS)).default(DEFAULT_VISIBLE_COLUMNS),
+});
+
+export const FileColumnsUpdate = FileColumnsSchema.partial();
+export type FileColumnsUpdate = z.infer<typeof FileColumnsUpdate>;
+
 export const MAX_PARALLEL_TRANSFERS_MIN = 1;
 export const MAX_PARALLEL_TRANSFERS_MAX = 20;
 export const MAX_PARALLEL_TRANSFERS_DEFAULT = 5;
@@ -116,6 +128,7 @@ export const AppConfigSchema = z
 		lastPaths: LastPathsSchema.default({}),
 		transferPanels: TransferPanelsSchema.default({}),
 		filePaneSizes: FilePaneSizesSchema.default({}),
+		fileColumns: FileColumnsSchema.default({ visibleColumns: DEFAULT_VISIBLE_COLUMNS }),
 		settings: SettingsSchema.default(defaultSettings),
 		exePath: z.string().optional(),
 	})

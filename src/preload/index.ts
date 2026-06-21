@@ -6,6 +6,8 @@ import type {
 	DownloadResult,
 	ElectronAPI,
 	FileEntry,
+	FileColumnId,
+	FileColumnsUpdate,
 	LocalStat,
 	NewConnection,
 	RemoteStat,
@@ -174,6 +176,12 @@ const api: ElectronAPI = {
 		getAll: (): Promise<Record<number, { localSize: number }>> => ipcRenderer.invoke(IPC.FILE_PANE_SIZE_GET_ALL),
 		set: (connectionId: number, update: { localSize: number }): Promise<void> =>
 			ipcRenderer.invoke(IPC.FILE_PANE_SIZE_SET, connectionId, update),
+	},
+	fileColumns: {
+		get: (): Promise<{ visibleColumns: FileColumnId[] }> =>
+			ipcRenderer.invoke(IPC.FILE_COLUMNS_GET),
+		set: (update: FileColumnsUpdate): Promise<void> =>
+			ipcRenderer.invoke(IPC.FILE_COLUMNS_SET, update),
 	},
 	app: {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),

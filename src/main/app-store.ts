@@ -7,8 +7,15 @@ import {
 	MAX_PARALLEL_TRANSFERS_DEFAULT,
 	MAX_SESSIONS_DEFAULT,
 } from "@shared/app-config-schema";
-import type { AppConfig } from "@shared/app-config-schema";
-import type { FilePaneSizeUpdate, Settings, SettingsUpdate, TransferPanelUpdate } from "@shared/app-config-schema";
+import type { AppConfig, FileColumnId } from "@shared/app-config-schema";
+import { DEFAULT_VISIBLE_COLUMNS } from "@shared/app-config-schema";
+import type {
+	FilePaneSizeUpdate,
+	FileColumnsUpdate,
+	Settings,
+	SettingsUpdate,
+	TransferPanelUpdate,
+} from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
 import type { Connection, NewConnection, ConnectionUpdate } from "@shared/types";
 
@@ -33,6 +40,7 @@ export class AppStore {
 		lastPaths: {},
 		transferPanels: {},
 		filePaneSizes: {},
+		fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
 		settings: {
 			theme: "system",
 			locale: "en",
@@ -62,6 +70,7 @@ export class AppStore {
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
+				fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
 				settings: {
 					theme: "system",
 					locale: "en",
@@ -89,6 +98,7 @@ export class AppStore {
 					lastPaths: {},
 					transferPanels: {},
 					filePaneSizes: {},
+		fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
 					settings: {
 						theme: "system",
 						locale: "en",
@@ -113,6 +123,7 @@ export class AppStore {
 				lastPaths: {},
 				transferPanels: {},
 				filePaneSizes: {},
+				fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
 				settings: {
 					theme: "system",
 					locale: "en",
@@ -302,6 +313,18 @@ export class AppStore {
 		const key = String(connectionId);
 		const current = this.data.filePaneSizes[key] ?? { localSize: 50 };
 		this.data.filePaneSizes[key] = { ...current, ...update };
+		this.save();
+	}
+
+	// ── File Columns ────────────────────────────────
+
+	getFileColumns(): { visibleColumns: FileColumnId[] } {
+		return this.data.fileColumns;
+	}
+
+	setFileColumns(update: FileColumnsUpdate) {
+		const current = this.data.fileColumns;
+		this.data.fileColumns = { ...current, ...update };
 		this.save();
 	}
 

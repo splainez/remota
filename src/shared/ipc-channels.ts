@@ -60,6 +60,8 @@ export const IPC = {
 	APP_QUIT_RESPONSE: "app:quitResponse",
 	FILE_PANE_SIZE_GET_ALL: "filePaneSize:getAll",
 	FILE_PANE_SIZE_SET: "filePaneSize:set",
+	FILE_COLUMNS_GET: "fileColumns:get",
+	FILE_COLUMNS_SET: "fileColumns:set",
 	REMOTE_EDIT_START: "remote:edit:start",
 	REMOTE_EDIT_STOP: "remote:edit:stop",
 	REMOTE_FILE_OPEN: "remote:file:open",

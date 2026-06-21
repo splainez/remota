@@ -1,4 +1,4 @@
-import type { Settings, SettingsUpdate } from "./app-config-schema";
+import type { FileColumnId, FileColumnsUpdate, Settings, SettingsUpdate } from "./app-config-schema";
 import type { RemoteDoubleClickAction, TerminalAppId } from "./app-config-schema";
 import type {
 	DownloadRequest,
@@ -10,7 +10,7 @@ import type {
 	UploadResult,
 } from "./transfer-types";
 
-export type { Settings, SettingsUpdate, RemoteDoubleClickAction, TerminalAppId };
+export type { FileColumnId, FileColumnsUpdate, Settings, SettingsUpdate, RemoteDoubleClickAction, TerminalAppId };
 export type {
 	DownloadRequest,
 	DownloadItem,
@@ -60,6 +60,11 @@ export interface FileEntry {
 	isDirectory: boolean;
 	size: number;
 	modified: string;
+	mode?: number;
+	uid?: number;
+	gid?: number;
+	ownerName?: string;
+	groupName?: string;
 }
 
 export interface ElectronAPI {
@@ -141,6 +146,10 @@ export interface ElectronAPI {
 	filePaneSize: {
 		getAll: () => Promise<Record<number, { localSize: number }>>;
 		set: (connectionId: number, update: { localSize: number }) => Promise<void>;
+	};
+	fileColumns: {
+		get: () => Promise<{ visibleColumns: FileColumnId[] }>;
+		set: (update: FileColumnsUpdate) => Promise<void>;
 	};
 	app: {
 		getConfigPath: () => Promise<string>;

@@ -7,6 +7,7 @@ import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import { AppStore } from "./app-store";
 import { FileWatcherManager } from "./file-watcher/file-watcher-manager";
 import { registerConnectionHandlers } from "./ipc/connections";
+import { registerFileColumnsHandlers } from "./ipc/file-columns";
 import { registerFilePaneSizeHandlers } from "./ipc/file-pane-size";
 import { registerFilesystemHandlers } from "./ipc/filesystem";
 import { registerRemoteEditHandlers } from "./ipc/remote-edit";
@@ -165,6 +166,7 @@ if (!gotTheLock) {
 		registerRemoteFilesystemHandlers(sftp, s3, appStore);
 		registerTransferPanelHandlers(appStore);
 		registerFilePaneSizeHandlers(appStore);
+		registerFileColumnsHandlers(appStore);
 		createWindow();
 
 		if (!mainWindow) {
