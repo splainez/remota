@@ -188,8 +188,8 @@ export class SftpConnectionManager {
 		}
 
 		try {
-			const uids = [...uncachedUids];
-			const gids = [...uncachedGids];
+			const uids = [...uncachedUids].filter((id) => Number.isInteger(id) && id >= 0);
+			const gids = [...uncachedGids].filter((id) => Number.isInteger(id) && id >= 0);
 
 			if (uids.length > 0) {
 				const uidArgs = uids.map((id) => String(id)).join(" ");
@@ -243,7 +243,11 @@ export class SftpConnectionManager {
 				stream.on("data", (data: Buffer) => {
 					output += data.toString();
 				});
-				stream.on("close", () => {
+				stream.on("close", (code: number | null) => {
+					if (code !== 0 && code !== null) {
+						reject(new Error(`Command exited with code ${String(code)}`));
+						return;
+					}
 					resolve(output);
 				});
 				stream.on("error", (streamErr: Error) => {
