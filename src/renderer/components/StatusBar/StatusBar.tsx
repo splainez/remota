@@ -29,7 +29,7 @@ export function StatusBar({ activeConnectionId, isTransferPanelVisible, onToggle
 						{t("transfer.active")}
 					</Button>
 				)}
-				<span>{t("app.version")}</span>
+				<span>{t("app.version", { version: __APP_VERSION__ })}</span>
 			</div>
 		</footer>
 	);

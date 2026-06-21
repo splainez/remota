@@ -1,7 +1,7 @@
 {
 	"app.title": "Remota",
 	"app.ready": "Listo",
-	"app.version": "Remota v0.1.0",
+	"app.version": "Remota v{version}",
 	"app.collapseSidebar": "Colapsar barra lateral",
 	"app.expandSidebar": "Expandir barra lateral",
 	"navigation.explorer": "Explorador",
