@@ -3,6 +3,7 @@ import { FolderIcon } from "@renderer/components/icons/FolderIcon";
 import { Input } from "@renderer/components/ui/input";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { useSort, type SortKey } from "@renderer/hooks/useSort";
+import type { FileColumnId } from "@shared/app-config-schema";
 import type { FileEntry } from "@shared/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -30,6 +31,7 @@ interface FileListProps {
 	creatingType?: CreateType | null;
 	onCommitCreate?: (name: string) => void;
 	onCancelCreate?: () => void;
+	visibleColumns: FileColumnId[];
 }
 
 function compareEntries(a: FileEntry, b: FileEntry, key: SortKey): number {
@@ -40,6 +42,12 @@ function compareEntries(a: FileEntry, b: FileEntry, key: SortKey): number {
 			return a.size - b.size;
 		case "modified":
 			return a.modified.localeCompare(b.modified);
+		case "permissions":
+			return (a.mode ?? 0) - (b.mode ?? 0);
+		case "owner":
+			return (a.ownerName ?? "").localeCompare(b.ownerName ?? "");
+		case "group":
+			return (a.groupName ?? "").localeCompare(b.groupName ?? "");
 		default:
 			return 0;
 	}
@@ -69,6 +77,7 @@ export function FileList({
 	creatingType,
 	onCommitCreate,
 	onCancelCreate,
+	visibleColumns,
 }: FileListProps) {
 	const { t } = useI18n();
 	const selectedSet = useMemo(() => new Set(selectedNames), [selectedNames]);
@@ -140,7 +149,12 @@ export function FileList({
 
 	return (
 		<div className="flex flex-1 flex-col overflow-hidden">
-			<FileListHeader onSort={handleSort} sortKey={config.key} sortDir={config.direction} />
+			<FileListHeader
+				onSort={handleSort}
+				sortKey={config.key}
+				sortDir={config.direction}
+				visibleColumns={visibleColumns}
+			/>
 			<div className="flex-1 overflow-y-auto" ref={scrollContainerRef}>
 				{creatingType != null && (
 					<div
@@ -156,27 +170,42 @@ export function FileList({
 								<FileIcon path="new" filePath="" size={16} className="shrink-0 text-secondary" />
 							)}
 						</div>
-						<Input
-							ref={createInputRef}
-							data-testid="create-input"
-							value={createDraftName}
-							className="mr-3 h-6 flex-1 px-1.5 py-0 text-sm"
-							onChange={(e) => {
-								setCreateDraftName(e.target.value);
-							}}
-							onKeyDown={handleCreateKeyDown}
-							onBlur={commitCreate}
-							onClick={(e) => {
-								e.stopPropagation();
-							}}
-							onDoubleClick={(e) => {
-								e.stopPropagation();
-							}}
-						/>
-						<div className="w-20 text-right text-xs text-on-surface-variant">
-							{creatingType === "folder" ? "--" : "0 B"}
-						</div>
-						<div className="hidden w-28 text-right text-xs text-on-surface-variant xl:block" />
+						{visibleColumns.includes("name") && (
+							<Input
+								ref={createInputRef}
+								data-testid="create-input"
+								value={createDraftName}
+								className="mr-3 h-6 flex-1 px-1.5 py-0 text-sm"
+								onChange={(e) => {
+									setCreateDraftName(e.target.value);
+								}}
+								onKeyDown={handleCreateKeyDown}
+								onBlur={commitCreate}
+								onClick={(e) => {
+									e.stopPropagation();
+								}}
+								onDoubleClick={(e) => {
+									e.stopPropagation();
+								}}
+							/>
+						)}
+						{visibleColumns.includes("size") && (
+							<div className="w-20 text-right text-xs text-on-surface-variant">
+								{creatingType === "folder" ? "--" : "0 B"}
+							</div>
+						)}
+						{visibleColumns.includes("modified") && (
+							<div className="hidden w-28 text-right text-xs text-on-surface-variant xl:block" />
+						)}
+						{visibleColumns.includes("permissions") && (
+							<div className="hidden w-24 text-left text-xs text-on-surface-variant xl:block" />
+						)}
+						{visibleColumns.includes("owner") && (
+							<div className="hidden w-16 text-right text-xs text-on-surface-variant xl:block" />
+						)}
+						{visibleColumns.includes("group") && (
+							<div className="hidden w-16 text-right text-xs text-on-surface-variant xl:block" />
+						)}
 					</div>
 				)}
 				{sorted.map((entry) => (
@@ -211,6 +240,7 @@ export function FileList({
 								: undefined
 						}
 						onCancelRename={onCancelRename}
+						visibleColumns={visibleColumns}
 					/>
 				))}
 			</div>

@@ -11,6 +11,36 @@ const numberFormat2DigitsFix = new Intl.NumberFormat("en-US", {
 const unitsSize = ["B", "KiB", "MiB", "GiB", "TiB"];
 const unitsSpeed = ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s"];
 
+export function formatMode(mode: number): string {
+	const S_IFMT = 0o170000;
+	const S_IFDIR = 0o040000;
+	const S_IFLNK = 0o120000;
+
+	const type = mode & S_IFMT;
+	let typeChar: string;
+	if (type === S_IFDIR) {
+		typeChar = "d";
+	} else if (type === S_IFLNK) {
+		typeChar = "l";
+	} else {
+		typeChar = "-";
+	}
+
+	const perms = [
+		mode & 0o400 ? "r" : "-",
+		mode & 0o200 ? "w" : "-",
+		mode & 0o100 ? "x" : "-",
+		mode & 0o040 ? "r" : "-",
+		mode & 0o020 ? "w" : "-",
+		mode & 0o010 ? "x" : "-",
+		mode & 0o004 ? "r" : "-",
+		mode & 0o002 ? "w" : "-",
+		mode & 0o001 ? "x" : "-",
+	];
+
+	return typeChar + perms.join("");
+}
+
 export function formatSize(bytes: number): string {
 	return formatUnit(numberFormat2DigitsMax, bytes, unitsSize);
 }

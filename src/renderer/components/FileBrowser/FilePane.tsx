@@ -13,7 +13,10 @@ import { useTerminalToggle } from "@renderer/hooks/useTerminalToggle";
 import { useTypeAhead } from "@renderer/hooks/useTypeAhead";
 import { useUpload } from "@renderer/hooks/useUpload";
 import { matchesWildcard } from "@renderer/lib/utils";
+import { useFileColumnsStore } from "@renderer/store/fileColumns";
 import { useSettingsStore } from "@renderer/store/settings";
+import type { FileColumnId } from "@shared/app-config-schema";
+import { FILE_COLUMN_IDS } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
 import { classifyError, getErrorI18nKey, type SftpErrorInfo } from "@shared/sftp-error";
 import type { FileEntry } from "@shared/types";
@@ -28,6 +31,8 @@ import { FileList } from "./FileList";
 import { Toolbar } from "./Toolbar";
 
 const logger = LoggerFactory.init({ name: "renderer.FilePane" });
+
+const UNIX_COLUMN_IDS: FileColumnId[] = ["permissions", "owner", "group"];
 
 interface FilePaneProps {
 	type: "local" | "remote";
@@ -82,6 +87,43 @@ export function FilePane({
 		handleKeyDown: terminalHandleKeyDown,
 	} = useTerminalToggle(initialShowTerminal);
 	const contextMenu = useContextMenu<FileEntry>();
+
+	const supportsUnixColumns = useMemo(() => {
+		if (type === "remote") {
+			return protocol === "sftp" || protocol === "scp";
+		}
+		return !isWindows;
+	}, [type, protocol, isWindows]);
+
+	const availableColumns: FileColumnId[] = useMemo(() => {
+		if (!supportsUnixColumns) {
+			return [...FILE_COLUMN_IDS.filter((c) => !UNIX_COLUMN_IDS.includes(c))];
+		}
+		return [...FILE_COLUMN_IDS];
+	}, [supportsUnixColumns]);
+
+	const { load: loadFileColumns, visibleColumns: rawVisibleColumns, setVisibleColumns } = useFileColumnsStore();
+
+	useEffect(() => {
+		void loadFileColumns();
+	}, [loadFileColumns]);
+
+	const visibleColumns = useMemo(() => {
+		if (!supportsUnixColumns) {
+			return rawVisibleColumns.filter((c) => !UNIX_COLUMN_IDS.includes(c));
+		}
+		return rawVisibleColumns;
+	}, [rawVisibleColumns, supportsUnixColumns]);
+
+	const handleToggleColumn = useCallback(
+		(columnId: FileColumnId) => {
+			const next = rawVisibleColumns.includes(columnId)
+				? rawVisibleColumns.filter((c) => c !== columnId)
+				: [...rawVisibleColumns, columnId];
+			setVisibleColumns(next);
+		},
+		[rawVisibleColumns, setVisibleColumns],
+	);
 
 	const download = useDownload({
 		connectionId,
@@ -450,6 +492,9 @@ export function FilePane({
 				onCreateFile={() => {
 					createItem.startCreate("file");
 				}}
+				visibleColumns={visibleColumns}
+				availableColumns={availableColumns}
+				onToggleColumn={handleToggleColumn}
 			/>
 			{isConnectionDead ? (
 				<ConnectionErrorView technicalDetail={deadError.technicalDetail} onReconnect={onReconnect} />
@@ -482,6 +527,7 @@ export function FilePane({
 						createItem.commitCreate(name);
 					}}
 					onCancelCreate={createItem.cancelCreate}
+					visibleColumns={visibleColumns}
 				/>
 			)}
 			{showTerminal && (

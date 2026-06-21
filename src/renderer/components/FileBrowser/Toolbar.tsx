@@ -1,7 +1,14 @@
 import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@renderer/components/ui/dropdown-menu";
 import { useI18n } from "@renderer/hooks/useI18n";
 import { canGoUp } from "@renderer/lib/utils";
+import type { FileColumnId } from "@shared/app-config-schema";
 import { useCallback } from "react";
 
 interface ToolbarProps {
@@ -21,6 +28,9 @@ interface ToolbarProps {
 	onFilterChange: (value: string) => void;
 	onCreateFolder: () => void;
 	onCreateFile: () => void;
+	visibleColumns?: FileColumnId[];
+	availableColumns?: FileColumnId[];
+	onToggleColumn?: (columnId: FileColumnId) => void;
 }
 
 export function Toolbar({
@@ -36,6 +46,9 @@ export function Toolbar({
 	onFilterChange,
 	onCreateFolder,
 	onCreateFile,
+	visibleColumns = [],
+	availableColumns = [],
+	onToggleColumn,
 }: ToolbarProps) {
 	const { t } = useI18n();
 	const upDisabled = !canGoUp(currentPath);
@@ -50,6 +63,9 @@ export function Toolbar({
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- onNavigateTo omitted to avoid loop
 		[currentPath],
 	);
+
+	const unixColumns = availableColumns.filter((c) => c === "permissions" || c === "owner" || c === "group");
+	const showColumnToggle = unixColumns.length > 0 && onToggleColumn;
 
 	return (
 		<div className="flex h-9 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-3">
@@ -104,6 +120,35 @@ export function Toolbar({
 				>
 					<Icon name="new-file" size={16} />
 				</Button>
+				{showColumnToggle && (
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							render={
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									aria-label={t("file.toggleColumns")}
+									title={t("file.toggleColumns")}
+								>
+									<Icon name="list-flat" size={16} />
+								</Button>
+							}
+						/>
+						<DropdownMenuContent align="start">
+							{unixColumns.map((col) => (
+								<DropdownMenuCheckboxItem
+									key={col}
+									checked={visibleColumns.includes(col)}
+									onCheckedChange={() => {
+										onToggleColumn(col);
+									}}
+								>
+									{t(`file.${col}`)}
+								</DropdownMenuCheckboxItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)}
 				{drives.length > 0 && (
 					<select
 						className="
