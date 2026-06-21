@@ -1,6 +1,6 @@
 {
 	"name": "remota",
-	"version": "0.1.0",
+	"version": "0.1.0-dev",
 	"description": "A dual-pane file manager",
 	"keywords": [],
 	"license": "MIT",
