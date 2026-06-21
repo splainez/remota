@@ -178,10 +178,8 @@ const api: ElectronAPI = {
 			ipcRenderer.invoke(IPC.FILE_PANE_SIZE_SET, connectionId, update),
 	},
 	fileColumns: {
-		get: (): Promise<{ visibleColumns: FileColumnId[] }> =>
-			ipcRenderer.invoke(IPC.FILE_COLUMNS_GET),
-		set: (update: FileColumnsUpdate): Promise<void> =>
-			ipcRenderer.invoke(IPC.FILE_COLUMNS_SET, update),
+		get: (): Promise<{ visibleColumns: FileColumnId[] }> => ipcRenderer.invoke(IPC.FILE_COLUMNS_GET),
+		set: (update: FileColumnsUpdate): Promise<void> => ipcRenderer.invoke(IPC.FILE_COLUMNS_SET, update),
 	},
 	app: {
 		getConfigPath: (): Promise<string> => ipcRenderer.invoke(IPC.APP_GET_CONFIG_PATH),

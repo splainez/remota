@@ -98,7 +98,7 @@ export class AppStore {
 					lastPaths: {},
 					transferPanels: {},
 					filePaneSizes: {},
-		fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
+					fileColumns: { visibleColumns: DEFAULT_VISIBLE_COLUMNS },
 					settings: {
 						theme: "system",
 						locale: "en",

@@ -148,10 +148,10 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			...overrides?.filePaneSize,
 		},
 		fileColumns: {
-			get: vi.fn<() => Promise<{ visibleColumns: FileColumnId[] }>>().mockResolvedValue({ visibleColumns: ["name", "size", "modified"] }),
-			set: vi
-				.fn<(update: { visibleColumns?: FileColumnId[] }) => Promise<void>>()
-				.mockResolvedValue(undefined),
+			get: vi
+				.fn<() => Promise<{ visibleColumns: FileColumnId[] }>>()
+				.mockResolvedValue({ visibleColumns: ["name", "size", "modified"] }),
+			set: vi.fn<(update: { visibleColumns?: FileColumnId[] }) => Promise<void>>().mockResolvedValue(undefined),
 			...overrides?.fileColumns,
 		},
 		app: {
