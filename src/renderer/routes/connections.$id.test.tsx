@@ -69,6 +69,7 @@ describe("ConnectionDetailRoute handleConnect", () => {
 		expect(mockNavigate).toHaveBeenCalledWith({
 			to: "/browse/$connectionId",
 			params: { connectionId: "1" },
+			search: { showTerminal: false },
 		});
 	});
 });

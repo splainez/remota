@@ -75,6 +75,7 @@ function RootLayout() {
 			void router.navigate({
 				to: "/browse/$connectionId",
 				params: { connectionId: String(pendingConnectionId) },
+				search: { showTerminal: false },
 			});
 			setPendingConnectionId(null);
 		}
@@ -84,7 +85,11 @@ function RootLayout() {
 		const unsub = window.api.app.onOpenConnection((connectionId) => {
 			if (connections.some((c) => c.id === connectionId)) {
 				addSession(connectionId);
-				void router.navigate({ to: "/browse/$connectionId", params: { connectionId: String(connectionId) } });
+				void router.navigate({
+					to: "/browse/$connectionId",
+					params: { connectionId: String(connectionId) },
+					search: { showTerminal: false },
+				});
 			}
 		});
 		return unsub;

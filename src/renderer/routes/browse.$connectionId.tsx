@@ -12,11 +12,15 @@ import { rootRoute } from "./__root";
 export const browseRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: "/browse/$connectionId",
+	validateSearch: (search: Record<string, unknown>) => ({
+		showTerminal: search.showTerminal === true || search.showTerminal === "true",
+	}),
 	component: BrowseRoute,
 });
 
 function BrowseRoute() {
 	const { connectionId } = browseRoute.useParams();
+	const { showTerminal } = browseRoute.useSearch();
 	const router = useRouter();
 	const { connections } = useConnections();
 	const removeSession = useActiveSessionsStore((s) => s.removeSession);
@@ -66,7 +70,7 @@ function BrowseRoute() {
 				onOpenChange={setDisconnectDialogOpen}
 				onConfirmDisconnect={handleConfirmDisconnect}
 			/>
-			<FileBrowser connection={connection} onDisconnect={handleDisconnect} />
+			<FileBrowser connection={connection} initialShowTerminal={showTerminal} onDisconnect={handleDisconnect} />
 		</>
 	);
 }

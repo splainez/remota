@@ -33,7 +33,11 @@ function ConnectionDetailRoute() {
 	const handleConnect = () => {
 		if (connection) {
 			addSession(connection.id);
-			void navigate({ to: "/browse/$connectionId", params: { connectionId: String(connection.id) } });
+			void navigate({
+				to: "/browse/$connectionId",
+				params: { connectionId: String(connection.id) },
+				search: { showTerminal: false },
+			});
 		}
 	};
 

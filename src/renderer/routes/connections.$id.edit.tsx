@@ -31,7 +31,11 @@ function ConnectionEdit() {
 	};
 
 	const handleSaveAndConnect = (connection: Connection) => {
-		void navigate({ to: "/browse/$connectionId", params: { connectionId: String(connection.id) } });
+		void navigate({
+			to: "/browse/$connectionId",
+			params: { connectionId: String(connection.id) },
+			search: { showTerminal: false },
+		});
 	};
 
 	return (
