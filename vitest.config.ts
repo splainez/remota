@@ -16,7 +16,6 @@ export default defineConfig({
 	},
 	test: {
 		environment: "jsdom",
-		environmentMatchGlobs: [["src/main/**", "node"]],
 		setupFiles: [resolve("src/renderer/test/setup.ts")],
 		include: [
 			"src/renderer/**/*.{test,spec}.{ts,tsx}",
