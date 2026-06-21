@@ -8,7 +8,7 @@ function connectionSubtitle(connection: Connection): string {
 	if (connection.protocol === "s3" && connection.bucket) {
 		return `${connection.bucket} / ${connection.region}`;
 	}
-	return `${connection.username}@${connection.host}:${connection.port}`;
+	return `${connection.username}@${connection.host}:${connection.port.toFixed(0)}`;
 }
 
 function protocolIcon(protocol: string): string {
