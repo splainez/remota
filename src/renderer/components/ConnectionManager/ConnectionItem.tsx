@@ -4,6 +4,13 @@ import { useI18n } from "@renderer/hooks/useI18n";
 import { connectionSupportsTerminal } from "@shared/lib/connection";
 import type { Connection } from "@shared/types";
 
+function connectionSubtitle(connection: Connection): string {
+	if (connection.protocol === "s3" && connection.bucket) {
+		return `${connection.bucket} / ${connection.region}`;
+	}
+	return `${connection.username}@${connection.host}:${connection.port}`;
+}
+
 function protocolIcon(protocol: string): string {
 	switch (protocol) {
 		case "sftp":
@@ -84,7 +91,7 @@ export function ConnectionItem({
 			<div className="min-w-0 flex-1">
 				<div className="truncate text-sm font-medium">{connection.name}</div>
 				<div className="truncate text-xs text-muted-foreground">
-					{connection.username}@{connection.host}:{connection.port}
+					{connectionSubtitle(connection)}
 				</div>
 			</div>
 			<div className="flex shrink-0 items-center gap-1.5">

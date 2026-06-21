@@ -58,6 +58,18 @@ describe("ConnectionItem", () => {
 		expect(screen.getByText("user@example.com:22")).toBeInTheDocument();
 	});
 
+	it("renders S3 connection details (bucket / region)", () => {
+		const conn = makeConnection({ protocol: "s3", bucket: "my-bucket", region: "eu-west-1" });
+		renderItem({ connection: conn });
+		expect(screen.getByText("my-bucket / eu-west-1")).toBeInTheDocument();
+	});
+
+	it("falls back to username@host:port for S3 with empty bucket", () => {
+		const conn = makeConnection({ protocol: "s3", bucket: "", region: "eu-west-1", port: 443, username: "", host: "" });
+		renderItem({ connection: conn });
+		expect(screen.getByText("@:443")).toBeInTheDocument();
+	});
+
 	it("applies selected styling when isSelected is true", () => {
 		const { container } = renderItem({ isSelected: true });
 		expect(container.firstElementChild?.className).toContain("bg-primary/10");
