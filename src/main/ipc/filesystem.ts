@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readdirSync, renameSync, statSync, existsSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, sep } from "node:path";
@@ -13,6 +14,12 @@ import { app, ipcMain, shell } from "electron";
 
 const logger = LoggerFactory.init({ name: "main.ipc.filesystem" });
 
+const isLinux = process.platform === "linux";
+const isUnix = process.platform !== "win32";
+
+const uidCache = new Map<number, string>();
+const gidCache = new Map<number, string>();
+
 export function listDirectory(dirPath: string): FileEntry[] {
 	let entryNames: string[];
 	try {
@@ -27,19 +34,108 @@ export function listDirectory(dirPath: string): FileEntry[] {
 		const fullPath = join(dirPath, name);
 		try {
 			const stats = statSync(fullPath);
-			entries.push({
+			const entry: FileEntry = {
 				name,
 				fullPath,
 				isDirectory: stats.isDirectory(),
 				size: stats.isFile() ? stats.size : 0,
 				modified: stats.mtime.toISOString(),
-			});
+			};
+
+			if (isUnix) {
+				entry.mode = stats.mode;
+				entry.uid = stats.uid;
+				entry.gid = stats.gid;
+			}
+
+			entries.push(entry);
 		} catch {
 			entries.push({ name, fullPath, isDirectory: false, size: 0, modified: "" });
 		}
 	}
 
 	return entries;
+}
+
+export function resolveLocalUserNames(entries: FileEntry[]): void {
+	if (!isLinux) return;
+
+	const uncachedUids = new Set<number>();
+	const uncachedGids = new Set<number>();
+
+	for (const entry of entries) {
+		if (entry.uid != null && !uidCache.has(entry.uid)) {
+			uncachedUids.add(entry.uid);
+		}
+		if (entry.gid != null && !gidCache.has(entry.gid)) {
+			uncachedGids.add(entry.gid);
+		}
+	}
+
+	if (uncachedUids.size === 0 && uncachedGids.size === 0) {
+		for (const entry of entries) {
+			if (entry.uid != null) {
+				entry.ownerName = uidCache.get(entry.uid);
+			}
+			if (entry.gid != null) {
+				entry.groupName = gidCache.get(entry.gid);
+			}
+		}
+		return;
+	}
+
+	try {
+		if (uncachedUids.size > 0) {
+			const uids = [...uncachedUids];
+			const output = execFileSync("getent", ["passwd", ...uids.map(String)], {
+				timeout: 2000,
+				encoding: "utf-8",
+				stdio: ["pipe", "pipe", "pipe"],
+			}).trim();
+
+			for (const line of output.split("\n")) {
+				const parts = line.split(":");
+				if (parts.length >= 3 && parts[0] && parts[2]) {
+					const uid = Number(parts[2]);
+					const name = parts[0];
+					if (Number.isFinite(uid)) {
+						uidCache.set(uid, name);
+					}
+				}
+			}
+		}
+
+		if (uncachedGids.size > 0) {
+			const gids = [...uncachedGids];
+			const output = execFileSync("getent", ["group", ...gids.map(String)], {
+				timeout: 2000,
+				encoding: "utf-8",
+				stdio: ["pipe", "pipe", "pipe"],
+			}).trim();
+
+			for (const line of output.split("\n")) {
+				const parts = line.split(":");
+				if (parts.length >= 3 && parts[0] && parts[2]) {
+					const gid = Number(parts[2]);
+					const name = parts[0];
+					if (Number.isFinite(gid)) {
+						gidCache.set(gid, name);
+					}
+				}
+			}
+		}
+	} catch {
+		// getent failed — fall through and leave numeric IDs
+	}
+
+	for (const entry of entries) {
+		if (entry.uid != null) {
+			entry.ownerName = uidCache.get(entry.uid);
+		}
+		if (entry.gid != null) {
+			entry.groupName = gidCache.get(entry.gid);
+		}
+	}
 }
 
 export function normalizePath(input: string): string {
@@ -70,7 +166,9 @@ export function listDrives(): string[] {
 export function registerFilesystemHandlers(store: AppStore, fileWatcher: FileWatcherManager) {
 	ipcMain.handle(IPC.FILE_LIST, (_event, dirPath: string) => {
 		const normalized = normalizePath(dirPath);
-		return listDirectory(normalized);
+		const entries = listDirectory(normalized);
+		resolveLocalUserNames(entries);
+		return entries;
 	});
 
 	ipcMain.handle(IPC.FILE_LIST_DRIVES, () => {

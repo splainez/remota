@@ -9,6 +9,8 @@ interface SftpSession {
 	client: Client;
 	sftp: SFTPWrapper;
 	connectionId: number;
+	uidCache: Map<number, string>;
+	gidCache: Map<number, string>;
 }
 
 export class SftpConnectionManager {
@@ -60,7 +62,13 @@ export class SftpConnectionManager {
 						return;
 					}
 
-					this.sessions.set(connectionId, { client, sftp, connectionId });
+					this.sessions.set(connectionId, {
+						client,
+						sftp,
+						connectionId,
+						uidCache: new Map(),
+						gidCache: new Map(),
+					});
 
 					tempManager
 						.createTempDir(connectionId)
@@ -121,24 +129,126 @@ export class SftpConnectionManager {
 			throw new Error("Not connected to remote server");
 		}
 
-		return new Promise<FileEntry[]>((resolve, reject) => {
-			session.sftp.readdir(path, (err, list) => {
+		const list = await new Promise<{ filename: string; longname: string; attrs: Record<string, unknown> }[]>(
+			(resolve, reject) => {
+				session.sftp.readdir(path, (err, data) => {
+					if (err) {
+						reject(new Error(`Failed to list directory: ${err.message}`));
+						return;
+					}
+					resolve(data as unknown as { filename: string; longname: string; attrs: Record<string, unknown> }[]);
+				});
+			},
+		);
+
+		const entries: FileEntry[] = list
+			.filter((entry) => entry.filename !== "." && entry.filename !== "..")
+			.map((entry) => {
+				const attrs = entry.attrs;
+				const isDir = typeof attrs.isDirectory === "function" ? (attrs.isDirectory as () => boolean)() : false;
+				return {
+					name: entry.filename,
+					fullPath: `${path}/${entry.filename}`,
+					isDirectory: isDir,
+					size: typeof attrs.size === "number" ? attrs.size : 0,
+					modified: typeof attrs.mtime === "number" ? new Date(attrs.mtime * 1000).toISOString() : "",
+					mode: typeof attrs.mode === "number" ? attrs.mode : undefined,
+					uid: typeof attrs.uid === "number" ? attrs.uid : undefined,
+					gid: typeof attrs.gid === "number" ? attrs.gid : undefined,
+				};
+			});
+
+		await this.resolveUserNames(session, entries);
+		return entries;
+	}
+
+	private async resolveUserNames(session: SftpSession, entries: FileEntry[]): Promise<void> {
+		const uncachedUids = new Set<number>();
+		const uncachedGids = new Set<number>();
+
+		for (const entry of entries) {
+			if (entry.uid != null && !session.uidCache.has(entry.uid)) {
+				uncachedUids.add(entry.uid);
+			}
+			if (entry.gid != null && !session.gidCache.has(entry.gid)) {
+				uncachedGids.add(entry.gid);
+			}
+		}
+
+		if (uncachedUids.size === 0 && uncachedGids.size === 0) {
+			for (const entry of entries) {
+				if (entry.uid != null) {
+					entry.ownerName = session.uidCache.get(entry.uid);
+				}
+				if (entry.gid != null) {
+					entry.groupName = session.gidCache.get(entry.gid);
+				}
+			}
+			return;
+		}
+
+		try {
+			const uids = [...uncachedUids];
+			const gids = [...uncachedGids];
+
+			if (uids.length > 0) {
+				const uidArgs = uids.map((id) => String(id)).join(" ");
+				const uidOutput = await this.execCommand(
+					session,
+					`for id in ${uidArgs}; do echo "$id $(getent passwd $id 2>/dev/null | cut -d: -f1 || echo $id)"; done`,
+				);
+				for (const line of uidOutput.split("\n")) {
+					const match = /^(\d+)\s+(.+)$/.exec(line.trim());
+					if (match) {
+						session.uidCache.set(Number(match[1]), match[2]);
+					}
+				}
+			}
+
+			if (gids.length > 0) {
+				const gidArgs = gids.map((id) => String(id)).join(" ");
+				const gidOutput = await this.execCommand(
+					session,
+					`for id in ${gidArgs}; do echo "$id $(getent group $id 2>/dev/null | cut -d: -f1 || echo $id)"; done`,
+				);
+				for (const line of gidOutput.split("\n")) {
+					const match = /^(\d+)\s+(.+)$/.exec(line.trim());
+					if (match) {
+						session.gidCache.set(Number(match[1]), match[2]);
+					}
+				}
+			}
+		} catch {
+			// Username resolution failed — leave numeric IDs
+		}
+
+		for (const entry of entries) {
+			if (entry.uid != null) {
+				entry.ownerName = session.uidCache.get(entry.uid);
+			}
+			if (entry.gid != null) {
+				entry.groupName = session.gidCache.get(entry.gid);
+			}
+		}
+	}
+
+	private execCommand(session: SftpSession, command: string): Promise<string> {
+		return new Promise<string>((resolve, reject) => {
+			session.client.exec(command, (err, stream) => {
 				if (err) {
-					reject(new Error(`Failed to list directory: ${err.message}`));
+					reject(err);
 					return;
 				}
-
-				const entries: FileEntry[] = list
-					.filter((entry) => entry.filename !== "." && entry.filename !== "..")
-					.map((entry) => ({
-						name: entry.filename,
-						fullPath: `${path}/${entry.filename}`,
-						isDirectory: entry.attrs.isDirectory(),
-						size: entry.attrs.size,
-						modified: new Date(entry.attrs.mtime * 1000).toISOString(),
-					}));
-
-				resolve(entries);
+				let output = "";
+				stream.on("data", (data: Buffer) => {
+					output += data.toString();
+				});
+				stream.on("close", () => {
+					resolve(output);
+				});
+				stream.on("error", (streamErr: Error) => {
+					reject(streamErr);
+				});
 			});
 		});
 	}
