@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import type { FileColumnId } from "@shared/app-config-schema";
 import type {
 	Connection,
 	NewConnection,
@@ -145,6 +146,13 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			getAll: vi.fn<() => Promise<Record<number, { localSize: number }>>>().mockResolvedValue({}),
 			set: vi.fn<(connectionId: number, update: { localSize: number }) => Promise<void>>().mockResolvedValue(undefined),
 			...overrides?.filePaneSize,
+		},
+		fileColumns: {
+			get: vi.fn<() => Promise<{ visibleColumns: FileColumnId[] }>>().mockResolvedValue({ visibleColumns: ["name", "size", "modified"] }),
+			set: vi
+				.fn<(update: { visibleColumns?: FileColumnId[] }) => Promise<void>>()
+				.mockResolvedValue(undefined),
+			...overrides?.fileColumns,
 		},
 		app: {
 			getConfigPath: vi.fn<() => Promise<string>>().mockResolvedValue("/tmp/app-config.json"),

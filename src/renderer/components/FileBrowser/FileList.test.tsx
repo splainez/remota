@@ -1,4 +1,5 @@
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import type { FileColumnId } from "@shared/app-config-schema";
 import type { FileEntry } from "@shared/types";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -25,6 +26,7 @@ describe("FileList", () => {
 		onEnterDirectory: vi.fn(),
 		onSelectEntry: vi.fn(),
 		selectedNames: [] as string[],
+		visibleColumns: ["name", "size", "modified"] as FileColumnId[],
 	};
 
 	beforeEach(() => {

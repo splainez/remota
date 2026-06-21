@@ -1,9 +1,12 @@
+import type { FileColumnId } from "@shared/app-config-schema";
 import type { FileEntry } from "@shared/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
 import { FileRow } from "./FileRow";
+
+const defaultVisibleColumns: FileColumnId[] = ["name", "size", "modified"];
 
 function makeEntry(overrides: Partial<FileEntry> = {}): FileEntry {
 	return {
@@ -19,32 +22,70 @@ function makeEntry(overrides: Partial<FileEntry> = {}): FileEntry {
 describe("FileRow", () => {
 	it("renders file name", () => {
 		const entry = makeEntry();
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("test.txt")).toBeInTheDocument();
 	});
 
 	it("renders file size using formatSize", () => {
 		const entry = makeEntry({ size: 2048 });
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("2 KiB")).toBeInTheDocument();
 	});
 
 	it("renders -- for directory size", () => {
 		const entry = makeEntry({ isDirectory: true });
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("--")).toBeInTheDocument();
 	});
 
 	it("applies selection styling when selected", () => {
 		const entry = makeEntry();
-		const { container } = render(<FileRow entry={entry} isSelected={true} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		const { container } = render(
+			<FileRow
+				entry={entry}
+				isSelected={true}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(container.firstElementChild?.className).toContain("bg-primary-fixed-dim/20");
 	});
 
 	it("does not apply selection styling when not selected", () => {
 		const entry = makeEntry();
 		const { container } = render(
-			<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />,
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
 		);
 		expect(container.firstElementChild?.className).not.toContain("bg-primary-fixed-dim/20");
 	});
@@ -53,7 +94,15 @@ describe("FileRow", () => {
 		const user = userEvent.setup();
 		const onClick = vi.fn();
 		const entry = makeEntry();
-		render(<FileRow entry={entry} isSelected={false} onClick={onClick} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={onClick}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		await user.click(screen.getByText("test.txt"));
 		expect(onClick).toHaveBeenCalledOnce();
 	});
@@ -62,26 +111,58 @@ describe("FileRow", () => {
 		const user = userEvent.setup();
 		const onDoubleClick = vi.fn();
 		const entry = makeEntry();
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={onDoubleClick} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={onDoubleClick}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		await user.dblClick(screen.getByText("test.txt"));
 		expect(onDoubleClick).toHaveBeenCalledOnce();
 	});
 
 	it("displays formatted date in hidden column", () => {
 		const entry = makeEntry({ modified: "2025-01-15T10:30:00Z" });
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("2025-01-15")).toBeInTheDocument();
 	});
 
 	it("shows folder icon for directories", () => {
 		const entry = makeEntry({ isDirectory: true, name: "mydir" });
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("mydir")).toBeInTheDocument();
 	});
 
 	it("shows file icon for files", () => {
 		const entry = makeEntry({ isDirectory: false, name: "readme.md" });
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.getByText("readme.md")).toBeInTheDocument();
 	});
 
@@ -98,6 +179,7 @@ describe("FileRow", () => {
 				isEditing={true}
 				onCommitRename={vi.fn()}
 				onCancelRename={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
 			/>,
 		);
 		const input = screen.getByTestId<HTMLInputElement>("rename-input");
@@ -116,6 +198,7 @@ describe("FileRow", () => {
 				isEditing={true}
 				onCommitRename={vi.fn()}
 				onCancelRename={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
 			/>,
 		);
 		const input = screen.getByTestId<HTMLInputElement>("rename-input");
@@ -137,6 +220,7 @@ describe("FileRow", () => {
 				isEditing={true}
 				onCommitRename={onCommitRename}
 				onCancelRename={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
 			/>,
 		);
 		const input = screen.getByTestId("rename-input");
@@ -160,6 +244,7 @@ describe("FileRow", () => {
 				isEditing={true}
 				onCommitRename={onCommitRename}
 				onCancelRename={onCancelRename}
+				visibleColumns={[...defaultVisibleColumns]}
 			/>,
 		);
 		const input = screen.getByTestId("rename-input");
@@ -184,6 +269,7 @@ describe("FileRow", () => {
 					isEditing={true}
 					onCommitRename={onCommitRename}
 					onCancelRename={vi.fn()}
+					visibleColumns={[...defaultVisibleColumns]}
 				/>
 				<button data-testid="outside">outside</button>
 			</div>,
@@ -210,6 +296,7 @@ describe("FileRow", () => {
 				isEditing={true}
 				onCommitRename={vi.fn()}
 				onCancelRename={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
 			/>,
 		);
 		const row = container.firstElementChild as HTMLElement;
@@ -223,7 +310,15 @@ describe("FileRow", () => {
 
 	it("does not render the input when not editing", () => {
 		const entry = makeEntry();
-		render(<FileRow entry={entry} isSelected={false} onClick={vi.fn()} onDoubleClick={vi.fn()} />);
+		render(
+			<FileRow
+				entry={entry}
+				isSelected={false}
+				onClick={vi.fn()}
+				onDoubleClick={vi.fn()}
+				visibleColumns={[...defaultVisibleColumns]}
+			/>,
+		);
 		expect(screen.queryByTestId("rename-input")).not.toBeInTheDocument();
 		expect(screen.getByText("test.txt")).toBeInTheDocument();
 	});

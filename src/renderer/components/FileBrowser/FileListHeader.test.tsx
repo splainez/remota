@@ -1,15 +1,23 @@
 import { I18nWrapper } from "@renderer/test/i18n-wrapper";
+import type { FileColumnId } from "@shared/app-config-schema";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
 import { FileListHeader } from "./FileListHeader";
 
+const defaultProps = {
+	onSort: vi.fn(),
+	sortKey: "name",
+	sortDir: "asc" as const,
+	visibleColumns: ["name", "size", "modified"] as FileColumnId[],
+};
+
 describe("FileListHeader", () => {
 	it("renders name, size, and modified headers", () => {
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={vi.fn()} sortKey="name" sortDir="asc" />
+				<FileListHeader {...defaultProps} />
 			</I18nWrapper>,
 		);
 		expect(screen.getByRole("button", { name: /name/i })).toBeInTheDocument();
@@ -20,7 +28,7 @@ describe("FileListHeader", () => {
 	it("shows ascending indicator on active sort column", () => {
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={vi.fn()} sortKey="name" sortDir="asc" />
+				<FileListHeader {...defaultProps} sortKey="name" sortDir="asc" />
 			</I18nWrapper>,
 		);
 		expect(screen.getByTestId("sort-asc")).toBeInTheDocument();
@@ -30,7 +38,7 @@ describe("FileListHeader", () => {
 	it("shows descending indicator on active sort column", () => {
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={vi.fn()} sortKey="name" sortDir="desc" />
+				<FileListHeader {...defaultProps} sortKey="name" sortDir="desc" />
 			</I18nWrapper>,
 		);
 		expect(screen.getByTestId("sort-desc")).toBeInTheDocument();
@@ -40,7 +48,7 @@ describe("FileListHeader", () => {
 	it("shows no indicator on inactive columns", () => {
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={vi.fn()} sortKey="name" sortDir="asc" />
+				<FileListHeader {...defaultProps} sortKey="name" sortDir="asc" />
 			</I18nWrapper>,
 		);
 		const sizeBtn = screen.getByRole("button", { name: /size/i });
@@ -52,7 +60,7 @@ describe("FileListHeader", () => {
 		const onSort = vi.fn();
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={onSort} sortKey="size" sortDir="asc" />
+				<FileListHeader {...defaultProps} onSort={onSort} sortKey="size" sortDir="asc" />
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByRole("button", { name: /name/i }));
@@ -64,7 +72,7 @@ describe("FileListHeader", () => {
 		const onSort = vi.fn();
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={onSort} sortKey="name" sortDir="asc" />
+				<FileListHeader {...defaultProps} onSort={onSort} sortKey="name" sortDir="asc" />
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByRole("button", { name: /size/i }));
@@ -76,7 +84,7 @@ describe("FileListHeader", () => {
 		const onSort = vi.fn();
 		render(
 			<I18nWrapper>
-				<FileListHeader onSort={onSort} sortKey="name" sortDir="asc" />
+				<FileListHeader {...defaultProps} onSort={onSort} sortKey="name" sortDir="asc" />
 			</I18nWrapper>,
 		);
 		await user.click(screen.getByRole("button", { name: /modified/i }));
