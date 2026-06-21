@@ -72,7 +72,7 @@ describe("listDrives", () => {
 		mockExistsSync.mockReset();
 	});
 
-	it("returns existing drives on Windows", async () => {
+	it.skipIf(process.platform !== "win32")("returns existing drives on Windows", async () => {
 		vi.spyOn(process, "platform", "get").mockReturnValue("win32");
 		mockExistsSync.mockImplementation((p: unknown) => String(p) === "C:\\" || String(p) === "D:\\");
 		({ listDrives } = await import("./filesystem"));
