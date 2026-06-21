@@ -1,10 +1,9 @@
 import type { FileColumnId } from "@shared/app-config-schema";
+import { DEFAULT_VISIBLE_COLUMNS } from "@shared/app-config-schema";
 import { LoggerFactory } from "@shared/lib/logger";
 import { create } from "zustand";
 
 const logger = LoggerFactory.init({ name: "renderer.store.fileColumns" });
-
-const DEFAULT_VISIBLE_COLUMNS: FileColumnId[] = ["name", "size", "modified"];
 
 interface FileColumnsState {
 	visibleColumns: FileColumnId[];
