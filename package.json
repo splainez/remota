@@ -27,6 +27,7 @@
 		"check": "pnpm run fmt:check && pnpm run lint --quiet && pnpm run typecheck && pnpm run test --silent && pnpm run test:integration --silent && pnpm run build ",
 		"build:win": "electron-builder --win portable --config electron-builder.json",
 		"build:linux": "electron-builder --linux AppImage --config electron-builder.json",
+		"build:mac": "electron-builder --mac --config electron-builder.json",
 		"build:docker:win": "docker compose -f docker-compose.build.yml run --rm builder-win",
 		"build:docker:linux": "docker compose -f docker-compose.build.yml run --rm builder-linux",
 		"build:docker:all": "docker compose -f docker-compose.build.yml run --rm builder-linux && docker compose -f docker-compose.build.yml run --rm builder-win",

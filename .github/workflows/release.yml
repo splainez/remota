@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            build-cmd: pnpm build:linux
+            artifact-pattern: release/*.AppImage
+          - os: windows-latest
+            build-cmd: pnpm build:win
+            artifact-pattern: release/*.exe
+          - os: macos-latest
+            build-cmd: pnpm build:mac
+            artifact-pattern: |
+              release/*.dmg
+              release/*.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Electron
+        run: pnpm electron-vite build
+
+      - name: Package
+        run: ${{ matrix.build-cmd }}
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact-pattern }}

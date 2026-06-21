@@ -38,7 +38,18 @@
 	},
 	"mac": {
 		"icon": "src/main/assets/icon.icns",
-		"target": ["dmg", "zip"]
+		"target": [
+			{
+				"target": "dmg",
+				"arch": ["x64", "arm64"]
+			},
+			{
+				"target": "zip",
+				"arch": ["x64", "arm64"]
+			}
+		],
+		"category": "public.app-category.utilities",
+		"executableName": "Remota"
 	},
 	"linux": {
 		"target": [
@@ -56,5 +67,11 @@
 	},
 	"appImage": {
 		"artifactName": "Remota-${version}.${ext}"
+	},
+	"dmg": {
+		"artifactName": "Remota-${version}.${ext}"
+	},
+	"macOsZip": {
+		"artifactName": "Remota-${version}-${arch}.${ext}"
 	}
 }
