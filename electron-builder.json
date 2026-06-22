@@ -24,6 +24,10 @@
 		{
 			"from": "src/main/assets/icon.ico",
 			"to": "icon.ico"
+		},
+		{
+			"from": "src/main/assets/icon.png",
+			"to": "icon.png"
 		}
 	],
 	"win": {

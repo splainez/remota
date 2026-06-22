@@ -43,9 +43,9 @@ function resolveRealExePath(): string {
 
 function getAppIconPath(): string {
 	if (app.isPackaged) {
-		return join(process.resourcesPath, "icon.ico");
+		return join(process.resourcesPath, isLinux ? "icon.png" : "icon.ico");
 	}
-	return join(__dirname, "../src/main/assets/icon.ico");
+	return join(__dirname, isLinux ? "../src/main/assets/icon.png" : "../src/main/assets/icon.ico");
 }
 
 function parseConnectArgv(argv: string[]): number | null {
