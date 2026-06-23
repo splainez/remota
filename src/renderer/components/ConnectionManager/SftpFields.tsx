@@ -36,11 +36,11 @@ export function SftpFields({ form }: SftpFieldsProps) {
 	useEffect(() => {
 		if (defaultKeySetRef.current) return;
 		if (form.state.values.authType === "key" && !form.state.values.privateKeyPath) {
-			defaultKeySetRef.current = true;
 			void window.api.filesystem.homeDir().then((home) => {
 				if (!form.state.values.privateKeyPath) {
 					form.setFieldValue("privateKeyPath", `${home}/.ssh/id_rsa`);
 				}
+				defaultKeySetRef.current = true;
 			});
 		}
 	}, [form]);
