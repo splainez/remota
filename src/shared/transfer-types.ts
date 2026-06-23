@@ -14,6 +14,9 @@ export const UploadItemSchema = z.object({
 	localPath: z.string(),
 	remotePath: z.string(),
 	size: z.number(),
+	mode: z.number().optional(),
+	uid: z.number().optional(),
+	gid: z.number().optional(),
 });
 
 export const DownloadRequestSchema = z.object({
@@ -61,6 +64,9 @@ export interface UploadItem {
 	localPath: string;
 	remotePath: string;
 	size: number;
+	mode?: number;
+	uid?: number;
+	gid?: number;
 }
 
 export interface UploadRequest {
@@ -90,6 +96,9 @@ export interface RemoteStat {
 	size: number;
 	modified: string;
 	isDirectory: boolean;
+	mode?: number;
+	uid?: number;
+	gid?: number;
 }
 
 export interface LocalStat {

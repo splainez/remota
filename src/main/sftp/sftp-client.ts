@@ -3,7 +3,8 @@ import { dirname } from "node:path";
 
 import { tempManager } from "@main/temp/temp-manager";
 import type { FileEntry, RemoteStat } from "@shared/types";
-import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel } from "ssh2";
+import { LoggerFactory } from "@shared/lib/logger";
+import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel, type InputAttributes } from "ssh2";
 
 interface SftpSession {
 	client: Client;
@@ -12,6 +13,8 @@ interface SftpSession {
 	uidCache: Map<number, string>;
 	gidCache: Map<number, string>;
 }
+
+const logger = LoggerFactory.init({ name: "main.sftp" });
 
 export class SftpConnectionManager {
 	private sessions = new Map<number, SftpSession>();
@@ -349,6 +352,9 @@ export class SftpConnectionManager {
 					size: stats.size,
 					modified: new Date(stats.mtime * 1000).toISOString(),
 					isDirectory: stats.isDirectory(),
+					mode: typeof stats.mode === "number" ? stats.mode : undefined,
+					uid: typeof stats.uid === "number" ? stats.uid : undefined,
+					gid: typeof stats.gid === "number" ? stats.gid : undefined,
 				});
 			});
 		});
@@ -414,12 +420,41 @@ export class SftpConnectionManager {
 		});
 	}
 
+	private async restoreRemoteAttrs(session: SftpSession, remotePath: string, attrs: InputAttributes): Promise<void> {
+		const hasUid = typeof attrs.uid === "number";
+		const hasGid = typeof attrs.gid === "number";
+		const hasMode = typeof attrs.mode === "number";
+
+		if (hasUid || hasGid || hasMode) {
+			await new Promise<void>((resolve) => {
+				session.sftp.setstat(remotePath, attrs, (err) => {
+					if (err) {
+						logger.warn("setstat failed, trying chmod only", { remotePath, error: err.message });
+						if (hasMode) {
+							session.sftp.chmod(remotePath, attrs.mode as number, (chmodErr) => {
+								if (chmodErr) {
+									logger.warn("chmod also failed, permissions not restored", { remotePath, error: chmodErr.message });
+								}
+								resolve();
+							});
+						} else {
+							resolve();
+						}
+					} else {
+						resolve();
+					}
+				});
+			});
+		}
+	}
+
 	async uploadFile(
 		connectionId: number,
 		localPath: string,
 		remotePath: string,
 		onProgress?: (transferredBytes: number) => void,
 		signal?: AbortSignal,
+		attrs?: InputAttributes,
 	): Promise<void> {
 		const session = this.sessions.get(connectionId);
 		if (!session) {
@@ -478,7 +513,17 @@ export class SftpConnectionManager {
 			writeStream.on("close", () => {
 				if (settled) return;
 				settled = true;
-				resolve();
+				if (attrs) {
+					this.restoreRemoteAttrs(session, remotePath, attrs)
+						.then(() => {
+							resolve();
+						})
+						.catch(() => {
+							resolve();
+						});
+				} else {
+					resolve();
+				}
 			});
 		});
 	}

@@ -24,6 +24,9 @@ interface EditSession {
 	uploading: boolean;
 	uploadJobId: string | null;
 	uploadItemId: string | null;
+	mode?: number;
+	uid?: number;
+	gid?: number;
 }
 
 export interface RemoteEditManagerOptions {
@@ -68,6 +71,9 @@ export class RemoteEditManager {
 
 		const stat = await this.getRemoteStat(connectionId, remotePath);
 		const size = stat?.size ?? 0;
+		const originalMode = stat?.mode;
+		const originalUid = stat?.uid;
+		const originalGid = stat?.gid;
 
 		const jobId = randomUUID();
 		const itemId = randomUUID();
@@ -147,6 +153,9 @@ export class RemoteEditManager {
 			uploading: false,
 			uploadJobId: null,
 			uploadItemId: null,
+			mode: originalMode,
+			uid: originalUid,
+			gid: originalGid,
 		};
 
 		this.sessions.set(key, session);
@@ -302,6 +311,7 @@ export class RemoteEditManager {
 					}
 				},
 				controller.signal,
+				{ mode: session.mode, uid: session.uid, gid: session.gid },
 			);
 
 			if (session.currentUploadController !== controller) {
@@ -410,9 +420,11 @@ export class RemoteEditManager {
 		remotePath: string,
 		onProgress?: (transferredBytes: number) => void,
 		signal?: AbortSignal,
+		attrs?: { mode?: number; uid?: number; gid?: number },
 	) => Promise<void> {
 		if (this.sftp.isConnected(connectionId)) {
-			return (connId, lp, rp, onProgress, signal) => this.sftp.uploadFile(connId, lp, rp, onProgress, signal);
+			return (connId, lp, rp, onProgress, signal, attrs) =>
+				this.sftp.uploadFile(connId, lp, rp, onProgress, signal, attrs);
 		}
 		if (this.s3.isConnected(connectionId)) {
 			return (connId, lp, rp, onProgress, signal) => this.s3.uploadFile(connId, lp, rp, onProgress, signal);
@@ -420,7 +432,7 @@ export class RemoteEditManager {
 		throw new Error("Not connected to remote server");
 	}
 
-	private async getRemoteStat(connectionId: number, remotePath: string): Promise<{ size: number } | null> {
+	private async getRemoteStat(connectionId: number, remotePath: string): Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null> {
 		if (this.sftp.isConnected(connectionId)) {
 			return this.sftp.getRemoteStat(connectionId, remotePath);
 		}

@@ -244,7 +244,11 @@ export class TransferService {
 	private resolveUploader(connectionId: number): Uploader {
 		if (this.sftp.isConnected(connectionId)) {
 			return (item, onProgress, signal) =>
-				this.sftp.uploadFile(connectionId, item.localPath, item.remotePath, onProgress, signal);
+				this.sftp.uploadFile(connectionId, item.localPath, item.remotePath, onProgress, signal, {
+					mode: item.mode,
+					uid: item.uid,
+					gid: item.gid,
+				});
 		}
 		if (this.s3.isConnected(connectionId)) {
 			return (item, onProgress, signal) =>

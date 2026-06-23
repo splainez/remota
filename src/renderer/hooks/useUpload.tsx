@@ -87,6 +87,9 @@ function buildItem(file: ResolvedFile): UploadItem {
 		localPath: file.localPath,
 		remotePath: file.remotePath,
 		size: file.entry.size,
+		mode: file.stat?.mode,
+		uid: file.stat?.uid,
+		gid: file.stat?.gid,
 	};
 }
 

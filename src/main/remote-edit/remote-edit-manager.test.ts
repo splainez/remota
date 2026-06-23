@@ -80,7 +80,7 @@ interface SftpStub {
 	isConnected: (id: number) => boolean;
 	downloadFile: ReturnType<typeof vi.fn>;
 	uploadFile: ReturnType<typeof vi.fn>;
-	getRemoteStat: (connectionId: number, remotePath: string) => Promise<{ size: number } | null>;
+	getRemoteStat: (connectionId: number, remotePath: string) => Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null>;
 }
 
 interface TempStub {
@@ -151,7 +151,7 @@ function makeSftp(connected: boolean): SftpStub {
 					signal?.addEventListener("abort", onAbort, { once: true });
 				}),
 		),
-		getRemoteStat: () => Promise.resolve({ size: 100 }),
+		getRemoteStat: () => Promise.resolve({ size: 100, mode: 33188, uid: 1000, gid: 1000 }),
 	};
 }
 
@@ -306,6 +306,49 @@ describe("RemoteEditManager", () => {
 
 			const cancelledJobs = wc.jobs.filter((j) => Object.values(j.results).some((r) => r.status === "cancelled"));
 			expect(cancelledJobs).toHaveLength(0);
+		});
+	});
+
+	describe("preserves original file attrs on upload", () => {
+		it("passes mode/uid/gid from original file to uploader", async () => {
+			const sftp = makeSftp(true);
+			sftp.uploadFile.mockReturnValueOnce(Promise.resolve());
+			const { manager } = makeManager({ sftp });
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			expect(sftp.uploadFile).toHaveBeenCalledWith(
+				1,
+				expect.any(String),
+				"/remote/file.txt",
+				expect.any(Function),
+				expect.any(AbortSignal),
+				{ mode: 33188, uid: 1000, gid: 1000 },
+			);
+		});
+
+		it("passes undefined attrs when getRemoteStat returns no mode/uid/gid", async () => {
+			const sftp = makeSftp(true);
+			sftp.uploadFile.mockReturnValueOnce(Promise.resolve());
+			sftp.getRemoteStat = () => Promise.resolve({ size: 100 });
+			const { manager } = makeManager({ sftp });
+
+			await manager.startEdit(1, "/remote/file.txt");
+
+			triggerFileChange();
+			await vi.advanceTimersByTimeAsync(1000);
+
+			expect(sftp.uploadFile).toHaveBeenCalledWith(
+				1,
+				expect.any(String),
+				"/remote/file.txt",
+				expect.any(Function),
+				expect.any(AbortSignal),
+				{ mode: undefined, uid: undefined, gid: undefined },
+			);
 		});
 	});
 
