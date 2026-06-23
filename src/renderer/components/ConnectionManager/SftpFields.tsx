@@ -9,6 +9,7 @@ import {
 	privateKeyPathSchema,
 	DEFAULT_PORT,
 } from "@shared/validation";
+import { useEffect, useRef } from "react";
 
 import { FormField } from "./FormField";
 
@@ -28,6 +29,30 @@ interface SftpFieldsProps {
 
 export function SftpFields({ form }: SftpFieldsProps) {
 	const { t } = useI18n();
+
+	const defaultKeySetRef = useRef(false);
+
+	/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+	useEffect(() => {
+		if (defaultKeySetRef.current) return;
+		if (form.state.values.authType === "key" && !form.state.values.privateKeyPath) {
+			defaultKeySetRef.current = true;
+			void window.api.filesystem.homeDir().then((home) => {
+				if (!form.state.values.privateKeyPath) {
+					form.setFieldValue("privateKeyPath", `${home}/.ssh/id_rsa`);
+				}
+			});
+		}
+	}, [form]);
+	/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+
+	const handleSelectKeyFile = async (handleChange: (v: string) => void): Promise<void> => {
+		const filePath = await window.api.connections.selectKeyFile();
+		if (filePath) {
+			handleChange(filePath);
+		}
+	};
+
 	return (
 		<>
 			<div className="grid grid-cols-[1fr_auto] gap-4">
@@ -141,28 +166,36 @@ export function SftpFields({ form }: SftpFieldsProps) {
 												htmlFor="conn-privatekey"
 												errors={field.state.meta.errors}
 											>
-												<input
-													id="conn-privatekey"
-													className={inputClass}
-													type="text"
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => {
-														field.handleChange(e.target.value);
-													}}
-													placeholder="~/.ssh/id_rsa"
-												/>
+												<div className="flex gap-2">
+													<input
+														id="conn-privatekey"
+														className={`${inputClass} flex-1`}
+														type="text"
+														value={field.state.value}
+														onBlur={field.handleBlur}
+														onChange={(e) => {
+															field.handleChange(e.target.value);
+														}}
+														placeholder="~/.ssh/id_rsa"
+													/>
+													<button
+														type="button"
+														className={`
+															flex items-center gap-1.5 rounded-lg border border-input bg-background px-3 py-1.75
+															text-sm text-foreground transition-colors
+															hover:bg-accent hover:text-accent-foreground
+														`}
+														onClick={() => {
+															void handleSelectKeyFile(field.handleChange);
+														}}
+													>
+														<Icon name="folder" size={14} />
+														{t("connection.browse")}
+													</button>
+												</div>
 											</FormField>
 										)}
 									</form.Field>
-								)}
-								{authType === "agent" && (
-									<FormField label={t("connection.password")}>
-										<div className={`${inputClass} flex items-center gap-2 text-sm text-muted-foreground`}>
-											<Icon name="shield" size={14} />
-											{t("connection.authAgent")}
-										</div>
-									</FormField>
 								)}
 							</>
 						);
@@ -174,11 +207,10 @@ export function SftpFields({ form }: SftpFieldsProps) {
 				{(field: FieldProps) => (
 					<FormField label={t("connection.authType")}>
 						<div className="flex gap-4">
-							{(["password", "key", "agent"] as const).map((at) => {
+							{(["password", "key"] as const).map((at) => {
 								const labels: Record<string, TranslationKey> = {
 									password: "connection.authPassword",
 									key: "connection.authKey",
-									agent: "connection.authAgent",
 								};
 								return (
 									<label

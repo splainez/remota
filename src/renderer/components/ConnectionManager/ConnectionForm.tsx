@@ -57,7 +57,7 @@ export function ConnectionForm({ initial, onSave, onCancel, onConnect }: Connect
 			host: initial?.host ?? "",
 			port: initial?.port ?? DEFAULT_PORT.sftp,
 			username: initial?.username ?? "",
-			authType: initial?.authType ?? "password",
+			authType: initial?.authType ?? "key",
 			password: initial?.password ?? "",
 			privateKeyPath: initial?.privateKeyPath ?? "",
 			accessKey: initial?.accessKey ?? "",
