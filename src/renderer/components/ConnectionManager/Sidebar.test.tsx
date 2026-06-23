@@ -52,7 +52,7 @@ const connections: Connection[] = [
 		host: "c.example.com",
 		port: 443,
 		username: "u3",
-		authType: "agent",
+		authType: "key",
 		password: "",
 		privateKeyPath: "",
 		...emptyS3Fields,

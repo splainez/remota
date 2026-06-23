@@ -244,16 +244,6 @@ describe("sftpConnectionSchema", () => {
 		expect(result.success).toBe(true);
 	});
 
-	it("accepts valid agent auth data", () => {
-		const result = sftpConnectionSchema.safeParse({
-			...validSftp,
-			authType: "agent" as const,
-			password: "",
-			privateKeyPath: "",
-		});
-		expect(result.success).toBe(true);
-	});
-
 	it("rejects password auth without password", () => {
 		const result = sftpConnectionSchema.safeParse({
 			...validSftp,

@@ -11,7 +11,7 @@ function makeConnection(overrides: Partial<Connection> = {}): Connection {
 		host: "192.168.1.100",
 		port: 22,
 		username: "admin",
-		authType: "agent",
+		authType: "key",
 		password: "",
 		privateKeyPath: "",
 		accessKey: "",
@@ -62,11 +62,6 @@ describe("connectionsToSshConfig", () => {
 	it("includes IdentityFile for key auth with path", () => {
 		const config = connectionsToSshConfig([makeConnection({ authType: "key", privateKeyPath: "~/.ssh/id_rsa" })]);
 		expect(config).toContain("IdentityFile ~/.ssh/id_rsa");
-	});
-
-	it("omits IdentityFile for agent auth", () => {
-		const config = connectionsToSshConfig([makeConnection({ authType: "agent" })]);
-		expect(config).not.toContain("IdentityFile");
 	});
 
 	it("omits IdentityFile for password auth", () => {

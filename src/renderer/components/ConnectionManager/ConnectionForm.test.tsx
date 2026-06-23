@@ -203,8 +203,12 @@ describe("ConnectionForm", () => {
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
 		await user.type(screen.getByLabelText("Username"), "newuser");
 
-		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
-		await user.type(passwordInput, "newpass");
+		const keyRadio = screen.getByLabelText("Private Key");
+		await user.click(keyRadio);
+
+		const keyInput = screen.getByLabelText("Key File Path");
+		await user.clear(keyInput);
+		await user.type(keyInput, "/home/user/.ssh/id_rsa");
 
 		await user.click(screen.getByRole("button", { name: "Save Connection" }));
 
@@ -214,7 +218,7 @@ describe("ConnectionForm", () => {
 				name: "My Server",
 				host: "newhost.com",
 				username: "newuser",
-				password: "newpass",
+				privateKeyPath: "/home/user/.ssh/id_rsa",
 				protocol: "sftp",
 				port: 22,
 			}),
@@ -230,9 +234,9 @@ describe("ConnectionForm", () => {
 			host: "newhost.com",
 			port: 22,
 			username: "newuser",
-			authType: "password",
-			password: "newpass",
-			privateKeyPath: "",
+			authType: "key",
+			password: "",
+			privateKeyPath: "/home/user/.ssh/id_rsa",
 			accessKey: "",
 			secretKey: "",
 			region: "us-east-1",
@@ -255,8 +259,12 @@ describe("ConnectionForm", () => {
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
 		await user.type(screen.getByLabelText("Username"), "newuser");
 
-		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
-		await user.type(passwordInput, "newpass");
+		const keyRadio = screen.getByLabelText("Private Key");
+		await user.click(keyRadio);
+
+		const keyInput = screen.getByLabelText("Key File Path");
+		await user.clear(keyInput);
+		await user.type(keyInput, "/home/user/.ssh/id_rsa");
 
 		await user.click(screen.getByRole("button", { name: "Connect" }));
 
@@ -277,7 +285,6 @@ describe("ConnectionForm", () => {
 
 		await user.type(screen.getByLabelText("Host"), "newhost.com");
 		await user.type(screen.getByLabelText("Username"), "newuser");
-		await user.type(screen.getByLabelText("Password", { selector: "input[type='password']" }), "pass");
 
 		await user.click(screen.getByRole("button", { name: "Connect" }));
 
@@ -345,6 +352,9 @@ describe("ConnectionForm", () => {
 			</I18nWrapper>,
 		);
 
+		const passwordRadio = screen.getByLabelText("Password");
+		await user.click(passwordRadio);
+
 		await user.type(screen.getByLabelText("Host"), "myhost.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
 		await user.type(screen.getByLabelText("Password", { selector: "input[type='password']" }), "pass");
@@ -373,29 +383,28 @@ describe("ConnectionForm", () => {
 		expect(screen.getByText("Access key is required")).toBeInTheDocument();
 	});
 
-	it("shows password field for password auth", () => {
+	it("shows password field for password auth", async () => {
+		const user = userEvent.setup();
 		render(
 			<I18nWrapper>
 				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
 			</I18nWrapper>,
 		);
+
+		const passwordRadio = screen.getByLabelText("Password");
+		await user.click(passwordRadio);
+
 		expect(screen.getByLabelText("Password", { selector: "input[type='password']" })).toBeInTheDocument();
 	});
 
-	it("shows private key field when auth type is key", async () => {
-		const user = userEvent.setup();
-		const { container } = render(
+	it("shows private key field by default for new connection", () => {
+		render(
 			<I18nWrapper>
 				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
 			</I18nWrapper>,
 		);
 
-		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
-		expect(keyRadio).not.toBeNull();
-		if (keyRadio) await user.click(keyRadio);
-
 		expect(screen.getByLabelText("Key File Path")).toBeInTheDocument();
-		expect(screen.queryByLabelText("Password", { selector: "input[type='password']" })).not.toBeInTheDocument();
 	});
 
 	it("shows validation error for empty host on submit", async () => {
@@ -440,6 +449,9 @@ describe("ConnectionForm", () => {
 			</I18nWrapper>,
 		);
 
+		const passwordRadio = screen.getByLabelText("Password");
+		await user.click(passwordRadio);
+
 		const passwordInput = screen.getByLabelText("Password", { selector: "input[type='password']" });
 		await user.clear(passwordInput);
 		await user.tab();
@@ -447,21 +459,46 @@ describe("ConnectionForm", () => {
 		expect(screen.getByText("Password is required")).toBeInTheDocument();
 	});
 
-	it("shows validation error for empty private key path on blur", async () => {
+	it("shows validation error for empty private key path on blur when editing", async () => {
 		const user = userEvent.setup();
-		const { container } = render(
+		const connWithKey: Connection = {
+			...sampleConnection,
+			authType: "key",
+			privateKeyPath: "/some/key",
+		};
+		render(
 			<I18nWrapper>
-				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+				<ConnectionForm initial={connWithKey} onSave={vi.fn()} onCancel={vi.fn()} />
 			</I18nWrapper>,
 		);
-
-		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
-		if (keyRadio) await user.click(keyRadio);
 
 		const keyInput = screen.getByLabelText("Key File Path");
 		await user.clear(keyInput);
 		await user.tab();
 
+		expect(screen.getByText("Private key path is required")).toBeInTheDocument();
+	});
+
+	it("shows validation error for missing private key path on submit when editing", async () => {
+		const user = userEvent.setup();
+		const onSave = vi.fn();
+		const connWithKey: Connection = {
+			...sampleConnection,
+			authType: "key",
+			privateKeyPath: "/some/key",
+		};
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={connWithKey} onSave={onSave} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
+
+		const keyInput = screen.getByLabelText("Key File Path");
+		await user.clear(keyInput);
+
+		await user.click(screen.getByRole("button", { name: "Save Connection" }));
+
+		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Private key path is required")).toBeInTheDocument();
 	});
 
@@ -474,6 +511,9 @@ describe("ConnectionForm", () => {
 			</I18nWrapper>,
 		);
 
+		const passwordRadio = screen.getByLabelText("Password");
+		await user.click(passwordRadio);
+
 		await user.type(screen.getByLabelText("Name"), "Test");
 		await user.type(screen.getByLabelText("Host"), "example.com");
 		await user.type(screen.getByLabelText("Username"), "admin");
@@ -482,27 +522,6 @@ describe("ConnectionForm", () => {
 
 		expect(onSave).not.toHaveBeenCalled();
 		expect(screen.getByText("Password is required")).toBeInTheDocument();
-	});
-
-	it("shows validation error for missing private key path on submit", async () => {
-		const user = userEvent.setup();
-		const onSave = vi.fn();
-		const { container } = render(
-			<I18nWrapper>
-				<ConnectionForm initial={null} onSave={onSave} onCancel={vi.fn()} />
-			</I18nWrapper>,
-		);
-
-		const keyRadio = container.querySelector<HTMLInputElement>('input[value="key"]');
-		if (keyRadio) await user.click(keyRadio);
-
-		await user.type(screen.getByLabelText("Name"), "Test");
-		await user.type(screen.getByLabelText("Host"), "example.com");
-		await user.type(screen.getByLabelText("Username"), "admin");
-		await user.click(screen.getByRole("button", { name: "Save Connection" }));
-
-		expect(onSave).not.toHaveBeenCalled();
-		expect(screen.getByText("Private key path is required")).toBeInTheDocument();
 	});
 
 	it("shows group field in advanced settings", async () => {

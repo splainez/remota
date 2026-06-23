@@ -13,23 +13,13 @@ Host myserver
 		const result = parseSshConfigToConnections(config);
 		expect(result.errors).toHaveLength(0);
 		expect(result.connections).toHaveLength(1);
-		expect(result.connections[0]).toEqual({
-			name: "myserver",
-			protocol: "sftp",
-			host: "192.168.1.100",
-			port: 22,
-			username: "admin",
-			authType: "agent",
-			password: "",
-			privateKeyPath: "",
-			accessKey: "",
-			secretKey: "",
-			region: "",
-			bucket: "",
-			endpoint: "",
-			useHttps: true,
-			groupName: "",
-		});
+		expect(result.connections[0].name).toBe("myserver");
+		expect(result.connections[0].protocol).toBe("sftp");
+		expect(result.connections[0].host).toBe("192.168.1.100");
+		expect(result.connections[0].port).toBe(22);
+		expect(result.connections[0].username).toBe("admin");
+		expect(result.connections[0].authType).toBe("key");
+		expect(result.connections[0].privateKeyPath).toContain("id_rsa");
 	});
 
 	it("parses multiple hosts", () => {
@@ -108,14 +98,15 @@ Host myserver
 		expect(result.connections[0].privateKeyPath).toBe("~/.ssh/id_rsa");
 	});
 
-	it("sets authType to agent when no IdentityFile", () => {
+	it("sets authType to key with default path when no IdentityFile", () => {
 		const config = `
 Host myserver
   HostName example.com
   User admin
 `;
 		const result = parseSshConfigToConnections(config);
-		expect(result.connections[0].authType).toBe("agent");
+		expect(result.connections[0].authType).toBe("key");
+		expect(result.connections[0].privateKeyPath).toContain("id_rsa");
 	});
 
 	it("handles IdentityFile with multiple paths (uses first)", () => {
@@ -205,7 +196,7 @@ Host dev
 		expect(result.connections[0].privateKeyPath).toBe("~/.ssh/prod_key");
 
 		expect(result.connections[1].port).toBe(2222);
-		expect(result.connections[1].authType).toBe("agent");
+		expect(result.connections[1].authType).toBe("key");
 
 		expect(result.connections[2].host).toBe("dev.local");
 	});

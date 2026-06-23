@@ -60,6 +60,7 @@ function createApi(
 				markRecent: vi.fn(),
 				importSshConfig: vi.fn().mockResolvedValue({ imported: 0, errors: [] }),
 				exportSshConfig: vi.fn().mockResolvedValue({ exported: 0, errors: [] }),
+				selectKeyFile: vi.fn().mockResolvedValue(null),
 			},
 		}),
 	);

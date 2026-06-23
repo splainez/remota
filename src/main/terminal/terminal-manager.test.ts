@@ -461,8 +461,8 @@ describe("buildSshArgs", () => {
 		]);
 	});
 
-	it("ignores privateKeyPath when authType is not 'key'", () => {
-		expect(buildSshArgs({ ...baseConn, authType: "agent", privateKeyPath: "/keys/id_rsa" }, "/")).toEqual([
+	it("ignores privateKeyPath when authType is 'password'", () => {
+		expect(buildSshArgs({ ...baseConn, authType: "password", privateKeyPath: "/keys/id_rsa" }, "/")).toEqual([
 			"ssh",
 			"-t",
 			"user@example.com",
