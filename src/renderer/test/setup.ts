@@ -82,17 +82,17 @@ export function createMockApi(overrides?: Partial<ElectronAPI>): ElectronAPI {
 			remoteMkdir: vi
 				.fn<(connectionId: number, parentPath: string, name: string) => Promise<void>>()
 				.mockResolvedValue(undefined),
-		remoteCreateFile: vi
-			.fn<(connectionId: number, parentPath: string, name: string) => Promise<void>>()
-			.mockResolvedValue(undefined),
-		remoteChmod: vi
-			.fn<(connectionId: number, path: string, mode: string) => Promise<void>>()
-			.mockResolvedValue(undefined),
-		remoteChown: vi
-			.fn<(connectionId: number, path: string, uid: number, gid: number) => Promise<void>>()
-			.mockResolvedValue(undefined),
-		remoteListUsers: vi.fn().mockResolvedValue([]),
-		remoteListGroups: vi.fn().mockResolvedValue([]),
+			remoteCreateFile: vi
+				.fn<(connectionId: number, parentPath: string, name: string) => Promise<void>>()
+				.mockResolvedValue(undefined),
+			remoteChmod: vi
+				.fn<(connectionId: number, path: string, mode: string) => Promise<void>>()
+				.mockResolvedValue(undefined),
+			remoteChown: vi
+				.fn<(connectionId: number, path: string, uid: number, gid: number) => Promise<void>>()
+				.mockResolvedValue(undefined),
+			remoteListUsers: vi.fn().mockResolvedValue([]),
+			remoteListGroups: vi.fn().mockResolvedValue([]),
 			tempGetPath: vi.fn().mockResolvedValue(undefined),
 			tempWrite: vi.fn().mockResolvedValue(undefined),
 			tempRead: vi.fn().mockResolvedValue([]),
