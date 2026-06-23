@@ -25,7 +25,7 @@ export class SftpConnectionManager {
 			host: string;
 			port: number;
 			username: string;
-			authType: "password" | "key" | "agent";
+			authType: "password" | "key";
 			password?: string;
 			privateKeyPath?: string;
 		},
@@ -46,14 +46,12 @@ export class SftpConnectionManager {
 
 		if (config.authType === "password") {
 			sshConfig.password = config.password ?? "";
-		} else if (config.authType === "key") {
+		} else {
 			if (!config.privateKeyPath) {
 				throw new Error("Private key path is required for key authentication");
 			}
 			const keyContent = readFileSync(config.privateKeyPath, "utf-8");
 			sshConfig.privateKey = keyContent;
-		} else {
-			sshConfig.agent = process.env.SSH_AUTH_SOCK ?? undefined;
 		}
 
 		return new Promise<string>((resolve, reject) => {

@@ -44,7 +44,7 @@ export interface SshCommandOptions {
 	host: string;
 	port: number;
 	username: string;
-	authType: "password" | "key" | "agent";
+	authType: "password" | "key";
 	privateKeyPath: string;
 }
 

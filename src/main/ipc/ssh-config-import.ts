@@ -1,3 +1,6 @@
+import { homedir } from "node:os";
+import { join } from "node:path";
+
 import type { NewConnection } from "@shared/types";
 import SSHConfig from "ssh-config";
 
@@ -55,9 +58,9 @@ export function parseSshConfigToConnections(configText: string): SshConfigParseR
 			host: hostName,
 			port: Number.isFinite(port) ? port : 22,
 			username: user,
-			authType: identityFile ? "key" : "agent",
+			authType: "key",
 			password: "",
-			privateKeyPath: identityFile,
+			privateKeyPath: identityFile || join(homedir(), ".ssh", "id_rsa"),
 			accessKey: "",
 			secretKey: "",
 			region: "",
