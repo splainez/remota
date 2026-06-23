@@ -1,26 +1,13 @@
+import { Icon } from "@renderer/components/icons/Icon";
 import { Button } from "@renderer/components/ui/button";
 import { Checkbox } from "@renderer/components/ui/checkbox";
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@renderer/components/ui/dialog";
-import { Icon } from "@renderer/components/icons/Icon";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@renderer/components/ui/dialog";
 import { Input } from "@renderer/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@renderer/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@renderer/components/ui/select";
+import type { UnixGroup, UnixUser } from "@renderer/hooks/useFilePermissions";
 import { useI18n } from "@renderer/hooks/useI18n";
 import type { FileEntry } from "@shared/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
-import type { UnixGroup, UnixUser } from "@renderer/hooks/useFilePermissions";
 
 interface FilePermissionsDialogProps {
 	open: boolean;
@@ -108,38 +95,32 @@ export function FilePermissionsDialog({
 }: FilePermissionsDialogProps) {
 	const { t } = useI18n();
 	const [bits, setBits] = useState<PermissionBits>(() => modeToBits(entry?.mode ?? 0o644));
-	const [octal, setOctal] = useState(() => modeToOctal(entry?.mode ?? 0o644));
+	const [octalInput, setOctalInput] = useState(() => modeToOctal(entry?.mode ?? 0o644));
 	const [selectedUid, setSelectedUid] = useState<number>(entry?.uid ?? 0);
 	const [selectedGid, setSelectedGid] = useState<number>(entry?.gid ?? 0);
 	const [applying, setApplying] = useState(false);
 
+	const octal = useMemo(() => modeToOctal(bitsToMode(bits)), [bits]);
+
 	useEffect(() => {
 		if (entry) {
-			const initialBits = modeToBits(entry.mode ?? 0o644);
-			setBits(initialBits);
-			setOctal(modeToOctal(entry.mode ?? 0o644));
+			setBits(modeToBits(entry.mode ?? 0o644));
+			setOctalInput(modeToOctal(entry.mode ?? 0o644));
 			setSelectedUid(entry.uid ?? 0);
 			setSelectedGid(entry.gid ?? 0);
 		}
 	}, [entry]);
 
 	const updateBits = useCallback((update: Partial<PermissionBits>) => {
-		setBits((prev) => {
-			const next = { ...prev, ...update };
-			setOctal(modeToOctal(bitsToMode(next)));
-			return next;
-		});
+		setBits((prev) => ({ ...prev, ...update }));
 	}, []);
 
-	const handleOctalChange = useCallback(
-		(value: string) => {
-			setOctal(value);
-			if (/^[0-7]{3,4}$/.test(value)) {
-				setBits(modeToBits(octalToMode(value)));
-			}
-		},
-		[],
-	);
+	const handleOctalChange = useCallback((value: string) => {
+		setOctalInput(value);
+		if (/^[0-7]{3,4}$/.test(value)) {
+			setBits(modeToBits(octalToMode(value)));
+		}
+	}, []);
 
 	const handleApply = useCallback(async () => {
 		if (applying) return;
@@ -164,7 +145,12 @@ export function FilePermissionsDialog({
 	if (!entry) return null;
 
 	return (
-		<Dialog open={open}>
+		<Dialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) onClose();
+			}}
+		>
 			<DialogContent className="sm:max-w-md" showCloseButton={false}>
 				<DialogHeader>
 					<DialogTitle>{t("file.permissions.title")}</DialogTitle>
@@ -201,9 +187,7 @@ export function FilePermissionsDialog({
 										</SelectItem>
 									))}
 									{!users.some((u) => u.uid === currentUid) && currentUid > 0 && (
-										<SelectItem value={String(currentUid)}>
-											{String(currentUid)}
-										</SelectItem>
+										<SelectItem value={String(currentUid)}>{String(currentUid)}</SelectItem>
 									)}
 								</SelectContent>
 							</Select>
@@ -231,9 +215,7 @@ export function FilePermissionsDialog({
 										</SelectItem>
 									))}
 									{!groups.some((g) => g.gid === currentGid) && currentGid > 0 && (
-										<SelectItem value={String(currentGid)}>
-											{String(currentGid)}
-										</SelectItem>
+										<SelectItem value={String(currentGid)}>{String(currentGid)}</SelectItem>
 									)}
 								</SelectContent>
 							</Select>
@@ -245,55 +227,115 @@ export function FilePermissionsDialog({
 						<div className="grid gap-1.5 text-sm" style={{ gridTemplateColumns: "70px repeat(4, auto)" }}>
 							<div className="text-muted-foreground">{t("file.permissions.owner")}</div>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.ownerR} onCheckedChange={(v) => { updateBits({ ownerR: v }); }} />
+								<Checkbox
+									checked={bits.ownerR}
+									onCheckedChange={(v) => {
+										updateBits({ ownerR: v });
+									}}
+								/>
 								<span>R</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.ownerW} onCheckedChange={(v) => { updateBits({ ownerW: v }); }} />
+								<Checkbox
+									checked={bits.ownerW}
+									onCheckedChange={(v) => {
+										updateBits({ ownerW: v });
+									}}
+								/>
 								<span>W</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.ownerX} onCheckedChange={(v) => { updateBits({ ownerX: v }); }} />
+								<Checkbox
+									checked={bits.ownerX}
+									onCheckedChange={(v) => {
+										updateBits({ ownerX: v });
+									}}
+								/>
 								<span>X</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.ownerSetUid} onCheckedChange={(v) => { updateBits({ ownerSetUid: v }); }} />
+								<Checkbox
+									checked={bits.ownerSetUid}
+									onCheckedChange={(v) => {
+										updateBits({ ownerSetUid: v });
+									}}
+								/>
 								<span>{t("file.permissions.ownerSetUid")}</span>
 							</label>
 
 							<div className="text-muted-foreground">{t("file.permissions.group")}</div>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.groupR} onCheckedChange={(v) => { updateBits({ groupR: v }); }} />
+								<Checkbox
+									checked={bits.groupR}
+									onCheckedChange={(v) => {
+										updateBits({ groupR: v });
+									}}
+								/>
 								<span>R</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.groupW} onCheckedChange={(v) => { updateBits({ groupW: v }); }} />
+								<Checkbox
+									checked={bits.groupW}
+									onCheckedChange={(v) => {
+										updateBits({ groupW: v });
+									}}
+								/>
 								<span>W</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.groupX} onCheckedChange={(v) => { updateBits({ groupX: v }); }} />
+								<Checkbox
+									checked={bits.groupX}
+									onCheckedChange={(v) => {
+										updateBits({ groupX: v });
+									}}
+								/>
 								<span>X</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.groupSetGid} onCheckedChange={(v) => { updateBits({ groupSetGid: v }); }} />
+								<Checkbox
+									checked={bits.groupSetGid}
+									onCheckedChange={(v) => {
+										updateBits({ groupSetGid: v });
+									}}
+								/>
 								<span>{t("file.permissions.groupSetGid")}</span>
 							</label>
 
 							<div className="text-muted-foreground">{t("file.permissions.others")}</div>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.othersR} onCheckedChange={(v) => { updateBits({ othersR: v }); }} />
+								<Checkbox
+									checked={bits.othersR}
+									onCheckedChange={(v) => {
+										updateBits({ othersR: v });
+									}}
+								/>
 								<span>R</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.othersW} onCheckedChange={(v) => { updateBits({ othersW: v }); }} />
+								<Checkbox
+									checked={bits.othersW}
+									onCheckedChange={(v) => {
+										updateBits({ othersW: v });
+									}}
+								/>
 								<span>W</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.othersX} onCheckedChange={(v) => { updateBits({ othersX: v }); }} />
+								<Checkbox
+									checked={bits.othersX}
+									onCheckedChange={(v) => {
+										updateBits({ othersX: v });
+									}}
+								/>
 								<span>X</span>
 							</label>
 							<label className="flex items-center gap-1">
-								<Checkbox checked={bits.othersSticky} onCheckedChange={(v) => { updateBits({ othersSticky: v }); }} />
+								<Checkbox
+									checked={bits.othersSticky}
+									onCheckedChange={(v) => {
+										updateBits({ othersSticky: v });
+									}}
+								/>
 								<span>{t("file.permissions.othersSticky")}</span>
 							</label>
 						</div>
@@ -302,7 +344,7 @@ export function FilePermissionsDialog({
 					<div className="grid items-center gap-1.5" style={{ gridTemplateColumns: "80px 80px" }}>
 						<span className="text-sm">{t("file.permissions.octal")}</span>
 						<Input
-							value={octal}
+							value={octalInput}
 							onChange={(e) => {
 								handleOctalChange(e.target.value);
 							}}
@@ -316,7 +358,14 @@ export function FilePermissionsDialog({
 					<Button type="button" variant="outline" size="sm" onClick={onClose}>
 						{t("file.permissions.cancel")}
 					</Button>
-					<Button type="button" size="sm" onClick={() => { void handleApply(); }} disabled={applying}>
+					<Button
+						type="button"
+						size="sm"
+						onClick={() => {
+							void handleApply();
+						}}
+						disabled={applying}
+					>
 						{t("file.permissions.apply")}
 					</Button>
 				</DialogFooter>

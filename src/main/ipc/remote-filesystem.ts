@@ -3,7 +3,12 @@ import { updateJumpList } from "@main/jump-list";
 import type { S3ConnectionManager } from "@main/s3/s3-client";
 import type { SftpConnectionManager } from "@main/sftp/sftp-client";
 import { IPC } from "@shared/ipc-channels";
-import { remoteDeleteParamsSchema, remoteCreateParamsSchema, remoteChmodParamsSchema, remoteChownParamsSchema } from "@shared/validation";
+import {
+	remoteDeleteParamsSchema,
+	remoteCreateParamsSchema,
+	remoteChmodParamsSchema,
+	remoteChownParamsSchema,
+} from "@shared/validation";
 import { ipcMain } from "electron";
 
 export function registerRemoteFilesystemHandlers(
@@ -145,37 +150,51 @@ export function registerRemoteFilesystemHandlers(
 			throw new Error(`Invalid remote chmod params: ${parsed.error.message}`);
 		}
 		if (sftp.isConnected(parsed.data.connectionId)) {
-			await sftp.execRemote(parsed.data.connectionId, `chmod ${parsed.data.mode} ${JSON.stringify(parsed.data.remotePath)}`);
-			return;
-		}
-		throw new Error("Not connected to remote server");
-	});
-
-	ipcMain.handle(IPC.REMOTE_CHOWN, async (_event, connectionId: number, remotePath: string, uid: number, gid: number) => {
-		const parsed = remoteChownParamsSchema.safeParse({ connectionId, remotePath, uid, gid });
-		if (!parsed.success) {
-			throw new Error(`Invalid remote chown params: ${parsed.error.message}`);
-		}
-		if (sftp.isConnected(parsed.data.connectionId)) {
 			await sftp.execRemote(
 				parsed.data.connectionId,
-				`chown ${String(parsed.data.uid)}:${String(parsed.data.gid)} ${JSON.stringify(parsed.data.remotePath)}`,
+				`chmod ${parsed.data.mode} ${JSON.stringify(parsed.data.remotePath)}`,
 			);
 			return;
 		}
 		throw new Error("Not connected to remote server");
 	});
 
+	ipcMain.handle(
+		IPC.REMOTE_CHOWN,
+		async (_event, connectionId: number, remotePath: string, uid: number, gid: number) => {
+			const parsed = remoteChownParamsSchema.safeParse({ connectionId, remotePath, uid, gid });
+			if (!parsed.success) {
+				throw new Error(`Invalid remote chown params: ${parsed.error.message}`);
+			}
+			if (sftp.isConnected(parsed.data.connectionId)) {
+				await sftp.execRemote(
+					parsed.data.connectionId,
+					`chown ${String(parsed.data.uid)}:${String(parsed.data.gid)} ${JSON.stringify(parsed.data.remotePath)}`,
+				);
+				return;
+			}
+			throw new Error("Not connected to remote server");
+		},
+	);
+
 	ipcMain.handle(IPC.REMOTE_LIST_USERS, async (_event, connectionId: number) => {
-		if (sftp.isConnected(connectionId)) {
-			return sftp.listUsers(connectionId);
+		const parsed = remoteChmodParamsSchema.shape.connectionId.safeParse(connectionId);
+		if (!parsed.success) {
+			throw new Error(`Invalid connection id: ${parsed.error.message}`);
+		}
+		if (sftp.isConnected(parsed.data)) {
+			return sftp.listUsers(parsed.data);
 		}
 		throw new Error("Not connected to remote server");
 	});
 
 	ipcMain.handle(IPC.REMOTE_LIST_GROUPS, async (_event, connectionId: number) => {
-		if (sftp.isConnected(connectionId)) {
-			return sftp.listGroups(connectionId);
+		const parsed = remoteChmodParamsSchema.shape.connectionId.safeParse(connectionId);
+		if (!parsed.success) {
+			throw new Error(`Invalid connection id: ${parsed.error.message}`);
+		}
+		if (sftp.isConnected(parsed.data)) {
+			return sftp.listGroups(parsed.data);
 		}
 		throw new Error("Not connected to remote server");
 	});

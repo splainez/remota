@@ -90,7 +90,8 @@ export function useFilePermissions({ connectionId, refresh }: UseFilePermissions
 			} catch (err: unknown) {
 				logger.error("apply permissions failed", { path: currentEntry.fullPath, error: err });
 				const errorInfo = classifyError(err);
-				toast.error(t(getErrorI18nKey(errorInfo.code) === "remote.error.unknown" ? "file.permissions.applyError" : getErrorI18nKey(errorInfo.code)));
+				const i18nKey = getErrorI18nKey(errorInfo.code);
+				toast.error(t(i18nKey === "remote.error.unknown" ? "file.permissions.applyError" : i18nKey));
 			}
 		},
 		[entry, closeDialog, t],
