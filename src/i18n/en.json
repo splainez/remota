@@ -20,7 +20,6 @@
 	"connection.authType": "Authentication",
 	"connection.authPassword": "Password",
 	"connection.authKey": "Private Key",
-	"connection.authAgent": "SSH Agent",
 	"connection.privateKey": "Key File Path",
 	"connection.browse": "Browse",
 	"connection.accessKey": "Access Key",

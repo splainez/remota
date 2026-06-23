@@ -93,11 +93,7 @@ export function ConnectionDetail({
 										{t("connection.authType")}
 									</div>
 									<div className="text-sm font-medium text-foreground">
-										{connection.authType === "password"
-											? t("connection.authPassword")
-											: connection.authType === "key"
-												? t("connection.authKey")
-												: t("connection.authAgent")}
+										{connection.authType === "password" ? t("connection.authPassword") : t("connection.authKey")}
 									</div>
 								</div>
 							</div>
