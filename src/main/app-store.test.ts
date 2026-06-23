@@ -68,6 +68,52 @@ describe("AppStore", () => {
 			const store2 = new AppStore(tmpDir);
 			expect(store2.getLoadError()).not.toBeNull();
 		});
+
+		it("migrates agent-auth connections to key-auth", () => {
+			const config = {
+				connections: [
+					{
+						id: 1,
+						name: "Agent Server",
+						protocol: "sftp",
+						host: "example.com",
+						port: 22,
+						username: "user",
+						authType: "agent",
+						password: "",
+						privateKeyPath: "",
+						accessKey: "",
+						secretKey: "",
+						region: "us-east-1",
+						bucket: "",
+						endpoint: "",
+						useHttps: true,
+						groupName: "",
+						createdAt: "2024-01-01T00:00:00Z",
+						updatedAt: "2024-01-01T00:00:00Z",
+					},
+				],
+				recentConnectionIds: [],
+				lastPaths: {},
+				transferPanels: {},
+				filePaneSizes: {},
+				fileColumns: { visibleColumns: [] },
+				settings: {
+					theme: "system",
+					locale: "en",
+					maxParallelTransfers: 3,
+					maxSessions: 5,
+					remoteDoubleClickAction: "open",
+					fontSize: 14,
+				},
+			};
+			writeFileSync(join(tmpDir, "app-config.json"), JSON.stringify(config), "utf-8");
+			const store2 = new AppStore(tmpDir);
+			expect(store2.getLoadError()).toBeNull();
+			const conn = store2.list()[0];
+			expect(conn.authType).toBe("key");
+			expect(conn.privateKeyPath).toContain("id_rsa");
+		});
 	});
 
 	describe("reload", () => {

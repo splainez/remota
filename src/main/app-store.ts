@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 import {
@@ -87,7 +88,8 @@ export class AppStore {
 		try {
 			const raw = readFileSync(this.filePath, "utf-8");
 			const parsed: unknown = JSON.parse(raw);
-			const result = AppConfigSchema.safeParse(parsed);
+			const migrated = AppStore.migrate(parsed);
+			const result = AppConfigSchema.safeParse(migrated);
 
 			if (!result.success) {
 				const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
@@ -134,6 +136,26 @@ export class AppStore {
 				},
 			};
 		}
+	}
+
+	private static migrate(raw: unknown): unknown {
+		if (!raw || typeof raw !== "object") return raw;
+		const obj = raw as Record<string, unknown>;
+		if (!Array.isArray(obj.connections)) return raw;
+
+		const defaultKeyPath = join(homedir(), ".ssh", "id_rsa");
+		const connections = obj.connections.map((conn: Record<string, unknown>) => {
+			if (conn.authType === "agent") {
+				// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should fall back to default
+				return { ...conn, authType: "key", privateKeyPath: conn.privateKeyPath || defaultKeyPath };
+			}
+			return conn;
+		});
+
+		const hasAgent = obj.connections.some((conn: Record<string, unknown>) => conn.authType === "agent");
+		if (!hasAgent) return raw;
+		log.info("Migrated agent-auth connections to key-auth");
+		return { ...obj, connections };
 	}
 
 	private computeNextId() {
