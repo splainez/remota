@@ -439,4 +439,55 @@ describe("useUpload", () => {
 			remotePath: "/remote/a.txt",
 		});
 	});
+
+	it("includes mode/uid/gid from remote stat in upload items when overwriting", async () => {
+		mockGetRemoteStat({
+			exists: true,
+			size: 500,
+			modified: "2023-01-01T00:00:00Z",
+			isDirectory: false,
+			mode: 33188,
+			uid: 1000,
+			gid: 1000,
+		});
+		const handle = renderUploadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		act(() => {
+			void handle.api?.startUpload([fileEntry("a.txt", false, "/local/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(screen.getByText("File already exists")).toBeInTheDocument();
+		});
+		const user = userEvent.setup();
+		await user.click(screen.getByText("Yes"));
+		await waitFor(() => {
+			expect(window.api.filesystem.upload).toHaveBeenCalledOnce();
+		});
+		const call = lastUploadRequest();
+		expect(call.items[0]).toMatchObject({
+			mode: 33188,
+			uid: 1000,
+			gid: 1000,
+		});
+	});
+
+	it("does not include mode/uid/gid when remote file does not exist", async () => {
+		mockGetRemoteStat(null);
+		const handle = renderUploadHarness();
+		await waitFor(() => {
+			expect(handle.ready).toHaveBeenCalled();
+		});
+		await act(async () => {
+			await handle.api?.startUpload([fileEntry("a.txt", false, "/local/a.txt")]);
+		});
+		await waitFor(() => {
+			expect(window.api.filesystem.upload).toHaveBeenCalledOnce();
+		});
+		const call = lastUploadRequest();
+		expect(call.items[0].mode).toBeUndefined();
+		expect(call.items[0].uid).toBeUndefined();
+		expect(call.items[0].gid).toBeUndefined();
+	});
 });

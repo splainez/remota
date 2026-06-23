@@ -20,6 +20,7 @@ interface SftpStub {
 		onProgress?: (transferredBytes: number) => void,
 		signal?: AbortSignal,
 	) => Promise<void>;
+	uploadFile?: ReturnType<typeof vi.fn>;
 }
 
 interface S3Stub {
@@ -53,6 +54,7 @@ function makeSftp(
 		isConnected: () => connected,
 		downloadFile: (cid, rp, lp, onProgress, signal) =>
 			downloadImpl?.(cid, rp, lp, onProgress, signal) ?? Promise.resolve(),
+		uploadFile: vi.fn().mockResolvedValue(undefined),
 	};
 }
 
@@ -693,5 +695,80 @@ describe("TransferService", () => {
 		expect(service.hasActiveTransfers()).toBe(false);
 
 		resolvers[0]();
+	});
+
+	it("passes mode/uid/gid attrs to sftp.uploadFile", async () => {
+		const sftp = makeSftp(true);
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		const wc = makeWebContents();
+		service.startUpload(
+			{
+				connectionId: 1,
+				items: [
+					{
+						id: "u1",
+						localPath: "/local/file.txt",
+						remotePath: "/remote/file.txt",
+						size: 100,
+						mode: 33188,
+						uid: 1000,
+						gid: 1000,
+					},
+				],
+			},
+			wc as unknown as WebContents,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(sftp.uploadFile).toHaveBeenCalledWith(
+			1,
+			"/local/file.txt",
+			"/remote/file.txt",
+			expect.any(Function),
+			expect.any(AbortSignal),
+			{ mode: 33188, uid: 1000, gid: 1000 },
+		);
+	});
+
+	it("passes undefined attrs to sftp.uploadFile when mode/uid/gid are not set", async () => {
+		const sftp = makeSftp(true);
+		const service = new TransferService({
+			sftp: sftp as unknown as SftpConnectionManager,
+			s3: makeS3(false) as unknown as S3ConnectionManager,
+			store: makeAppStore() as unknown as AppStore,
+		});
+
+		const wc = makeWebContents();
+		service.startUpload(
+			{
+				connectionId: 1,
+				items: [
+					{
+						id: "u1",
+						localPath: "/local/file.txt",
+						remotePath: "/remote/file.txt",
+						size: 100,
+					},
+				],
+			},
+			wc as unknown as WebContents,
+		);
+
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(sftp.uploadFile).toHaveBeenCalledWith(
+			1,
+			"/local/file.txt",
+			"/remote/file.txt",
+			expect.any(Function),
+			expect.any(AbortSignal),
+			{ mode: undefined, uid: undefined, gid: undefined },
+		);
 	});
 });

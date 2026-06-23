@@ -432,7 +432,10 @@ export class RemoteEditManager {
 		throw new Error("Not connected to remote server");
 	}
 
-	private async getRemoteStat(connectionId: number, remotePath: string): Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null> {
+	private async getRemoteStat(
+		connectionId: number,
+		remotePath: string,
+	): Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null> {
 		if (this.sftp.isConnected(connectionId)) {
 			return this.sftp.getRemoteStat(connectionId, remotePath);
 		}

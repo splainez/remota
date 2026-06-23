@@ -80,7 +80,10 @@ interface SftpStub {
 	isConnected: (id: number) => boolean;
 	downloadFile: ReturnType<typeof vi.fn>;
 	uploadFile: ReturnType<typeof vi.fn>;
-	getRemoteStat: (connectionId: number, remotePath: string) => Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null>;
+	getRemoteStat: (
+		connectionId: number,
+		remotePath: string,
+	) => Promise<{ size: number; mode?: number; uid?: number; gid?: number } | null>;
 }
 
 interface TempStub {
