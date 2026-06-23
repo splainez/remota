@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const protocols = ["sftp", "scp", "s3"] as const;
-const authTypes = ["password", "key", "agent"] as const;
+const authTypes = ["password", "key"] as const;
 
 export const ConnectionSchema = z.object({
 	id: z.number(),

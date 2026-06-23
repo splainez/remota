@@ -36,7 +36,7 @@ export interface Connection {
 	host: string;
 	port: number;
 	username: string;
-	authType: "password" | "key" | "agent";
+	authType: "password" | "key";
 	password: string;
 	privateKeyPath: string;
 	accessKey: string;
@@ -78,6 +78,7 @@ export interface ElectronAPI {
 		markRecent: (id: number) => Promise<void>;
 		importSshConfig: () => Promise<{ imported: number; errors: string[] }>;
 		exportSshConfig: () => Promise<{ exported: number; errors: string[] }>;
+		selectKeyFile: () => Promise<string | null>;
 	};
 	filesystem: {
 		list: (path: string) => Promise<FileEntry[]>;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const protocols = ["sftp", "scp", "s3"] as const;
-export const authTypes = ["password", "key", "agent"] as const;
+export const authTypes = ["password", "key"] as const;
 
 export const DEFAULT_PORT: Record<string, number> = { sftp: 22, scp: 22, s3: 443 };
 
