@@ -391,7 +391,9 @@ export function FilePane({
 					logger.error("delete failed", { error });
 				});
 			} else if (actionId === "permissions") {
-				filePermissions.openDialog(entry);
+				filePermissions.openDialog(entry).catch((error: unknown) => {
+					logger.error("open dialog failed", { error });
+				});
 			}
 		},
 		[
