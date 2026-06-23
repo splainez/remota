@@ -33,6 +33,7 @@ const api: ElectronAPI = {
 			ipcRenderer.invoke(IPC.CONNECTION_IMPORT_SSH_CONFIG),
 		exportSshConfig: (): Promise<{ exported: number; errors: string[] }> =>
 			ipcRenderer.invoke(IPC.CONNECTION_EXPORT_SSH_CONFIG),
+		selectKeyFile: (): Promise<string | null> => ipcRenderer.invoke(IPC.CONNECTION_SELECT_KEY_FILE),
 	},
 	filesystem: {
 		list: (path: string): Promise<FileEntry[]> => ipcRenderer.invoke(IPC.FILE_LIST, path),

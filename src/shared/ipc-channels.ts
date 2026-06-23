@@ -71,6 +71,7 @@ export const IPC = {
 	REMOTE_FILE_OPEN: "remote:file:open",
 	CONNECTION_IMPORT_SSH_CONFIG: "connection:importSshConfig",
 	CONNECTION_EXPORT_SSH_CONFIG: "connection:exportSshConfig",
+	CONNECTION_SELECT_KEY_FILE: "connection:selectKeyFile",
 	APP_OPEN_CONNECTION: "app:openConnection",
 	APP_GET_PENDING_CONNECTION: "app:getPendingConnection",
 	WINDOW_MINIMIZE: "window:minimize",

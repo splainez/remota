@@ -105,6 +105,23 @@ export function registerConnectionHandlers(store: AppStore) {
 		return { imported, errors };
 	});
 
+	ipcMain.handle(IPC.CONNECTION_SELECT_KEY_FILE, async () => {
+		const defaultSshDir = join(homedir(), ".ssh");
+		const result = await dialog.showOpenDialog({
+			title: "Select Private Key File",
+			defaultPath: defaultSshDir,
+			properties: ["openFile"],
+			filters: [
+				{ name: "SSH Keys", extensions: ["pem", "key"] },
+				{ name: "All Files", extensions: ["*"] },
+			],
+		});
+		if (result.canceled || result.filePaths.length === 0) {
+			return null;
+		}
+		return result.filePaths[0];
+	});
+
 	ipcMain.handle(IPC.CONNECTION_EXPORT_SSH_CONFIG, async () => {
 		const connections = store.list();
 		const configText = connectionsToSshConfig(connections);
