@@ -47,6 +47,7 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 	const showTerminal = entry.isDirectory && (panelType === "local" || protocol !== "s3");
 	const showRename = panelType === "local" || protocol !== "s3";
 	const showEdit = panelType === "remote" && !entry.isDirectory;
+	const showPermissions = panelType === "remote" && protocol !== "s3";
 
 	const menuItems: MenuItem[] = [
 		{
@@ -98,6 +99,13 @@ export function FileContextMenu({ x, y, entry, panelType, protocol, onClose, onA
 			icon: "terminal",
 			label: t("file.contextMenu.openInTerminal"),
 			visible: showTerminal,
+		},
+		{
+			id: "permissions",
+			icon: "shield",
+			label: t("file.contextMenu.permissions"),
+			visible: showPermissions,
+			separator: true,
 		},
 	];
 

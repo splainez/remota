@@ -1,9 +1,11 @@
+import { FilePermissionsDialog } from "@renderer/components/Dialogs/FilePermissionsDialog";
 import { Terminal } from "@renderer/components/Terminal/Terminal";
 import { useContextMenu } from "@renderer/hooks/useContextMenu";
 import { useCreateItem } from "@renderer/hooks/useCreateItem";
 import { useDelete } from "@renderer/hooks/useDelete";
 import { useDownload } from "@renderer/hooks/useDownload";
 import { useFileList } from "@renderer/hooks/useFileList";
+import { useFilePermissions } from "@renderer/hooks/useFilePermissions";
 import { useFileSelection } from "@renderer/hooks/useFileSelection";
 import { useFileWatcher } from "@renderer/hooks/useFileWatcher";
 import { useI18n } from "@renderer/hooks/useI18n";
@@ -161,6 +163,11 @@ export function FilePane({
 		connectionId,
 		currentPath,
 		entries,
+		refresh,
+	});
+
+	const filePermissions = useFilePermissions({
+		connectionId,
 		refresh,
 	});
 
@@ -383,6 +390,8 @@ export function FilePane({
 				deleteOp.startDelete(targets).catch((error: unknown) => {
 					logger.error("delete failed", { error });
 				});
+			} else if (actionId === "permissions") {
+				filePermissions.openDialog(entry);
 			}
 		},
 		[
@@ -390,6 +399,7 @@ export function FilePane({
 			deleteOp,
 			download,
 			upload,
+			filePermissions,
 			filteredEntries,
 			handleEnterDirectory,
 			handleOpenFile,
@@ -549,6 +559,15 @@ export function FilePane({
 			{download.dialog}
 			{upload.dialog}
 			{deleteOp.dialog}
+			<FilePermissionsDialog
+				open={filePermissions.open}
+				entry={filePermissions.entry}
+				users={filePermissions.users}
+				groups={filePermissions.groups}
+				loading={filePermissions.loading}
+				onClose={filePermissions.closeDialog}
+				onApply={filePermissions.applyPermissions}
+			/>
 		</div>
 	);
 }
