@@ -22,6 +22,7 @@
 	"connection.authKey": "Clave Privada",
 	"connection.authAgent": "Agente SSH",
 	"connection.privateKey": "Ruta de Clave",
+	"connection.browse": "Examinar",
 	"connection.accessKey": "Clave de Acceso",
 	"connection.secretKey": "Clave Secreta",
 	"connection.region": "Región",

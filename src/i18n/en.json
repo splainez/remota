@@ -22,6 +22,7 @@
 	"connection.authKey": "Private Key",
 	"connection.authAgent": "SSH Agent",
 	"connection.privateKey": "Key File Path",
+	"connection.browse": "Browse",
 	"connection.accessKey": "Access Key",
 	"connection.secretKey": "Secret Key",
 	"connection.region": "Region",
