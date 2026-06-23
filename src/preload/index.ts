@@ -65,6 +65,14 @@ const api: ElectronAPI = {
 			ipcRenderer.invoke(IPC.REMOTE_MKDIR, connectionId, parentPath, name),
 		remoteCreateFile: (connectionId: number, parentPath: string, name: string): Promise<void> =>
 			ipcRenderer.invoke(IPC.REMOTE_CREATE_FILE, connectionId, parentPath, name),
+		remoteChmod: (connectionId: number, path: string, mode: string): Promise<void> =>
+			ipcRenderer.invoke(IPC.REMOTE_CHMOD, connectionId, path, mode),
+		remoteChown: (connectionId: number, path: string, uid: number, gid: number): Promise<void> =>
+			ipcRenderer.invoke(IPC.REMOTE_CHOWN, connectionId, path, uid, gid),
+		remoteListUsers: (connectionId: number): Promise<{ name: string; uid: number }[]> =>
+			ipcRenderer.invoke(IPC.REMOTE_LIST_USERS, connectionId),
+		remoteListGroups: (connectionId: number): Promise<{ name: string; gid: number }[]> =>
+			ipcRenderer.invoke(IPC.REMOTE_LIST_GROUPS, connectionId),
 		tempGetPath: (connectionId: number): Promise<string | undefined> =>
 			ipcRenderer.invoke(IPC.FILE_TEMP_GET_PATH, connectionId),
 		tempWrite: (connectionId: number, remotePath: string, content: number[]): Promise<void> =>

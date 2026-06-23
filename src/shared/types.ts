@@ -101,6 +101,10 @@ export interface ElectronAPI {
 		remoteDelete: (connectionId: number, path: string) => Promise<void>;
 		remoteMkdir: (connectionId: number, parentPath: string, name: string) => Promise<void>;
 		remoteCreateFile: (connectionId: number, parentPath: string, name: string) => Promise<void>;
+		remoteChmod: (connectionId: number, path: string, mode: string) => Promise<void>;
+		remoteChown: (connectionId: number, path: string, uid: number, gid: number) => Promise<void>;
+		remoteListUsers: (connectionId: number) => Promise<{ name: string; uid: number }[]>;
+		remoteListGroups: (connectionId: number) => Promise<{ name: string; gid: number }[]>;
 		startWatch: (watcherId: string, dirPath: string) => Promise<void>;
 		stopWatch: (watcherId: string) => Promise<void>;
 		onFileChanged: (callback: (watcherId: string) => void) => () => void;

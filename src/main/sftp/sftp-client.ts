@@ -235,6 +235,56 @@ export class SftpConnectionManager {
 		}
 	}
 
+	async execRemote(connectionId: number, command: string): Promise<string> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+		return this.execCommand(session, command);
+	}
+
+	async listUsers(connectionId: number): Promise<{ name: string; uid: number }[]> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+		try {
+			const output = await this.execCommand(session, "getent passwd | cut -d: -f1,3");
+			return output
+				.split("\n")
+				.filter(Boolean)
+				.map((line) => {
+					const [name, uidStr] = line.split(":");
+					const uid = Number(uidStr);
+					return name && Number.isInteger(uid) ? { name, uid } : null;
+				})
+				.filter((entry): entry is { name: string; uid: number } => entry != null);
+		} catch {
+			return [];
+		}
+	}
+
+	async listGroups(connectionId: number): Promise<{ name: string; gid: number }[]> {
+		const session = this.sessions.get(connectionId);
+		if (!session) {
+			throw new Error("Not connected to remote server");
+		}
+		try {
+			const output = await this.execCommand(session, "getent group | cut -d: -f1,3");
+			return output
+				.split("\n")
+				.filter(Boolean)
+				.map((line) => {
+					const [name, gidStr] = line.split(":");
+					const gid = Number(gidStr);
+					return name && Number.isInteger(gid) ? { name, gid } : null;
+				})
+				.filter((entry): entry is { name: string; gid: number } => entry != null);
+		} catch {
+			return [];
+		}
+	}
+
 	private execCommand(session: SftpSession, command: string): Promise<string> {
 		return new Promise<string>((resolve, reject) => {
 			session.client.exec(command, (err, stream) => {
