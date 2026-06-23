@@ -2,8 +2,8 @@ import { readFileSync, mkdirSync, createWriteStream, createReadStream } from "no
 import { dirname } from "node:path";
 
 import { tempManager } from "@main/temp/temp-manager";
-import type { FileEntry, RemoteStat } from "@shared/types";
 import { LoggerFactory } from "@shared/lib/logger";
+import type { FileEntry, RemoteStat } from "@shared/types";
 import { Client, type SFTPWrapper, type ConnectConfig, type ClientChannel, type InputAttributes } from "ssh2";
 
 interface SftpSession {
