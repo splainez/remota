@@ -11,6 +11,8 @@ import {
 	s3ConnectionSchema,
 	connectionFormSchema,
 	DEFAULT_PORT,
+	remoteChmodParamsSchema,
+	remoteChownParamsSchema,
 } from "./validation";
 
 describe("hostSchema", () => {
@@ -520,5 +522,113 @@ describe("DEFAULT_PORT", () => {
 
 	it("has 443 for s3", () => {
 		expect(DEFAULT_PORT.s3).toBe(443);
+	});
+});
+
+describe("remoteChmodParamsSchema", () => {
+	it("accepts valid 3-digit octal mode", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			mode: "644",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts valid 4-digit octal mode", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: 0,
+			remotePath: "/tmp/test",
+			mode: "0755",
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects non-octal mode", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			mode: "999",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects mode with letters", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			mode: "rwxd",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects empty remotePath", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "",
+			mode: "644",
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative connectionId", () => {
+		const result = remoteChmodParamsSchema.safeParse({
+			connectionId: -1,
+			remotePath: "/home/user/file.txt",
+			mode: "644",
+		});
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("remoteChownParamsSchema", () => {
+	it("accepts valid params", () => {
+		const result = remoteChownParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			uid: 1000,
+			gid: 1000,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("accepts root uid/gid", () => {
+		const result = remoteChownParamsSchema.safeParse({
+			connectionId: 0,
+			remotePath: "/etc/passwd",
+			uid: 0,
+			gid: 0,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects negative uid", () => {
+		const result = remoteChownParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			uid: -1,
+			gid: 1000,
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative gid", () => {
+		const result = remoteChownParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "/home/user/file.txt",
+			uid: 1000,
+			gid: -1,
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects empty remotePath", () => {
+		const result = remoteChownParamsSchema.safeParse({
+			connectionId: 1,
+			remotePath: "",
+			uid: 1000,
+			gid: 1000,
+		});
+		expect(result.success).toBe(false);
 	});
 });
