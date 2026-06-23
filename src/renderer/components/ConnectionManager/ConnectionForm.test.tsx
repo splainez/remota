@@ -538,4 +538,56 @@ describe("ConnectionForm", () => {
 
 		expect(screen.getByLabelText("Group")).toBeInTheDocument();
 	});
+
+	it("auto-fills private key path with default on new connection", async () => {
+		vi.mocked(window.api.filesystem.homeDir).mockResolvedValueOnce("/home/user");
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
+
+		await vi.waitFor(() => {
+			const keyInput = screen.getByLabelText<HTMLInputElement>("Key File Path");
+			expect(keyInput.value).toBe("/home/user/.ssh/id_rsa");
+		});
+	});
+
+	it("Browse button opens file selector and fills key path", async () => {
+		const user = userEvent.setup();
+		vi.mocked(window.api.connections.selectKeyFile).mockResolvedValueOnce("/home/user/.ssh/custom_key");
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={null} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
+
+		const browseButton = screen.getByRole("button", { name: /Browse/i });
+		await user.click(browseButton);
+
+		expect(window.api.connections.selectKeyFile).toHaveBeenCalledOnce();
+		const keyInput = screen.getByLabelText<HTMLInputElement>("Key File Path");
+		expect(keyInput.value).toBe("/home/user/.ssh/custom_key");
+	});
+
+	it("Browse button does not change field when cancelled", async () => {
+		const user = userEvent.setup();
+		vi.mocked(window.api.connections.selectKeyFile).mockResolvedValueOnce(null);
+		const connWithKey: Connection = {
+			...sampleConnection,
+			authType: "key",
+			privateKeyPath: "/home/user/.ssh/id_rsa",
+		};
+		render(
+			<I18nWrapper>
+				<ConnectionForm initial={connWithKey} onSave={vi.fn()} onCancel={vi.fn()} />
+			</I18nWrapper>,
+		);
+
+		const keyInput = screen.getByLabelText<HTMLInputElement>("Key File Path");
+		const browseButton = screen.getByRole("button", { name: /Browse/i });
+		await user.click(browseButton);
+
+		expect(keyInput.value).toBe("/home/user/.ssh/id_rsa");
+	});
 });
